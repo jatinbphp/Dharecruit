@@ -21,7 +21,9 @@ class LoginController extends Controller
     |
      */
 
-    use AuthenticatesUsers;
+    use AuthenticatesUsers {
+        logout as performLogout;
+    }
 
 
     protected function attemptLogin(Request $request)
@@ -39,6 +41,13 @@ class LoginController extends Controller
     {
         return redirect()->route('admin.index'); // Change to your default user route
     }
+
+    public function logout(Request $request)
+    {
+        $this->performLogout($request);
+        return redirect()->route('admin.index');
+    }
+
 
 
     /**
