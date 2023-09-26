@@ -1,0 +1,176 @@
+.ui-widget.ui-widget-content {
+    border-color: transparent;
+    border-radius: 10px;
+    /*padding: 10px;*/
+    padding: 0px;
+    max-width: 430px;
+    height: 260px;
+    overflow: hidden auto;
+    border-color: #D4BFF9 !important;
+    float: left;
+    margin: 8px 0 0;
+    box-shadow: 0px 6px 20px 5px rgba(0, 0, 0, 0.01), 0px 12px 6px 0px rgba(0, 0, 0, 0.01), 0px 4px 6px 0px rgba(0, 0, 0, 0.01);
+}
+ul.autoOwnCss {
+    top: 280px !important;
+}
+ul.autoOwnCssNew {
+    top: 70px !important;
+}
+.ui-widget.ui-widget-content::-webkit-scrollbar {
+    width: 5px;
+}
+.ui-menu .ui-menu-item {
+    transition: all .4s ease-in-out;
+}
+.ui-menu .ui-menu-item-wrapper {
+    width: 100%;
+    display: block;
+    border-radius: 6px;
+    color: #000;
+    transition: all .4s ease-in-out;
+}
+.ui-state-highlight, .ui-widget-content .ui-state-highlight, .ui-widget-header .ui-state-highlight {
+    transition: all .4s ease-in-out;
+    border: 1px solid #007bff !important;
+    background: rgb(91 5 238 / 10%) !important;
+    color: #007bff !important;
+    margin-left: 6px;
+    border-radius: 5px;
+    line-height: normal;
+    padding: 0 6px;
+    border: 0px !important;
+    background-color: transparent !important;
+    padding: 0;
+    line-height: 1.5;
+}
+.ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active, a.ui-button:active, .ui-button:active, .ui-button.ui-state-active:hover {
+    border: 1px solid #007bff !important;
+    background: #007bff !important;
+    font-weight: normal !important;
+    color: #ffffff !important;
+}
+.ui-state-active .ui-state-highlight, .ui-widget-content .ui-state-active.ui-state-highlight, .ui-widget-header .ui-state-active .ui-state-highlight, a.ui-button:active .ui-state-highlight, .ui-button:active .ui-state-highlight, .ui-button.ui-state-active:hover .ui-state-highlight {
+    color: #fff !important;
+    border-color: #fff !important;
+    background: transparent !important;
+}
+.ui-widget.ui-widget-content .ui-menu-item {
+    margin: 0 0 3px;
+    padding: 1px 10px;
+}
+.ui-widget.ui-widget-content .ui-menu-item:last-child {
+    margin: 0;
+}
+.ui-widget.ui-widget-content li:first-child {
+    cursor: default;
+    border-bottom: 1px solid #D4BFF9;
+    padding: 10px 10px;
+}
+.ui-widget.ui-widget-content li:first-child a {
+    border-color: transparent !important;
+    background-color: transparent !important;
+    color: #000;
+    font-size: 24px;
+    pointer-events: none;
+    cursor: default;
+}
+.ui-widget.ui-widget-content .ui-menu-item:first-child .ui-state-active, .ui-widget.ui-widget-content .ui-menu-item:first-child .ui-state-active:is(:hover, :focus, :active) {
+    color: grey !important;
+    background-color: transparent !important;
+    border-color: transparent !important;
+}
+.ui-state-active .ui-state-highlight, .ui-widget-content .ui-state-active.ui-state-highlight, .ui-widget-header .ui-state-active .ui-state-highlight, a.ui-button:active .ui-state-highlight, .ui-button:active .ui-state-highlight, .ui-button.ui-state-active:hover .ui-state-highlight li:first-child {
+    color: unset !important;
+    border-color: unset !important;
+    background: unset !important;
+}
+.ui-menu .ui-menu-item-wrapper {
+    display: -webkit-box;
+    line-clamp: 1;
+    -webkit-line-clamp: 1;
+    -moz-line-clamp: 1;
+    -ms-line-clamp: 1;
+    -o-line-clamp: 1;
+    box-orient: vertical;
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+    -ms-box-orient: vertical;
+    -o-box-orient: vertical;
+    overflow: hidden;
+}
+.ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active, a.ui-button:active, .ui-button:active, .ui-button.ui-state-active:hover {
+    display: block;
+    overflow: visible;
+}
+.ui-widget.ui-widget-content.autoOwnCSSAgent li:first-child {
+    padding: 1px 10px;
+    border: 0;
+}
+.ui-widget.ui-widget-content.autoOwnCSSAgent li:first-child a {
+    font-size: inherit;
+    color: #000;
+}
+.ui-widget.ui-widget-content.autoOwnCSSAgent li:first-child {
+    cursor: pointer;
+    margin-top: 5px;
+}
+/*.ui-widget.ui-widget-content.autoOwnCSSAgent .ui-menu-item:first-child .ui-state-active, .ui-widget.ui-widget-content.autoOwnCSSAgent .ui-menu-item:first-child .ui-state-active:is(:hover, :focus, :active) {
+    border: 1px solid #007bff !important;
+    background: #007bff !important;
+    font-weight: normal !important;
+    color: #ffffff !important;
+}*/
+
+.ui-widget.ui-widget-content.autoOwnCSSAgent .ui-state-highlight, .ui-widget.ui-widget-content.autoOwnCSSAgent .ui-widget-header .ui-state-highlight {
+    margin-left: 0 !important;
+}
+.custom-menu-primary-endpoint ul li a {
+    white-space: normal;
+}
+.form-input .custom-menu-parent .mobile-trigger {
+    width: 100%;
+    border: 1px solid var(--theme-border2);
+    border-radius: 3px;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.1px;
+    color: var(--theme-txt-dark);
+    padding: 6px 16px;
+}
+.form-input .custom-menu-parent .mobile-trigger input {
+    border: 0;
+    padding: 0;
+}
+.form-input .custom-menu-parent-endpoint .mobile-trigger-endpoint {
+    width: 100%;
+    border: 1px solid var(--theme-border2);
+    border-radius: 3px;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.1px;
+    color: var(--theme-txt-dark);
+    padding: 6px 16px;
+}
+.form-input .custom-menu-parent-endpoint .mobile-trigger-endpoint input {
+    border: 0;
+    padding: 0;
+}
+.ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active, a.ui-button:active, .ui-button:active, .ui-button.ui-state-active:hover {
+    border: 1px solid #007bff !important;
+    background: #007bff !important;
+    font-weight: normal !important;
+    color: #ffffff !important;
+}
+.ui-widget.ui-widget-content .ui-menu-item .ui-state-active, .ui-widget.ui-widget-content .ui-menu-item .ui-state-active:is(:hover, :focus, :active) {
+    color: grey!important;
+    background-color: transparent!important;
+    border-color: transparent!important;
+    border: 0 !important;
+    cursor: pointer;
+}
+.ui-widget.ui-widget-content.autoOwnCSSAgent {
+    z-index: 9999;
+    background-color: #ffffff;
+    min-width: 420px;
+}
