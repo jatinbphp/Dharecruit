@@ -31,7 +31,7 @@ class LoginController extends Controller
         return Auth::attempt([
             'email' => $request->email,
             'password' => $request->password,
-            'role' => 'admin' // Change 'admin' to the desired role
+            'status' => '1' // Change 'admin' to the desired role
         ], $request->filled('remember'));
 
     }
