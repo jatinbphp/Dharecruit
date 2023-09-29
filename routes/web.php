@@ -35,11 +35,6 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::any('create-requirement', 'BDMController@create_requirement')->name('admin.create-requirement');
     Route::any('store-requirements', 'BDMController@store_requirements')->name('admin.store-requirements');
 
-    //BDM PV
-    Route::any('pv', 'BDMController@pv')->name('admin.pv');
-    Route::any('create-pv', 'BDMController@create_pv')->name('admin.create-pv');
-    Route::any('store-pv', 'BDMController@store_pv')->name('admin.store-pv');
-
     /*CATEGORY ROUTE*/
     Route::resource('category', CategoryController::class);
 

@@ -53,6 +53,11 @@ class BDMController extends Controller
             'MOI' => "required",
             'job_keyword' => "required",
             'job_description' => "required",
+            'company_name' => "required",
+            'poc_name' => "required",
+            'poc_email' => "required|email",
+            'poc_phone' => "required",
+            'client_name' => "required",
         ];
         $message = [
             'job_title' => "The Job Title must be required",
@@ -71,6 +76,11 @@ class BDMController extends Controller
             'MOI' => "The MOI must be required",
             'job_keyword' => "The Job Keyword must be required",
             'job_description' => "The Job Description must be required",
+            'company_name' => "The Job Title must be required",
+            'poc_name' => "The No Position must be required",
+            'poc_email' => "The Experience must be required",
+            'poc_phone' => "The Locations must be required",
+            'client_name' => "The Visa must be required",
         ];
         $validator = Validator::make($data, $rules, $message);
         if ($validator->fails()) {
@@ -98,56 +108,6 @@ class BDMController extends Controller
             'job_keyword'               => $request->job_keyword,
             'special_notes'             => $request->special_notes,
             'job_description'           => $request->job_description,
-            'bdm_id'                    => auth()->user()->id,
-            "created_at"                 => date("Y-m-d H:i:s"),
-            "updated_at"                 => date("Y-m-d H:i:s"),
-        ]);
-        return redirect()->back()->with('success', 'Requirement Create Successfully.');
-    }
-
-
-    /**
-     * Show the application dashboard.
-     *
-     * @return \Illuminate\Contracts\Support\Renderable
-     */
-    public function pv()
-    {        
-        return view('pv');
-    }
-
-    public function create_pv()
-    {
-        return view('create_pv');
-    }
-
-    public function store_pv(Request $request)
-    {
-        $data  = $request->all();
-        $rules = [
-            'company_name' => "required",
-            'poc_name' => "required",
-            'poc_email' => "required|email",
-            'poc_phone' => "required",
-            'client_name' => "required",
-        ];
-        $message = [
-            'company_name' => "The Job Title must be required",
-            'poc_name' => "The No Position must be required",
-            'poc_email' => "The Experience must be required",
-            'poc_phone' => "The Locations must be required",
-            'client_name' => "The Visa must be required",
-        ];
-        $validator = Validator::make($data, $rules, $message);
-        if ($validator->fails()) {
-            return back()->withInput()
-                ->withErrors($validator)
-                ->with('message_type', 'danger')
-                ->with('message', 'There were some error try again');
-        }
-
-
-        $requirementId = PV::insertGetId([
             'company_name'                  => $request->company_name,
             'poc_name'                      => $request->poc_name,
             'poc_email'                     => $request->poc_email,
@@ -156,10 +116,10 @@ class BDMController extends Controller
             'pv_company_location'           => $request->pv_company_location,
             'client_name'                   => $request->client_name,
             'check_display_client'          => isset($request->check_display_client) ? 1 : 0,
-            'bdm_id'                        => auth()->user()->id,
-            "created_at"                    => date("Y-m-d H:i:s"),
-            "updated_at"                    => date("Y-m-d H:i:s"),
+            'bdm_id'                    => auth()->user()->id,
+            "created_at"                 => date("Y-m-d H:i:s"),
+            "updated_at"                 => date("Y-m-d H:i:s"),
         ]);
-        return redirect()->back()->with('success', 'PV Data Successfully.');
+        return redirect()->back()->with('success', 'Requirement Create Successfully.');
     }
 }
