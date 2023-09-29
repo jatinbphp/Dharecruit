@@ -18,7 +18,7 @@ class CategoryController extends Controller
 
 
          if ($request->ajax()) {
-             $data = Category::select();
+            $data = Category::get();
             return Datatables::of($data)
                     ->addIndexColumn()
                     

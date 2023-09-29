@@ -75,8 +75,7 @@
                             _token: '{{csrf_token()}}'
                         },
                         success: function (data) {
-                            //$("#" + $(this).attr("data-id")).remove();
-                            location.reload();
+                            $('#mois_datatable').DataTable().ajax.reload();
                             Swal.fire('Deleted!', 'moi has been deleted.', 'success')
                         }
                     });

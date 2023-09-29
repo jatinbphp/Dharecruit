@@ -34,6 +34,11 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::any('my-requirement', 'BDMController@index')->name('admin.my-requirement');
     Route::any('create-requirement', 'BDMController@create_requirement')->name('admin.create-requirement');
     Route::any('store-requirements', 'BDMController@store_requirements')->name('admin.store-requirements');
+    Route::get('destroy-requirements/{id}', 'BDMController@destroy_requirements')->name('admin.destroy-requirements');
+    Route::get('edit-requirements/{id}', 'BDMController@edit_requirements')->name('admin.edit-requirements');
+    Route::post('update-requirements/{id}', 'BDMController@update_requirements')->name('admin.update-requirements');
+
+
 
     /*CATEGORY ROUTE*/
     Route::resource('category', CategoryController::class);

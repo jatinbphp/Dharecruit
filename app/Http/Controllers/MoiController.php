@@ -16,7 +16,7 @@ class MoiController extends Controller{
 
 
          if ($request->ajax()) {
-             $data = Moi::select();
+             $data = Moi::get();
             return Datatables::of($data)
                     ->addIndexColumn()
                     

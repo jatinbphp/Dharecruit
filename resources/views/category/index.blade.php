@@ -75,8 +75,7 @@
                             _token: '{{csrf_token()}}'
                         },
                         success: function (data) {
-                            //$("#" + $(this).attr("data-id")).remove();
-                            location.reload();
+                            $('#categories_datatable').DataTable().ajax.reload();
                             Swal.fire('Deleted!', 'category has been deleted.', 'success')
                         }
                     });
