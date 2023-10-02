@@ -21,6 +21,7 @@ class CreateAdminsTable extends Migration
             $table->string('password');
             $table->string('role');
             $table->string('phone')->nullable();
+            $table->string('indian_phone')->nullable();
             $table->string('status')->default('active');
             $table->rememberToken();
             $table->softDeletes();

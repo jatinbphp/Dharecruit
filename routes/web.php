@@ -7,16 +7,12 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ImageController;
 use App\Http\Controllers\Admin\ProfileUpdateController;
-use App\Http\Controllers\Admin\CustomerController;
-use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\ProductController;
-use App\Http\Controllers\Admin\SettingController;
-use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\BDMUserController;
+use App\Http\Controllers\Admin\RecruiterUserController;
+use App\Http\Controllers\Admin\TlBdmUserController;
+use App\Http\Controllers\Admin\TlRecruiterUserController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\FacebookController;
-use App\Http\Controllers\PayPalController;
-use App\Http\Controllers\Admin\PickupPointsController;
-use App\Http\Controllers\Admin\DeliveryChargesController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -44,44 +40,30 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
 
     Route::resource('profile_update', ProfileUpdateController::class);
 
-    /* CUSTOMER MANAGEMENT */
-    Route::post('customers/assign', [CustomerController::class,'assign'])->name('customers.assign');
-    Route::post('customers/unassign', [CustomerController::class,'unassign'])->name('customers.unassign');
-    Route::resource('customers', CustomerController::class);
+    /* USER MANAGEMENT */
+    Route::post('user/assign', [UserController::class,'assign'])->name('user.assign');
+    Route::post('user/unassign', [UserController::class,'unassign'])->name('user.unassign');
+    Route::resource('user', UserController::class);
 
-    /* CATEGORY MANAGEMENT */
-    Route::post('category/assign', [CategoryController::class,'assign'])->name('category.assign');
-    Route::post('category/unassign', [CategoryController::class,'unassign'])->name('category.unassign');
-    Route::resource('category', CategoryController::class);
+    /* BDM USER MANAGEMENT */
+    Route::post('bdm_user/assign', [BDMUserController::class,'assign'])->name('bdm_user.assign');
+    Route::post('bdm_user/unassign', [BDMUserController::class,'unassign'])->name('bdm_user.unassign');
+    Route::resource('bdm_user', BDMUserController::class);
 
-    /* PRODUCT MANAGEMENT */
-    Route::post('products/assign', [ProductController::class,'assign'])->name('products.assign');
-    Route::post('products/unassign', [ProductController::class,'unassign'])->name('products.unassign');
-    Route::resource('products', ProductController::class);
-    Route::delete('deleteProductImg', [ProductController::class,'deleteProductImg'])->name('products.deleteProductImg');
+    /* RECRUITER USER MANAGEMENT */
+    Route::post('recruiter_user/assign', [RecruiterUserController::class,'assign'])->name('recruiter_user.assign');
+    Route::post('recruiter_user/unassign', [RecruiterUserController::class,'unassign'])->name('recruiter_user.unassign');
+    Route::resource('recruiter_user', RecruiterUserController::class);
 
-    /* ORDER MANAGEMENT */
-    Route::get('orders/print/{id}', [OrderController::class,'invoicePrint'])->name('orders.print');
-    Route::get('orders/export', [OrderController::class,'exportOrder'])->name('orders.export');
-    Route::post('orders/status', [OrderController::class,'statusUpdate'])->name('orders.status');
-    Route::post('orders/assign', [OrderController::class,'assign'])->name('orders.assign');
-    Route::post('orders/unassign', [OrderController::class,'unassign'])->name('orders.unassign');
-    Route::resource('orders', OrderController::class);
-    Route::post('get_product_price',[OrderController::class,'getProductPrice'])->name('orders.getProductPrice');
+    /* TL RECRUITER USER MANAGEMENT */
+    Route::post('tl_recruiter_user/assign', [TlRecruiterUserController::class,'assign'])->name('tl_recruiter_user.assign');
+    Route::post('tl_recruiter_user/unassign', [TlRecruiterUserController::class,'unassign'])->name('tl_recruiter_user.unassign');
+    Route::resource('tl_recruiter_user', TlRecruiterUserController::class);
 
-    /* SETTING MANAGEMENT */
-    Route::post('delete_settings_image', [SettingController::class,'deleteSettingsImage']);
-    Route::resource('settings', SettingController::class);
-
-    /* PICKUP POINT MANAGEMENT */
-    Route::post('pickuppoints/assign', [PickupPointsController::class,'assign'])->name('pickuppoints.assign');
-    Route::post('pickuppoints/unassign', [PickupPointsController::class,'unassign'])->name('pickuppoints.unassign');
-    Route::resource('pickuppoints', PickupPointsController::class);
-
-    /* PICKUP POINT MANAGEMENT */
-    Route::post('deliverycharges/assign', [DeliveryChargesController::class,'assign'])->name('deliverycharges.assign');
-    Route::post('deliverycharges/unassign', [DeliveryChargesController::class,'unassign'])->name('deliverycharges.unassign');
-    Route::resource('deliverycharges', DeliveryChargesController::class);
+    /* TL BDM USER MANAGEMENT */
+    Route::post('tl_bdm_user/assign', [TlBdmUserController::class,'assign'])->name('tl_bdm_user.assign');
+    Route::post('tl_bdm_user/unassign', [TlBdmUserController::class,'unassign'])->name('tl_bdm_user.unassign');
+    Route::resource('tl_bdm_user', TlBdmUserController::class);
 
     Auth::routes();
 });

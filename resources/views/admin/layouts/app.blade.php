@@ -93,7 +93,7 @@
         }
     </style>
 </head>
-<body class="hold-transition sidebar-mini " id="bodyid">
+<body class="hold-transition sidebar-mini sidebar-collapse" id="bodyid">
 <div class="wrapper">
     <nav class="main-header navbar navbar-expand bg-white navbar-light border-bottom">
         <ul class="navbar-nav">
@@ -145,9 +145,37 @@
                     </li>
 
                     <li class="nav-item">
-                        <a href="{{ route('customers.index') }}" class="nav-link @if($menu=='Customers') active @endif">
+                        <a href="{{ route('user.index') }}" class="nav-link @if($menu=='Admin User') active @endif">
                             <i class="nav-icon fa fa-users"></i>
-                            <p>Manage Customers</p>
+                            <p>Manage Admin</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{{ route('bdm_user.index') }}" class="nav-link @if($menu=='BDM User') active @endif">
+                            <i class="nav-icon fa fa-users"></i>
+                            <p>Manage BDM</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{{ route('recruiter_user.index') }}" class="nav-link @if($menu=='Recruiter User') active @endif">
+                            <i class="nav-icon fa fa-users"></i>
+                            <p>Manage Recruiter</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{{ route('tl_recruiter_user.index') }}" class="nav-link @if($menu=='TL Recruiter User') active @endif">
+                            <i class="nav-icon fa fa-users"></i>
+                            <p>Manage TL Recruiter</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{{ route('tl_bdm_user.index') }}" class="nav-link @if($menu=='TL BDM User') active @endif">
+                            <i class="nav-icon fa fa-users"></i>
+                            <p>Manage TL BDM</p>
                         </a>
                     </li>
                 </ul>
