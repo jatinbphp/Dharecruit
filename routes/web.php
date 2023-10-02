@@ -2,6 +2,21 @@
 
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ImageController;
+use App\Http\Controllers\Admin\ProfileUpdateController;
+use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\FacebookController;
+use App\Http\Controllers\PayPalController;
+use App\Http\Controllers\Admin\PickupPointsController;
+use App\Http\Controllers\Admin\DeliveryChargesController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -11,38 +26,67 @@ use Illuminate\Support\Facades\Route;
 | routes are loaded by the RouteServiceProvider within a group which
 | contains the "web" middleware group. Now create something great!
 |
- */
+*/
+Route::prefix('admin')->middleware('auth:admin')->group(function () {
+//Route::group(['prefix' => 'admin',  'admin/home'], function () {
+    /*Route::get('logout', [LoginController::class,'logout']);
+    Route::auth();
+    Route::get('/', [DashboardController::class,'index'])->name('dashboard');*/
 
-Route::get('/', 'HomeController@index')->name('home');
-Auth::routes();
+    Route::get('/dashboard', [DashboardController::class,'index'])->name('dashboard');
 
-Route::prefix('admin')->middleware(['auth'])->group(function () {
-    Route::get('/', 'AdminController@index')->name('admin.index');
-    Route::get('change-password', 'AdminController@change_password')->name('admin.change-password');
-    Route::post('update-password', 'AdminController@update_password')->name('admin.update-password');
-    Route::get('create-user', 'AdminController@create_user')->name('admin.create-user');
-    Route::post('store-user', 'AdminController@store_user')->name('admin.store-user');
-    Route::any('edit-user/{id}', 'AdminController@edit_user')->name('admin.edit-user');
-    Route::post('update-user', 'AdminController@update_user')->name('admin.update-user');
-    Route::any('users', 'AdminController@users')->name('admin.users');
-    Route::any('get_users', 'AdminController@get_users')->name('admin.get_users');
-    Route::any('statusUser', 'AdminController@statusUser')->name('admin.statusUser');
-    Route::any('destroyUser', 'AdminController@destroyUser')->name('admin.destroyUser');
+    Route::get('/contactUs', [DashboardController::class,'contactUs'])->name('contactUs');
+    Route::get('/contactUs/msg', [DashboardController::class,'contactUsMsg'])->name('contactUsMsg');
+    Route::delete('/contactUs/{id}', [DashboardController::class,'contactUs_destroy'])->name('contactUsDelete');
 
+    /*IMAGE UPLOAD IN SUMMER NOTE*/
+    Route::post('image/upload', [ImageController::class,'upload_image']);
 
-    //BDM
-    Route::any('my-requirement', 'BDMController@index')->name('admin.my-requirement');
-    Route::any('create-requirement', 'BDMController@create_requirement')->name('admin.create-requirement');
-    Route::any('store-requirements', 'BDMController@store_requirements')->name('admin.store-requirements');
-    Route::get('destroy-requirements/{id}', 'BDMController@destroy_requirements')->name('admin.destroy-requirements');
-    Route::get('edit-requirements/{id}', 'BDMController@edit_requirements')->name('admin.edit-requirements');
-    Route::post('update-requirements/{id}', 'BDMController@update_requirements')->name('admin.update-requirements');
+    Route::resource('profile_update', ProfileUpdateController::class);
 
+    /* CUSTOMER MANAGEMENT */
+    Route::post('customers/assign', [CustomerController::class,'assign'])->name('customers.assign');
+    Route::post('customers/unassign', [CustomerController::class,'unassign'])->name('customers.unassign');
+    Route::resource('customers', CustomerController::class);
 
-
-    /*CATEGORY ROUTE*/
+    /* CATEGORY MANAGEMENT */
+    Route::post('category/assign', [CategoryController::class,'assign'])->name('category.assign');
+    Route::post('category/unassign', [CategoryController::class,'unassign'])->name('category.unassign');
     Route::resource('category', CategoryController::class);
 
-    /*MOI ROUTE*/
-    Route::resource('moi', MoiController::class);
+    /* PRODUCT MANAGEMENT */
+    Route::post('products/assign', [ProductController::class,'assign'])->name('products.assign');
+    Route::post('products/unassign', [ProductController::class,'unassign'])->name('products.unassign');
+    Route::resource('products', ProductController::class);
+    Route::delete('deleteProductImg', [ProductController::class,'deleteProductImg'])->name('products.deleteProductImg');
+
+    /* ORDER MANAGEMENT */
+    Route::get('orders/print/{id}', [OrderController::class,'invoicePrint'])->name('orders.print');
+    Route::get('orders/export', [OrderController::class,'exportOrder'])->name('orders.export');
+    Route::post('orders/status', [OrderController::class,'statusUpdate'])->name('orders.status');
+    Route::post('orders/assign', [OrderController::class,'assign'])->name('orders.assign');
+    Route::post('orders/unassign', [OrderController::class,'unassign'])->name('orders.unassign');
+    Route::resource('orders', OrderController::class);
+    Route::post('get_product_price',[OrderController::class,'getProductPrice'])->name('orders.getProductPrice');
+
+    /* SETTING MANAGEMENT */
+    Route::post('delete_settings_image', [SettingController::class,'deleteSettingsImage']);
+    Route::resource('settings', SettingController::class);
+
+    /* PICKUP POINT MANAGEMENT */
+    Route::post('pickuppoints/assign', [PickupPointsController::class,'assign'])->name('pickuppoints.assign');
+    Route::post('pickuppoints/unassign', [PickupPointsController::class,'unassign'])->name('pickuppoints.unassign');
+    Route::resource('pickuppoints', PickupPointsController::class);
+
+    /* PICKUP POINT MANAGEMENT */
+    Route::post('deliverycharges/assign', [DeliveryChargesController::class,'assign'])->name('deliverycharges.assign');
+    Route::post('deliverycharges/unassign', [DeliveryChargesController::class,'unassign'])->name('deliverycharges.unassign');
+    Route::resource('deliverycharges', DeliveryChargesController::class);
+
+    Auth::routes();
 });
+
+Route::get('/',[LoginController::class,'showAdminLoginForm'])->name('admin.login-view');
+Route::get('/admin',[LoginController::class,'showAdminLoginForm'])->name('admin.login-view');
+Route::post('/admin',[LoginController::class,'adminLogin'])->name('admin.login');
+
