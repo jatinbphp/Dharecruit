@@ -152,7 +152,7 @@
 
     <div class="col-md-12" id="priorityReason" style="display: none;">
         <div class="form-group{{ $errors->has('reason') ? ' has-error' : '' }}">
-            <label class="control-label" for="reason">Reason :<span class="text-red">*</span></label>
+            <label class="control-label" for="reason">Reason :<span class="text-red"></span></label>
             {!! Form::text('reason', null, ['class' => 'form-control', 'placeholder' => 'Enter Reason', 'id' => 'reason']) !!}
             @if ($errors->has('reason'))
                 <span class="text-danger">
@@ -204,7 +204,7 @@
 
     <div class="col-md-6">
         <div class="form-group{{ $errors->has('notes') ? ' has-error' : '' }}">
-            <label class="control-label" for="notes">Special Notes :<span class="text-red">*</span></label>
+            <label class="control-label" for="notes">Special Notes :<span class="text-red"></span></label>
             {!! Form::text('notes', null, ['class' => 'form-control', 'placeholder' => 'Enter Notes', 'id' => 'notes']) !!}
             @if ($errors->has('notes'))
                 <span class="text-danger">
@@ -283,7 +283,7 @@
 <div class="row">
     <div class="col-md-6">
         <div class="form-group{{ $errors->has('poc_location') ? ' has-error' : '' }}">
-            <label class="control-label" for="poc_location">POC Location :<span class="text-red">*</span></label>
+            <label class="control-label" for="poc_location">POC Location :<span class="text-red"></span></label>
             {!! Form::text('poc_location', null, ['class' => 'form-control', 'placeholder' => 'Enter POC Location', 'id' => 'poc_location']) !!}
             @if ($errors->has('poc_location'))
                 <span class="text-danger">
@@ -295,7 +295,7 @@
 
     <div class="col-md-6">
         <div class="form-group{{ $errors->has('poc_company_location') ? ' has-error' : '' }}">
-            <label class="control-label" for="poc_company_location">POC Company Location :<span class="text-red">*</span></label>
+            <label class="control-label" for="poc_company_location">POC Company Location :<span class="text-red"></span></label>
             {!! Form::text('poc_company_location', null, ['class' => 'form-control', 'placeholder' => 'Enter POC Company Location', 'id' => 'poc_company_location']) !!}
             @if ($errors->has('poc_company_location'))
                 <span class="text-danger">
@@ -321,7 +321,7 @@
 
     <div class="col-md-6">
         <div class="form-group{{ $errors->has('display_client') ? ' has-error' : '' }}">
-            <label class="control-label" for="display_client">Display Client :<span class="text-red">*</span></label>
+            <label class="control-label" for="display_client">Display Client :<span class="text-red"></span></label>
             <br>
             <div class="icheck-primary d-inline">
                 <input type="checkbox" id="display_client">

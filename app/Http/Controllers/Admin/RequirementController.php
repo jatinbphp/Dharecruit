@@ -80,7 +80,26 @@ class RequirementController extends Controller
     {
         $this->validate($request, [
             'job_title' => 'required',
-            //'status' => 'required',
+            'no_of_position' => 'required',
+            'experience' => 'required',
+            'location' => 'required',
+            'work_type' => 'required',
+            'duration' => 'required',
+            'visa' => 'required',
+            'client' => 'required',
+            'vendor_rate' => 'required',
+            'my_rate' => 'required',
+            'priority' => 'required',
+            'term' => 'required',
+            'category' => 'required',
+            'moi' => 'required',
+            'job_keyword' => 'required',
+            'description' => 'required',
+            'pv_company_name' => 'required',
+            'poc_name' => 'required',
+            'poc_email' => 'required',
+            'poc_phone_number' => 'required',
+            'client_name' => 'required',
         ]);
 
         $input = $request->all();
@@ -110,7 +129,26 @@ class RequirementController extends Controller
     {
         $this->validate($request, [
             'job_title' => 'required',
-            //'status' => 'required',
+            'no_of_position' => 'required',
+            'experience' => 'required',
+            'location' => 'required',
+            'work_type' => 'required',
+            'duration' => 'required',
+            'visa' => 'required',
+            'client' => 'required',
+            'vendor_rate' => 'required',
+            'my_rate' => 'required',
+            'priority' => 'required',
+            'term' => 'required',
+            'category' => 'required',
+            'moi' => 'required',
+            'job_keyword' => 'required',
+            'description' => 'required',
+            'pv_company_name' => 'required',
+            'poc_name' => 'required',
+            'poc_email' => 'required',
+            'poc_phone_number' => 'required',
+            'client_name' => 'required',
         ]);
 
         $input = $request->all();
