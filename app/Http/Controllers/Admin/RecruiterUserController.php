@@ -12,6 +12,7 @@ class RecruiterUserController extends Controller
 {
     public function __construct(){
         $this->middleware('auth');
+        $this->middleware('accessright:manage_recruiter_user');
     }
 
     public function index(Request $request)

@@ -1,3 +1,16 @@
+@php
+    $user_group = \Illuminate\Support\Facades\Auth::user()->role;
+    $permission = \App\Models\Permission::where('type', $user_group)->first();
+    $modules = \App\Models\Permission::$permission;
+    $right = !empty($permission) ? explode(',', $permission->access_modules) : [];
+    $i = 1;
+    foreach ($modules as $key => $mod){
+        ${'access'.$i} = $key;
+        ${'check'.$i} = in_array(${'access'.$i}, $right);
+        $i++;
+    }
+    $loginRole = \Illuminate\Support\Facades\Auth::user()->role;
+@endphp
 <!DOCTYPE html>
 <html>
 <head>
@@ -144,40 +157,101 @@
                         </a>
                     </li>
 
-                    <li class="nav-item">
-                        <a href="{{ route('user.index') }}" class="nav-link @if($menu=='Admin User') active @endif">
-                            <i class="nav-icon fa fa-users"></i>
-                            <p>Manage Admin</p>
-                        </a>
-                    </li>
+                    @if($loginRole == 'admin' || $check1 || $check2 || $check3 || $check4 || $check5 || $check6)
+                        <li class="nav-item @if(in_array($menu, ['Permission','Admin User','BDM User','Recruiter User','TL Recruiter User','TL BDM User'])) menu-open @endif">
+                            <a href="#" class="nav-link @if(in_array($menu, ['Permission','Admin User','BDM User','Recruiter User','TL Recruiter User','TL BDM User'])) active @endif">
+                                <i class="nav-icon fas fa-users"></i>
+                                <p>Manage Users <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                @if($loginRole == 'admin' || $check1)
+                                    <li class="nav-item">
+                                        <a href="{{ route('permission.index') }}" class="nav-link @if($menu=='Permission') active @endif">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Manage Permission</p>
+                                        </a>
+                                    </li>
+                                @endif
+                                @if($loginRole == 'admin' || $check2)
+                                    <li class="nav-item">
+                                        <a href="{{ route('user.index') }}" class="nav-link @if($menu=='Admin User') active @endif">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Manage Admin</p>
+                                        </a>
+                                    </li>
+                                @endif
+                                @if($loginRole == 'admin' || $check3)
+                                    <li class="nav-item">
+                                        <a href="{{ route('bdm_user.index') }}" class="nav-link @if($menu=='BDM User') active @endif">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Manage BDM</p>
+                                        </a>
+                                    </li>
+                                @endif
+                                @if($loginRole == 'admin' || $check4)
+                                    <li class="nav-item">
+                                        <a href="{{ route('recruiter_user.index') }}" class="nav-link @if($menu=='Recruiter User') active @endif">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Manage Recruiter</p>
+                                        </a>
+                                    </li>
+                                @endif
+                                @if($loginRole == 'admin' || $check5)
+                                    <li class="nav-item">
+                                        <a href="{{ route('tl_recruiter_user.index') }}" class="nav-link @if($menu=='TL Recruiter User') active @endif">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Manage TL Recruiter</p>
+                                        </a>
+                                    </li>
+                                @endif
+                                @if($loginRole == 'admin' || $check6)
+                                    <li class="nav-item">
+                                        <a href="{{ route('tl_bdm_user.index') }}" class="nav-link @if($menu=='TL BDM User') active @endif">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Manage TL BDM</p>
+                                        </a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </li>
+                    @endif
 
-                    <li class="nav-item">
-                        <a href="{{ route('bdm_user.index') }}" class="nav-link @if($menu=='BDM User') active @endif">
-                            <i class="nav-icon fa fa-users"></i>
-                            <p>Manage BDM</p>
-                        </a>
-                    </li>
+                    @if($loginRole == 'admin' || $check7)
+                        <li class="nav-item">
+                            <a href="{{ route('category.index') }}" class="nav-link @if($menu=='Category') active @endif">
+                                <i class="nav-icon fa fa-sitemap"></i>
+                                <p>Manage Category</p>
+                            </a>
+                        </li>
+                    @endif
 
-                    <li class="nav-item">
-                        <a href="{{ route('recruiter_user.index') }}" class="nav-link @if($menu=='Recruiter User') active @endif">
-                            <i class="nav-icon fa fa-users"></i>
-                            <p>Manage Recruiter</p>
-                        </a>
-                    </li>
+                    @if($loginRole == 'admin' || $check8)
+                        <li class="nav-item">
+                            <a href="{{ route('moi.index') }}" class="nav-link @if($menu=='Moi') active @endif">
+                                <i class="nav-icon fa fa-bars"></i>
+                                <p>Manage MOI</p>
+                            </a>
+                        </li>
+                    @endif
 
-                    <li class="nav-item">
-                        <a href="{{ route('tl_recruiter_user.index') }}" class="nav-link @if($menu=='TL Recruiter User') active @endif">
-                            <i class="nav-icon fa fa-users"></i>
-                            <p>Manage TL Recruiter</p>
-                        </a>
-                    </li>
+                    @if($loginRole == 'admin' || $check10)
+                        <li class="nav-item">
+                            <a href="{{ route('pv_company.index') }}" class="nav-link @if($menu=='PV Company') active @endif">
+                                <i class="nav-icon fa fa-building"></i>
+                                <p>Manage PV Company</p>
+                            </a>
+                        </li>
+                    @endif
 
-                    <li class="nav-item">
-                        <a href="{{ route('tl_bdm_user.index') }}" class="nav-link @if($menu=='TL BDM User') active @endif">
-                            <i class="nav-icon fa fa-users"></i>
-                            <p>Manage TL BDM</p>
-                        </a>
-                    </li>
+                    @if($loginRole == 'admin' || $check9)
+                        <li class="nav-item">
+                            <a href="{{ route('requirement.index') }}" class="nav-link @if($menu=='Requirement') active @endif">
+                                <i class="nav-icon fa fa-file-signature"></i>
+                                <p>Manage Requirement</p>
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </nav>
         </div>

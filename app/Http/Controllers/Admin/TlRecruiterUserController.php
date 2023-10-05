@@ -12,6 +12,7 @@ class TlRecruiterUserController extends Controller
 {
     public function __construct(){
         $this->middleware('auth');
+        $this->middleware('accessright:manage_tl_recruiter_user');
     }
 
     public function index(Request $request)
