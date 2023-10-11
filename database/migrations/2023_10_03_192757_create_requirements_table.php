@@ -17,6 +17,7 @@ class CreateRequirementsTable extends Migration
         Schema::create('requirements', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id')->nullable();
+            $table->string('job_id')->nullable();
             $table->string('job_title')->nullable();
             $table->string('no_of_position')->nullable();
             $table->string('experience')->nullable();
@@ -43,6 +44,9 @@ class CreateRequirementsTable extends Migration
             $table->string('pv_company_location')->nullable();
             $table->string('client_name')->nullable();
             $table->string('display_client')->nullable();
+            $table->text('recruiter')->nullable();
+            $table->string('color')->nullable();
+            $table->text('candidate')->nullable();
             $table->string('status')->default('active');
             $table->softDeletes();
             $table->timestamps();

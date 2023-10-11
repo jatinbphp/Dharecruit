@@ -23,6 +23,7 @@ class Permission extends Model
     const MODULE_MOI = 'manage_moi';
     const MODULE_REQUIREMENTS = 'manage_requirement';
     const MODULE_PVCOMPANY = 'manage_pvcompany';
+    const MODULE_SUBMISSION = 'manage_submission';
 
     public static $permission = [
         self::MODULE_PERMISSION => 'Manage Permission',
@@ -35,5 +36,6 @@ class Permission extends Model
         self::MODULE_MOI => 'Manage MOI',
         self::MODULE_REQUIREMENTS => 'Manage Requirement',
         self::MODULE_PVCOMPANY => 'Manage PV Company',
+        self::MODULE_SUBMISSION => 'Manage Submission',
     ];
 }

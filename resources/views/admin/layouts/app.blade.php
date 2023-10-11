@@ -252,6 +252,24 @@
                             </a>
                         </li>
                     @endif
+
+                    @if(\Illuminate\Support\Facades\Auth::user()->role == 'bdm')
+                        <li class="nav-item">
+                            <a href="{{ route('my_requirement') }}" class="nav-link @if($menu=='Requirement') active @endif">
+                                <i class="nav-icon fa fa-file-signature"></i>
+                                <p>My Requirement</p>
+                            </a>
+                        </li>
+                    @endif
+
+                    @if($check11)
+                        <li class="nav-item">
+                            <a href="{{ route('submission.index') }}" class="nav-link @if($menu=='Submission') active @endif">
+                                <i class="nav-icon fa fa-file-upload"></i>
+                                <p>Manage Submission</p>
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </nav>
         </div>

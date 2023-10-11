@@ -16,7 +16,7 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-    public function image($photo, $path){
+    public function fileMove($photo, $path){
         $root = storage_path('app/public/uploads/'.$path);
         $name = Str::random(20).".".$photo->getClientOriginalExtension();
         if (!file_exists($root)) {

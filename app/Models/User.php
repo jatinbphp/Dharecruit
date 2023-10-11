@@ -15,7 +15,8 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     protected $fillable = [
-        'name','email','password','facebook_id','phone', 'role', 'status', 'orderData'
+        'name','email','password','location','phone','employer_detail','work_authorization','recruiter_rate','last_4_ssn','education_details',
+        'resume_experience','linkedin_id','relocation','vendor_rate','role','status'
     ];
 
     protected $hidden = [

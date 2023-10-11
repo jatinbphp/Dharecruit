@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\MoiController;
 use App\Http\Controllers\Admin\RequirementController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\PVCompanyController;
+use App\Http\Controllers\Admin\SubmissionController;
 use App\Http\Controllers\Auth\RegisterController;
 /*
 |--------------------------------------------------------------------------
@@ -89,9 +90,16 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::resource('pv_company', PVCompanyController::class);
 
     /* REQUIREMENTS MANAGEMENT */
+    Route::post('requirement/changeStatus/{id}', [RequirementController::class,'changeStatus'])->name('requirement.changeStatus');
     Route::post('requirement/assign', [RequirementController::class,'assign'])->name('requirement.assign');
     Route::post('requirement/unassign', [RequirementController::class,'unassign'])->name('requirement.unassign');
+    Route::get('my_requirement', [RequirementController::class,'my_requirement'])->name('my_requirement');
     Route::resource('requirement', RequirementController::class);
+
+    /* SUBMISSION MANAGEMENT */
+    Route::get('submission/new/{id}', [SubmissionController::class,'submissionAdd'])->name('submission.newAdd');
+    Route::post('submission/assign/{id}', [SubmissionController::class,'assignSubmission'])->name('submission.assign');
+    Route::resource('submission', SubmissionController::class);
 
     Auth::routes();
 });

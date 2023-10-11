@@ -10,9 +10,9 @@ class Requirement extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['user_id','job_title','no_of_position','experience','location','work_type','duration','visa','client','vendor_rate','my_rate',
+    protected $fillable = ['user_id','job_id','job_title','no_of_position','experience','location','work_type','duration','visa','client','vendor_rate','my_rate',
     'priority','reason','term','category','moi','job_keyword','notes','description','pv_company_name','poc_name','poc_email','poc_phone_number',
-    'poc_location','pv_company_location','client_name','display_client','status'];
+    'poc_location','pv_company_location','client_name','display_client','status','recruiter','color','candidate'];
 
     const STATUS_ACTIVE = 'active';
     const STATUS_INACTIVE = 'inactive';
@@ -38,7 +38,6 @@ class Requirement extends Model
     const TERM3 = 'w2';
     const TERM4 = 'fulltime';
 
-
     public static $term = [
         self::TERM0 => 'Select Term',
         self::TERM1 => 'C2C',
@@ -46,4 +45,12 @@ class Requirement extends Model
         self::TERM3 => 'W2',
         self::TERM4 => 'Full Time',
     ];
+
+    public function BDM(){
+        return $this->belongsTo('App\Models\Admin','user_id');
+    }
+
+    public function Category(){
+        return $this->belongsTo('App\Models\Category','category');
+    }
 }

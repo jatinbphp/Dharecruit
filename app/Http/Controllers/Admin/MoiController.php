@@ -25,7 +25,7 @@ class MoiController extends Controller
             if($user['role'] == 'admin'){
                 $data = Moi::select();
             }else{
-                $data = Moi::where('user_id',Auth::user()->id)->select();
+                $data = Moi::where('user_id',$user['id'])->select();
             }
 
             return Datatables::of($data)

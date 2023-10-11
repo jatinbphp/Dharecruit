@@ -25,7 +25,7 @@ class CategoryController extends Controller
             if($user['role'] == 'admin'){
                 $data = Category::select();
             }else{
-                $data = Category::where('user_id',Auth::user()->id)->select();
+                $data = Category::where('user_id',$user['id'])->select();
             }
 
             return Datatables::of($data)

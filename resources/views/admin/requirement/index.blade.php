@@ -20,7 +20,7 @@
         <!-- Main content -->
         <section class="content">
             @include ('admin.error')
-            <div id="responce" class="alert alert-success" style="display: none">
+            <div id="responce" class="alert alert-success" style="display: none;">
             </div>
             <div class="row">
                 <div class="col-12">
@@ -36,13 +36,20 @@
                             <table id="requirementTable" class="table table-bordered table-striped">
                                 <thead>
                                     <tr>
+                                        <th>Daily #</th>
+                                        <th>Job Id</th>
                                         <th>Job Title</th>
-                                        <th>No # Position</th>
-                                        <th>Experience</th>
-                                        <th>Locations</th>
-                                        <th>Work Type</th>
+                                        <th>BDM</th>
                                         <th>Duration</th>
-                                        <th style="width: 15%;">Status</th>
+                                        <th>Location</th>
+                                        <th>Rate</th>
+                                        <th>Onsite</th>
+                                        <th>Category</th>
+                                        <th>Timer</th>
+                                        <th>Recruiter</th>
+                                        <th>Status</th>
+                                        <th>Color</th>
+                                        <th>Candidate</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -63,15 +70,23 @@
         var table = $('#requirementTable').DataTable({
             processing: true,
             serverSide: true,
-            ajax: "{{ route('requirement.index') }}",
+            responsive: true,
+            ajax: "{{ $type == 1 ? route('requirement.index') : route('my_requirement') }}",
             columns: [
-                {data: 'job_title', name: 'job_title'},
-                {data: 'no_of_position', name: 'no_of_position'},
-                {data: 'experience', name: 'experience'},
-                {data: 'location', name: 'location'},
-                {data: 'work_type', name: 'work_type'},
+                {data: 'DT_RowIndex', 'width': '10%', name: 'DT_RowIndex', orderable: false, searchable: false },
+                {data: 'job_id', name: 'job_id'},
+                {data: 'job_title', 'width': '30%', name: 'job_title'},
+                {data: 'user_id', name: 'user_id'},
                 {data: 'duration', name: 'duration'},
-                {data: 'status', "width": "15%", name: 'status'},
+                {data: 'location', name: 'location'},
+                {data: 'vendor_rate', name: 'vendor_rate'},
+                {data: 'work_type', name: 'work_type'},
+                {data: 'category', name: 'category'},
+                {data: 'created_at', name: 'created_at'},
+                {data: 'recruiter', name: 'recruiter'},
+                {data: 'status', name: 'status'},
+                {data: 'color', name: 'color'},
+                {data: 'candidate', name: 'candidate'},
                 {data: 'action', "width": "15%", name: 'action', orderable: false, searchable: false},
             ]
         });
