@@ -1,12 +1,18 @@
+@php
+    $bdm = \App\Models\Admin::where('role','bdm')->where('status','active')->pluck('name','id');
+    $recruiter = \App\Models\Admin::where('role','recruiter')->where('status','active')->pluck('name','id');
+    $pvCompany = \App\Models\PVCompany::where('status','active')->pluck('name','id');
+    $moi = \App\Models\Moi::where('status','active')->pluck('name','id');
+@endphp
 <div class="row">
     <div class="col-md-3">
         <div class="form-group{{ $errors->has('date') ? ' has-error' : '' }}">
             <label class="control-label" for="date">From & To Date</label>
             <div class="input-group">
                 <div class="input-group-prepend">
-                                                            <span class="input-group-text">
-                                                                <i class="far fa-calendar-alt"></i>
-                                                            </span>
+                    <span class="input-group-text">
+                        <i class="far fa-calendar-alt"></i>
+                    </span>
                 </div>
                 {!! Form::text('date', null, ['class' => 'form-control float-right', 'placeholder' => 'Select From & To Date', 'id' => 'reservation']) !!}
             </div>
@@ -21,13 +27,13 @@
     <div class="col-md-3">
         <div class="form-group{{ $errors->has('bdm') ? ' has-error' : '' }}">
             <label class="control-label" for="bdm">BDM Search</label>
-            {!! Form::text('bdm', null, ['class' => 'form-control', 'placeholder' => 'Enter BDM', 'id' => 'bdm']) !!}
+            {!! Form::select('bdm', $bdm, null, ['class' => 'form-control select2','id'=>'bdm']) !!}
         </div>
     </div>
     <div class="col-md-3">
         <div class="form-group{{ $errors->has('recruiter') ? ' has-error' : '' }}">
             <label class="control-label" for="recruiter">Recruiter Search</label>
-            {!! Form::text('recruiter', null, ['class' => 'form-control', 'placeholder' => 'Enter Recruiter', 'id' => 'recruiter']) !!}
+            {!! Form::select('recruiter', $recruiter, null, ['class' => 'form-control select2','id'=>'recruiter']) !!}
         </div>
     </div>
 </div>
@@ -41,19 +47,19 @@
     <div class="col-md-3">
         <div class="form-group{{ $errors->has('pv_company') ? ' has-error' : '' }}">
             <label class="control-label" for="pv_company">PV Company</label>
-            {!! Form::text('pv_company', null, ['class' => 'form-control', 'placeholder' => 'Enter PV Company', 'id' => 'pv_company']) !!}
+            {!! Form::select('pv_company', $pvCompany, null, ['class' => 'form-control select2','id'=>'pv_company']) !!}
         </div>
     </div>
     <div class="col-md-3">
         <div class="form-group{{ $errors->has('moi') ? ' has-error' : '' }}">
             <label class="control-label" for="moi">MOI</label>
-            {!! Form::text('moi', null, ['class' => 'form-control', 'placeholder' => 'Enter MOI', 'id' => 'moi']) !!}
+            {!! Form::select('moi', $moi, null, ['class' => 'form-control select2','id'=>'moi']) !!}
         </div>
     </div>
     <div class="col-md-3">
-        <div class="form-group{{ $errors->has('remote') ? ' has-error' : '' }}">
-            <label class="control-label" for="remote">Remote</label>
-            {!! Form::text('remote', null, ['class' => 'form-control', 'placeholder' => 'Enter Remote', 'id' => 'remote']) !!}
+        <div class="form-group{{ $errors->has('work_type') ? ' has-error' : '' }}">
+            <label class="control-label" for="work_type">Work Type</label>
+            {!! Form::select('work_type', \App\Models\Requirement::$workType, null, ['class' => 'form-control select2','id'=>'work_type']) !!}
         </div>
     </div>
 </div>

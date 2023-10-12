@@ -46,6 +46,18 @@ class Requirement extends Model
         self::TERM4 => 'Full Time',
     ];
 
+    const TYPE0 = '';
+    const TYPE1 = 'Onsite';
+    const TYPE2 = 'Hybrid';
+    const TYPE3 = 'Remote';
+
+    public static $workType = [
+        self::TYPE0 => 'Please Select',
+        self::TYPE1 => 'Onsite',
+        self::TYPE2 => 'Hybrid',
+        self::TYPE3 => 'Remote',
+    ];
+
     public function BDM(){
         return $this->belongsTo('App\Models\Admin','user_id');
     }
