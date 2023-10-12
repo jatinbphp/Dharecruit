@@ -246,7 +246,7 @@
 
                     @if($loginRole == 'admin' || $check9)
                         <li class="nav-item">
-                            <a href="{{ route('requirement.index') }}" class="nav-link @if($menu=='Requirement') active @endif">
+                            <a href="{{ route('requirement.index') }}" class="nav-link @if($menu=='Requirements') active @endif">
                                 <i class="nav-icon fa fa-file-signature"></i>
                                 <p>Manage Requirement</p>
                             </a>
@@ -255,7 +255,7 @@
 
                     @if(\Illuminate\Support\Facades\Auth::user()->role == 'bdm')
                         <li class="nav-item">
-                            <a href="{{ route('my_requirement') }}" class="nav-link @if($menu=='Requirement') active @endif">
+                            <a href="{{ route('my_requirement') }}" class="nav-link @if($menu=='My Requirements') active @endif">
                                 <i class="nav-icon fa fa-file-signature"></i>
                                 <p>My Requirement</p>
                             </a>
@@ -344,6 +344,8 @@
             autoclose: true,
             todayHighlight: true
         });
+
+        $('#reservation').daterangepicker()
 
         //Flat red color scheme for iCheck
         $('input[type="checkbox"].flat-red, input[type="radio"].flat-red').iCheck({

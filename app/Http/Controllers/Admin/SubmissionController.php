@@ -27,8 +27,7 @@ class SubmissionController extends Controller
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function($row){
-                    $submission = Submission::where('requirement_id',$row['id'])->where('status','!=','reject')->count();
-                    if($submission < 3){
+                    if($row['submissionCounter'] < 3){
                         $rId = !empty($row->recruiter) ? explode(',',$row->recruiter) : [];
                         if(!empty($rId) && in_array(Auth::user()->id,$rId)){
                             $btn = '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/submission/'.$row->id).'"><button class="btn btn-sm btn-info tip" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" ><i class="fa fa-eye"></i></button></a></div>';
@@ -81,13 +80,15 @@ class SubmissionController extends Controller
         }
         Submission::create($input);
 
-        $submission = Submission::where('requirement_id',$request['requirement_id'])->where('status','pending')->count();
         $requirement = Requirement::where('id',$request['requirement_id'])->first();
-        if($requirement['status'] != 'hold'){
-            if($submission == 3){
-                $in['status'] = 'hold';
-                $requirement->update($in);
-            }
+        if($requirement['submissionCounter'] < 3){
+            $in['submissionCounter'] = $requirement['submissionCounter'] + 1;
+            $requirement->update($in);
+        }
+
+        if($requirement['submissionCounter'] == 3){
+            $in['status'] = 'hold';
+            $requirement->update($in);
         }
 
         \Session::flash('success', 'New submission has been inserted successfully!');
@@ -145,8 +146,8 @@ class SubmissionController extends Controller
                 }
             }
         }
-        $submission = Submission::where('requirement_id',$id)->where('status','!=','reject')->count();
-        if($submission == 3){
+        $requirementCount = Requirement::where('id',$id)->first();
+        if($requirementCount['submissionCounter'] == 3){
             \Session::flash('danger', 'Submission is hold!');
             return redirect(route('submission.index'));
         }

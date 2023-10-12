@@ -25,6 +25,15 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card card-info card-outline">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    {!! Form::open(['url' => route('requirement.index'), 'method' => 'get', 'id' => 'filterForm', 'class' => 'form-horizontal','files'=>true]) !!}
+                                    @include('admin.filter')
+                                    {!! Form::close() !!}
+                                </div>
+                            </div>
+                        </div>
                         <div class="card-body table-responsive">
                             <table id="requirementTable" class="table table-bordered table-striped">
                                 <thead>

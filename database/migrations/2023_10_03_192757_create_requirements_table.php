@@ -48,6 +48,7 @@ class CreateRequirementsTable extends Migration
             $table->string('color')->nullable();
             $table->text('candidate')->nullable();
             $table->string('status')->default('active');
+            $table->integer('submissionCounter')->default(0);
             $table->softDeletes();
             $table->timestamps();
         });

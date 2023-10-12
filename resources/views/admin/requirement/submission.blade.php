@@ -36,7 +36,7 @@
                                     <th>Location</th>
                                     <th>Employer Detail</th>
                                     <th>Resume</th>
-                                    <!--<th style="width: 15%;">Status</th>-->
+                                    <th style="width: 15%;">Status</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -65,7 +65,7 @@
                     {data: 'location', name: 'location'},
                     {data: 'employer_detail', name: 'employer_detail'},
                     {data: 'documents', "width": "15%", name: 'documents'},
-                    //{data: 'status', "width": "15%", name: 'status'},
+                    {data: 'status', "width": "15%", name: 'status'},
                 ]
             });
 

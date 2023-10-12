@@ -28,7 +28,12 @@
                         <div class="card-header">
                             <div class="row">
                                 <div class="col-md-12">
-                                    <a href="{{ route('requirement.create') }}"><button class="btn btn-info float-right" type="button" style="margin-right: 1.5%;"><i class="fa fa-plus pr-1"></i> Add New</button></a>
+                                    <a href="{{ route('requirement.create') }}"><button class="btn btn-info float-right" type="button"><i class="fa fa-plus pr-1"></i> Add New</button></a>
+                                </div>
+                                <div class="col-md-12">
+                                    {!! Form::open(['url' => route('requirement.index'), 'method' => 'get', 'id' => 'filterForm', 'class' => 'form-horizontal','files'=>true]) !!}
+                                        @include('admin.filter')
+                                    {!! Form::close() !!}
                                 </div>
                             </div>
                         </div>
@@ -73,10 +78,10 @@
             responsive: true,
             ajax: "{{ $type == 1 ? route('requirement.index') : route('my_requirement') }}",
             columns: [
-                {data: 'DT_RowIndex', 'width': '10%', name: 'DT_RowIndex', orderable: false, searchable: false },
-                {data: 'job_id', name: 'job_id'},
+                {data: 'DT_RowIndex', 'width': '13%', name: 'DT_RowIndex', orderable: false, searchable: false },
+                {data: 'job_id', 'width': '11%', name: 'job_id'},
                 {data: 'job_title', 'width': '30%', name: 'job_title'},
-                {data: 'user_id', name: 'user_id'},
+                {data: 'user_id', 'width': '20%', name: 'user_id'},
                 {data: 'duration', name: 'duration'},
                 {data: 'location', name: 'location'},
                 {data: 'vendor_rate', name: 'vendor_rate'},
