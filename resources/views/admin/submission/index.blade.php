@@ -80,7 +80,7 @@
             processing: true,
             serverSide: true,
             ajax: {
-                url: "{{ route('submission.index') }}",
+                url: "{{ $type == 1 ? route('submission.index') : route('my_submission') }}",
                 data: function (d) {
                     d.date = $('#reqDate').val();
                     d.requirement = $('#requirement').val();

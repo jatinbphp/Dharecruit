@@ -99,6 +99,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     /* SUBMISSION MANAGEMENT */
     Route::get('submission/new/{id}', [SubmissionController::class,'submissionAdd'])->name('submission.newAdd');
     Route::post('submission/assign/{id}', [SubmissionController::class,'assignSubmission'])->name('submission.assign');
+    Route::get('my_requirements', [SubmissionController::class,'my_requirement'])->name('my_submission');
     Route::resource('submission', SubmissionController::class);
 
     Auth::routes();

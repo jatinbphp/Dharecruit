@@ -33,7 +33,17 @@ class Controller extends BaseController
 
     public function Filter($request){
         $whereInfo = [];
-        $query = Requirement::select();
+
+        $user = Auth::user();
+
+        if($user['role'] == 'bdm' && isset($request->authId) && $request->authId > 0){
+            $query = Requirement::where('user_id',$request->authId)->select();
+        }elseif($user['role'] == 'recruiter' && isset($request->authId) && $request->authId > 0){
+            $query = Requirement::whereRaw("find_in_set($request->authId,recruiter)")->select();
+        }else{
+            $query = Requirement::select();
+        }
+
         if(!empty($request->date)){
             $date = explode('-',$request->date);
             $dateS = date('Y-m-d', strtotime($date[0]));

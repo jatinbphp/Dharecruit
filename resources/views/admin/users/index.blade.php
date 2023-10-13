@@ -64,9 +64,9 @@
             ajax: "{{ route('user.index') }}",
             columns: [
                 {data: 'name', "width": "15%", name: 'name'},
-                {data: 'email',  ame: 'email'},
-                {data: 'phone',  ame: 'phone'},
-                {data: 'indian_phone',  ame: 'indian_phone'},
+                {data: 'email',  name: 'email'},
+                {data: 'phone',  name: 'phone'},
+                {data: 'indian_phone',  name: 'indian_phone'},
                 {data: 'status', "width": "15%", name: 'status'},
                 {data: 'action', "width": "15%", name: 'action', orderable: false, searchable: false},
             ]

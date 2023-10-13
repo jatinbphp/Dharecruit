@@ -128,6 +128,7 @@ class RequirementController extends Controller
         $data['search'] = $request['search'];
 
         if ($request->ajax()) {
+            $request['authId'] = Auth::user()->id;
             $data = $this->Filter($request);
             return Datatables::of($data)
                 ->addIndexColumn()

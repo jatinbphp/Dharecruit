@@ -18,7 +18,7 @@ class SubmissionController extends Controller
     }
 
     public function index(Request $request){
-        $data['menu'] = "Submission";
+        $data['menu'] = "Requirements";
         $data['search'] = $request['search'];
 
         if ($request->ajax()) {
@@ -44,7 +44,39 @@ class SubmissionController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
+        $data['type'] = 1;
+        return view('admin.submission.index', $data);
+    }
 
+    public function my_requirement(Request $request){
+        $data['menu'] = "My Requirements";
+        $data['search'] = $request['search'];
+
+        if ($request->ajax()) {
+            $request['authId'] = Auth::user()->id;
+            $data = $this->Filter($request);
+            return Datatables::of($data)
+                ->addIndexColumn()
+                ->addColumn('action', function($row){
+                    if($row->submissionCounter < 3){
+                        $rId = !empty($row->recruiter) ? explode(',',$row->recruiter) : [];
+                        if(!empty($rId) && in_array(Auth::user()->id,$rId)){
+                            $btn = '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/submission/'.$row->id).'"><button class="btn btn-sm btn-info tip" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" ><i class="fa fa-eye"></i></button></a></div>';
+                            $btn .= '<div class="btn-group btn-group-sm"><a href="'.url('admin/submission/new/'.$row->id).'"><button class="btn btn-sm btn-success tip" data-toggle="tooltip" title="Add New Submission" data-trigger="hover" type="submit" ><i class="fa fa-upload"></i></button></a></div>';
+                        }else{
+                            $btn = '<span data-toggle="tooltip" title="Assign Requirement" data-trigger="hover">
+                                    <button class="btn btn-sm btn-warning assignRequirement mr-2" data-id="'.$row->id.'" type="button"><i class="fa fa-plus-square"></i></button>
+                                </span>';
+                        }
+                    }else{
+                        $btn = '<div class="btn-group btn-group-sm mr-2"><button class="btn btn-sm btn-danger tip" data-toggle="tooltip" title="Hold Submission" data-trigger="hover" type="button" ><i class="fa fa-ban"></i> Hold</button></div>';
+                    }
+                    return $btn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+        $data['type'] = 2;
         return view('admin.submission.index', $data);
     }
 
@@ -96,7 +128,7 @@ class SubmissionController extends Controller
 
     public function show(Request $request, $id)
     {
-        $data['menu'] = "Submission";
+        $data['menu'] = "Requirements";
         $data['all_submission'] = Submission::where('requirement_id',$id)->get();
 
         if ($request->ajax()) {
@@ -133,7 +165,7 @@ class SubmissionController extends Controller
     }
 
     public function submissionAdd($id){
-        $data['menu'] = "Submission";
+        $data['menu'] = "Requirements";
         $data['requirement'] = Requirement::where('id',$id)->first();
         if(!empty($data['requirement'])){
             $user = Auth::user();
@@ -178,7 +210,7 @@ class SubmissionController extends Controller
     public function assignSubmission($id){
         $requirement = Requirement::where('id',$id)->first();
         if(!empty($requirement)){
-            $input['recruiter'] = !empty($requirement['recruiter']) ? $requirement['recruiter'].','.Auth::user()->id : ','.Auth::user()->id.',';
+            $input['recruiter'] = !empty($requirement['recruiter']) ? $requirement['recruiter'].Auth::user()->id.',' : ','.Auth::user()->id.',';
             $requirement->update($input);
             return 1;
         }else{

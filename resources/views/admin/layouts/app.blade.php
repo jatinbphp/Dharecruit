@@ -118,6 +118,11 @@
                 <a href="{{ url('admin/dashboard') }}" class="nav-link">Home</a>
             </li>
         </ul>
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <span><i class="fa fa-user mr-2"></i>{{ ucfirst(Auth::guard('admin')->user()->name) }} ({{ucfirst(Auth::guard('admin')->user()->role)}})</span>
+            </li>
+        </ul>
     </nav>
     <aside class="main-sidebar sidebar-dark-primary elevation-4" id="left-menubar" style="height: 100%; min-height:0!important; overflow-x: hidden;">
         <a href="{{url('/admin')}}" class="brand-link" style="text-align: center">
@@ -265,9 +270,18 @@
 
                     @if($check11)
                         <li class="nav-item">
-                            <a href="{{ route('submission.index') }}" class="nav-link @if($menu=='Submission') active @endif">
-                                <i class="nav-icon fa fa-file-upload"></i>
-                                <p>Manage Submission</p>
+                            <a href="{{ route('submission.index') }}" class="nav-link @if($menu=='Requirements') active @endif">
+                                <i class="nav-icon fa fa-file-signature"></i>
+                                <p>Manage Requirement</p>
+                            </a>
+                        </li>
+                    @endif
+
+                    @if(\Illuminate\Support\Facades\Auth::user()->role == 'recruiter')
+                        <li class="nav-item">
+                            <a href="{{ route('my_submission') }}" class="nav-link @if($menu=='My Requirements') active @endif">
+                                <i class="nav-icon fa fa-file-signature"></i>
+                                <p>My Requirement</p>
                             </a>
                         </li>
                     @endif
