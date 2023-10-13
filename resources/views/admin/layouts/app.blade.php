@@ -40,6 +40,7 @@
     <link rel="stylesheet" href="{{ URL::asset('assets/dist/css/custom.css') }}">
     <link rel="stylesheet" href="{{ URL::asset('assets/plugins/ladda/ladda-themeless.min.css')}}">
     <style>
+        .candidate{cursor: pointer}
         a.disabled {
             pointer-events: none;
             cursor: default;

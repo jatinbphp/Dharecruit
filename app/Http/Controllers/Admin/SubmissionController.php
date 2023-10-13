@@ -48,7 +48,7 @@ class SubmissionController extends Controller
         return view('admin.submission.index', $data);
     }
 
-    public function my_requirement(Request $request){
+    public function myRequirement(Request $request){
         $data['menu'] = "My Requirements";
         $data['search'] = $request['search'];
 

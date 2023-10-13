@@ -37,10 +37,6 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class,'index'])->name('dashboard');
 
-    Route::get('/contactUs', [DashboardController::class,'contactUs'])->name('contactUs');
-    Route::get('/contactUs/msg', [DashboardController::class,'contactUsMsg'])->name('contactUsMsg');
-    Route::delete('/contactUs/{id}', [DashboardController::class,'contactUs_destroy'])->name('contactUsDelete');
-
     /*IMAGE UPLOAD IN SUMMER NOTE*/
     Route::post('image/upload', [ImageController::class,'upload_image']);
 
@@ -93,13 +89,15 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('requirement/changeStatus/{id}', [RequirementController::class,'changeStatus'])->name('requirement.changeStatus');
     Route::post('requirement/assign', [RequirementController::class,'assign'])->name('requirement.assign');
     Route::post('requirement/unassign', [RequirementController::class,'unassign'])->name('requirement.unassign');
-    Route::get('my_requirement', [RequirementController::class,'my_requirement'])->name('my_requirement');
+    Route::post('get_candidate', [RequirementController::class,'getCandidate'])->name('get_candidate');
+    Route::post('candidate_update', [RequirementController::class,'candidateUpdate'])->name('candidate.update');
+    Route::get('my_requirement', [RequirementController::class,'myRequirement'])->name('my_requirement');
     Route::resource('requirement', RequirementController::class);
 
     /* SUBMISSION MANAGEMENT */
     Route::get('submission/new/{id}', [SubmissionController::class,'submissionAdd'])->name('submission.newAdd');
     Route::post('submission/assign/{id}', [SubmissionController::class,'assignSubmission'])->name('submission.assign');
-    Route::get('my_requirements', [SubmissionController::class,'my_requirement'])->name('my_submission');
+    Route::get('my_requirements', [SubmissionController::class,'myRequirement'])->name('my_submission');
     Route::resource('submission', SubmissionController::class);
 
     Auth::routes();

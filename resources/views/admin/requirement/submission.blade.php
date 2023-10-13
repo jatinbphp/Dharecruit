@@ -48,6 +48,7 @@
             </div>
         </section>
     </div>
+    @include('admin.requirement.candidateModal', ['hide'=>1])
 @endsection
 
 @section('jquery')
@@ -74,18 +75,24 @@
                 var submissionId = $(this).attr("data-id");
                 var status = $(this).val();
                 swal({
-                        title: "Are you sure?",
-                        text: "You want to update the status for this submission?",
-                        type: "warning",
-                        showCancelButton: true,
-                        confirmButtonColor: '#DD6B55',
-                        confirmButtonText: 'Yes, Update',
-                        cancelButtonText: "No, cancel",
-                        closeOnConfirm: false,
-                        closeOnCancel: false
-                    },
-                    function(isConfirm) {
-                        if (isConfirm) {
+                    title: "Are you sure?",
+                    text: "You want to update the status for this submission?",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: 'Yes, Update',
+                    cancelButtonText: "No, cancel",
+                    closeOnConfirm: false,
+                    closeOnCancel: false
+                },
+                function(isConfirm) {
+                    if (isConfirm) {
+                        if(status == 'rejected'){
+                            swal.close();
+                            $('#submissionId').val(submissionId);
+                            $("#candidateStatus").select2("val", 'rejected');
+                            $('#candidateModal').modal('show');
+                        }else{
                             $.ajax({
                                 url: "{{url('admin/requirement/changeStatus')}}/"+submissionId,
                                 type: "POST",
@@ -100,10 +107,11 @@
                                     }
                                 }
                             });
-                        } else {
-                            swal("Cancelled", "Your data safe!", "error");
                         }
-                    });
+                    } else {
+                        swal("Cancelled", "Your data safe!", "error");
+                    }
+                });
             });
         });
     </script>

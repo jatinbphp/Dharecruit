@@ -51,6 +51,7 @@
                                         <th>Onsite</th>
                                         <th>Category</th>
                                         <th>Timer</th>
+                                        <th>Job Keyword</th>
                                         <th>Recruiter</th>
                                         <th>Status</th>
                                         <th>Color</th>
@@ -67,6 +68,7 @@
             </div>
         </section>
     </div>
+    @include('admin.requirement.candidateModal',['hide'=>0])
 @endsection
 
 @section('jquery')
@@ -116,6 +118,7 @@
                 {data: 'work_type', name: 'work_type'},
                 {data: 'category', name: 'category'},
                 {data: 'created_at', name: 'created_at'},
+                {data: 'job_keyword', name: 'job_keyword'},
                 {data: 'recruiter', name: 'recruiter'},
                 {data: 'status', name: 'status'},
                 {data: 'color', name: 'color'},
@@ -200,6 +203,43 @@
                     //datatables();
                 }
             });
+        });
+
+        $('#requirementTable tbody').on('click', '.noChange', function (event) {
+            swal("Cancelled", "You can not change the status", "error");
+        });
+
+        $('#requirementTable tbody').on('click', '.candidate', function (event) {
+            var cId = $(this).attr('data-cid');
+            $.ajax({
+                url: "{{route('get_candidate')}}",
+                type: "post",
+                data: {'cId': cId,'_token' : $('meta[name=_token]').attr('content') },
+                success: function(data){
+                    if(data.status == 1){
+                        var submission = data.submission;
+                        $('#jobTitle').html(submission.requirement.job_title);
+                        $('#submissionId').val(cId);
+                        $("#candidateStatus").select2("val", submission.status);
+                        $("#common_skills").select2("val", submission.common_skills);
+                        $("#skills_match").select2("val", submission.skills_match);
+                        $("#reason").val(submission.reason);
+                        $('#requirementData').append(data.requirementData);
+                        $('#candidateData').append(data.candidateData);
+                        $('#candidateModal').modal('show');
+                    }else{
+                        swal("Cancelled", "Something is wrong. Please try again!", "error");
+                    }
+                }
+            });
+        });
+
+        $('#candidateStatus').on('change', function(){
+            if($(this).val() == 'rejected'){
+                $('.rejection').show();
+            }else{
+                $('.rejection').hide();
+            }
         });
     });
   </script>
