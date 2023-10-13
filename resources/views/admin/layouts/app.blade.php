@@ -19,6 +19,7 @@
     <title>{{ config('app.name', 'Laravel') }} | {{ $menu }}</title>
     <meta name="_token" content="{!! csrf_token() !!}"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="refresh" content = "28800; url={{ route('login') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
     <link rel="stylesheet" href="{{ URL::asset('assets/plugins/fontawesome-free/css/all.min.css') }}">
@@ -345,7 +346,17 @@
             todayHighlight: true
         });
 
-        $('#reservation').daterangepicker()
+        $('#reqDate').daterangepicker({
+            autoUpdateInput: false
+        });
+
+        $('#reqDate').on('apply.daterangepicker', function (event, picker) {
+            if (picker.startDate && picker.endDate) {
+                $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));
+            } else {
+                $(this).val('');
+            }
+        });
 
         //Flat red color scheme for iCheck
         $('input[type="checkbox"].flat-red, input[type="radio"].flat-red').iCheck({

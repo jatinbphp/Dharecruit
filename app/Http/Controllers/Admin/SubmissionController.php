@@ -22,8 +22,7 @@ class SubmissionController extends Controller
         $data['search'] = $request['search'];
 
         if ($request->ajax()) {
-            $data = Requirement::select();
-
+            $data = $this->Filter($request);
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function($row){
@@ -179,7 +178,7 @@ class SubmissionController extends Controller
     public function assignSubmission($id){
         $requirement = Requirement::where('id',$id)->first();
         if(!empty($requirement)){
-            $input['recruiter'] = !empty($requirement['recruiter']) ? $requirement['recruiter'].','.Auth::user()->id : Auth::user()->id;
+            $input['recruiter'] = !empty($requirement['recruiter']) ? $requirement['recruiter'].','.Auth::user()->id : ','.Auth::user()->id.',';
             $requirement->update($input);
             return 1;
         }else{

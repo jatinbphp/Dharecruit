@@ -28,7 +28,7 @@ class RequirementController extends Controller
         $data['search'] = $request['search'];
 
         if ($request->ajax()) {
-            $data = Requirement::select();
+            $data = $this->Filter($request);
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('user_id', function($row){
@@ -105,7 +105,7 @@ class RequirementController extends Controller
                 ->addColumn('action', function($row){
                     $user = Auth::user();
                     $btn = '';
-                    if($user['role'] == 'bdm' && $user['id'] == $row->user_id){
+                    if(in_array($user['role'], ['admin','bdm']) || $user['id'] == $row->user_id){
                         $btn .= '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/requirement/'.$row->id.'/edit').'"><button class="btn btn-sm btn-info tip" data-toggle="tooltip" title="Edit Requirement" data-trigger="hover" type="submit" ><i class="fa fa-edit"></i></button></a></div>';
                     }
                     if($user['role'] == 'admin'){
@@ -128,7 +128,7 @@ class RequirementController extends Controller
         $data['search'] = $request['search'];
 
         if ($request->ajax()) {
-            $data = Requirement::where('user_id',Auth::user()->id)->select();
+            $data = $this->Filter($request);
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('user_id', function($row){

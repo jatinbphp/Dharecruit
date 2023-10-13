@@ -1,8 +1,8 @@
 @php
-    $bdm = \App\Models\Admin::where('role','bdm')->where('status','active')->pluck('name','id');
-    $recruiter = \App\Models\Admin::where('role','recruiter')->where('status','active')->pluck('name','id');
-    $pvCompany = \App\Models\PVCompany::where('status','active')->pluck('name','id');
-    $moi = \App\Models\Moi::where('status','active')->pluck('name','id');
+    $bdm = \App\Models\Admin::where('role','bdm')->where('status','active')->pluck('name','id')->prepend('Please Select','');
+    $recruiter = \App\Models\Admin::where('role','recruiter')->where('status','active')->pluck('name','id')->prepend('Please Select','');
+    $pvCompany = \App\Models\PVCompany::where('status','active')->pluck('name','id')->prepend('Please Select','');
+    $moi = \App\Models\Moi::where('status','active')->pluck('name','id')->prepend('Please Select','');
 @endphp
 <div class="row">
     <div class="col-md-3">
@@ -14,7 +14,7 @@
                         <i class="far fa-calendar-alt"></i>
                     </span>
                 </div>
-                {!! Form::text('date', null, ['class' => 'form-control float-right', 'placeholder' => 'Select From & To Date', 'id' => 'reservation']) !!}
+                {!! Form::text('date', null, ['autocomplete' => 'off', 'class' => 'form-control float-right', 'placeholder' => 'Select From & To Date', 'id' => 'reqDate']) !!}
             </div>
         </div>
     </div>
@@ -63,4 +63,5 @@
         </div>
     </div>
 </div>
-<button class="btn btn-info float-right">Search</button>
+<button class="btn btn-info float-right" onclick="showData()">Search</button>
+<button class="btn btn-default float-right mr-2" onclick="clearData()">Clear</button>

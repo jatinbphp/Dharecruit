@@ -31,7 +31,7 @@
                                     <a href="{{ route('requirement.create') }}"><button class="btn btn-info float-right" type="button"><i class="fa fa-plus pr-1"></i> Add New</button></a>
                                 </div>
                                 <div class="col-md-12">
-                                    {!! Form::open(['url' => route('requirement.index'), 'method' => 'get', 'id' => 'filterForm', 'class' => 'form-horizontal','files'=>true]) !!}
+                                    {!! Form::open(['id' => 'filterForm', 'class' => 'form-horizontal','files'=>true,'onsubmit' => 'return false;']) !!}
                                         @include('admin.filter')
                                     {!! Form::close() !!}
                                 </div>
@@ -71,12 +71,40 @@
 
 @section('jquery')
 <script type="text/javascript">
-    $(function () {
+    $(document).ready(function () {
+        datatables();
+    });
+
+    function showData(){
+        $("#requirementTable").dataTable().fnDestroy();
+        datatables();
+    }
+
+    function clearData(){
+        $('#filterForm')[0].reset();
+        $("#requirementTable").dataTable().fnDestroy();
+        datatables();
+    }
+
+    function datatables(){
         var table = $('#requirementTable').DataTable({
             processing: true,
             serverSide: true,
             responsive: true,
-            ajax: "{{ $type == 1 ? route('requirement.index') : route('my_requirement') }}",
+            ajax: {
+                url: "{{ $type == 1 ? route('requirement.index') : route('my_requirement') }}",
+                data: function (d) {
+                    d.date = $('#reqDate').val();
+                    d.requirement = $('#requirement').val();
+                    d.bdm = $('#bdm').val();
+                    d.recruiter = $('#recruiter').val();
+                    d.poc_email = $('#poc_email').val();
+                    d.pv_company = $('#pv_company').val();
+                    d.moi = $('#moi').val();
+                    d.work_type = $('#work_type').val();
+                    d._token = '{{ csrf_token() }}';
+                }
+            },
             columns: [
                 {data: 'DT_RowIndex', 'width': '13%', name: 'DT_RowIndex', orderable: false, searchable: false },
                 {data: 'job_id', 'width': '11%', name: 'job_id'},
@@ -95,21 +123,23 @@
                 {data: 'action', "width": "15%", name: 'action', orderable: false, searchable: false},
             ]
         });
+    }
 
+    $(function () {
         $('#requirementTable tbody').on('click', '.deleteRequirement', function (event) {
             event.preventDefault();
             var roleId = $(this).attr("data-id");
             swal({
-                    title: "Are you sure?",
-                    text: "You want to delete this requirement?",
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: '#DD6B55',
-                    confirmButtonText: 'Yes, Delete',
-                    cancelButtonText: "No, cancel",
-                    closeOnConfirm: false,
-                    closeOnCancel: false
-                },
+                title: "Are you sure?",
+                text: "You want to delete this requirement?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#DD6B55',
+                confirmButtonText: 'Yes, Delete',
+                cancelButtonText: "No, cancel",
+                closeOnConfirm: false,
+                closeOnCancel: false
+            },
             function(isConfirm) {
                 if (isConfirm) {
                     $.ajax({
@@ -118,7 +148,8 @@
                         data: {_token: '{{csrf_token()}}' },
                         success: function(data){
                             console.log(data);
-                            table.row('.selected').remove().draw(false);
+                            //table.row('.selected').remove().draw(false);
+                            $('#requirementTable').DataTable().ajax.reload();
                             swal("Deleted", "Your data successfully deleted!", "success");
                         }
                     });
@@ -143,7 +174,9 @@
                     l.stop();
                     $('#assign_remove_'+user_id).show();
                     $('#assign_add_'+user_id).hide();
-                    table.draw(false);
+                    $('#requirementTable').DataTable().ajax.reload();
+                    //table.draw(false);
+                    //datatables();
                 }
             });
         });
@@ -162,7 +195,9 @@
                     l.stop();
                     $('#assign_remove_'+user_id).hide();
                     $('#assign_add_'+user_id).show();
-                    table.draw(false);
+                    $('#requirementTable').DataTable().ajax.reload();
+                    //table.draw(false);
+                    //datatables();
                 }
             });
         });
