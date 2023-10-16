@@ -439,7 +439,8 @@ class RequirementController extends Controller
             $skiilsMatch = $submission['skills_match'];
             $reason = $submission['skills_match'];
             $jobTitle = $submission['Requirement']['job_title'];
-            $rData .= '<div class="row">
+            $rData .= '<h3>Requirement</h3>
+                        <div class="row">
                             <div class="col-md-6">
                                 <strong>BDM:</strong> '.$submission['Requirement']['BDM']['name'].'
                             </div>
@@ -472,7 +473,8 @@ class RequirementController extends Controller
                             </div>
                         </div>';
 
-            $cData .= '<div class="row">
+            $cData .= '<h3>Candidate</h3>
+                        <div class="row">
                             <div class="col-md-6">
                                 <strong>Recruiter:</strong> '.$submission['Recruiters']['name'].'
                             </div>

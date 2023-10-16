@@ -224,8 +224,8 @@
                         $("#common_skills").select2("val", submission.common_skills);
                         $("#skills_match").select2("val", submission.skills_match);
                         $("#reason").val(submission.reason);
-                        $('#requirementData').append(data.requirementData);
-                        $('#candidateData').append(data.candidateData);
+                        $('#requirementData').html(data.requirementData);
+                        $('#candidateData').html(data.candidateData);
                         $('#candidateModal').modal('show');
                     }else{
                         swal("Cancelled", "Something is wrong. Please try again!", "error");

@@ -12,12 +12,8 @@
             <div class="modal-body">
                 <div class="row">
                     @if($hide == 0)
-                        <div class="col-md-12 border-bottom mb-2 pb-2" id="requirementData">
-                            <h3>Requirement</h3>
-                        </div>
-                        <div class="col-md-12 border-bottom mb-2 pb-2" id="candidateData">
-                            <h3>Candidate</h3>
-                        </div>
+                        <div class="col-md-12 border-bottom mb-2 pb-2" id="requirementData"></div>
+                        <div class="col-md-12 border-bottom mb-2 pb-2" id="candidateData"></div>
                     @endif
                     <div class="col-md-12" id="statusUpdate">
                         <div class="row">
