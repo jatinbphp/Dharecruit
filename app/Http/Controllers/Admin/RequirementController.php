@@ -38,7 +38,8 @@ class RequirementController extends Controller
                     return $row->Category->name;
                 })
                 ->addColumn('created_at', function($row){
-                    return date('d/m/Y', strtotime($row->created_at));
+                    return '<span class="border border-dark floar-left p-1 mt-2" style="
+                    border-radius: 5px; width: auto">'.$row->created_at->diffForHumans().'</span>';
                 })
                 ->addColumn('recruiter', function($row){
                     $rId = !empty($row->recruiter) ? explode(',',$row->recruiter) : [];
@@ -48,7 +49,8 @@ class RequirementController extends Controller
                             $recUser = Admin::where('id',$uid)->first();
                             if(!empty($recUser)){
                                 $submission = Submission::where('user_id',$uid)->where('requirement_id',$row->id)->count();
-                                $recName .= $submission.'-'.$recUser['name'].'<br>';
+                                $recName .='<span class="border border-dark float-left p-1 mt-2" style="
+                                border-radius: 5px;">'. $submission.' '.$recUser['name']. '</span>';
                             }
                         }
                     }
@@ -63,12 +65,12 @@ class RequirementController extends Controller
                         <button class="btn btn-danger unassign ladda-button" data-style="slide-left" id="remove" url="'.route('requirement.unassign').'" ruid="'.$row->id.'" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Hold</span> </button>
                                                 </div>';
                             $statusBtn .= '<div class="btn-group-horizontal" id="assign_add_"'.$row->id.'"  style="display: none"  >
-                                                    <button class="btn btn-success assign ladda-button" data-style="slide-left" id="assign" uid="'.$row->id.'" url="'.route('requirement.assign').'" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Unhold</span></button>
+                                                    <button class="btn btn-success assign ladda-button" data-style="slide-left" id="assign" uid="'.$row->id.'" url="'.route('requirement.assign').'" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Need</span></button>
                                                 </div>';
                         }
                         if ($row->status == "unhold") {
                             $statusBtn .= '<div class="btn-group-horizontal" id="assign_add_"'.$row->id.'">
-                                                    <button class="btn btn-success assign ladda-button" id="assign" data-style="slide-left" uid="'.$row->id.'" url="'.route('requirement.assign').'" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Unhold</span></button>
+                                                    <button class="btn btn-success assign ladda-button" id="assign" data-style="slide-left" uid="'.$row->id.'" url="'.route('requirement.assign').'" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Need</span></button>
                                                 </div>';
                             $statusBtn .= '<div class="btn-group-horizontal" id="assign_remove_"'.$row->id.'" style="display: none" >
                                                     <button class="btn  btn-danger unassign ladda-button" id="remove" ruid="'.$row->id.'" data-style="slide-left" url="'.route('requirement.unassign').'" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Hold</span></button>
@@ -112,8 +114,8 @@ class RequirementController extends Controller
                     $candidate = '<br>';
                     if(count($allSubmission) > 0){
                         foreach ($allSubmission as $list){
-                            $textColor = $list['status'] == 'accepted' ? 'text-success' : ($list['status'] == 'rejected' ? 'text-danger' : '');
-                            $candidate .= '<span class="candidate '.$textColor.'" data-cid="'.$list['id'].'">'.$list['name'].'-'.$list['id'].'</span><br>';
+                            $textColor = $list['status'] == 'rejected' ? 'text-danger' : '';
+                            $candidate .= '<span class="candidate '.$textColor.'"  data-cid="'.$list['id'].'">'.$list['name'].'-'.$list['id'].'</span><br>';
                         }
                     }
                     return $candidate;
@@ -121,16 +123,23 @@ class RequirementController extends Controller
                 ->addColumn('action', function($row){
                     $user = Auth::user();
                     $btn = '';
-                    if(in_array($user['role'], ['admin','bdm']) || $user['id'] == $row->user_id){
-                        $btn .= '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/requirement/'.$row->id.'/edit').'"><button class="btn btn-sm btn-info tip" data-toggle="tooltip" title="Edit Requirement" data-trigger="hover" type="submit" ><i class="fa fa-edit"></i></button></a></div>';
+                    if(($user['role'] == 'admin') || ($user['role'] == 'bdm' && $user['id'] == $row->user_id)){
+                        $btn .= '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/requirement/'.$row->id.'/edit').'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Edit Requirement" data-trigger="hover" type="submit" ><i class="fa fa-edit"></i></button></a></div>';
                     }
                     if($user['role'] == 'admin'){
                         $btn .= '<span data-toggle="tooltip" title="Delete Requirement" data-trigger="hover">
-                                    <button class="btn btn-sm btn-danger deleteRequirement mr-2" data-id="'.$row->id.'" type="button"><i class="fa fa-trash"></i></button>
+                                    <button class="btn btn-sm btn-default deleteRequirement mr-2" data-id="'.$row->id.'" type="button"><i class="fa fa-trash"></i></button>
                                 </span>';
                     }
-                    $btn .= '<div class="btn-group btn-group-sm"><a href="'.url('admin/requirement/'.$row->id).'"><button class="btn btn-sm btn-warning tip" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" ><i class="fa fa-eye"></i></button></a></div>';
+                    $btn .= '<div class="btn-group btn-group-sm"><a href="'.url('admin/requirement/'.$row->id).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" ><i class="fa fa-eye"></i></button></a></div>';
                     return $btn;
+                })
+                ->addColumn('client', function($row) {
+                    $clientName = '';
+                    if($row->display_client == '1'){
+                        $clientName = $row->client_name;
+                    }
+                    return $clientName;
                 })
                 ->rawColumns(['user_id','category','created_at','recruiter','status','color','candidate','action'])
                 ->make(true);
@@ -155,7 +164,8 @@ class RequirementController extends Controller
                     return $row->Category->name;
                 })
                 ->addColumn('created_at', function($row){
-                    return date('d/m/Y', strtotime($row->created_at));
+                    return '<span class="border border-dark floar-left p-1 mt-2" style="
+                    border-radius: 5px; width: auto">'.$row->created_at->diffForHumans().'</span>';
                 })
                 ->addColumn('recruiter', function($row){
                     $rId = !empty($row->recruiter) ? explode(',',$row->recruiter) : [];
@@ -165,7 +175,8 @@ class RequirementController extends Controller
                             $recUser = Admin::where('id',$uid)->first();
                             if(!empty($recUser)){
                                 $submission = Submission::where('user_id',$uid)->where('requirement_id',$row->id)->count();
-                                $recName .= $submission.'-'.$recUser['name'].'<br>';
+                                $recName .='<span class="border border-dark float-left p-1 mt-2" style="
+                                border-radius: 5px;">'. $submission.' '.$recUser['name']. '</span>';
                             }
                         }
                     }
@@ -178,12 +189,12 @@ class RequirementController extends Controller
                         <button class="btn btn-danger unassign ladda-button" data-style="slide-left" id="remove" url="'.route('requirement.unassign').'" ruid="'.$row->id.'" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Hold</span> </button>
                                                 </div>';
                         $statusBtn .= '<div class="btn-group-horizontal" id="assign_add_"'.$row->id.'"  style="display: none"  >
-                                                    <button class="btn btn-success assign ladda-button" data-style="slide-left" id="assign" uid="'.$row->id.'" url="'.route('requirement.assign').'" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Unhold</span></button>
+                                                    <button class="btn btn-success assign ladda-button" data-style="slide-left" id="assign" uid="'.$row->id.'" url="'.route('requirement.assign').'" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Need</span></button>
                                                 </div>';
                     }
                     if ($row->status == "unhold") {
                         $statusBtn .= '<div class="btn-group-horizontal" id="assign_add_"'.$row->id.'">
-                                                    <button class="btn btn-success assign ladda-button" id="assign" data-style="slide-left" uid="'.$row->id.'" url="'.route('requirement.assign').'" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Unhold</span></button>
+                                                    <button class="btn btn-success assign ladda-button" id="assign" data-style="slide-left" uid="'.$row->id.'" url="'.route('requirement.assign').'" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Need</span></button>
                                                 </div>';
                         $statusBtn .= '<div class="btn-group-horizontal" id="assign_remove_"'.$row->id.'" style="display: none" >
                                                     <button class="btn  btn-danger unassign ladda-button" id="remove" ruid="'.$row->id.'" data-style="slide-left" url="'.route('requirement.unassign').'" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Hold</span></button>
@@ -214,7 +225,7 @@ class RequirementController extends Controller
                     $candidate = '<br>';
                     if(count($allSubmission) > 0){
                         foreach ($allSubmission as $list){
-                            $textColor = $list['status'] == 'accepted' ? 'text-success' : ($list['status'] == 'rejected' ? 'text-danger' : '');
+                            $textColor = $list['status'] == 'rejected' ? 'text-danger' : '' ;
                             $candidate .= '<span class="candidate '.$textColor.'" data-cid="'.$list['id'].'">'.$list['name'].'-'.$list['id'].'</span><br>';
                         }
                     }
@@ -224,15 +235,22 @@ class RequirementController extends Controller
                     $user = Auth::user();
                     $btn = '';
                     if($user['role'] == 'bdm' && $user['id'] == $row->user_id){
-                        $btn .= '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/requirement/'.$row->id.'/edit').'"><button class="btn btn-sm btn-info tip" data-toggle="tooltip" title="Edit Requirement" data-trigger="hover" type="submit" ><i class="fa fa-edit"></i></button></a></div>';
+                        $btn .= '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/requirement/'.$row->id.'/edit').'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Edit Requirement" data-trigger="hover" type="submit" ><i class="fa fa-edit"></i></button></a></div>';
                     }
                     if($user['role'] == 'admin'){
                         $btn .= '<span data-toggle="tooltip" title="Delete Requirement" data-trigger="hover">
-                                    <button class="btn btn-sm btn-danger deleteRequirement mr-2" data-id="'.$row->id.'" type="button"><i class="fa fa-trash"></i></button>
+                                    <button class="btn btn-sm btn-default deleteRequirement mr-2" data-id="'.$row->id.'" type="button"><i class="fa fa-trash"></i></button>
                                 </span>';
                     }
-                    $btn .= '<div class="btn-group btn-group-sm"><a href="'.url('admin/requirement/'.$row->id).'"><button class="btn btn-sm btn-warning tip" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" ><i class="fa fa-eye"></i></button></a></div>';
+                    $btn .= '<div class="btn-group btn-group-sm"><a href="'.url('admin/requirement/'.$row->id).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" ><i class="fa fa-eye"></i></button></a></div>';
                     return $btn;
+                })
+                ->addColumn('client', function($row) {
+                    $clientName = '';
+                    if($row->display_client == '1'){
+                        $clientName = $row->client_name;
+                    }
+                    return $clientName;
                 })
                 ->rawColumns(['user_id','category','created_at','recruiter','status','color','candidate','action'])
                 ->make(true);
@@ -286,6 +304,11 @@ class RequirementController extends Controller
         $input = $request->all();
         $input['user_id'] = Auth::user()->id;
         $input['job_id'] = 0;
+        if(isset($input['display_client']) && $input['display_client'] == 'on'){
+            $input['display_client'] = 1;
+        } else {
+            $input['display_client'] = 0;
+        }
         $req = Requirement::create($input);
         if($req){
             $requirements = Requirement::where('id',$req['id'])->first();
@@ -355,6 +378,7 @@ class RequirementController extends Controller
 
     public function update(Request $request, $id)
     {
+        \Log::info($request);
         $this->validate($request, [
             'job_title' => 'required',
             'no_of_position' => 'required',
@@ -380,6 +404,11 @@ class RequirementController extends Controller
         ]);
 
         $input = $request->all();
+        if(isset($input['display_client']) && $input['display_client'] == 'on'){
+            $input['display_client'] = 1;
+        } else {
+            $input['display_client'] = 0;
+        }
         $requirement = Requirement::findorFail($id);
         $requirement->update($input);
 

@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin;
 use App\Models\Requirement;
 use App\Models\Submission;
 use Illuminate\Http\Request;
 use DataTables;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class SubmissionController extends Controller
@@ -25,6 +27,95 @@ class SubmissionController extends Controller
             $data = $this->Filter($request);
             return Datatables::of($data)
                 ->addIndexColumn()
+                ->addColumn('user_id', function($row){
+                    return $row->BDM->name;
+                })
+                ->addColumn('category', function($row){
+                    return $row->Category->name;
+                })
+                ->addColumn('created_at', function($row){
+                    return '<span class="border border-dark floar-left p-1 mt-2" style="
+                    border-radius: 5px; width: auto">'.$row->created_at->diffForHumans().'</span>';
+                })
+                ->addColumn('recruiter', function($row){
+                    $rId = !empty($row->recruiter) ? explode(',',$row->recruiter) : [];
+                    $recName = '';
+                    if(count($rId)>0){
+                        foreach ($rId as $uid){
+                            $recUser = Admin::where('id',$uid)->first();
+                            if(!empty($recUser)){
+                                $submission = Submission::where('user_id',$uid)->where('requirement_id',$row->id)->count();
+                                $recName .='<span class="border border-dark float-left p-1 mt-2" style="
+                                border-radius: 5px;">'. $submission.' '.$recUser['name']. '</span>';
+                            }
+                        }
+                    }
+                    return $recName;
+                })
+                ->addColumn('status', function($row){
+                    $statusBtn = '';
+                    $user = Auth::user();
+                    if($user['role'] == 'admin' || $user['id'] == $row->user_id){
+                        if ($row->status == "hold") {
+                            $statusBtn .= '<div class="btn-group-horizontal" id="assign_remove_"'.$row->id.'">
+                                                <button class="btn btn-danger unassign ladda-button" data-style="slide-left" id="remove" url="'.route('requirement.unassign').'" ruid="'.$row->id.'" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Hold</span> </button>
+                                           </div>';
+                            $statusBtn .= '<div class="btn-group-horizontal" id="assign_add_"'.$row->id.'"  style="display: none"  >
+                                                    <button class="btn btn-success assign ladda-button" data-style="slide-left" id="assign" uid="'.$row->id.'" url="'.route('requirement.assign').'" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Need</span></button>
+                                                </div>';
+                        }
+                        if ($row->status == "unhold") {
+                            $statusBtn .= '<div class="btn-group-horizontal" id="assign_add_"'.$row->id.'">
+                                                    <button class="btn btn-success assign ladda-button" id="assign" data-style="slide-left" uid="'.$row->id.'" url="'.route('requirement.assign').'" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Need</span></button>
+                                                </div>';
+                            $statusBtn .= '<div class="btn-group-horizontal" id="assign_remove_"'.$row->id.'" style="display: none" >
+                                                    <button class="btn  btn-danger unassign ladda-button" id="remove" ruid="'.$row->id.'" data-style="slide-left" url="'.route('requirement.unassign').'" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Hold</span></button>
+                                                </div>';
+                        }
+                    }else{
+                        if ($row->status == "hold") {
+                            $statusBtn .= '<div class="btn-group-horizontal">
+                                                <button class="btn btn-danger noChange ladda-button" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Hold</span></button>
+                                           </div>';
+                        }
+                        if ($row->status == "unhold") {
+                            $statusBtn .= '<div class="btn-group-horizontal">
+                                                <button class="btn btn-success noChange ladda-button" data-style="slide-left" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Need</span></button>
+                                            </div>';
+                        }
+                    }
+                    return $statusBtn;
+                })
+                ->addColumn('color', function($row){
+                    $color = '';
+                    if(!empty($row->recruiter)){
+                        Log::info('Status Color Yellow==>');
+                        $color = '<div style="width:50px; background-color: yellow;">&nbsp;</div>';
+                    }
+                    $submission = Submission::where('requirement_id',$row->id)->count();
+                    if($submission > 0){
+                        Log::info('Status Color Green==>');
+                        $color = '<div style="width:50px; background-color: green;">&nbsp;</div>';
+                    }
+                    $rejectionCount = Submission::where('requirement_id',$row->id)->where('status','rejected')->count();
+                    if($rejectionCount > 0){
+                        Log::info('Status Color Red==>');
+                        $color = '<div style="width:50px; background-color: red;">&nbsp;</div>';
+                    }
+                    return $color;
+                })
+                ->addColumn('candidate', function($row){
+                    $allSubmission = Submission::where('requirement_id',$row->id)->where('status','!=','reject')->get();
+                    $user = Auth::user();
+                    $candidate = '<br>';
+                    if(count($allSubmission) > 0){
+                        foreach ($allSubmission as $list){
+                            $textColor = $list['status'] == 'rejected' ? 'text-danger' : '';
+                            $candidate .= '<span class="candidate '.$textColor.'"  data-cid="'.$list['id'].'">'.$list['name'].'-'.$list['id'].'</span><br>';
+                        }
+                    }
+                    return $candidate;
+                })
                 ->addColumn('action', function($row){
                     if($row['submissionCounter'] < 3){
                         $rId = !empty($row->recruiter) ? explode(',',$row->recruiter) : [];
@@ -32,16 +123,19 @@ class SubmissionController extends Controller
                             $btn = '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/submission/'.$row->id).'"><button class="btn btn-sm btn-info tip" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" ><i class="fa fa-eye"></i></button></a></div>';
                             $btn .= '<div class="btn-group btn-group-sm"><a href="'.url('admin/submission/new/'.$row->id).'"><button class="btn btn-sm btn-success tip" data-toggle="tooltip" title="Add New Submission" data-trigger="hover" type="submit" ><i class="fa fa-upload"></i></button></a></div>';
                         }else{
-                            $btn = '<span data-toggle="tooltip" title="Assign Requirement" data-trigger="hover">
+                            $btn = '';
+                            if($row->status != "unhold"){
+                                $btn = '<span data-toggle="tooltip" title="Assign Requirement" data-trigger="hover">
                                     <button class="btn btn-sm btn-warning assignRequirement mr-2" data-id="'.$row->id.'" type="button"><i class="fa fa-plus-square"></i></button>
                                 </span>';
+                            }
                         }
                     }else{
                         $btn = '<div class="btn-group btn-group-sm mr-2"><button class="btn btn-sm btn-danger tip" data-toggle="tooltip" title="Hold Submission" data-trigger="hover" type="button" ><i class="fa fa-ban"></i> Hold</button></div>';
                     }
                     return $btn;
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['user_id','category','created_at','recruiter','status','color','candidate','action'])
                 ->make(true);
         }
         $data['type'] = 1;
@@ -57,6 +151,95 @@ class SubmissionController extends Controller
             $data = $this->Filter($request);
             return Datatables::of($data)
                 ->addIndexColumn()
+                ->addColumn('user_id', function($row){
+                    return $row->BDM->name;
+                })
+                ->addColumn('category', function($row){
+                    return $row->Category->name;
+                })
+                ->addColumn('created_at', function($row){
+                    return '<span class="border border-dark floar-left p-1 mt-2" style="
+                    border-radius: 5px; width: auto">'.$row->created_at->diffForHumans().'</span>';
+                })
+                ->addColumn('recruiter', function($row){
+                    $rId = !empty($row->recruiter) ? explode(',',$row->recruiter) : [];
+                    $recName = '';
+                    if(count($rId)>0){
+                        foreach ($rId as $uid){
+                            $recUser = Admin::where('id',$uid)->first();
+                            if(!empty($recUser)){
+                                $submission = Submission::where('user_id',$uid)->where('requirement_id',$row->id)->count();
+                                $recName .='<span class="border border-dark float-left p-1 mt-2" style="
+                                border-radius: 5px;">'. $submission.' '.$recUser['name']. '</span>';
+                            }
+                        }
+                    }
+                    return $recName;
+                })
+                ->addColumn('status', function($row){
+                    $statusBtn = '';
+                    $user = Auth::user();
+                    if($user['role'] == 'admin' || $user['id'] == $row->user_id){
+                        if ($row->status == "hold") {
+                            $statusBtn .= '<div class="btn-group-horizontal" id="assign_remove_"'.$row->id.'">
+                                                <button class="btn btn-danger unassign ladda-button" data-style="slide-left" id="remove" url="'.route('requirement.unassign').'" ruid="'.$row->id.'" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Hold</span> </button>
+                                           </div>';
+                            $statusBtn .= '<div class="btn-group-horizontal" id="assign_add_"'.$row->id.'"  style="display: none"  >
+                                                    <button class="btn btn-success assign ladda-button" data-style="slide-left" id="assign" uid="'.$row->id.'" url="'.route('requirement.assign').'" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Need</span></button>
+                                                </div>';
+                        }
+                        if ($row->status == "hold") {
+                            $statusBtn .= '<div class="btn-group-horizontal" id="assign_add_"'.$row->id.'">
+                                                    <button class="btn btn-success assign ladda-button" id="assign" data-style="slide-left" uid="'.$row->id.'" url="'.route('requirement.assign').'" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Need</span></button>
+                                                </div>';
+                            $statusBtn .= '<div class="btn-group-horizontal" id="assign_remove_"'.$row->id.'" style="display: none" >
+                                                    <button class="btn  btn-danger unassign ladda-button" id="remove" ruid="'.$row->id.'" data-style="slide-left" url="'.route('requirement.unassign').'" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Hold</span></button>
+                                                </div>';
+                        }
+                    }else{
+                        if ($row->status == "hold") {
+                            $statusBtn .= '<div class="btn-group-horizontal">
+                                                <button class="btn btn-danger noChange ladda-button" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Hold</span></button>
+                                           </div>';
+                        }
+                        if ($row->status == "unhold") {
+                            $statusBtn .= '<div class="btn-group-horizontal">
+                                                <button class="btn btn-success noChange ladda-button" data-style="slide-left" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Need</span></button>
+                                            </div>';
+                        }
+                    }
+                    return $statusBtn;
+                })
+                ->addColumn('color', function($row){
+                    $color = '';
+                    if(!empty($row->recruiter)){
+                        Log::info('Status Color Yellow==>');
+                        $color = '<div style="width:50px; background-color: yellow;">&nbsp;</div>';
+                    }
+                    $submission = Submission::where('requirement_id',$row->id)->count();
+                    if($submission > 0){
+                        Log::info('Status Color Green==>');
+                        $color = '<div style="width:50px; background-color: green;">&nbsp;</div>';
+                    }
+                    $rejectionCount = Submission::where('requirement_id',$row->id)->where('status','rejected')->count();
+                    if($rejectionCount > 0){
+                        Log::info('Status Color Red==>');
+                        $color = '<div style="width:50px; background-color: red;">&nbsp;</div>';
+                    }
+                    return $color;
+                })
+                ->addColumn('candidate', function($row){
+                    $allSubmission = Submission::where('requirement_id',$row->id)->where('status','!=','reject')->get();
+                    $user = Auth::user();
+                    $candidate = '<br>';
+                    if(count($allSubmission) > 0){
+                        foreach ($allSubmission as $list){
+                            $textColor = $list['status'] == 'rejected' ? 'text-danger' : '';
+                            $candidate .= '<span class="candidate '.$textColor.'"  data-cid="'.$list['id'].'">'.$list['name'].'-'.$list['id'].'</span><br>';
+                        }
+                    }
+                    return $candidate;
+                })
                 ->addColumn('action', function($row){
                     if($row->submissionCounter < 3){
                         $rId = !empty($row->recruiter) ? explode(',',$row->recruiter) : [];
@@ -64,16 +247,19 @@ class SubmissionController extends Controller
                             $btn = '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/submission/'.$row->id).'"><button class="btn btn-sm btn-info tip" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" ><i class="fa fa-eye"></i></button></a></div>';
                             $btn .= '<div class="btn-group btn-group-sm"><a href="'.url('admin/submission/new/'.$row->id).'"><button class="btn btn-sm btn-success tip" data-toggle="tooltip" title="Add New Submission" data-trigger="hover" type="submit" ><i class="fa fa-upload"></i></button></a></div>';
                         }else{
-                            $btn = '<span data-toggle="tooltip" title="Assign Requirement" data-trigger="hover">
+                            $btn = '';
+                            if($row->status != "unhold"){
+                                $btn = '<span data-toggle="tooltip" title="Assign Requirement" data-trigger="hover">
                                     <button class="btn btn-sm btn-warning assignRequirement mr-2" data-id="'.$row->id.'" type="button"><i class="fa fa-plus-square"></i></button>
                                 </span>';
+                            }
                         }
                     }else{
                         $btn = '<div class="btn-group btn-group-sm mr-2"><button class="btn btn-sm btn-danger tip" data-toggle="tooltip" title="Hold Submission" data-trigger="hover" type="button" ><i class="fa fa-ban"></i> Hold</button></div>';
                     }
                     return $btn;
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['user_id','category','created_at','recruiter','status','color','candidate','action'])
                 ->make(true);
         }
         $data['type'] = 2;
@@ -91,7 +277,7 @@ class SubmissionController extends Controller
             'name' => 'required',
             'email' => 'required',
             'location' => 'required',
-            'phone' => 'required',
+            'phone' => 'required|numeric',
             'employer_detail' => 'required',
             'work_authorization' => 'required',
             'recruiter_rate' => 'required',
@@ -216,5 +402,20 @@ class SubmissionController extends Controller
         }else{
             return 0;
         }
+    }
+
+    public function getAlreadyAddedUserDetail(Request $request){
+        if(!$request || !$request->get('email')){
+            return '';
+        }
+
+        $email = $request->get('email');
+        $data = Submission::where('email',$email)->latest()->first();
+        
+        if(!$data) {
+            return '';
+        }
+
+        return response()->json(['data'=> $data], 200);
     }
 }

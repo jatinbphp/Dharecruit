@@ -35,7 +35,7 @@ class CreateRequirementsTable extends Migration
             $table->integer('moi')->nullable();
             $table->string('job_keyword')->nullable();
             $table->string('notes')->nullable();
-            $table->string('description')->nullable();
+            $table->longText('description')->nullable();
             $table->string('pv_company_name')->nullable();
             $table->string('poc_name')->nullable();
             $table->string('poc_email')->nullable();

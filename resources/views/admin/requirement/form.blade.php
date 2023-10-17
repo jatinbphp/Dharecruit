@@ -324,7 +324,7 @@
             <label class="control-label" for="display_client">Display Client :<span class="text-red"></span></label>
             <br>
             <div class="icheck-primary d-inline">
-                <input type="checkbox" id="display_client">
+                {!! Form::checkbox('display_client', null, null, ['id' => 'display_client']) !!}
                 <label for="display_client"></label>
             </div>
 

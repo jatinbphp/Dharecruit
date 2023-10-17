@@ -41,3 +41,38 @@
         </section>
     </div>
 @endsection
+
+@section('jquery')
+<script type="text/javascript">
+    $("#email").focusout(function(){
+        var email = $(this).val();
+        $.ajax({
+            url : "{{ route('submission.alreadyAddedUserDetail') }}",
+            data : {'email' : email, "_token": "{{ csrf_token() }}",},
+            type : 'POST',
+            dataType : 'json',
+            success : function(data){
+                var data = Object.values(data)[0];
+                $('#submissionsForm *').filter(':input').each(function () {
+                    var tagType = $(this).prop("tagName").toLowerCase();
+                    var elementId = this.id;
+                    if(elementId){
+                        if(tagType == 'input'){
+                            var type = $("#" + elementId).attr("type");
+                            if(type == 'file'){
+                                var resumeElement = '<div class="mt-2"><a href="{{asset("storage")}}/'+ data['documents']+'" target="_blank"><img src=" {{url('assets/dist/img/resume.png')}}" height="50"></a></div>';
+                                $("#" + elementId).closest('div').append(resumeElement);
+                            } else {
+                                var id = "#" + elementId;
+                                $(id).val(data[elementId]);                                
+                            }
+                        } else if(tagType == 'select'){
+                            $("#" +elementId).select2("val", data[elementId]);
+                        }
+                    }
+                });
+            }
+        });
+    });
+</script>
+@endsection

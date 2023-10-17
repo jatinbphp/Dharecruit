@@ -17,6 +17,8 @@ class CreateSubmissionsTable extends Migration
             $table->id();
             $table->integer('user_id');
             $table->integer('requirement_id');
+            $table->string('name')->nullable();
+            $table->string('email')->nullable();
             $table->string('location')->nullable();
             $table->string('phone')->nullable();
             $table->string('employer_detail')->nullable();

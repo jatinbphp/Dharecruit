@@ -38,12 +38,22 @@
                             <table id="requirementTable" class="table table-bordered table-striped">
                                 <thead>
                                     <tr>
+                                        <th>Daily #</th>
+                                        <th>Job Id</th>
                                         <th>Job Title</th>
-                                        <th>No # Position</th>
-                                        <th>Experience</th>
-                                        <th>Locations</th>
-                                        <th>Work Type</th>
+                                        <th>BDM</th>
                                         <th>Duration</th>
+                                        <th>Location</th>
+                                        <th>Rate</th>
+                                        <th>Onsite</th>
+                                        <th>Category</th>
+                                        <th>Timer</th>
+                                        <th>Job Keyword</th>
+                                        <th>client</th>
+                                        <th>Recruiter</th>
+                                        <th>Status</th>
+                                        <th>Color</th>
+                                        <th>Candidate</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -79,6 +89,7 @@
         var table = $('#requirementTable').DataTable({
             processing: true,
             serverSide: true,
+            responsive: true,
             ajax: {
                 url: "{{ $type == 1 ? route('submission.index') : route('my_submission') }}",
                 data: function (d) {
@@ -94,12 +105,22 @@
                 }
             },
             columns: [
-                {data: 'job_title', name: 'job_title'},
-                {data: 'no_of_position', name: 'no_of_position'},
-                {data: 'experience', name: 'experience'},
-                {data: 'location', name: 'location'},
-                {data: 'work_type', name: 'work_type'},
+                {data: 'DT_RowIndex', 'width': '6%', name: 'DT_RowIndex', orderable: false, searchable: false },
+                {data: 'job_id', 'width': '8%', name: 'job_id'},
+                {data: 'job_title', 'width': '30%', name: 'job_title'},
+                {data: 'user_id', 'width': '6%', name: 'user_id'},
                 {data: 'duration', name: 'duration'},
+                {data: 'location', name: 'location'},
+                {data: 'vendor_rate', name: 'vendor_rate'},
+                {data: 'work_type', name: 'work_type'},
+                {data: 'category', name: 'category'},
+                {data: 'created_at', 'width': '18%', name: 'created_at'},
+                {data: 'job_keyword', 'width': '20%', name: 'job_keyword'},
+                {data: 'client', name: 'client'},
+                {data: 'recruiter', name: 'recruiter'},
+                {data: 'status', name: 'status'},
+                {data: 'color', name: 'color'},
+                {data: 'candidate', name: 'candidate'},
                 {data: 'action', "width": "15%", name: 'action', orderable: false, searchable: false},
             ]
         });

@@ -23,9 +23,7 @@
             @endif
         </div>
     </div>
-</div>
 
-<div class="row">
     <div class="col-md-6">
         <div class="form-group{{ $errors->has('location') ? ' has-error' : '' }}">
             <label class="control-label" for="location">Location :<span class="text-red">*</span></label>
@@ -49,9 +47,7 @@
             @endif
         </div>
     </div>
-</div>
 
-<div class="row">
     <div class="col-md-6">
         <div class="form-group{{ $errors->has('employer_detail') ? ' has-error' : '' }}">
             <label class="control-label" for="employer_detail">Employer Detail :<span class="text-red">*</span></label>
@@ -75,20 +71,6 @@
             @endif
         </div>
     </div>
-</div>
-
-<div class="row">
-    <div class="col-md-6">
-        <div class="form-group{{ $errors->has('recruiter_rate') ? ' has-error' : '' }}">
-            <label class="control-label" for="recruiter_rate">Recruiter Rate :<span class="text-red">*</span></label>
-            {!! Form::text('recruiter_rate', null, ['class' => 'form-control', 'placeholder' => 'Enter Recruiter Rate', 'id' => 'recruiter_rate']) !!}
-            @if ($errors->has('recruiter_rate'))
-                <span class="text-danger">
-                    <strong>{{ $errors->first('recruiter_rate') }}</strong>
-                </span>
-            @endif
-        </div>
-    </div>
 
     <div class="col-md-6">
         <div class="form-group{{ $errors->has('last_4_ssn') ? ' has-error' : '' }}">
@@ -101,9 +83,7 @@
             @endif
         </div>
     </div>
-</div>
 
-<div class="row">
     <div class="col-md-6">
         <div class="form-group{{ $errors->has('education_details') ? ' has-error' : '' }}">
             <label class="control-label" for="education_details">Education Details :<span class="text-red">*</span></label>
@@ -127,9 +107,7 @@
             @endif
         </div>
     </div>
-</div>
 
-<div class="row">
     <div class="col-md-6">
         <div class="form-group{{ $errors->has('linkedin_id') ? ' has-error' : '' }}">
             <label class="control-label" for="linkedin_id">Linkedin ID :<span class="text-red">*</span></label>
@@ -153,9 +131,7 @@
             @endif
         </div>
     </div>
-</div>
 
-<div class="row">
     <div class="col-md-6">
         <div class="form-group{{ $errors->has('vendor_rate') ? ' has-error' : '' }}">
             <label class="control-label" for="vendor_rate">Vendor Rate :<span class="text-red">*</span></label>
@@ -171,10 +147,10 @@
     <div class="col-md-6">
         <div class="form-group{{ $errors->has('resume') ? ' has-error' : '' }}">
             <label class="control-label" for="resume">Resume :<span class="text-red">*</span></label>
-            <br>
             {!! Form::file('resume', ['class' => '', 'id'=> 'resume','accept'=>'.xlsx,.xls,.doc,.docx,.ppt,.pptx,.txt,.pdf']) !!}
             @if ($errors->has('resume'))
-                <span class="text-danger">
+            <br>    
+            <span class="text-danger">
                     <strong>{{ $errors->first('resume') }}</strong>
                 </span>
             @endif

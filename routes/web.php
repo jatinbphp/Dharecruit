@@ -99,6 +99,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('submission/assign/{id}', [SubmissionController::class,'assignSubmission'])->name('submission.assign');
     Route::get('my_requirements', [SubmissionController::class,'myRequirement'])->name('my_submission');
     Route::resource('submission', SubmissionController::class);
+    Route::post('submission/getAlreadyAddedUserDetail/', [SubmissionController::class,'getAlreadyAddedUserDetail'])->name('submission.alreadyAddedUserDetail');
 
     Auth::routes();
 });

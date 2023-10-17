@@ -52,6 +52,7 @@
                                         <th>Category</th>
                                         <th>Timer</th>
                                         <th>Job Keyword</th>
+                                        <th>client</th>
                                         <th>Recruiter</th>
                                         <th>Status</th>
                                         <th>Color</th>
@@ -108,17 +109,18 @@
                 }
             },
             columns: [
-                {data: 'DT_RowIndex', 'width': '13%', name: 'DT_RowIndex', orderable: false, searchable: false },
-                {data: 'job_id', 'width': '11%', name: 'job_id'},
+                {data: 'DT_RowIndex', 'width': '6%', name: 'DT_RowIndex', orderable: false, searchable: false },
+                {data: 'job_id', 'width': '8%', name: 'job_id'},
                 {data: 'job_title', 'width': '30%', name: 'job_title'},
-                {data: 'user_id', 'width': '20%', name: 'user_id'},
+                {data: 'user_id', 'width': '6%', name: 'user_id'},
                 {data: 'duration', name: 'duration'},
                 {data: 'location', name: 'location'},
                 {data: 'vendor_rate', name: 'vendor_rate'},
                 {data: 'work_type', name: 'work_type'},
                 {data: 'category', name: 'category'},
-                {data: 'created_at', name: 'created_at'},
-                {data: 'job_keyword', name: 'job_keyword'},
+                {data: 'created_at', 'width': '18%', name: 'created_at'},
+                {data: 'job_keyword', 'width': '20%', name: 'job_keyword'},
+                {data: 'client', name: 'client'},
                 {data: 'recruiter', name: 'recruiter'},
                 {data: 'status', name: 'status'},
                 {data: 'color', name: 'color'},
