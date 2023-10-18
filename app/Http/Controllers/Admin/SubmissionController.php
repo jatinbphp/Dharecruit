@@ -124,14 +124,14 @@ class SubmissionController extends Controller
                             $btn .= '<div class="btn-group btn-group-sm"><a href="'.url('admin/submission/new/'.$row->id).'"><button class="btn btn-sm btn-success tip" data-toggle="tooltip" title="Add New Submission" data-trigger="hover" type="submit" ><i class="fa fa-upload"></i></button></a></div>';
                         }else{
                             $btn = '';
-                            if($row->status != "unhold"){
+                            if($row->status != "hold"){
                                 $btn = '<span data-toggle="tooltip" title="Assign Requirement" data-trigger="hover">
                                     <button class="btn btn-sm btn-warning assignRequirement mr-2" data-id="'.$row->id.'" type="button"><i class="fa fa-plus-square"></i></button>
                                 </span>';
                             }
                         }
                     }else{
-                        $btn = '<div class="btn-group btn-group-sm mr-2"><button class="btn btn-sm btn-danger tip" data-toggle="tooltip" title="Hold Submission" data-trigger="hover" type="button" ><i class="fa fa-ban"></i> Hold</button></div>';
+                        $btn = '';
                     }
                     return $btn;
                 })
@@ -248,14 +248,14 @@ class SubmissionController extends Controller
                             $btn .= '<div class="btn-group btn-group-sm"><a href="'.url('admin/submission/new/'.$row->id).'"><button class="btn btn-sm btn-success tip" data-toggle="tooltip" title="Add New Submission" data-trigger="hover" type="submit" ><i class="fa fa-upload"></i></button></a></div>';
                         }else{
                             $btn = '';
-                            if($row->status != "unhold"){
+                            if($row->status != "hold"){
                                 $btn = '<span data-toggle="tooltip" title="Assign Requirement" data-trigger="hover">
                                     <button class="btn btn-sm btn-warning assignRequirement mr-2" data-id="'.$row->id.'" type="button"><i class="fa fa-plus-square"></i></button>
                                 </span>';
                             }
                         }
                     }else{
-                        $btn = '<div class="btn-group btn-group-sm mr-2"><button class="btn btn-sm btn-danger tip" data-toggle="tooltip" title="Hold Submission" data-trigger="hover" type="button" ><i class="fa fa-ban"></i> Hold</button></div>';
+                        $btn = '';
                     }
                     return $btn;
                 })
@@ -280,7 +280,7 @@ class SubmissionController extends Controller
             'phone' => 'required|numeric',
             'employer_detail' => 'required',
             'work_authorization' => 'required',
-            'recruiter_rate' => 'required',
+            //'recruiter_rate' => 'required',
             'last_4_ssn' => 'required',
             'education_details' => 'required',
             'resume_experience' => 'required',
@@ -411,7 +411,7 @@ class SubmissionController extends Controller
 
         $email = $request->get('email');
         $data = Submission::where('email',$email)->latest()->first();
-        
+
         if(!$data) {
             return '';
         }
