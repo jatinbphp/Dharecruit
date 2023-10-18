@@ -43,14 +43,17 @@
                                     {!! Form::textarea('reason', null, ['class' => 'form-control', 'rows'=>4, 'placeholder' => 'Enter Reason', 'id' => 'reason']) !!}
                                 </div>
                             </div>
-                            <div class="col-md-6 mt-2 rejected-status" @if($isSubmission != 1) style="display: none;" @endif>
-                                <strong>Common Skills: </strong> <span id='common-skill'>test</span>
+                            <div class="col-md-6 mt-2" @if($isSubmission != 1) style="display: none;" @endif>
+                                <strong>Status: </strong> <span id='status'></span>
                             </div>
                             <div class="col-md-6 mt-2 rejected-status" @if($isSubmission != 1) style="display: none;" @endif>
-                                <strong>Skills Match:</strong> <span id='skill-match'>test</span>
+                                <strong>Common Skills: </strong> <span id='common-skill'></span>
                             </div>
                             <div class="col-md-6 mt-2 rejected-status" @if($isSubmission != 1) style="display: none;" @endif>
-                                <strong>Other Reason:</strong> <span id='other-reason'>test</span>
+                                <strong>Skills Match:</strong> <span id='skill-match'></span>
+                            </div>
+                            <div class="col-md-6 mt-2 rejected-status" @if($isSubmission != 1) style="display: none;" @endif>
+                                <strong>Other Reason:</strong> <span id='other-reason'></span>
                             </div>
                         </div>
                     </div>

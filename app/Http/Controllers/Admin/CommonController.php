@@ -111,13 +111,8 @@ class CommonController extends Controller
                         <div class="row mt-2">
                             <div class="col-md-6">
                                 <strong>Resume:</strong><a href="'.asset('storage/'.$submission['documents']).'" target="_blank"><img src="'.url('assets/dist/img/resume.png').'" height="50"></a>
-                            </div>';
-                            if(isset($request['isSubmission']) && $request['isSubmission'] ==1){
-                                $cData .= '<div class="col-md-6">
-                                        <strong>Status:</strong> '.$submission['status'].'
-                                    </div>';
-                            }
-                        $cData .= '</div>';
+                            </div>
+                        </div>';
         }
         $data['requirementData'] = $rData;
         $data['candidateData'] = $cData;

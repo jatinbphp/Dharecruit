@@ -88,6 +88,8 @@
                         var submission = data.submission;
                         if(submission.status != 'rejected'){
                             $('.rejected-status').hide();
+                        } else {
+                            $('.rejected-status').show();
                         }
                         $('#jobTitle').html(submission.requirement.job_title);
                         $('#submissionId').val(cId);
@@ -97,6 +99,7 @@
                         $('#common-skill').html(submission.common_skills);
                         $('#skill-match').html(submission.skills_match);
                         $('#other-reason').html(submission.reason);
+                        $('#status').html(submission.status[0].toUpperCase() + submission.status.slice(1))
                         $('#candidateModal').modal('show');
                     }else{
                         swal("Cancelled", "Something is wrong. Please try again!", "error");
