@@ -48,7 +48,7 @@
             </div>
         </section>
     </div>
-    @include('admin.requirement.candidateModal', ['hide'=>1])
+    @include('admin.requirement.candidateModal', ['hide'=>1,'isSubmission'=>0])
 @endsection
 
 @section('jquery')

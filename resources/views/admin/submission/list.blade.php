@@ -42,6 +42,7 @@
                                         <th>Location</th>
                                         <th>Employer Detail</th>
                                         <th>Status</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -54,6 +55,7 @@
             </div>
         </section>
     </div>
+    @include('admin.requirement.candidateModal',['hide'=>0,'isSubmission'=>1])
 @endsection
 
 @section('jquery')
@@ -70,8 +72,36 @@
                     {data: 'location', name: 'location'},
                     {data: 'employer_detail', name: 'employer_detail'},
                     {data: 'status', name: 'status'},
-                    //{data: 'action', "width": "15%", name: 'action', orderable: false, searchable: false},
+                    {data: 'action', "width": "15%", name: 'action', orderable: false, searchable: false},
                 ]
+            });
+        });
+
+        $('#submissionTable tbody').on('click', '.view', function (event) {
+            var cId = $(this).attr('data-cid');
+            $.ajax({
+                url: "{{route('get_candidate')}}",
+                type: "post",
+                data: {'cId': cId, 'isSubmission': '1' ,'_token' : $('meta[name=_token]').attr('content') },
+                success: function(data){
+                    if(data.status == 1){
+                        var submission = data.submission;
+                        if(submission.status != 'rejected'){
+                            $('.rejected-status').hide();
+                        }
+                        $('#jobTitle').html(submission.requirement.job_title);
+                        $('#submissionId').val(cId);
+                        $("#reason").val(submission.reason);
+                        $('#requirementData').html(data.requirementData);
+                        $('#candidateData').html(data.candidateData);
+                        $('#common-skill').html(submission.common_skills);
+                        $('#skill-match').html(submission.skills_match);
+                        $('#other-reason').html(submission.reason);
+                        $('#candidateModal').modal('show');
+                    }else{
+                        swal("Cancelled", "Something is wrong. Please try again!", "error");
+                    }
+                }
             });
         });
     </script>

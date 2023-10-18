@@ -34,8 +34,8 @@ class SubmissionController extends Controller
                     return $row->Category->name;
                 })
                 ->addColumn('created_at', function($row){
-                    return '<span class="border border-dark floar-left p-1 mt-2" style="
-                    border-radius: 5px; width: auto">'.$row->created_at->diffForHumans().'</span>';
+                    return '<div class="border border-dark floar-left p-1 mt-2" style="
+                    border-radius: 5px; width: auto"><span>'.$row->created_at->diffForHumans().'</span></div>';
                 })
                 ->addColumn('recruiter', function($row){
                     $rId = !empty($row->recruiter) ? explode(',',$row->recruiter) : [];
@@ -45,8 +45,8 @@ class SubmissionController extends Controller
                             $recUser = Admin::where('id',$uid)->first();
                             if(!empty($recUser)){
                                 $submission = Submission::where('user_id',$uid)->where('requirement_id',$row->id)->count();
-                                $recName .='<span class="border border-dark float-left p-1 mt-2" style="
-                                border-radius: 5px;">'. $submission.' '.$recUser['name']. '</span>';
+                                $recName .='<div class="border border-dark floar-left p-1 mt-2" style="
+                                border-radius: 5px; width: auto"><span>'. $submission.' '.$recUser['name']. '</span></div>';
                             }
                         }
                     }
@@ -120,13 +120,13 @@ class SubmissionController extends Controller
                     if($row['submissionCounter'] < 3){
                         $rId = !empty($row->recruiter) ? explode(',',$row->recruiter) : [];
                         if(!empty($rId) && in_array(Auth::user()->id,$rId)){
-                            $btn = '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/submission/'.$row->id).'"><button class="btn btn-sm btn-info tip" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" ><i class="fa fa-eye"></i></button></a></div>';
-                            $btn .= '<div class="btn-group btn-group-sm"><a href="'.url('admin/submission/new/'.$row->id).'"><button class="btn btn-sm btn-success tip" data-toggle="tooltip" title="Add New Submission" data-trigger="hover" type="submit" ><i class="fa fa-upload"></i></button></a></div>';
+                            $btn = '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/submission/'.$row->id).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" ><i class="fa fa-eye"></i></button></a></div>';
+                            $btn .= '<div class="btn-group btn-group-sm"><a href="'.url('admin/submission/new/'.$row->id).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Add New Submission" data-trigger="hover" type="submit" ><i class="fa fa-upload"></i></button></a></div>';
                         }else{
                             $btn = '';
                             if($row->status != "hold"){
                                 $btn = '<span data-toggle="tooltip" title="Assign Requirement" data-trigger="hover">
-                                    <button class="btn btn-sm btn-warning assignRequirement mr-2" data-id="'.$row->id.'" type="button"><i class="fa fa-plus-square"></i></button>
+                                    <button class="btn btn-sm btn-default assignRequirement mr-2" data-id="'.$row->id.'" type="button"><i class="fa fa-plus-square"></i></button>
                                 </span>';
                             }
                         }
@@ -158,8 +158,8 @@ class SubmissionController extends Controller
                     return $row->Category->name;
                 })
                 ->addColumn('created_at', function($row){
-                    return '<span class="border border-dark floar-left p-1 mt-2" style="
-                    border-radius: 5px; width: auto">'.$row->created_at->diffForHumans().'</span>';
+                    return '<div class="border border-dark floar-left p-1 mt-2" style="
+                    border-radius: 5px; width: auto"><span>'.$row->created_at->diffForHumans().'</span></div>';
                 })
                 ->addColumn('recruiter', function($row){
                     $rId = !empty($row->recruiter) ? explode(',',$row->recruiter) : [];
@@ -169,8 +169,8 @@ class SubmissionController extends Controller
                             $recUser = Admin::where('id',$uid)->first();
                             if(!empty($recUser)){
                                 $submission = Submission::where('user_id',$uid)->where('requirement_id',$row->id)->count();
-                                $recName .='<span class="border border-dark float-left p-1 mt-2" style="
-                                border-radius: 5px;">'. $submission.' '.$recUser['name']. '</span>';
+                                $recName .='<div class="border border-dark floar-left p-1 mt-2" style="
+                                border-radius: 5px; width: auto"><span>'. $submission.' '.$recUser['name']. '</span></div>';
                             }
                         }
                     }
@@ -244,13 +244,13 @@ class SubmissionController extends Controller
                     if($row->submissionCounter < 3){
                         $rId = !empty($row->recruiter) ? explode(',',$row->recruiter) : [];
                         if(!empty($rId) && in_array(Auth::user()->id,$rId)){
-                            $btn = '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/submission/'.$row->id).'"><button class="btn btn-sm btn-info tip" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" ><i class="fa fa-eye"></i></button></a></div>';
-                            $btn .= '<div class="btn-group btn-group-sm"><a href="'.url('admin/submission/new/'.$row->id).'"><button class="btn btn-sm btn-success tip" data-toggle="tooltip" title="Add New Submission" data-trigger="hover" type="submit" ><i class="fa fa-upload"></i></button></a></div>';
+                            $btn = '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/submission/'.$row->id).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" ><i class="fa fa-eye"></i></button></a></div>';
+                            $btn .= '<div class="btn-group btn-group-sm"><a href="'.url('admin/submission/new/'.$row->id).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Add New Submission" data-trigger="hover" type="submit" ><i class="fa fa-upload"></i></button></a></div>';
                         }else{
                             $btn = '';
                             if($row->status != "hold"){
                                 $btn = '<span data-toggle="tooltip" title="Assign Requirement" data-trigger="hover">
-                                    <button class="btn btn-sm btn-warning assignRequirement mr-2" data-id="'.$row->id.'" type="button"><i class="fa fa-plus-square"></i></button>
+                                    <button class="btn btn-sm btn-default assignRequirement mr-2" data-id="'.$row->id.'" type="button"><i class="fa fa-plus-square"></i></button>
                                 </span>';
                             }
                         }
@@ -337,9 +337,7 @@ class SubmissionController extends Controller
                     return ucfirst($row->status);
                 })
                 ->addColumn('action', function($row){
-                    $btn = '<span data-toggle="tooltip" title="Delete Submission" data-trigger="hover">
-                                    <button class="btn btn-sm btn-danger deleteResume" data-id="'.$row->id.'" type="button"><i class="fa fa-trash"></i></button>
-                                </span>';
+                    $btn = '<div class="btn-group btn-group-sm view" data-cid="'.$row->id.'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="View Submission" data-trigger="hover"><i class="fa fa-eye"></i></button></a></div>';
                     return $btn;
                 })
                 ->rawColumns(['user_id','documents','status','action'])

@@ -17,13 +17,12 @@
                     @endif
                     <div class="col-md-12" id="statusUpdate">
                         <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group{{ $errors->has('status') ? ' has-error' : '' }}">
-                                    <label class="control-label col-md-12 pl-0" for="status">Status</label>
-                                    {!! Form::select('status', \App\Models\Submission::$status, null, ['class' => 'form-control select2','id'=>'candidateStatus', 'style'=>'width:100%']) !!}
-                                </div>
+                            <div class="col-md-4" @if($isSubmission == 1) style="display: none;" @endif>
+                                    <div class="form-group{{ $errors->has('status') ? ' has-error' : '' }}">
+                                        <label class="control-label col-md-12 pl-0" for="status">Status</label>
+                                        {!! Form::select('status', \App\Models\Submission::$status, null, ['class' => 'form-control select2','id'=>'candidateStatus', 'style'=>'width:100%']) !!}
+                                    </div>
                             </div>
-
                             <div class="col-md-4 rejection" @if($hide == 0) style="display: none;" @endif>
                                 <div class="form-group{{ $errors->has('common_skills') ? ' has-error' : '' }}">
                                     <label class="control-label col-md-12 pl-0" for="status">Common Skills</label>
@@ -44,13 +43,24 @@
                                     {!! Form::textarea('reason', null, ['class' => 'form-control', 'rows'=>4, 'placeholder' => 'Enter Reason', 'id' => 'reason']) !!}
                                 </div>
                             </div>
+                            <div class="col-md-6 mt-2 rejected-status" @if($isSubmission != 1) style="display: none;" @endif>
+                                <strong>Common Skills: </strong> <span id='common-skill'>test</span>
+                            </div>
+                            <div class="col-md-6 mt-2 rejected-status" @if($isSubmission != 1) style="display: none;" @endif>
+                                <strong>Skills Match:</strong> <span id='skill-match'>test</span>
+                            </div>
+                            <div class="col-md-6 mt-2 rejected-status" @if($isSubmission != 1) style="display: none;" @endif>
+                                <strong>Other Reason:</strong> <span id='other-reason'>test</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary">Submit</button>
+                @if($isSubmission == 0)
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                @endif
             </div>
             {!! Form::close() !!}
         </div>
