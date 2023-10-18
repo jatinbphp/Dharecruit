@@ -399,32 +399,47 @@
             });
         });
 
-        $('#pocSelection').on('change', function(){
-            console.log('in');
-            var poc_name = $(this).val();
-            var pv_company_id = $(this).attr('data-id');
+        function checkData() {
+            var poc_name = $("#pocSelection option:selected").val();
+            var pv_company_name = $("#pv_company_name").val();
+
+            var updateElementIds = [
+                'pv_company_name',
+                'poc_name',
+                'poc_email',
+                'poc_phone_number',
+                'poc_location',
+                'poc_company_location',
+                'client_name',
+            ];
+
+            if(poc_name == 0){
+                $('#pocModal').modal('hide');
+                return;
+            }
+
             $.ajax({
                 url : "{{ route('get_pvDetails') }}",
-                data : {'poc_name' : poc_name, 'pv_company_id':pv_company_id, "_token": "{{ csrf_token() }}",},
+                data : {'poc_name' : poc_name, 'pv_company_name':pv_company_name, "_token": "{{ csrf_token() }}",},
                 type : 'POST',
                 dataType : 'json',
                 success : function(data){
-                    console.log(data);
                     if(data.status == 1){
-                        var pvData = Object.values(data)[0];
                         $('#requirementsForm *').filter(':input').each(function () {
                             var tagType = $(this).prop("tagName").toLowerCase();
                             var elementId = this.id;
                             if(elementId){
                                 if(tagType == 'input'){
+                                    if(updateElementIds.includes(elementId))
                                     var id = "#" + elementId;
-                                    $(id).val(pvData[elementId]);
+                                    $(id).val(data.requs[elementId]);
                                 }
                             }
                         });
                     }
+                    $('#pocModal').modal('hide');
                 }
             });
-        });
+        }
     </script>
 @endsection
