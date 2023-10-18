@@ -141,7 +141,7 @@ class RequirementController extends Controller
                     }
                     return $clientName;
                 })
-                ->rawColumns(['user_id','category','created_at','recruiter','status','color','candidate','action'])
+                ->rawColumns(['user_id','category','created_at','recruiter','status','color','candidate','action','client'])
                 ->make(true);
         }
         $data['type'] = 1;
@@ -252,7 +252,7 @@ class RequirementController extends Controller
                     }
                     return $clientName;
                 })
-                ->rawColumns(['user_id','category','created_at','recruiter','status','color','candidate','action'])
+                ->rawColumns(['user_id','category','created_at','recruiter','status','color','candidate','action','client'])
                 ->make(true);
         }
         $data['type'] = 2;

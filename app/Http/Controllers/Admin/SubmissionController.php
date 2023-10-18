@@ -135,7 +135,14 @@ class SubmissionController extends Controller
                     }
                     return $btn;
                 })
-                ->rawColumns(['user_id','category','created_at','recruiter','status','color','candidate','action'])
+                ->addColumn('client', function($row) {
+                    $clientName = '';
+                    if($row->display_client == '1'){
+                        $clientName = $row->client_name;
+                    }
+                    return $clientName;
+                })
+                ->rawColumns(['user_id','category','created_at','recruiter','status','color','candidate','action','client'])
                 ->make(true);
         }
         $data['type'] = 1;
@@ -259,7 +266,14 @@ class SubmissionController extends Controller
                     }
                     return $btn;
                 })
-                ->rawColumns(['user_id','category','created_at','recruiter','status','color','candidate','action'])
+                ->addColumn('client', function($row) {
+                    $clientName = '';
+                    if($row->display_client == '1'){
+                        $clientName = $row->client_name;
+                    }
+                    return $clientName;
+                })
+                ->rawColumns(['user_id','category','created_at','recruiter','status','color','candidate','action','client'])
                 ->make(true);
         }
         $data['type'] = 2;
