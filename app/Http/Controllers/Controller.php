@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Requirement;
+use App\Models\Submission;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -78,6 +79,28 @@ class Controller extends BaseController
         if(!empty($request->work_type)){
             $whereInfo[] = ['work_type', $request->work_type];
         }
+        return $query->where($whereInfo);
+    }
+
+    public function submissionFilter($request,$id){
+        $whereInfo = [];
+
+        $user = $this->getUser();
+
+        if($user['role'] == 'admin'){
+            $query = Submission::where('requirement_id',$id)->select();
+        }else{
+            $query = Submission::where('user_id',$user['id'])->where('requirement_id',$id)->select();
+        }
+
+        if(!empty($request->candidateId)){
+            $whereInfo[] = ['id', $request->candidateId];
+        }
+
+        if(!empty($request->candidateEmail)){
+            $whereInfo[] = ['email', 'like', '%'.$request->candidateEmail.'%'];
+        }
+
         return $query->where($whereInfo);
     }
 }

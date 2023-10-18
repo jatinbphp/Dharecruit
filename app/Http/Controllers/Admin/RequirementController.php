@@ -378,7 +378,6 @@ class RequirementController extends Controller
 
     public function update(Request $request, $id)
     {
-        \Log::info($request);
         $this->validate($request, [
             'job_title' => 'required',
             'no_of_position' => 'required',

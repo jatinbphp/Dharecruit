@@ -332,13 +332,7 @@ class SubmissionController extends Controller
         $data['all_submission'] = Submission::where('requirement_id',$id)->get();
 
         if ($request->ajax()) {
-            $user = $this->getUser();
-            if($user['role'] == 'admin'){
-                $data = Submission::where('requirement_id',$id)->select();
-            }else{
-                $data = Submission::where('user_id',$user['id'])->where('requirement_id',$id)->select();
-            }
-
+            $data = $this->submissionFilter($request,$id);
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('user_id', function($row){
