@@ -301,12 +301,12 @@
         </div>
 
         <div class="col-md-6">
-            <div class="form-group{{ $errors->has('poc_company_location') ? ' has-error' : '' }}">
-                <label class="control-label" for="poc_company_location">POC Company Location :<span class="text-red"></span></label>
-                {!! Form::text('poc_company_location', null, ['class' => 'form-control', 'placeholder' => 'Enter POC Company Location', 'id' => 'poc_company_location']) !!}
-                @if ($errors->has('poc_company_location'))
+            <div class="form-group{{ $errors->has('pv_company_location') ? ' has-error' : '' }}">
+                <label class="control-label" for="pv_company_location">PV Company Location :<span class="text-red"></span></label>
+                {!! Form::text('pv_company_location', null, ['class' => 'form-control', 'placeholder' => 'Enter PV Company Location', 'id' => 'pv_company_location']) !!}
+                @if ($errors->has('pv_company_location'))
                     <span class="text-danger">
-                        <strong>{{ $errors->first('poc_company_location') }}</strong>
+                        <strong>{{ $errors->first('pv_company_location') }}</strong>
                     </span>
                 @endif
             </div>
@@ -409,7 +409,7 @@
                 'poc_email',
                 'poc_phone_number',
                 'poc_location',
-                'poc_company_location',
+                'pv_company_location',
                 'client_name',
             ];
 
