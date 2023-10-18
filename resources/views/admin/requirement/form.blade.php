@@ -414,6 +414,12 @@
             ];
 
             if(poc_name == 0){
+                for (id of updateElementIds) {
+                    if(id == 'pv_company_name'){
+                        continue;
+                    }
+                    $("#"+id).val('');
+                }
                 $('#pocModal').modal('hide');
                 return;
             }
