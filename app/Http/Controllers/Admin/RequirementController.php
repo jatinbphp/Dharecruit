@@ -408,7 +408,7 @@ class RequirementController extends Controller
         } else {
             $input['display_client'] = 0;
         }
-        $requirement = Requirement::findorFail($id);
+        $requirement = Requirement::where('id',$id)->first();
         $requirement->update($input);
 
         \Session::flash('success','Requirement has been updated successfully!');
@@ -473,10 +473,11 @@ class RequirementController extends Controller
             foreach ($allReqs as $list){
                 $option .= '<option value="'.$list['poc_name'].'" data-id="'.$list['id'].'">'.$list['poc_name'].'</option>';
             }
+            $option .= '<option value="0">Add New POC</option>';
             $data['pocName'] .= ' <div class="col-md-12">
                                         <div class="form-group">
                                             <label class="control-label col-md-12" for="pocName">POC Name</label>
-                                            <select class="form-control select2 col-md-12" id="pocSelection" style="width: 100%">
+                                            <select class="form-control select2 col-md-12" id="pocSelection" style="width: 100%" onChange="checkData(event)">
                                                 '.$option.'
                                             </select>
                                         </div>
@@ -486,7 +487,7 @@ class RequirementController extends Controller
     }
 
     public function get_pvDetails(Request $request){
-        $requs = Requirement::where('id',$request['pv_company_id'])->where('poc_name',$request['poc_name'])->first();
+        $requs = Requirement::orderBy('id', 'DESC')->where('pv_company_name',$request['pv_company_name'])->where('poc_name',$request['poc_name'])->first();
         $data['status'] = 0;
         $data['requs'] = [];
         if(!empty($requs)){
