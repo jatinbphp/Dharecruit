@@ -294,11 +294,11 @@ class RequirementController extends Controller
             'moi' => 'required',
             'job_keyword' => 'required',
             'description' => 'required',
-            'pv_company_name' => 'required',
+            /*'pv_company_name' => 'required',
             'poc_name' => 'required',
             'poc_email' => 'required',
             'poc_phone_number' => 'required',
-            'client_name' => 'required',
+            'client_name' => 'required',*/
         ]);
 
         $input = $request->all();
@@ -317,7 +317,7 @@ class RequirementController extends Controller
         }
 
         \Session::flash('success', 'Requirement has been inserted successfully!');
-        return redirect()->route('requirement.index');
+        return redirect(route('requirement.edit',['requirement'=>$req['id']]));
     }
 
     public function show(Request $request, $id){
@@ -378,7 +378,6 @@ class RequirementController extends Controller
 
     public function update(Request $request, $id)
     {
-        \Log::info($request);
         $this->validate($request, [
             'job_title' => 'required',
             'no_of_position' => 'required',
@@ -462,5 +461,38 @@ class RequirementController extends Controller
         $submission->update($input);
         \Session::flash('success', 'Candidate status has been updated successfully!');
         return redirect()->back();
+    }
+
+    public function get_pocName(Request $request){
+        $allReqs = Requirement::where('pv_company_name',$request['pv_company_name'])->whereNotNull('pv_company_name')->select('poc_name','id')->get();
+        $data['status'] = 0;
+        $data['pocName'] = '';
+        if(count($allReqs) > 0){
+            $data['status'] = 1;
+            $option = '<option value="">Please Select POC Name</option>';
+            foreach ($allReqs as $list){
+                $option .= '<option value="'.$list['poc_name'].'" data-id="'.$list['id'].'">'.$list['poc_name'].'</option>';
+            }
+            $data['pocName'] .= ' <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label class="control-label col-md-12" for="pocName">POC Name</label>
+                                            <select class="form-control select2 col-md-12" id="pocSelection" style="width: 100%">
+                                                '.$option.'
+                                            </select>
+                                        </div>
+                                    </div>';
+        }
+        return $data;
+    }
+
+    public function get_pvDetails(Request $request){
+        $requs = Requirement::where('id',$request['pv_company_id'])->where('poc_name',$request['poc_name'])->first();
+        $data['status'] = 0;
+        $data['requs'] = [];
+        if(!empty($requs)){
+            $data['status'] = 1;
+            $data['requs'] = $requs;
+        }
+        return $data;
     }
 }

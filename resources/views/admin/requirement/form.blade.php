@@ -226,115 +226,149 @@
         </div>
     </div>
 </div>
-<hr>
 
-<div class="row">
-    <div class="col-md-6">
-        <div class="form-group{{ $errors->has('pv_company_name') ? ' has-error' : '' }}">
-            <label class="control-label" for="pv_company_name">PV Company Name :<span class="text-red">*</span></label>
-            {!! Form::select('pv_company_name', $pv_company, null, ['class' => 'form-control select2','id'=>'moi']) !!}
-            @if ($errors->has('pv_company_name'))
-                <span class="text-danger">
-                    <strong>{{ $errors->first('pv_company_name') }}</strong>
-                </span>
-            @endif
-        </div>
-    </div>
-
-    <div class="col-md-6">
-        <div class="form-group{{ $errors->has('poc_name') ? ' has-error' : '' }}">
-            <label class="control-label" for="poc_name">POC Name :<span class="text-red">*</span></label>
-            {!! Form::text('poc_name', null, ['class' => 'form-control', 'placeholder' => 'Enter POC Name', 'id' => 'poc_name']) !!}
-            @if ($errors->has('poc_name'))
-                <span class="text-danger">
-                    <strong>{{ $errors->first('poc_name') }}</strong>
-                </span>
-            @endif
-        </div>
-    </div>
+@if(!isset($requirement))
+<div class="text-right">
+    <button class="btn btn-info" id="requirementSave">Save</button>
 </div>
+@endif
 
-<div class="row">
-    <div class="col-md-6">
-        <div class="form-group{{ $errors->has('poc_email') ? ' has-error' : '' }}">
-            <label class="control-label" for="poc_email">POC Email :<span class="text-red">*</span></label>
-            {!! Form::text('poc_email', null, ['class' => 'form-control', 'placeholder' => 'Enter POC Email', 'id' => 'poc_email']) !!}
-            @if ($errors->has('poc_email'))
-                <span class="text-danger">
-                    <strong>{{ $errors->first('poc_email') }}</strong>
-                </span>
-            @endif
-        </div>
-    </div>
-
-    <div class="col-md-6">
-        <div class="form-group{{ $errors->has('poc_phone_number') ? ' has-error' : '' }}">
-            <label class="control-label" for="poc_phone_number">POC Phone Number :<span class="text-red">*</span></label>
-            {!! Form::text('poc_phone_number', null, ['class' => 'form-control', 'placeholder' => 'Enter POC Phone Number', 'id' => 'poc_phone_number']) !!}
-            @if ($errors->has('poc_phone_number'))
-                <span class="text-danger">
-                    <strong>{{ $errors->first('poc_phone_number') }}</strong>
-                </span>
-            @endif
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-6">
-        <div class="form-group{{ $errors->has('poc_location') ? ' has-error' : '' }}">
-            <label class="control-label" for="poc_location">POC Location :<span class="text-red"></span></label>
-            {!! Form::text('poc_location', null, ['class' => 'form-control', 'placeholder' => 'Enter POC Location', 'id' => 'poc_location']) !!}
-            @if ($errors->has('poc_location'))
-                <span class="text-danger">
-                    <strong>{{ $errors->first('poc_location') }}</strong>
-                </span>
-            @endif
-        </div>
-    </div>
-
-    <div class="col-md-6">
-        <div class="form-group{{ $errors->has('poc_company_location') ? ' has-error' : '' }}">
-            <label class="control-label" for="poc_company_location">POC Company Location :<span class="text-red"></span></label>
-            {!! Form::text('poc_company_location', null, ['class' => 'form-control', 'placeholder' => 'Enter POC Company Location', 'id' => 'poc_company_location']) !!}
-            @if ($errors->has('poc_company_location'))
-                <span class="text-danger">
-                    <strong>{{ $errors->first('poc_company_location') }}</strong>
-                </span>
-            @endif
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-6">
-        <div class="form-group{{ $errors->has('client_name') ? ' has-error' : '' }}">
-            <label class="control-label" for="client_name">Client Name :<span class="text-red">*</span></label>
-            {!! Form::text('client_name', null, ['class' => 'form-control', 'placeholder' => 'Enter Client Name', 'id' => 'client_name']) !!}
-            @if ($errors->has('client_name'))
-                <span class="text-danger">
-                    <strong>{{ $errors->first('client_name') }}</strong>
-                </span>
-            @endif
-        </div>
-    </div>
-
-    <div class="col-md-6">
-        <div class="form-group{{ $errors->has('display_client') ? ' has-error' : '' }}">
-            <label class="control-label" for="display_client">Display Client :<span class="text-red"></span></label>
-            <br>
-            <div class="icheck-primary d-inline">
-                {!! Form::checkbox('display_client', null, null, ['id' => 'display_client']) !!}
-                <label for="display_client"></label>
+<div id="pvDiv" @if(!isset($requirement)) style="display: none;" @endif>
+    <hr>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group{{ $errors->has('pv_company_name') ? ' has-error' : '' }}">
+                <label class="control-label" for="pv_company_name">PV Company Name :<span class="text-red">*</span></label>
+                {!! Form::text('pv_company_name', null, ['class' => 'form-control','placeholder' => 'Enter PV Company Name', 'id'=>'pv_company_name']) !!}
+                @if ($errors->has('pv_company_name'))
+                    <span class="text-danger">
+                        <strong>{{ $errors->first('pv_company_name') }}</strong>
+                    </span>
+                @endif
             </div>
+        </div>
 
-            @if ($errors->has('display_client'))
-                <span class="text-danger">
-                    <strong>{{ $errors->first('display_client') }}</strong>
-                </span>
-            @endif
+        <div class="col-md-6">
+            <div class="form-group{{ $errors->has('poc_name') ? ' has-error' : '' }}">
+                <label class="control-label" for="poc_name">POC Name :<span class="text-red">*</span></label>
+                {!! Form::text('poc_name', null, ['class' => 'form-control', 'placeholder' => 'Enter POC Name', 'id' => 'poc_name']) !!}
+                @if ($errors->has('poc_name'))
+                    <span class="text-danger">
+                        <strong>{{ $errors->first('poc_name') }}</strong>
+                    </span>
+                @endif
+            </div>
         </div>
     </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group{{ $errors->has('poc_email') ? ' has-error' : '' }}">
+                <label class="control-label" for="poc_email">POC Email :<span class="text-red">*</span></label>
+                {!! Form::text('poc_email', null, ['class' => 'form-control', 'placeholder' => 'Enter POC Email', 'id' => 'poc_email']) !!}
+                @if ($errors->has('poc_email'))
+                    <span class="text-danger">
+                        <strong>{{ $errors->first('poc_email') }}</strong>
+                    </span>
+                @endif
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group{{ $errors->has('poc_phone_number') ? ' has-error' : '' }}">
+                <label class="control-label" for="poc_phone_number">POC Phone Number :<span class="text-red">*</span></label>
+                {!! Form::text('poc_phone_number', null, ['class' => 'form-control', 'placeholder' => 'Enter POC Phone Number', 'id' => 'poc_phone_number']) !!}
+                @if ($errors->has('poc_phone_number'))
+                    <span class="text-danger">
+                        <strong>{{ $errors->first('poc_phone_number') }}</strong>
+                    </span>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group{{ $errors->has('poc_location') ? ' has-error' : '' }}">
+                <label class="control-label" for="poc_location">POC Location :<span class="text-red"></span></label>
+                {!! Form::text('poc_location', null, ['class' => 'form-control', 'placeholder' => 'Enter POC Location', 'id' => 'poc_location']) !!}
+                @if ($errors->has('poc_location'))
+                    <span class="text-danger">
+                        <strong>{{ $errors->first('poc_location') }}</strong>
+                    </span>
+                @endif
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group{{ $errors->has('poc_company_location') ? ' has-error' : '' }}">
+                <label class="control-label" for="poc_company_location">POC Company Location :<span class="text-red"></span></label>
+                {!! Form::text('poc_company_location', null, ['class' => 'form-control', 'placeholder' => 'Enter POC Company Location', 'id' => 'poc_company_location']) !!}
+                @if ($errors->has('poc_company_location'))
+                    <span class="text-danger">
+                        <strong>{{ $errors->first('poc_company_location') }}</strong>
+                    </span>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group{{ $errors->has('client_name') ? ' has-error' : '' }}">
+                <label class="control-label" for="client_name">Client Name :<span class="text-red">*</span></label>
+                {!! Form::text('client_name', null, ['class' => 'form-control', 'placeholder' => 'Enter Client Name', 'id' => 'client_name']) !!}
+                @if ($errors->has('client_name'))
+                    <span class="text-danger">
+                        <strong>{{ $errors->first('client_name') }}</strong>
+                    </span>
+                @endif
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group{{ $errors->has('display_client') ? ' has-error' : '' }}">
+                <label class="control-label" for="display_client">Display Client :<span class="text-red"></span></label>
+                <br>
+                <div class="icheck-primary d-inline">
+                    {!! Form::checkbox('display_client', null, null, ['id' => 'display_client']) !!}
+                    <label for="display_client"></label>
+                </div>
+
+                @if ($errors->has('display_client'))
+                    <span class="text-danger">
+                        <strong>{{ $errors->first('display_client') }}</strong>
+                    </span>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <div class="text-right">
+        <button class="btn btn-info" id="pvSave">Save</button>
+    </div>
+
+    <div class="modal fade" id="pocModal" tabindex="-1" role="dialog" aria-labelledby="pocModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pocModalLabel">Select POC Name</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12" id="pocNameDiv"> </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 @section('jquery')
@@ -345,6 +379,52 @@
             }else{
                 $('#priorityReason').hide();
             }
+        });
+
+        $("#pv_company_name").focusout(function(){
+            var pv_company_name = $(this).val();
+            $.ajax({
+                url : "{{ route('get_pocName') }}",
+                data : {'pv_company_name' : pv_company_name, "_token": "{{ csrf_token() }}",},
+                type : 'POST',
+                dataType : 'json',
+                success : function(data){
+                    console.log(data);
+                    if(data.status == 1){
+                        $('#pocNameDiv').html(data.pocName);
+                        $('#pocModal').modal('show');
+                        $('.select2').select2();
+                    }
+                }
+            });
+        });
+
+        $('#pocSelection').on('change', function(){
+            console.log('in');
+            var poc_name = $(this).val();
+            var pv_company_id = $(this).attr('data-id');
+            $.ajax({
+                url : "{{ route('get_pvDetails') }}",
+                data : {'poc_name' : poc_name, 'pv_company_id':pv_company_id, "_token": "{{ csrf_token() }}",},
+                type : 'POST',
+                dataType : 'json',
+                success : function(data){
+                    console.log(data);
+                    if(data.status == 1){
+                        var pvData = Object.values(data)[0];
+                        $('#requirementsForm *').filter(':input').each(function () {
+                            var tagType = $(this).prop("tagName").toLowerCase();
+                            var elementId = this.id;
+                            if(elementId){
+                                if(tagType == 'input'){
+                                    var id = "#" + elementId;
+                                    $(id).val(pvData[elementId]);
+                                }
+                            }
+                        });
+                    }
+                }
+            });
         });
     </script>
 @endsection

@@ -25,13 +25,13 @@
                         <div class="card-header">
                             <h3 class="card-title">Add {{$menu}}</h3>
                         </div>
-                        {!! Form::open(['url' => route('requirement.store'), 'id' => 'usersForm', 'class' => 'form-horizontal','files'=>true]) !!}
+                        {!! Form::open(['url' => route('requirement.store'), 'id' => 'requirementsForm', 'class' => 'form-horizontal','files'=>true]) !!}
                         <div class="card-body">
                             @include ('admin.requirement.form')
                         </div>
                         <div class="card-footer">
                             <a href="{{ route('requirement.index') }}" ><button class="btn btn-default" type="button">Back</button></a>
-                            <button class="btn btn-info float-right" type="submit">Add</button>
+{{--                            <button class="btn btn-info float-right" type="submit">Add</button>--}}
                         </div>
                         {!! Form::close() !!}
                     </div>

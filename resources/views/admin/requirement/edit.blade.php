@@ -31,7 +31,7 @@
                         </div>
                         <div class="card-footer">
                             <a href="{{ route('requirement.index') }}" ><button class="btn btn-default" type="button">Back</button></a>
-                            <button class="btn btn-info float-right" type="submit">Update</button>
+{{--                            <button class="btn btn-info float-right" type="submit">Update</button>--}}
                         </div>
                         {!! Form::close() !!}
                     </div>
