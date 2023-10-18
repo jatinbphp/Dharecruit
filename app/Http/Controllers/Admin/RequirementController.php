@@ -464,7 +464,7 @@ class RequirementController extends Controller
     }
 
     public function get_pocName(Request $request){
-        $allReqs = Requirement::where('pv_company_name',$request['pv_company_name'])->whereNotNull('pv_company_name')->select('poc_name','id')->get();
+        $allReqs = Requirement::where('pv_company_name',$request['pv_company_name'])->whereNotNull('pv_company_name')->groupBy('poc_name')->select('poc_name','id')->get();
         $data['status'] = 0;
         $data['pocName'] = '';
         if(count($allReqs) > 0){
