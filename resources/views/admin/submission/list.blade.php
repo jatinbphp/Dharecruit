@@ -30,6 +30,11 @@
                                 <div class="col-md-12">
                                     <a href="{{ route('submission.newAdd',['id'=>$requirement['id']]) }}"><button class="btn btn-info float-right" type="button" ><i class="fa fa-plus pr-1"></i> Add New</button></a>
                                 </div>
+                                <div class="col-md-12">
+                                    {!! Form::open(['id' => 'filterSubmissionForm', 'class' => 'form-horizontal','files'=>true,'onsubmit' => 'return false;']) !!}
+                                        @include('admin.submission_filter')
+                                    {!! Form::close() !!}
+                                </div>
                             </div>
                         </div>
                         <div class="card-body table-responsive">
@@ -60,11 +65,33 @@
 
 @section('jquery')
     <script type="text/javascript">
-        $(function () {
+        $(document).ready(function () {
+            datatables();
+        });
+
+        function showData(){
+            $("#submissionTable").dataTable().fnDestroy();
+            datatables();
+        }
+
+        function clearData(){
+            $('#filterSubmissionForm')[0].reset();
+            $("#submissionTable").dataTable().fnDestroy();
+            datatables();
+        }
+
+        function datatables(){
             var table = $('#submissionTable').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('submission.show',['submission'=>$requirement['id']]) }}",
+                ajax: {
+                    url: "{{ route('submission.show',['submission'=>$requirement['id']]) }}",
+                    data: function (d) {
+                        d.candidateId = $('#candidateId').val();
+                        d.candidateEmail = $('#candidateEmail').val();
+                        d._token = '{{ csrf_token() }}';
+                    },
+                },
                 columns: [
                     {data: 'name', name: 'name'},
                     {data: 'email', name: 'email'},
@@ -75,7 +102,7 @@
                     {data: 'action', "width": "15%", name: 'action', orderable: false, searchable: false},
                 ]
             });
-        });
+        }
 
         $('#submissionTable tbody').on('click', '.view', function (event) {
             var cId = $(this).attr('data-cid');
