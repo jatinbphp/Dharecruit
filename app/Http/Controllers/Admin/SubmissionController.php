@@ -329,6 +329,7 @@ class SubmissionController extends Controller
     public function show(Request $request, $id)
     {
         $data['menu'] = "Requirements";
+        $data['sub_menu'] = "Submission";
         $data['all_submission'] = Submission::where('requirement_id',$id)->get();
 
         if ($request->ajax()) {
@@ -358,6 +359,7 @@ class SubmissionController extends Controller
 
     public function submissionAdd($id){
         $data['menu'] = "Requirements";
+        $data['sub_menu'] = "Submission";
         $data['requirement'] = Requirement::where('id',$id)->first();
         if(!empty($data['requirement'])){
             $user = Auth::user();
