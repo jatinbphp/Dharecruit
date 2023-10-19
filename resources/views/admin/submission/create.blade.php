@@ -51,8 +51,8 @@
             data : {'email' : email, "_token": "{{ csrf_token() }}",},
             type : 'POST',
             dataType : 'json',
-            success : function(data){
-                var data = Object.values(data)[0];
+            success : function(response){
+                var data = Object.values(response)[0];
                 $('#submissionsForm *').filter(':input').each(function () {
                     var tagType = $(this).prop("tagName").toLowerCase();
                     var elementId = this.id;
@@ -62,6 +62,7 @@
                             if(type == 'file'){
                                 var resumeElement = '<div class="mt-2"><a href="{{asset("storage")}}/'+ data['documents']+'" target="_blank"><img src=" {{url('assets/dist/img/resume.png')}}" height="50"></a></div>';
                                 $("#" + elementId).closest('div').append(resumeElement);
+                                console.log(data['documents']);
                             } else {
                                 var id = "#" + elementId;
                                 $(id).val(data[elementId]);

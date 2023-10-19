@@ -52,7 +52,7 @@ class CommonController extends Controller
                         </div>
                         <div class="row mt-2">
                             <div class="col-md-6">
-                                <strong>Pv Company:</strong> '.$submission['Requirement']['PvCompany']['name'].'
+                                <strong>Pv Company:</strong> '.$submission['Requirement']['pv_company_name'].'
                             </div>
                             <div class="col-md-6">
                                 <strong>Poc Email:</strong> '.$submission['Requirement']['poc_email'].'

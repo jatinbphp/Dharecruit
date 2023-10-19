@@ -301,17 +301,31 @@ class SubmissionController extends Controller
             'linkedin_id' => 'required',
             'relocation' => 'required',
             'vendor_rate' => 'required',
-            'resume' => 'required|mimes:doc,docx,pdf',
         ]);
+
+        $requirement = Requirement::where('id',$request['requirement_id'])->first();
+        $existSubmission = Submission::where('requirement_id',$request['requirement_id'])->where('email',$request['email'])->first();
+        if(!empty($existSubmission)){
+            $msg = $existSubmission['name'].':'.$existSubmission['id'].' has been already submitted to the '.$requirement['job_title'];
+            \Session::flash('danger', $msg);
+            return redirect()->back();
+        }
 
         $input = $request->all();
         $input['user_id'] = Auth::user()->id;
-        if($file = $request->file('resume')){
-            $input['documents'] = $this->fileMove($file,'user_documents');
+
+        if(empty($request['existResume'])){
+            $this->validate($request, [
+                'resume' => 'required|mimes:doc,docx,pdf',
+            ]);
+            if($file = $request->file('resume')){
+                $input['documents'] = $this->fileMove($file,'user_documents');
+            }
+        }else{
+            $input['documents'] = $request['existResume'];
         }
         Submission::create($input);
 
-        $requirement = Requirement::where('id',$request['requirement_id'])->first();
         if($requirement['submissionCounter'] < 3){
             $in['submissionCounter'] = $requirement['submissionCounter'] + 1;
             $requirement->update($in);

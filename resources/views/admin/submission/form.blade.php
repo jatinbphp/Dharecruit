@@ -148,8 +148,9 @@
         <div class="form-group{{ $errors->has('resume') ? ' has-error' : '' }}">
             <label class="control-label" for="resume">Resume :<span class="text-red">*</span></label>
             {!! Form::file('resume', ['class' => '', 'id'=> 'resume','accept'=>'.xlsx,.xls,.doc,.docx,.ppt,.pptx,.txt,.pdf']) !!}
+            <input type="hidden" name="existResume" id="existResume">
             @if ($errors->has('resume'))
-            <br>    
+            <br>
             <span class="text-danger">
                     <strong>{{ $errors->first('resume') }}</strong>
                 </span>
