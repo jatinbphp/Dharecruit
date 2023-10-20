@@ -12,18 +12,18 @@ class Submission extends Model
 
     protected $fillable = [
         'user_id','requirement_id','name','email','location','phone','employer_detail','work_authorization','recruiter_rate','last_4_ssn',
-        'education_details','resume_experience','linkedin_id','relocation','vendor_rate','notes','documents','common_skills','skills_match','reason','status'
+        'education_details','resume_experience','linkedin_id','relocation','vendor_rate','notes','documents','common_skills','skills_match','reason','status','employer_name','employee_name','employee_email','employee_phone','pv_status','pv_reason'
     ];
 
     const STATUS_PENDING = 'pending';
     const STATUS_ACCEPT = 'accepted';
-    const STATUS_INTERVIEW = 'interview';
+    //const STATUS_INTERVIEW = 'interview';
     const STATUS_REJECTED = 'rejected';
 
     public static $status = [
         self::STATUS_PENDING => 'Pending',
         self::STATUS_ACCEPT => 'Accepted',
-        self::STATUS_INTERVIEW => 'Interview',
+        //self::STATUS_INTERVIEW => 'Interview',
         self::STATUS_REJECTED => 'Rejected',
     ];
 
@@ -67,6 +67,16 @@ class Submission extends Model
         self::PER80 => '80%',
         self::PER90 => '90%',
         self::PER100 => '100%',
+    ];
+
+    const STATUS_REJECTED_BY_PV          = 'rejected_by_pv';
+    const STATUS_SUBMITTED_TO_END_CLIENT = 'submitted_to_end_client';
+    const STATUS_NO_RESPONSE_FROM_PV     = 'no_response_from_pv';
+
+    public static $pvStatus = [
+        self::STATUS_REJECTED_BY_PV          => 'Rejected By PV',
+        self::STATUS_SUBMITTED_TO_END_CLIENT => 'Submitted To End Client',
+        self::STATUS_NO_RESPONSE_FROM_PV     => 'No Response From PV',
     ];
 
     public function Recruiters(){

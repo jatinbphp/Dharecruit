@@ -47,7 +47,7 @@ class CreateRequirementsTable extends Migration
             $table->text('recruiter')->nullable();
             $table->string('color')->nullable();
             $table->text('candidate')->nullable();
-            $table->string('status')->default('active');
+            $table->string('status')->default('unhold');
             $table->integer('submissionCounter')->default(0);
             $table->softDeletes();
             $table->timestamps();

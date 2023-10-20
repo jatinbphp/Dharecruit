@@ -28,6 +28,9 @@
                         <div class="card-header">
                             <div class="row">
                                 <div class="col-md-12">
+                                    <button class="btn btn-info" type="button" id="filterBtn"><i class="fa fa-search pr-1"></i> Search</button>
+                                </div>
+                                <div class="col-md-12 border mt-3 pb-3" id="filterDiv">
                                     {!! Form::open(['id' => 'filterForm', 'class' => 'form-horizontal','files'=>true,'onsubmit' => 'return false;']) !!}
                                     @include('admin.filter')
                                     {!! Form::close() !!}
@@ -47,12 +50,12 @@
                                         <th>Rate</th>
                                         <th>Onsite</th>
                                         <th>Category</th>
-                                        <th>Timer</th>
+                                        <!-- <th>Timer</th> -->
                                         <th>Job Keyword</th>
                                         <th>client</th>
                                         <th>Recruiter</th>
                                         <th>Status</th>
-                                        <th>Color</th>
+                                        <!-- <th>Color</th> -->
                                         <th>Candidate</th>
                                         <th>Action</th>
                                     </tr>
@@ -66,6 +69,7 @@
             </div>
         </section>
     </div>
+    @include('admin.requirement.candidateModal',['hide'=>0, 'isSubmission'=>0,])
 @endsection
 
 @section('jquery')
@@ -114,12 +118,12 @@
                 {data: 'vendor_rate', name: 'vendor_rate'},
                 {data: 'work_type', name: 'work_type'},
                 {data: 'category', name: 'category'},
-                {data: 'created_at', 'width': '18%', name: 'created_at'},
+                // {data: 'created_at', 'width': '18%', name: 'created_at'},
                 {data: 'job_keyword', 'width': '20%', name: 'job_keyword'},
                 {data: 'client', name: 'client'},
                 {data: 'recruiter', name: 'recruiter'},
                 {data: 'status', name: 'status'},
-                {data: 'color', name: 'color'},
+                // {data: 'color', name: 'color'},
                 {data: 'candidate', name: 'candidate'},
                 {data: 'action', "width": "15%", name: 'action', orderable: false, searchable: false},
             ]

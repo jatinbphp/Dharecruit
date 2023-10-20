@@ -31,16 +31,19 @@ class RequirementController extends Controller
             $data = $this->Filter($request);
             return Datatables::of($data)
                 ->addIndexColumn()
+                ->addColumn('job_title', function($row){
+                    return '<span class="job-title"  data-id="'.$row->id.'">'.$row->job_title.'</span>';
+                })
                 ->addColumn('user_id', function($row){
                     return $row->BDM->name;
                 })
                 ->addColumn('category', function($row){
                     return $row->Category->name;
                 })
-                ->addColumn('created_at', function($row){
-                    return '<div class="border border-dark floar-left p-1 mt-2" style="
-                    border-radius: 5px; width: auto"><span>'.$row->created_at->diffForHumans().'</span></div>';
-                })
+                // ->addColumn('created_at', function($row){
+                //     return '<div class="border border-dark floar-left p-1 mt-2" style="
+                //     border-radius: 5px; width: auto"><span>'.$row->created_at->diffForHumans().'</span></div>';
+                // })
                 ->addColumn('recruiter', function($row){
                     $rId = !empty($row->recruiter) ? explode(',',$row->recruiter) : [];
                     $recName = '';
@@ -90,24 +93,24 @@ class RequirementController extends Controller
                     }
                     return $statusBtn;
                 })
-                ->addColumn('color', function($row){
-                    $color = '';
-                    if(!empty($row->recruiter)){
-                        Log::info('Status Color Yellow==>');
-                        $color = '<div style="width:50px; background-color: yellow;">&nbsp;</div>';
-                    }
-                    $submission = Submission::where('requirement_id',$row->id)->count();
-                    if($submission > 0){
-                        Log::info('Status Color Green==>');
-                        $color = '<div style="width:50px; background-color: green;">&nbsp;</div>';
-                    }
-                    $rejectionCount = Submission::where('requirement_id',$row->id)->where('status','rejected')->count();
-                    if($rejectionCount > 0){
-                        Log::info('Status Color Red==>');
-                        $color = '<div style="width:50px; background-color: red;">&nbsp;</div>';
-                    }
-                    return $color;
-                })
+                // ->addColumn('color', function($row){
+                //     $color = '';
+                //     if(!empty($row->recruiter)){
+                //         Log::info('Status Color Yellow==>');
+                //         $color = '<div style="width:50px; background-color: yellow;">&nbsp;</div>';
+                //     }
+                //     $submission = Submission::where('requirement_id',$row->id)->count();
+                //     if($submission > 0){
+                //         Log::info('Status Color Green==>');
+                //         $color = '<div style="width:50px; background-color: green;">&nbsp;</div>';
+                //     }
+                //     $rejectionCount = Submission::where('requirement_id',$row->id)->where('status','rejected')->count();
+                //     if($rejectionCount > 0){
+                //         Log::info('Status Color Red==>');
+                //         $color = '<div style="width:50px; background-color: red;">&nbsp;</div>';
+                //     }
+                //     return $color;
+                // })
                 ->addColumn('candidate', function($row){
                     $allSubmission = Submission::where('requirement_id',$row->id)->where('status','!=','reject')->get();
                     $user = Auth::user();
@@ -115,7 +118,14 @@ class RequirementController extends Controller
                     if(count($allSubmission) > 0){
                         foreach ($allSubmission as $list){
                             $textColor = $list['status'] == 'rejected' ? 'text-danger' : '';
-                            $candidate .= '<span class="candidate '.$textColor.'"  data-cid="'.$list['id'].'">'.$list['name'].'-'.$list['id'].'</span><br>';
+                            $nameArray = explode(" ",$list['name']);
+                            $candidateFirstName = isset($nameArray[0]) ? $nameArray[0] : '';
+                            $candidate .= '<span class="candidate '.$textColor.'"  data-cid="'.$list['id'].'">'.$candidateFirstName.' - '.$list['id'].'</span><br>';
+                        }
+                    } else {
+                        if(!empty($row->recruiter)){
+                            Log::info('Status Color Yellow==>');
+                            $candidate = '<div style="width:50px; background-color: yellow;">&nbsp;</div>';
                         }
                     }
                     return $candidate;
@@ -132,6 +142,8 @@ class RequirementController extends Controller
                                 </span>';
                     }
                     $btn .= '<div class="btn-group btn-group-sm"><a href="'.url('admin/requirement/'.$row->id).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" ><i class="fa fa-eye"></i></button></a></div>';
+                    $btn .= '<div class="border border-dark floar-left p-1 mt-2" style="
+                        border-radius: 5px; width: auto"><span>'.$row->created_at->diffForHumans().'</span></div>';
                     return $btn;
                 })
                 ->addColumn('client', function($row) {
@@ -141,7 +153,7 @@ class RequirementController extends Controller
                     }
                     return $clientName;
                 })
-                ->rawColumns(['user_id','category','created_at','recruiter','status','color','candidate','action','client'])
+                ->rawColumns(['user_id','category','created_at','recruiter','status','color','candidate','action','client','job_title'])
                 ->make(true);
         }
         $data['type'] = 1;
@@ -157,16 +169,19 @@ class RequirementController extends Controller
             $data = $this->Filter($request);
             return Datatables::of($data)
                 ->addIndexColumn()
+                ->addColumn('job_title', function($row){
+                    return '<span class="job-title"  data-id="'.$row->id.'">'.$row->job_title.'</span>';
+                })
                 ->addColumn('user_id', function($row){
                     return $row->BDM->name;
                 })
                 ->addColumn('category', function($row){
                     return $row->Category->name;
                 })
-                ->addColumn('created_at', function($row){
-                    return '<div class="border border-dark floar-left p-1 mt-2" style="
-                    border-radius: 5px; width: auto"><span>'.$row->created_at->diffForHumans().'</span></div>';
-                })
+                // ->addColumn('created_at', function($row){
+                //     return '<div class="border border-dark floar-left p-1 mt-2" style="
+                //     border-radius: 5px; width: auto"><span>'.$row->created_at->diffForHumans().'</span></div>';
+                // })
                 ->addColumn('recruiter', function($row){
                     $rId = !empty($row->recruiter) ? explode(',',$row->recruiter) : [];
                     $recName = '';
@@ -202,31 +217,38 @@ class RequirementController extends Controller
                     }
                     return $statusBtn;
                 })
-                ->addColumn('color', function($row){
-                    $color = '';
-                    if(!empty($row->recruiter)){
-                        Log::info('Status Color Yellow==>');
-                        $color = '<div style="width:50px; background-color: yellow;">&nbsp;</div>';
-                    }
-                    $submission = Submission::where('requirement_id',$row->id)->count();
-                    if($submission > 0){
-                        Log::info('Status Color Green==>');
-                        $color = '<div style="width:50px; background-color: green;">&nbsp;</div>';
-                    }
-                    $rejectionCount = Submission::where('requirement_id',$row->id)->where('status','rejected')->count();
-                    if($rejectionCount > 0){
-                        Log::info('Status Color Red==>');
-                        $color = '<div style="width:50px; background-color: red;">&nbsp;</div>';
-                    }
-                    return $color;
-                })
+                // ->addColumn('color', function($row){
+                //     $color = '';
+                //     if(!empty($row->recruiter)){
+                //         Log::info('Status Color Yellow==>');
+                //         $color = '<div style="width:50px; background-color: yellow;">&nbsp;</div>';
+                //     }
+                //     $submission = Submission::where('requirement_id',$row->id)->count();
+                //     if($submission > 0){
+                //         Log::info('Status Color Green==>');
+                //         $color = '<div style="width:50px; background-color: green;">&nbsp;</div>';
+                //     }
+                //     $rejectionCount = Submission::where('requirement_id',$row->id)->where('status','rejected')->count();
+                //     if($rejectionCount > 0){
+                //         Log::info('Status Color Red==>');
+                //         $color = '<div style="width:50px; background-color: red;">&nbsp;</div>';
+                //     }
+                //     return $color;
+                // })
                 ->addColumn('candidate', function($row){
                     $allSubmission = Submission::where('requirement_id',$row->id)->where('status','!=','reject')->get();
                     $candidate = '<br>';
                     if(count($allSubmission) > 0){
                         foreach ($allSubmission as $list){
                             $textColor = $list['status'] == 'rejected' ? 'text-danger' : '' ;
-                            $candidate .= '<span class="candidate '.$textColor.'" data-cid="'.$list['id'].'">'.$list['name'].'-'.$list['id'].'</span><br>';
+                            $nameArray = explode(" ",$list['name']);
+                            $candidateFirstName = isset($nameArray[0]) ? $nameArray[0] : '';
+                            $candidate .= '<span class="candidate '.$textColor.'" data-cid="'.$list['id'].'">'.$candidateFirstName.' - '.$list['id'].'</span><br>';
+                        }
+                    } else {
+                        if(!empty($row->recruiter)){
+                            Log::info('Status Color Yellow==>');
+                            $candidate = '<div style="width:50px; background-color: yellow;">&nbsp;</div>';
                         }
                     }
                     return $candidate;
@@ -243,6 +265,8 @@ class RequirementController extends Controller
                                 </span>';
                     }
                     $btn .= '<div class="btn-group btn-group-sm"><a href="'.url('admin/requirement/'.$row->id).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" ><i class="fa fa-eye"></i></button></a></div>';
+                    $btn .= '<div class="border border-dark floar-left p-1 mt-2" style="
+                        border-radius: 5px; width: auto"><span>'.$row->created_at->diffForHumans().'</span></div>';
                     return $btn;
                 })
                 ->addColumn('client', function($row) {
@@ -252,7 +276,7 @@ class RequirementController extends Controller
                     }
                     return $clientName;
                 })
-                ->rawColumns(['user_id','category','created_at','recruiter','status','color','candidate','action','client'])
+                ->rawColumns(['user_id','category','created_at','recruiter','status','color','candidate','action','client','job_title'])
                 ->make(true);
         }
         $data['type'] = 2;
@@ -285,10 +309,10 @@ class RequirementController extends Controller
             'work_type' => 'required',
             'duration' => 'required',
             'visa' => 'required',
-            'client' => 'required',
+            //'client' => 'required',
             'vendor_rate' => 'required',
             'my_rate' => 'required',
-            'priority' => 'required',
+            //'priority' => 'required',
             'term' => 'required',
             'category' => 'required',
             'moi' => 'required',
@@ -386,10 +410,10 @@ class RequirementController extends Controller
             'work_type' => 'required',
             'duration' => 'required',
             'visa' => 'required',
-            'client' => 'required',
+            //'client' => 'required',
             'vendor_rate' => 'required',
             'my_rate' => 'required',
-            'priority' => 'required',
+            // 'priority' => 'required',
             'term' => 'required',
             'category' => 'required',
             'moi' => 'required',

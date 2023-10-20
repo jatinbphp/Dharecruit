@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\RequirementController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\PVCompanyController;
 use App\Http\Controllers\Admin\SubmissionController;
+use App\Http\Controllers\Admin\BDMSubmissionController;
 use App\Http\Controllers\Admin\CommonController;
 use App\Http\Controllers\Auth\RegisterController;
 /*
@@ -96,6 +97,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('candidate_update', [RequirementController::class,'candidateUpdate'])->name('candidate.update');
     Route::get('my_requirement', [RequirementController::class,'myRequirement'])->name('my_requirement');
     Route::resource('requirement', RequirementController::class);
+    Route::post('get_requirement', [CommonController::class,'getRequirement'])->name('get_requirement');
 
     /* SUBMISSION MANAGEMENT */
     Route::get('submission/new/{id}', [SubmissionController::class,'submissionAdd'])->name('submission.newAdd');
@@ -103,6 +105,11 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::get('my_requirements', [SubmissionController::class,'myRequirement'])->name('my_submission');
     Route::resource('submission', SubmissionController::class);
     Route::post('submission/getAlreadyAddedUserDetail/', [SubmissionController::class,'getAlreadyAddedUserDetail'])->name('submission.alreadyAddedUserDetail');
+
+    /* BDM SUBMISSION MANAGEMENT */
+    Route::resource('bdm_submission', BDMSubmissionController::class);
+    Route::post('bdm_submission/changePvStatus/{id}', [BDMSubmissionController::class,'changePvStatus'])->name('requirement.changePvStatus');
+    Route::post('pv_reject_reason_update', [BDMSubmissionController::class,'pvRejectReasonUpdate'])->name('pv_reject_reason_update.update');
 
     Auth::routes();
 });

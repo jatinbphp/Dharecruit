@@ -40,7 +40,7 @@
     <link rel="stylesheet" href="{{ URL::asset('assets/dist/css/custom.css') }}">
     <link rel="stylesheet" href="{{ URL::asset('assets/plugins/ladda/ladda-themeless.min.css')}}">
     <style>
-        .candidate{cursor: pointer}
+        .candidate, .job-title {cursor: pointer}
         a.disabled {
             pointer-events: none;
             cursor: default;
@@ -286,6 +286,15 @@
                             </a>
                         </li>
                     @endif
+
+                    <!-- @if(\Illuminate\Support\Facades\Auth::user()->role == 'bdm')
+                        <li class="nav-item">
+                            <a href="{{ route('bdm_submission.index') }}" class="nav-link @if($menu=='Manage Submission') active @endif">
+                                <i class="nav-icon fa fa fa-paper-plane"></i>
+                                <p>Manage Submission</p>
+                            </a>
+                        </li>
+                    @endif -->
                 </ul>
             </nav>
         </div>
@@ -417,6 +426,7 @@
     $("#responce").hide();
 
     $( function() {
+        $('#filterDiv').hide();
         $( "#sortable" ).sortable({opacity: 0.9, cursor: 'move', update: function() {
                 var order = $(this).sortable("serialize") + '&update=update';
                 var reorder_url = $(this).attr("url");
@@ -464,6 +474,32 @@
                 }
             });
         }
+
+        $('#requirementTable, #mySubmissionTable tbody').on('click', '.job-title', function (event) {
+            var id = $(this).attr('data-id');
+            $.ajax({
+                url: "{{route('get_requirement')}}",
+                type: "post",
+                data: {'id': id,'_token' : $('meta[name=_token]').attr('content') },
+                success: function(data){
+                    if(data.status == 1){
+                        $('#jobTitle').html(data.requirementTitle);
+                        $('#requirementData').html(data.requirementContent);
+                        $('#status_submit').remove();
+                        $('#candidateData').remove();
+                        $('#statusUpdate').remove();
+                        $('#requirementData').removeClass('border-bottom mb-2 pb-2');
+                        $('#candidateModal').modal('show');
+                    }else{
+                        swal("Cancelled", "Something is wrong. Please try again!", "error");
+                    }
+                }
+            });
+        });
+    });
+
+    $('#filterBtn').on('click', function(){
+        $('#filterDiv').toggle('show');
     });
 </script>
 @yield('jquery')

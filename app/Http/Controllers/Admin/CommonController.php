@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Submission;
+use App\Models\Requirement;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -110,6 +111,22 @@ class CommonController extends Controller
                         </div>
                         <div class="row mt-2">
                             <div class="col-md-6">
+                                <strong>Employer Name:</strong> '.$submission['employer_name'].'
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Employee Name:</strong> '.$submission['employee_name'].'
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-6">
+                                <strong>Employee Email:</strong> '.$submission['employee_email'].'
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Employee Phone:</strong> '.$submission['employee_phone'].'
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-6">
                                 <strong>Resume:</strong><a href="'.asset('storage/'.$submission['documents']).'" target="_blank"><img src="'.url('assets/dist/img/resume.png').'" height="50"></a>
                             </div>
                         </div>';
@@ -119,6 +136,91 @@ class CommonController extends Controller
         $data['submission'] = $submission;
         $data['candidateStatus'] = $candidateStatus;
         $data['status'] = $status;
+        return $data;
+    }
+
+    function getRequirement(Request $request) {
+        $data = [];
+        $status = 0;
+        if(empty($request->id)){
+            $data['status'] = $status;
+            return $data;
+        }
+        $requirement = Requirement::where('id',$request->id)->first();
+        \Log::info($request->id);
+        $requirementTitle = '';
+        $requirementContent = '';
+        if(!empty($requirement)){
+            $status = 1;
+            $requirementTitle = $requirement->job_title;
+            $requirementContent .= '
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>Job Title:</strong> '.$requirement->job_title.'
+                </div>
+                <div class="col-md-6">
+                    <strong>No # Position:</strong> '.$requirement->no_of_position.'
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <strong>Experience:</strong> '.$requirement->experience.'
+                </div>
+                <div class="col-md-6">
+                    <strong>Location:</strong> '.$requirement->location.'
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <strong>Onsite/Hybrid/Remote:</strong> '.$requirement->work_type.'
+                </div>
+                <div class="col-md-6">
+                    <strong>Duration:</strong> '.$requirement->duration.'
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <strong>Visa:</strong> '.$requirement->visa.'
+                </div>
+                <div class="col-md-6">
+                    <strong>Client:</strong> '.$requirement->client.'
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <strong>Priority:</strong> '.$requirement->priority.'
+                </div>
+                <div class="col-md-6">
+                    <strong>Term:</strong> '.$requirement->term.'
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <strong>Category:</strong> '.$requirement->Category->name.'
+                </div>
+                <div class="col-md-6">
+                    <strong>MOI:</strong> '.$requirement->MOI->name.'
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <strong>Job Keyword:</strong> '.$requirement->job_keyword.'
+                </div>
+                <div class="col-md-6">
+                    <strong>Special Notes:</strong> '.$requirement->notes.'
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-12">
+                    <strong>Job Description:</strong> '.$requirement->description.'
+                </div>
+            </div>';
+        }
+        $data['status']             = $status;
+        $data['requirementContent'] = $requirementContent;
+        $data['requirementTitle']   = $requirementTitle;
+        $data['requirememt']        = $requirement;
+
         return $data;
     }
 }

@@ -148,7 +148,7 @@
         <div class="form-group{{ $errors->has('resume') ? ' has-error' : '' }}">
             <label class="control-label" for="resume">Resume :<span class="text-red">*</span></label>
             {!! Form::file('resume', ['class' => '', 'id'=> 'resume','accept'=>'.xlsx,.xls,.doc,.docx,.ppt,.pptx,.txt,.pdf']) !!}
-            <input type="hidden" name="existResume" id="existResume">
+            {!! Form::hidden('existResume', null, ['id' => 'existResume']) !!}
             @if ($errors->has('resume'))
             <br>
             <span class="text-danger">
@@ -156,5 +156,69 @@
                 </span>
             @endif
         </div>
+    </div>
+</div>
+@if(!isset($submission))
+    <div class="text-right">
+        <button class="btn btn-info" id="empSave">Save</button>
+    </div>
+@endif
+
+<div id="empDiv" @if(!isset($submission)) style="display: none;" @endif>
+    <hr>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group{{ $errors->has('employer_name') ? ' has-error' : '' }}">
+                <label class="control-label" for="employer_name">Employer Name :<span class="text-red">*</span></label>
+                {!! Form::text('employer_name', null, ['class' => 'form-control','placeholder' => 'Enter Employer Name', 'id'=>'employer_name']) !!}
+                @if ($errors->has('employer_name'))
+                    <span class="text-danger">
+                        <strong>{{ $errors->first('employer_name') }}</strong>
+                    </span>
+                @endif
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group{{ $errors->has('employee_name') ? ' has-error' : '' }}">
+                <label class="control-label" for="employee_name">Employee Name :<span class="text-red">*</span></label>
+                {!! Form::text('employee_name', null, ['class' => 'form-control', 'placeholder' => 'Enter Employee Name', 'id' => 'employee_name']) !!}
+                @if ($errors->has('employee_name'))
+                    <span class="text-danger">
+                        <strong>{{ $errors->first('employee_name') }}</strong>
+                    </span>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group{{ $errors->has('employee_email') ? ' has-error' : '' }}">
+                <label class="control-label" for="employee_email">Employee Email :<span class="text-red">*</span></label>
+                {!! Form::text('employee_email', null, ['class' => 'form-control', 'placeholder' => 'Enter Employee Email', 'id' => 'employee_email']) !!}
+                @if ($errors->has('employee_email'))
+                    <span class="text-danger">
+                        <strong>{{ $errors->first('employee_email') }}</strong>
+                    </span>
+                @endif
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group{{ $errors->has('employee_phone') ? ' has-error' : '' }}">
+                <label class="control-label" for="employee_phone">Employee Phone Number :<span class="text-red">*</span></label>
+                {!! Form::text('employee_phone', null, ['class' => 'form-control', 'placeholder' => 'Employee Phone Number', 'id' => 'employee_phone']) !!}
+                @if ($errors->has('employee_phone'))
+                    <span class="text-danger">
+                        <strong>{{ $errors->first('employee_phone') }}</strong>
+                    </span>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <div class="text-right">
+        <button class="btn btn-info" id="empSave">Save</button>
     </div>
 </div>

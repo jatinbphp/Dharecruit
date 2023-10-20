@@ -24,6 +24,7 @@ class Permission extends Model
     const MODULE_REQUIREMENTS = 'manage_requirement';
     const MODULE_PVCOMPANY = 'manage_pvcompany';
     const MODULE_SUBMISSION = 'manage_submission';
+    const MODULE_BDM_SUBMISSION = 'manage_bdm_submission';
 
     public static $permission = [
         self::MODULE_PERMISSION => 'Manage Permission',
@@ -37,5 +38,6 @@ class Permission extends Model
         self::MODULE_REQUIREMENTS => 'Manage Requirement',
         self::MODULE_PVCOMPANY => 'Manage PV Company',
         self::MODULE_SUBMISSION => 'Manage Submission',
+        self::MODULE_BDM_SUBMISSION => 'Manage BDM Submission',
     ];
 }

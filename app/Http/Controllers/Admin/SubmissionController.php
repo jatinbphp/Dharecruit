@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\Storage;
 
 class SubmissionController extends Controller
 {
-    public function __construct(){
+    public function __construct()
+    {
         $this->middleware('auth');
         $this->middleware('accessright:manage_submission');
     }
@@ -27,16 +28,19 @@ class SubmissionController extends Controller
             $data = $this->Filter($request);
             return Datatables::of($data)
                 ->addIndexColumn()
+                ->addColumn('job_title', function($row){
+                    return '<span class="job-title"  data-id="'.$row->id.'">'.$row->job_title.'</span>';
+                })
                 ->addColumn('user_id', function($row){
                     return $row->BDM->name;
                 })
                 ->addColumn('category', function($row){
                     return $row->Category->name;
                 })
-                ->addColumn('created_at', function($row){
-                    return '<div class="border border-dark floar-left p-1 mt-2" style="
-                    border-radius: 5px; width: auto"><span>'.$row->created_at->diffForHumans().'</span></div>';
-                })
+                // ->addColumn('created_at', function($row){
+                //     return '<div class="border border-dark floar-left p-1 mt-2" style="
+                //     border-radius: 5px; width: auto"><span>'.$row->created_at->diffForHumans().'</span></div>';
+                // })
                 ->addColumn('recruiter', function($row){
                     $rId = !empty($row->recruiter) ? explode(',',$row->recruiter) : [];
                     $recName = '';
@@ -86,24 +90,24 @@ class SubmissionController extends Controller
                     }
                     return $statusBtn;
                 })
-                ->addColumn('color', function($row){
-                    $color = '';
-                    if(!empty($row->recruiter)){
-                        Log::info('Status Color Yellow==>');
-                        $color = '<div style="width:50px; background-color: yellow;">&nbsp;</div>';
-                    }
-                    $submission = Submission::where('requirement_id',$row->id)->count();
-                    if($submission > 0){
-                        Log::info('Status Color Green==>');
-                        $color = '<div style="width:50px; background-color: green;">&nbsp;</div>';
-                    }
-                    $rejectionCount = Submission::where('requirement_id',$row->id)->where('status','rejected')->count();
-                    if($rejectionCount > 0){
-                        Log::info('Status Color Red==>');
-                        $color = '<div style="width:50px; background-color: red;">&nbsp;</div>';
-                    }
-                    return $color;
-                })
+                // ->addColumn('color', function($row){
+                //     $color = '';
+                //     if(!empty($row->recruiter)){
+                //         Log::info('Status Color Yellow==>');
+                //         $color = '<div style="width:50px; background-color: yellow;">&nbsp;</div>';
+                //     }
+                //     $submission = Submission::where('requirement_id',$row->id)->count();
+                //     if($submission > 0){
+                //         Log::info('Status Color Green==>');
+                //         $color = '<div style="width:50px; background-color: green;">&nbsp;</div>';
+                //     }
+                //     $rejectionCount = Submission::where('requirement_id',$row->id)->where('status','rejected')->count();
+                //     if($rejectionCount > 0){
+                //         Log::info('Status Color Red==>');
+                //         $color = '<div style="width:50px; background-color: red;">&nbsp;</div>';
+                //     }
+                //     return $color;
+                // })
                 ->addColumn('candidate', function($row){
                     $allSubmission = Submission::where('requirement_id',$row->id)->where('status','!=','reject')->get();
                     $user = Auth::user();
@@ -111,7 +115,14 @@ class SubmissionController extends Controller
                     if(count($allSubmission) > 0){
                         foreach ($allSubmission as $list){
                             $textColor = $list['status'] == 'rejected' ? 'text-danger' : '';
-                            $candidate .= '<span class="candidate '.$textColor.'"  data-cid="'.$list['id'].'">'.$list['name'].'-'.$list['id'].'</span><br>';
+                            $nameArray = explode(" ",$list['name']);
+                            $candidateFirstName = isset($nameArray[0]) ? $nameArray[0] : '';
+                            $candidate .= '<span class="candidate '.$textColor.'"  data-cid="'.$list['id'].'">'.$candidateFirstName.' - '.$list['id'].'</span><br>';
+                        }
+                    } else {
+                        if(!empty($row->recruiter)){
+                            Log::info('Status Color Yellow==>');
+                            $candidate .= '<div style="width:50px; background-color: yellow;">&nbsp;</div>';
                         }
                     }
                     return $candidate;
@@ -133,6 +144,8 @@ class SubmissionController extends Controller
                     }else{
                         $btn = '';
                     }
+                    $btn .= '<div class="border border-dark floar-left p-1 mt-2" style="
+                        border-radius: 5px; width: auto"><span>'.$row->created_at->diffForHumans().'</span></div>';
                     return $btn;
                 })
                 ->addColumn('client', function($row) {
@@ -142,7 +155,7 @@ class SubmissionController extends Controller
                     }
                     return $clientName;
                 })
-                ->rawColumns(['user_id','category','created_at','recruiter','status','color','candidate','action','client'])
+                ->rawColumns(['user_id','category','created_at','recruiter','status','color','candidate','action','client','job_title'])
                 ->make(true);
         }
         $data['type'] = 1;
@@ -158,16 +171,19 @@ class SubmissionController extends Controller
             $data = $this->Filter($request);
             return Datatables::of($data)
                 ->addIndexColumn()
+                ->addColumn('job_title', function($row){
+                    return '<span class="job-title"  data-id="'.$row->id.'">'.$row->job_title.'</span>';
+                })
                 ->addColumn('user_id', function($row){
                     return $row->BDM->name;
                 })
                 ->addColumn('category', function($row){
                     return $row->Category->name;
                 })
-                ->addColumn('created_at', function($row){
-                    return '<div class="border border-dark floar-left p-1 mt-2" style="
-                    border-radius: 5px; width: auto"><span>'.$row->created_at->diffForHumans().'</span></div>';
-                })
+                // ->addColumn('created_at', function($row){
+                //     return '<div class="border border-dark floar-left p-1 mt-2" style="
+                //     border-radius: 5px; width: auto"><span>'.$row->created_at->diffForHumans().'</span></div>';
+                // })
                 ->addColumn('recruiter', function($row){
                     $rId = !empty($row->recruiter) ? explode(',',$row->recruiter) : [];
                     $recName = '';
@@ -217,24 +233,24 @@ class SubmissionController extends Controller
                     }
                     return $statusBtn;
                 })
-                ->addColumn('color', function($row){
-                    $color = '';
-                    if(!empty($row->recruiter)){
-                        Log::info('Status Color Yellow==>');
-                        $color = '<div style="width:50px; background-color: yellow;">&nbsp;</div>';
-                    }
-                    $submission = Submission::where('requirement_id',$row->id)->count();
-                    if($submission > 0){
-                        Log::info('Status Color Green==>');
-                        $color = '<div style="width:50px; background-color: green;">&nbsp;</div>';
-                    }
-                    $rejectionCount = Submission::where('requirement_id',$row->id)->where('status','rejected')->count();
-                    if($rejectionCount > 0){
-                        Log::info('Status Color Red==>');
-                        $color = '<div style="width:50px; background-color: red;">&nbsp;</div>';
-                    }
-                    return $color;
-                })
+                // ->addColumn('color', function($row){
+                //     $color = '';
+                //     if(!empty($row->recruiter)){
+                //         Log::info('Status Color Yellow==>');
+                //         $color = '<div style="width:50px; background-color: yellow;">&nbsp;</div>';
+                //     }
+                //     $submission = Submission::where('requirement_id',$row->id)->count();
+                //     if($submission > 0){
+                //         Log::info('Status Color Green==>');
+                //         $color = '<div style="width:50px; background-color: green;">&nbsp;</div>';
+                //     }
+                //     $rejectionCount = Submission::where('requirement_id',$row->id)->where('status','rejected')->count();
+                //     if($rejectionCount > 0){
+                //         Log::info('Status Color Red==>');
+                //         $color = '<div style="width:50px; background-color: red;">&nbsp;</div>';
+                //     }
+                //     return $color;
+                // })
                 ->addColumn('candidate', function($row){
                     $allSubmission = Submission::where('requirement_id',$row->id)->where('status','!=','reject')->get();
                     $user = Auth::user();
@@ -242,7 +258,14 @@ class SubmissionController extends Controller
                     if(count($allSubmission) > 0){
                         foreach ($allSubmission as $list){
                             $textColor = $list['status'] == 'rejected' ? 'text-danger' : '';
-                            $candidate .= '<span class="candidate '.$textColor.'"  data-cid="'.$list['id'].'">'.$list['name'].'-'.$list['id'].'</span><br>';
+                            $nameArray = explode(" ",$list['name']);
+                            $candidateFirstName = isset($nameArray[0]) ? $nameArray[0] : '';
+                            $candidate .= '<span class="candidate '.$textColor.'"  data-cid="'.$list['id'].'">'.$candidateFirstName.' - '.$list['id'].'</span><br>';
+                        }
+                    } else {
+                        if(!empty($row->recruiter)){
+                            Log::info('Status Color Yellow==>');
+                            $candidate .= '<div style="width:50px; background-color: yellow;">&nbsp;</div>';
                         }
                     }
                     return $candidate;
@@ -264,6 +287,8 @@ class SubmissionController extends Controller
                     }else{
                         $btn = '';
                     }
+                    $btn .= '<div class="border border-dark floar-left p-1 mt-2" style="
+                        border-radius: 5px; width: auto"><span>'.$row->created_at->diffForHumans().'</span></div>';
                     return $btn;
                 })
                 ->addColumn('client', function($row) {
@@ -273,7 +298,7 @@ class SubmissionController extends Controller
                     }
                     return $clientName;
                 })
-                ->rawColumns(['user_id','category','created_at','recruiter','status','color','candidate','action','client'])
+                ->rawColumns(['user_id','category','created_at','recruiter','status','color','candidate','action','client','job_title'])
                 ->make(true);
         }
         $data['type'] = 2;
@@ -314,17 +339,18 @@ class SubmissionController extends Controller
         $input = $request->all();
         $input['user_id'] = Auth::user()->id;
 
-        if(empty($request['existResume'])){
-            $this->validate($request, [
-                'resume' => 'required|mimes:doc,docx,pdf',
-            ]);
+        if(!empty($request['resume'])){
             if($file = $request->file('resume')){
                 $input['documents'] = $this->fileMove($file,'user_documents');
             }
-        }else{
+        } else if(!empty($request['existResume'])){
             $input['documents'] = $request['existResume'];
+        }else{
+            $this->validate($request, [
+                'resume' => 'required|mimes:doc,docx,pdf',
+            ]);
         }
-        Submission::create($input);
+        $submission = Submission::create($input);
 
         if($requirement['submissionCounter'] < 3){
             $in['submissionCounter'] = $requirement['submissionCounter'] + 1;
@@ -337,7 +363,7 @@ class SubmissionController extends Controller
         }
 
         \Session::flash('success', 'New submission has been inserted successfully!');
-        return redirect(route('submission.show',['submission'=>$request['requirement_id']]));
+        return redirect(route('submission.edit',['submission'=>$submission['id']]));
     }
 
     public function show(Request $request, $id)
@@ -395,12 +421,41 @@ class SubmissionController extends Controller
 
     public function edit($id)
     {
-        //
+        $data['menu'] = "Requirements";
+        $data['submission'] = Submission::where('id',$id)->first();
+        $data['sub_menu'] = "Submission";
+       
+        return view('admin.submission.edit',$data);
     }
 
     public function update(Request $request, $id)
     {
-        //
+        $this->validate($request, [
+            'name' => 'required',
+            'email' => 'required',
+            'location' => 'required',
+            'phone' => 'required|numeric',
+            'employer_detail' => 'required',
+            'work_authorization' => 'required',
+            'last_4_ssn' => 'required',
+            'education_details' => 'required',
+            'resume_experience' => 'required',
+            'linkedin_id' => 'required',
+            'relocation' => 'required',
+            'vendor_rate' => 'required',
+            'employer_name' => 'required',
+            'employee_name' => 'required',
+            'employee_email' => 'required|email',
+            'employee_phone' => 'required|numeric|digits:10',
+        ]);
+
+        $input = $request->all();
+        $Submission = Submission::where('id',$id)->first();
+        $Submission->update($request->all());
+
+        \Session::flash('success','Submission  has been updated successfully!');
+        return redirect(route('submission.show',['submission'=>$Submission['requirement_id']]));
+        // return redirect()->route('submission.index');
     }
 
     public function destroy($id)
@@ -427,17 +482,31 @@ class SubmissionController extends Controller
     }
 
     public function getAlreadyAddedUserDetail(Request $request){
-        if(!$request || !$request->get('email')){
-            return '';
+        $status = 0;
+        $responceData['status'] = $status;
+        
+        if(!$request || (!$request->get('email') && !$request->get('id'))){
+            return $responceData;
         }
 
-        $email = $request->get('email');
-        $data = Submission::where('email',$email)->latest()->first();
+        $submissionId = $request->get('id');
+        $submissionEmail = $request->get('email');
+        
+        $data = [];
 
-        if(!$data) {
-            return '';
+        if (!empty($submissionEmail)){
+            $data = Submission::where('email',$submissionEmail)->latest()->first();
+        } else if(!empty($submissionId)){
+            $data = Submission::where('id',$submissionId)->first();
         }
 
-        return response()->json(['data'=> $data], 200);
+        if($data) {
+            $status = 1;
+        }
+
+        $responceData['status'] = $status;
+        $responceData['responceData'] = $data;
+
+        return $responceData;
     }
 }

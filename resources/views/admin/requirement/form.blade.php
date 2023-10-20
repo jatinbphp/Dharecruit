@@ -76,7 +76,7 @@
 </div>
 
 <div class="row">
-    <div class="col-md-3">
+    <div class="col-md-4">
         <div class="form-group{{ $errors->has('visa') ? ' has-error' : '' }}">
             <label class="control-label" for="visa">Visa :@if (empty($customers))<span class="text-red">*</span>@endif</label>
             {!! Form::text('visa', null, ['class' => 'form-control', 'placeholder' => 'Enter Visa', 'id' => 'visa']) !!}
@@ -88,7 +88,7 @@
         </div>
     </div>
 
-    <div class="col-md-3">
+    <!-- <div class="col-md-3">
         <div class="form-group{{ $errors->has('client') ? ' has-error' : '' }}">
             <label class="control-label" for="client">Client :<span class="text-red">*</span></label>
             {!! Form::text('client', null, ['class' => 'form-control', 'placeholder' => 'Enter Client', 'id' => 'client']) !!}
@@ -98,9 +98,9 @@
                 </span>
             @endif
         </div>
-    </div>
+    </div> -->
 
-    <div class="col-md-3">
+    <div class="col-md-4">
         <div class="form-group{{ $errors->has('vendor_rate') ? ' has-error' : '' }}">
             <label class="control-label" for="vendor_rate">Vendor Rate :<span class="text-red">*</span></label>
             {!! Form::text('vendor_rate', null, ['class' => 'form-control', 'placeholder' => 'Enter Vendor Rate', 'id' => 'vendor_rate']) !!}
@@ -112,7 +112,7 @@
         </div>
     </div>
 
-    <div class="col-md-3">
+    <div class="col-md-4">
         <div class="form-group{{ $errors->has('my_rate') ? ' has-error' : '' }}">
             <label class="control-label" for="my_rate">My Rate :<span class="text-red">*</span></label>
             {!! Form::text('my_rate', null, ['class' => 'form-control', 'placeholder' => 'Enter My Rate', 'id' => 'my_rate']) !!}
@@ -128,7 +128,7 @@
 <div class="row">
     <div class="col-md-6">
         <div class="form-group{{ $errors->has('priority') ? ' has-error' : '' }}">
-            <label class="control-label" for="priority">Priority <span class="text-red">*</span></label>
+            <label class="control-label" for="priority">Priority</label>
             {!! Form::select('priority', \App\Models\Requirement::$priority, null, ['class' => 'form-control select2','id'=>'priority']) !!}
             @if ($errors->has('priority'))
                 <span class="text-danger">
@@ -217,7 +217,7 @@
     <div class="col-md-12">
         <div class="form-group{{ $errors->has('description') ? ' has-error' : '' }}">
             <label class="control-label" for="notes">Job Description :<span class="text-red">*</span></label>
-            {!! Form::textarea('description', null, ['class' => 'form-control', 'rows'=>4, 'placeholder' => 'Enter Job Description', 'id' => 'job_description']) !!}
+            {!! Form::textarea('description', null, ['class' => 'form-control', 'rows'=>4, 'placeholder' => 'Enter Job Description', 'id' => 'description']) !!}
             @if ($errors->has('description'))
                 <span class="text-danger">
                     <strong>{{ $errors->first('description') }}</strong>

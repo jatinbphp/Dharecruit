@@ -69,4 +69,8 @@ class Requirement extends Model
     public function PvCompany(){
         return $this->belongsTo('App\Models\PVCompany','pv_company_name');
     }
+
+    public function MOI(){
+        return $this->belongsTo('App\Models\Moi','moi');
+    }
 }

@@ -20,7 +20,8 @@ class Controller extends BaseController
 
     public function fileMove($photo, $path){
         $root = storage_path('app/public/uploads/'.$path);
-        $name = Str::random(20).".".$photo->getClientOriginalExtension();
+        $filename = pathinfo($photo->getClientOriginalName(), PATHINFO_FILENAME);
+        $name = $filename."_".date('His',time()).".".$photo->getClientOriginalExtension();
         if (!file_exists($root)) {
             mkdir($root, 0777, true);
         }

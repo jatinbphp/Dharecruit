@@ -28,9 +28,10 @@
                         <div class="card-header">
                             <div class="row">
                                 <div class="col-md-12">
+                                <button class="btn btn-info" type="button" id="filterBtn"><i class="fa fa-search pr-1"></i> Search</button>
                                     <a href="{{ route('submission.newAdd',['id'=>$requirement['id']]) }}"><button class="btn btn-info float-right" type="button" ><i class="fa fa-plus pr-1"></i> Add New</button></a>
                                 </div>
-                                <div class="col-md-12">
+                                <div class="col-md-12 mt-3 pb-3" id="filterDiv">
                                     {!! Form::open(['id' => 'filterSubmissionForm', 'class' => 'form-horizontal','files'=>true,'onsubmit' => 'return false;']) !!}
                                         @include('admin.submission_filter')
                                     {!! Form::close() !!}
