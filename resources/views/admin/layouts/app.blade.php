@@ -287,14 +287,14 @@
                         </li>
                     @endif
 
-                    <!-- @if(\Illuminate\Support\Facades\Auth::user()->role == 'bdm')
+                    @if(\Illuminate\Support\Facades\Auth::user()->role == 'bdm')
                         <li class="nav-item">
                             <a href="{{ route('bdm_submission.index') }}" class="nav-link @if($menu=='Manage Submission') active @endif">
                                 <i class="nav-icon fa fa fa-paper-plane"></i>
                                 <p>Manage Submission</p>
                             </a>
                         </li>
-                    @endif -->
+                    @endif
                 </ul>
             </nav>
         </div>

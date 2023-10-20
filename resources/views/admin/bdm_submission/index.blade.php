@@ -45,7 +45,7 @@
                                         <th>Candidate Name</th>
                                         <th>Employer Name</th>
                                         <th>Action</th>
-                                        <th>Status</th>
+                                        <!-- <th>Status</th> -->
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -206,7 +206,7 @@
                 {data: 'candidate_name',  name: 'candidate_name'},
                 {data: 'employer_name',  name: 'employer_name'},
                 {data: 'action', "width": "18%", name: 'action', orderable: false, searchable: false},
-                {data: 'status', "width": "18%", name: 'status', orderable: false, searchable: false},
+                // {data: 'status', "width": "18%", name: 'status', orderable: false, searchable: false},
             ]
         });
     }
