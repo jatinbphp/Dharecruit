@@ -14,10 +14,10 @@ class AddEmpFiledsToSubmissionTable extends Migration
     public function up()
     {
         Schema::table('submissions', function (Blueprint $table) {
-            $table->string('employer_name')->nullable();
-            $table->string('employee_name')->nullable();
-            $table->string('employee_email')->nullable();
-            $table->string('employee_phone')->nullable();
+            $table->string('employer_name')->nullable()->after('skills_match');
+            $table->string('employee_name')->nullable()->after('employer_name');
+            $table->string('employee_email')->nullable()->after('employee_name');
+            $table->string('employee_phone')->nullable()->after('employee_email');
         });
     }
 

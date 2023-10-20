@@ -14,8 +14,8 @@ class AddPvStatusReasonFiledsToSubmissionTable extends Migration
     public function up()
     {
         Schema::table('submissions', function (Blueprint $table) {
-            $table->string('pv_status')->nullable();
-            $table->longText('pv_reason')->nullable();
+            $table->string('pv_status')->nullable()->after('employee_phone');
+            $table->longText('pv_reason')->nullable()->after('pv_status');
         });
     }
 
