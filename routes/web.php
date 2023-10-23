@@ -105,6 +105,8 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::get('my_requirements', [SubmissionController::class,'myRequirement'])->name('my_submission');
     Route::resource('submission', SubmissionController::class);
     Route::post('submission/getAlreadyAddedUserDetail/', [SubmissionController::class,'getAlreadyAddedUserDetail'])->name('submission.alreadyAddedUserDetail');
+    Route::post('emp_name', [SubmissionController::class,'getEmpName'])->name('emp_name');
+    Route::post('get_emp_details', [SubmissionController::class,'getEmpDetail'])->name('get_emp_details');
 
     /* BDM SUBMISSION MANAGEMENT */
     Route::resource('bdm_submission', BDMSubmissionController::class);

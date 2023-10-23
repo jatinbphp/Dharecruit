@@ -159,7 +159,6 @@ class CommonController extends Controller
             return $data;
         }
         $requirement = Requirement::where('id',$request->id)->first();
-        \Log::info($request->id);
         $requirementTitle = '';
         $requirementContent = '';
         if(!empty($requirement)){

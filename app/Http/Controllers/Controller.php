@@ -80,7 +80,7 @@ class Controller extends BaseController
         if(!empty($request->work_type)){
             $whereInfo[] = ['work_type', $request->work_type];
         }
-        return $query->where($whereInfo);
+        return $query->where($whereInfo)->orderBy('id', 'desc');
     }
 
     public function submissionFilter($request,$id){

@@ -158,7 +158,6 @@
                 if (isConfirm) {
                     if(status == 'rejected_by_pv'){
                         swal.close();
-                        console.log('called for action');
                         $("#submissionId").val(submissionId);
                         $("#pv_status").val(status);
                         $("#filter").val($("#filter_status").val());

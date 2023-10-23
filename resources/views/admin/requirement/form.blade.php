@@ -225,6 +225,18 @@
             @endif
         </div>
     </div>
+    <div class="col-md-6">
+        <div class="form-group{{ $errors->has('document') ? ' has-error' : '' }}">
+            <label class="control-label" for="document">Document :<span class="text-red">*</span></label>
+            {!! Form::file('document[]', ['class' => '', 'id'=> 'document','multiple'=>true]) !!}
+            @if ($errors->has('document'))
+            <br>
+            <span class="text-danger">
+                    <strong>{{ $errors->first('document') }}</strong>
+                </span>
+            @endif
+        </div>
+    </div>
 </div>
 
 @if(!isset($requirement))

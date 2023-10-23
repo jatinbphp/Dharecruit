@@ -94,6 +94,8 @@
             processing: true,
             serverSide: true,
             responsive: true,
+            pageLength: 100,
+            lengthMenu: [ 100, 200, 300, 400, 500 ],
             ajax: {
                 url: "{{ $type == 1 ? route('submission.index') : route('my_submission') }}",
                 data: function (d) {

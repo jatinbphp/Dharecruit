@@ -9,6 +9,7 @@ use App\Models\Moi;
 use App\Models\PVCompany;
 use App\Models\Requirement;
 use App\Models\Submission;
+use App\Models\RequirementDocuments;
 use DataTables;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -318,6 +319,7 @@ class RequirementController extends Controller
             'moi' => 'required',
             'job_keyword' => 'required',
             'description' => 'required',
+            'document' => 'required',
             /*'pv_company_name' => 'required',
             'poc_name' => 'required',
             'poc_email' => 'required',
@@ -338,6 +340,16 @@ class RequirementController extends Controller
             $requirements = Requirement::where('id',$req['id'])->first();
             $in['job_id'] = $requirements['id'];
             $requirements->update($in);
+
+            if(!empty($request['document'])){
+                if($files = $request->file('document')){
+                    foreach ($files as $file) {
+                        $documentData['requirement_id'] = $req['id'];
+                        $documentData['document'] = $this->fileMove($file,'user_documents');
+                        RequirementDocuments::create($documentData);
+                    }
+                }
+            }
         }
 
         \Session::flash('success', 'Requirement has been inserted successfully!');
@@ -488,7 +500,11 @@ class RequirementController extends Controller
     }
 
     public function get_pocName(Request $request){
-        $allReqs = Requirement::where('pv_company_name',$request['pv_company_name'])->whereNotNull('pv_company_name')->groupBy('poc_name')->select('poc_name','id')->get();
+        if(Auth::user()->role == 'bdm'){
+            $allReqs = Requirement::where('pv_company_name',$request['pv_company_name'])->where('user_id',Auth::user()->id)->whereNotNull('pv_company_name')->groupBy('poc_name')->select('poc_name','id')->get();
+        }else{
+            $allReqs = Requirement::where('pv_company_name',$request['pv_company_name'])->whereNotNull('pv_company_name')->groupBy('poc_name')->select('poc_name','id')->get();
+        }
         $data['status'] = 0;
         $data['pocName'] = '';
         if(count($allReqs) > 0){

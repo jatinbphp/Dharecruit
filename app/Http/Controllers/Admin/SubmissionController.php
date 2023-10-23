@@ -509,4 +509,43 @@ class SubmissionController extends Controller
 
         return $responceData;
     }
+
+    function getEmpName(Request $request) {
+        if(Auth::user()->role == 'recruiter'){
+            $allReqs = Submission::where('employer_name',$request['employer_name'])->where('user_id',Auth::user()->id)->whereNotNull('employer_name')->groupBy('employee_name')->select('employee_name','id')->get();
+        }else{
+            $allReqs = Submission::where('employer_name',$request['employer_name'])->whereNotNull('employer_name')->groupBy('employee_name')->select('employee_name','id')->get();
+        }
+        $data['status'] = 0;
+        $data['empName'] = '';
+        if(count($allReqs) > 0){
+            $data['status'] = 1;
+            $option = '<option value="">Please Select Employee Name</option>';
+            foreach ($allReqs as $list){
+                $option .= '<option value="'.$list['employee_name'].'" data-id="'.$list['id'].'">'.$list['employee_name'].'</option>';
+            }
+            $option .= '<option value="0">Add New Employee</option>';
+            $data['empName'] .= ' <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label class="control-label col-md-12" for="empSelection">Employee Name</label>
+                                            <select class="form-control select2 col-md-12" id="empSelection" style="width: 100%" onChange="checkData(event)">
+                                                '.$option.'
+                                            </select>
+                                        </div>
+                                    </div>';
+        }
+        return $data;
+    }
+
+    function getEmpDetail(Request $request){
+        return $request;
+        $requs = Submission::orderBy('id', 'DESC')->where('employee_name',$request['employee_name'])->where('employer_name',$request['employer_name'])->first();
+        $data['status'] = 0;
+        $data['requs'] = [];
+        if(!empty($requs)){
+            $data['status'] = 1;
+            $data['requs'] = $requs;
+        }
+        return $data;
+    }
 }

@@ -221,4 +221,131 @@
     <div class="text-right">
         <button class="btn btn-info" id="empSave">Save</button>
     </div>
+
+    <div class="modal fade" id="empModel" tabindex="-1" role="dialog" aria-labelledby="empModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="empModalLabel">Select Employee Name</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12" id="empNameDiv"> </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+@section('jquery')
+    <script type="text/javascript">
+        $("#search_fill").click(function(){
+            var email = $('#search_email').val();
+            var id = $('#search_id').val();
+            $.ajax({
+                url : "{{ route('submission.alreadyAddedUserDetail') }}",
+                data : {'email' : email, 'id' : id , "_token": "{{ csrf_token() }}",},
+                type : 'POST',
+                dataType : 'json',
+                success : function(response){
+                    if(response.status == 1){
+                        var data = response.responceData;
+                        $('#submissionsForm *').filter(':input').each(function () {
+                            var tagType = $(this).prop("tagName").toLowerCase();
+                            var elementId = this.id;
+                            if(elementId){
+                                if(tagType == 'input'){
+                                    var type = $("#" + elementId).attr("type");
+                                    if(type == 'file'){
+                                        $('#resumeId').remove();
+                                        var resumeElement = '<div id="resumeId" class="mt-2"><a href="{{asset("storage")}}/'+ data['documents']+'" target="_blank"><img src=" {{url('assets/dist/img/resume.png')}}" height="50"></a></div>';
+                                        $("#" + elementId).closest('div').append(resumeElement);
+                                    } else {
+                                        var id = "#" + elementId;
+                                        $(id).val(data[elementId]);
+                                    }
+                                } else if(tagType == 'select'){
+                                    $("#" +elementId).select2("val", data[elementId]);
+                                }
+                            }
+                            $("#existResume").val(data['documents']);
+                        });
+                    }
+                }
+            });
+        });
+        $("#employer_name").focusout(function(){
+            var employer_name = $(this).val();
+            $.ajax({
+                url : "{{ route('emp_name') }}",
+                data : {'employer_name' : employer_name, "_token": "{{ csrf_token() }}",},
+                type : 'POST',
+                dataType : 'json',
+                success : function(data){
+                    console.log(data);
+                    if(data.status == 1){
+                        $('#empNameDiv').html(data.empName);
+                        $('#empModel').modal('show');
+                        // $('.select2').select2();
+                    }
+                }
+            });
+        });
+
+        function checkData() {
+            var employee_name = $("#empSelection option:selected").val();
+            var employer_name = $("#employer_name").val();
+            console.log(employer_name);
+            console.log(employee_name);
+            var updateElementIds = [
+                'employer_name',
+                'employee_name',
+                'employee_email',
+                'employee_phone',
+            ];
+
+            if(employee_name == 0){
+                for (id of updateElementIds) {
+                    if(id == 'employer_name'){
+                        continue;
+                    }
+                    console.log('12');
+                    $("#"+id).val('');
+                }
+                $('#empModel').modal('hide');
+                return;
+            }
+
+            $.ajax({
+                url : "{{ route('get_emp_details') }}",
+                data : {'employer_name' : employer_name, 'employee_name':employee_name, "_token": "{{ csrf_token() }}",},
+                type : 'POST',
+                dataType : 'json',
+                success : function(data){
+                    console.log(data);
+                    if(data.status == 1){
+                        $('#submissionsForm *').filter(':input').each(function () {
+                            var tagType = $(this).prop("tagName").toLowerCase();
+                            var elementId = this.id;
+                            if(elementId){
+                                if(tagType == 'input'){
+                                    if(updateElementIds.includes(elementId))
+                                    var id = "#" + elementId;
+                                    $(id).val(data.requs[elementId]);
+                                }
+                            }
+                        });
+                    }
+                    $('#empModel').modal('hide');
+                }
+            });
+        }
+    </script>
+@endsection
