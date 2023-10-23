@@ -246,6 +246,26 @@
 @endif
 
 <div id="pvDiv" @if(!isset($requirement)) style="display: none;" @endif>
+    <div class="row mt-2">
+    @if(isset($requirementDocuments))
+        @foreach($requirementDocuments as $id => $document)
+            <div class="col-md-2 mt-2" id="document-{{$id}}">
+                <div class="text-center">
+                    <a href="{{asset('storage/'.$document)}}" target="_blank"><img src="{{url('assets/dist/img/resume.png')}}" height="50"></a>
+                    @php
+                        $documentNameArray = explode('/',$document);
+                        $documentName = isset($documentNameArray[2]) ? $documentNameArray[2] : '';
+                    @endphp
+                    <label>{{$documentName}}</label>
+                    <br>
+                    <span data-toggle="tooltip" title="Delete File" data-trigger="hover">
+                        <button class="btn btn-sm btn-danger remove-document" data-id="{{$id}}" type="button"><i class="fa fa-trash"></i></button>
+                    </span>
+                </div>
+            </div>
+        @endforeach
+    @endif
+    </div>
     <hr>
     <div class="row">
         <div class="col-md-6">

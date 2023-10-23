@@ -409,6 +409,7 @@ class RequirementController extends Controller
             $data['moi'] = Moi::where('user_id',Auth::user()->id)->where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
             $data['pv_company'] = PVCompany::where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
         }
+        $data['requirementDocuments'] = RequirementDocuments::where('requirement_id',$id)->pluck('document','id');
         return view('admin.requirement.edit',$data);
     }
 
