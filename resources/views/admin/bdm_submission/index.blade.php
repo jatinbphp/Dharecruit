@@ -25,7 +25,7 @@
             <div class="col-md-3">
                 <div class="form-group">
                     <label class="control-label" for="filter_status">Filter</label>
-                    {!! Form::select('null', $filterOptions, 'null', ['class' => 'form-control select2','id'=>'filter_status']) !!}
+                    {!! Form::select('filter', $filterOptions, 'null', ['class' => 'form-control select2','id'=>'filter_status']) !!}
                 </div>
             </div>
             <div class="row">
@@ -45,7 +45,7 @@
                                         <th>Candidate Name</th>
                                         <th>Employer Name</th>
                                         <th>Action</th>
-                                        <!-- <th>Status</th> -->
+                                        <th>Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -68,6 +68,7 @@
                     {!! Form::open(['url' => route('pv_reject_reason_update.update'), 'id' => 'candidateForm', 'class' => 'form-horizontal','files'=>true]) !!}
                     {!! Form::hidden('submissionId', null, ['class' => 'form-control', 'id' => 'submissionId']) !!}
                     {!! Form::hidden('pv_status', null, ['class' => 'form-control', 'id' => 'pv_status']) !!}
+                    {!! Form::hidden('filter', null, ['class' => 'form-control', 'id' => 'filter']) !!}
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-12">
@@ -97,6 +98,9 @@
 @section('jquery')
 <script type="text/javascript">
     $(function () {
+        if("{{session()->get('filter')}}"){
+            $("#filter_status").select2("val", "{{session()->get('filter') }}");
+        }
         dataTable();
         $('#mySubmissionTable tbody').on('change', '.submissionStatus', function (event) {
             event.preventDefault();
@@ -137,9 +141,8 @@
         $('#mySubmissionTable tbody').on('change', '.submissionPvStatus', function (event) {
             event.preventDefault();
             var submissionId = $(this).attr("data-id");
-            console.log(submissionId);
             var status = $(this).val();
-            console.log(status);
+
             swal({
                 title: "Are you sure?",
                 text: "You want to update the pv status for this submission?",
@@ -154,12 +157,11 @@
             function(isConfirm) {
                 if (isConfirm) {
                     if(status == 'rejected_by_pv'){
+                        swal.close();
                         console.log('called for action');
                         $("#submissionId").val(submissionId);
                         $("#pv_status").val(status);
-                        //swal.close();
-                        // $('#submissionId').val(submissionId);
-                        // $("#candidateStatus").select2("val", 'rejected');
+                        $("#filter").val($("#filter_status").val());
                         $('#pvreasonModal').modal('show');
                     }
                     $.ajax({
@@ -197,16 +199,16 @@
             },
             columns: [
                 {data: 'job_id', name: 'job_id'},
-                {data: 'job_title', 'width': '20%', name: 'job_title'},
+                {data: 'job_title', 'width': '10%', name: 'job_title'},
                 {data: 'location', name: 'location'},
-                {data: 'job_keyword', 'width': '18%',  name: 'job_keyword'},
+                {data: 'job_keyword', 'width': '10%',  name: 'job_keyword'},
                 {data: 'duration',  name: 'duration'},
                 {data: 'client_name',  name: 'client_name'},
                 {data: 'recruter_name',  name: 'recruter_name'},
                 {data: 'candidate_name',  name: 'candidate_name'},
                 {data: 'employer_name',  name: 'employer_name'},
-                {data: 'action', "width": "18%", name: 'action', orderable: false, searchable: false},
-                // {data: 'status', "width": "18%", name: 'status', orderable: false, searchable: false},
+                {data: 'action', "width": "9%", name: 'action', orderable: false, searchable: false},
+                {data: 'status', "width": "10%", name: 'status', orderable: false, searchable: false},
             ]
         });
     }

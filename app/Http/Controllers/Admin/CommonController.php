@@ -6,6 +6,7 @@ use App\Models\Submission;
 use App\Models\Requirement;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class CommonController extends Controller
 {
@@ -108,28 +109,39 @@ class CommonController extends Controller
                             <div class="col-md-6">
                                 <strong>Vendor Rate:</strong> '.$submission['vendor_rate'].'
                             </div>
-                        </div>
-                        <div class="row mt-2">
-                            <div class="col-md-6">
-                                <strong>Employer Name:</strong> '.$submission['employer_name'].'
-                            </div>
-                            <div class="col-md-6">
-                                <strong>Employee Name:</strong> '.$submission['employee_name'].'
-                            </div>
-                        </div>
-                        <div class="row mt-2">
-                            <div class="col-md-6">
-                                <strong>Employee Email:</strong> '.$submission['employee_email'].'
-                            </div>
-                            <div class="col-md-6">
-                                <strong>Employee Phone:</strong> '.$submission['employee_phone'].'
-                            </div>
-                        </div>
-                        <div class="row mt-2">
-                            <div class="col-md-6">
-                                <strong>Resume:</strong><a href="'.asset('storage/'.$submission['documents']).'" target="_blank"><img src="'.url('assets/dist/img/resume.png').'" height="50"></a>
-                            </div>
                         </div>';
+                        if(Auth::user()->role == 'bdm'){
+                            $cData .= '<div class="row mt-2">
+                                            <div class="col-md-6">
+                                                <strong>Employer Name:</strong> '.$submission['employer_name'].'
+                                            </div>
+                                            <div class="col-md-6">
+                                                <strong>Resume:</strong><a href="'.asset('storage/'.$submission['documents']).'" target="_blank"><img src="'.url('assets/dist/img/resume.png').'" height="50"></a>
+                                            </div>
+                                        </div>';
+                        } else {
+                            $cData .= '<div class="row mt-2">
+                                            <div class="col-md-6">
+                                                <strong>Employer Name:</strong> '.$submission['employer_name'].'
+                                            </div>
+                                            <div class="col-md-6">
+                                                <strong>Employee Name:</strong> '.$submission['employee_name'].'
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-6">
+                                                <strong>Employee Email:</strong> '.$submission['employee_email'].'
+                                            </div>
+                                            <div class="col-md-6">
+                                                <strong>Employee Phone:</strong> '.$submission['employee_phone'].'
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-6">
+                                                <strong>Resume:</strong><a href="'.asset('storage/'.$submission['documents']).'" target="_blank"><img src="'.url('assets/dist/img/resume.png').'" height="50"></a>
+                                            </div>
+                                        </div>';
+                        }
         }
         $data['requirementData'] = $rData;
         $data['candidateData'] = $cData;
@@ -212,7 +224,10 @@ class CommonController extends Controller
             </div>
             <div class="row mt-2">
                 <div class="col-md-12">
-                    <strong>Job Description:</strong> '.$requirement->description.'
+                    <strong>Job Description:</strong>
+                </div>
+                <div class="col-md-12">
+                    '.$requirement->description.'
                 </div>
             </div>';
         }

@@ -131,6 +131,7 @@ class BDMSubmissionCOntroller extends Controller
 
         if(!empty($submission)){
             $input['pv_status'] = $request['pv_status'];
+            $input['pv_reason'] = '';
             $submission->update($input);
             return 1;
         }else{
@@ -140,27 +141,14 @@ class BDMSubmissionCOntroller extends Controller
 
     public function pvRejectReasonUpdate(Request $request)
     {
-        return $request;
         $submission = Submission::where('id',$request->submissionId)->first();
 
         if(!empty($submission)){
-            $input['pv_reason'] = $request['reason'];
+            $input['pv_reason'] = $request['pv_reason'];
             $input['pv_status'] = $request['pv_status'];
             $submission->update($input);
-            return 1;
-        }else{
-           return 0;
         }
 
-        $submission = Submission::where('id',$request['submissionId'])->first();
-        $requirement = Requirement::where('user_id',Auth::user()->id)->where('id',$submission['requirement_id'])->first();
-        if(empty($requirement)){
-            \Session::flash('danger', 'You can not update the status');
-            return redirect()->route('requirement.index');
-        }
-        $input = $request->all();
-        $submission->update($input);
-        \Session::flash('success', 'Candidate status has been updated successfully!');
-        return redirect()->back();
+        return redirect()->route('bdm_submission.index')->with('filter', $request['filter']);
     }
 }
