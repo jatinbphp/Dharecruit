@@ -12,7 +12,7 @@ class Submission extends Model
 
     protected $fillable = [
         'user_id','requirement_id','name','email','location','phone','employer_detail','work_authorization','recruiter_rate','last_4_ssn',
-        'education_details','resume_experience','linkedin_id','relocation','vendor_rate','notes','documents','common_skills','skills_match','reason','status','employer_name','employee_name','employee_email','employee_phone','pv_status','pv_reason'
+        'education_details','resume_experience','linkedin_id','relocation','vendor_rate','notes','documents','common_skills','skills_match','reason','status','employer_name','employee_name','employee_email','employee_phone','pv_status','pv_reason','is_show'
     ];
 
     const STATUS_PENDING = 'pending';
@@ -71,11 +71,13 @@ class Submission extends Model
 
     const STATUS_REJECTED_BY_PV          = 'rejected_by_pv';
     const STATUS_SUBMITTED_TO_END_CLIENT = 'submitted_to_end_client';
+    const STATUS_REJECTED_BY_END_CLIENT  = 'rejected_by_end_client';
     const STATUS_NO_RESPONSE_FROM_PV     = 'no_response_from_pv';
 
     public static $pvStatus = [
         self::STATUS_REJECTED_BY_PV          => 'Rejected By PV',
         self::STATUS_SUBMITTED_TO_END_CLIENT => 'Submitted To End Client',
+        self::STATUS_REJECTED_BY_END_CLIENT  => 'Rejected By End Client',
         self::STATUS_NO_RESPONSE_FROM_PV     => 'No Response From PV',
     ];
 

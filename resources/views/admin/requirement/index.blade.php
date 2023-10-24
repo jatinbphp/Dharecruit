@@ -155,7 +155,6 @@
                         type: "DELETE",
                         data: {_token: '{{csrf_token()}}' },
                         success: function(data){
-                            console.log(data);
                             //table.row('.selected').remove().draw(false);
                             $('#requirementTable').DataTable().ajax.reload();
                             swal("Deleted", "Your data successfully deleted!", "success");

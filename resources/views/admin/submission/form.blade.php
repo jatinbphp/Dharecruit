@@ -289,7 +289,6 @@
                 type : 'POST',
                 dataType : 'json',
                 success : function(data){
-                    console.log(data);
                     if(data.status == 1){
                         $('#empNameDiv').html(data.empName);
                         $('#empModel').modal('show');
@@ -302,8 +301,6 @@
         function checkData() {
             var employee_name = $("#empSelection option:selected").val();
             var employer_name = $("#employer_name").val();
-            console.log(employer_name);
-            console.log(employee_name);
             var updateElementIds = [
                 'employer_name',
                 'employee_name',
@@ -316,7 +313,6 @@
                     if(id == 'employer_name'){
                         continue;
                     }
-                    console.log('12');
                     $("#"+id).val('');
                 }
                 $('#empModel').modal('hide');
@@ -329,7 +325,6 @@
                 type : 'POST',
                 dataType : 'json',
                 success : function(data){
-                    console.log(data);
                     if(data.status == 1){
                         $('#submissionsForm *').filter(':input').each(function () {
                             var tagType = $(this).prop("tagName").toLowerCase();

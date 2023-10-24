@@ -110,18 +110,11 @@ class SubmissionController extends Controller
                 // })
                 ->addColumn('candidate', function($row){
                     $allSubmission = Submission::where('requirement_id',$row->id)->where('status','!=','reject')->get();
-                    $user = Auth::user();
                     $candidate = '<br>';
                     if(count($allSubmission) > 0){
-                        foreach ($allSubmission as $list){
-                            $textColor = $list['status'] == 'rejected' ? 'text-danger' : '';
-                            $nameArray = explode(" ",$list['name']);
-                            $candidateFirstName = isset($nameArray[0]) ? $nameArray[0] : '';
-                            $candidate .= '<span class="candidate '.$textColor.'"  data-cid="'.$list['id'].'">'.$candidateFirstName.' - '.$list['id'].'</span><br>';
-                        }
+                        $candidate .= $this->getCandidateHtml($allSubmission, $row, $page='submission');
                     } else {
                         if(!empty($row->recruiter)){
-                            Log::info('Status Color Yellow==>');
                             $candidate .= '<div style="width:50px; background-color: yellow;">&nbsp;</div>';
                         }
                     }
@@ -253,18 +246,11 @@ class SubmissionController extends Controller
                 // })
                 ->addColumn('candidate', function($row){
                     $allSubmission = Submission::where('requirement_id',$row->id)->where('status','!=','reject')->get();
-                    $user = Auth::user();
                     $candidate = '<br>';
                     if(count($allSubmission) > 0){
-                        foreach ($allSubmission as $list){
-                            $textColor = $list['status'] == 'rejected' ? 'text-danger' : '';
-                            $nameArray = explode(" ",$list['name']);
-                            $candidateFirstName = isset($nameArray[0]) ? $nameArray[0] : '';
-                            $candidate .= '<span class="candidate '.$textColor.'"  data-cid="'.$list['id'].'">'.$candidateFirstName.' - '.$list['id'].'</span><br>';
-                        }
+                        $candidate .= $this->getCandidateHtml($allSubmission, $row, $page='submission');
                     } else {
                         if(!empty($row->recruiter)){
-                            Log::info('Status Color Yellow==>');
                             $candidate .= '<div style="width:50px; background-color: yellow;">&nbsp;</div>';
                         }
                     }
@@ -538,7 +524,6 @@ class SubmissionController extends Controller
     }
 
     function getEmpDetail(Request $request){
-        return $request;
         $requs = Submission::orderBy('id', 'DESC')->where('employee_name',$request['employee_name'])->where('employer_name',$request['employer_name'])->first();
         $data['status'] = 0;
         $data['requs'] = [];

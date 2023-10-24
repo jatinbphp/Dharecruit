@@ -98,7 +98,6 @@
                                 type: "POST",
                                 data: {'status':status, _token: '{{csrf_token()}}' },
                                 success: function(data){
-                                    console.log(data);
                                     if(data == 1){
                                         table.draw(false);
                                         swal("Success", "Status successfully updated!", "success");

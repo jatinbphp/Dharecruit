@@ -155,7 +155,6 @@
                         type: "POST",
                         data: {_token: '{{csrf_token()}}' },
                         success: function(data){
-                            console.log(data);
                             swal("Success", "Requirement has been successfully assign!", "success");
                             //table.draw(false);
                             $('#requirementTable').DataTable().ajax.reload();

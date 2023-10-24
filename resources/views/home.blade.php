@@ -1293,7 +1293,6 @@
                                     scrollTop: $("#ourexclusivecakes").offset().top
                                 }, 1000);
                             } else if(data.status == 2){
-                                console.log('in');
                                 window.location.href = "{{ url('orderPlaced')}}/"+data.order_id;
 
 

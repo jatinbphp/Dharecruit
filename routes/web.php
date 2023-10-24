@@ -98,6 +98,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::get('my_requirement', [RequirementController::class,'myRequirement'])->name('my_requirement');
     Route::resource('requirement', RequirementController::class);
     Route::post('get_requirement', [CommonController::class,'getRequirement'])->name('get_requirement');
+    Route::post('requirement/removeDocument/{id}', [RequirementController::class,'removeDocument'])->name('requirement.removeDocument');
 
     /* SUBMISSION MANAGEMENT */
     Route::get('submission/new/{id}', [SubmissionController::class,'submissionAdd'])->name('submission.newAdd');

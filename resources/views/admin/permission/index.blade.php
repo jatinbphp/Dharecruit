@@ -78,7 +78,6 @@
                         type: "DELETE",
                         data: {_token: '{{csrf_token()}}' },
                         success: function(data){
-                            console.log(data);
                             table.row('.selected').remove().draw(false);
                             swal("Deleted", "Your data successfully deleted!", "success");
                         }

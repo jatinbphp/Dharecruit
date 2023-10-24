@@ -114,19 +114,12 @@ class RequirementController extends Controller
                 // })
                 ->addColumn('candidate', function($row){
                     $allSubmission = Submission::where('requirement_id',$row->id)->where('status','!=','reject')->get();
-                    $user = Auth::user();
                     $candidate = '<br>';
                     if(count($allSubmission) > 0){
-                        foreach ($allSubmission as $list){
-                            $textColor = $list['status'] == 'rejected' ? 'text-danger' : '';
-                            $nameArray = explode(" ",$list['name']);
-                            $candidateFirstName = isset($nameArray[0]) ? $nameArray[0] : '';
-                            $candidate .= '<span class="candidate '.$textColor.'"  data-cid="'.$list['id'].'">'.$candidateFirstName.' - '.$list['id'].'</span><br>';
-                        }
+                        $candidate .= $this->getCandidateHtml($allSubmission, $row);
                     } else {
                         if(!empty($row->recruiter)){
-                            Log::info('Status Color Yellow==>');
-                            $candidate = '<div style="width:50px; background-color: yellow;">&nbsp;</div>';
+                            $candidate .= '<div style="width:50px; background-color: yellow;">&nbsp;</div>';
                         }
                     }
                     return $candidate;
@@ -240,16 +233,10 @@ class RequirementController extends Controller
                     $allSubmission = Submission::where('requirement_id',$row->id)->where('status','!=','reject')->get();
                     $candidate = '<br>';
                     if(count($allSubmission) > 0){
-                        foreach ($allSubmission as $list){
-                            $textColor = $list['status'] == 'rejected' ? 'text-danger' : '' ;
-                            $nameArray = explode(" ",$list['name']);
-                            $candidateFirstName = isset($nameArray[0]) ? $nameArray[0] : '';
-                            $candidate .= '<span class="candidate '.$textColor.'" data-cid="'.$list['id'].'">'.$candidateFirstName.' - '.$list['id'].'</span><br>';
-                        }
+                        $candidate .= $this->getCandidateHtml($allSubmission, $row);
                     } else {
                         if(!empty($row->recruiter)){
-                            Log::info('Status Color Yellow==>');
-                            $candidate = '<div style="width:50px; background-color: yellow;">&nbsp;</div>';
+                            $candidate .= '<div style="width:50px; background-color: yellow;">&nbsp;</div>';
                         }
                     }
                     return $candidate;
@@ -297,6 +284,7 @@ class RequirementController extends Controller
             $data['moi'] = Moi::where('user_id',Auth::user()->id)->where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
             $data['pv_company'] = PVCompany::where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
         }
+        $data['recruiter'] = Admin::where('role','recruiter')->pluck('name','id');
         return view("admin.requirement.create",$data);
     }
 
@@ -330,6 +318,7 @@ class RequirementController extends Controller
         $input = $request->all();
         $input['user_id'] = Auth::user()->id;
         $input['job_id'] = 0;
+        unset($input['recruiter']);
         if(isset($input['display_client']) && $input['display_client'] == 'on'){
             $input['display_client'] = 1;
         } else {
@@ -349,6 +338,11 @@ class RequirementController extends Controller
                         RequirementDocuments::create($documentData);
                     }
                 }
+            }
+
+            if(!empty($request['recruiter']) && $requirements){
+                $recruiter['recruiter'] = $this->getAllRecruiter($request['recruiter']);
+                $requirements->update($recruiter);
             }
         }
 
@@ -410,6 +404,8 @@ class RequirementController extends Controller
             $data['pv_company'] = PVCompany::where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
         }
         $data['requirementDocuments'] = RequirementDocuments::where('requirement_id',$id)->pluck('document','id');
+        $data['recruiter'] = Admin::where('role','recruiter')->pluck('name','id');
+        $data['selectedRecruiter'] = !empty($data['requirement']) && !empty($data['requirement']['recruiter']) ? explode(',',$data['requirement']['recruiter']) : [];
         return view('admin.requirement.edit',$data);
     }
 
@@ -440,6 +436,7 @@ class RequirementController extends Controller
         ]);
 
         $input = $request->all();
+        unset($input['recruiter']);
         if(isset($input['display_client']) && $input['display_client'] == 'on'){
             $input['display_client'] = 1;
         } else {
@@ -447,6 +444,24 @@ class RequirementController extends Controller
         }
         $requirement = Requirement::where('id',$id)->first();
         $requirement->update($input);
+
+        if($requirement){
+            if(!empty($request['document'])){
+                if($files = $request->file('document')){
+                    foreach ($files as $file) {
+                        $documentData['requirement_id'] = $requirement['id'];
+                        $documentData['document'] = $this->fileMove($file,'user_documents');
+                        RequirementDocuments::create($documentData);
+                    }
+                }
+            }
+
+            if(!empty($request['recruiter'])){
+                $recruiter['recruiter'] = $this->getAllRecruiter($request['recruiter']);
+                $requirement->update($recruiter);
+            }
+
+        }
 
         \Session::flash('success','Requirement has been updated successfully!');
         return redirect()->route('requirement.index');
@@ -536,5 +551,21 @@ class RequirementController extends Controller
             $data['requs'] = $requs;
         }
         return $data;
+    }
+
+    public function removeDocument($id) {
+        $data = [];
+        if(!$id){
+            $data['status'] = 0;
+            return $data;
+        }
+        RequirementDocuments::where('id', $id)->delete();
+        $data['status'] = 1;
+
+        return $data;
+    }
+
+    public function getAllRecruiter($recruiters) {
+        return ','.implode(',',$recruiters).',';
     }
 }

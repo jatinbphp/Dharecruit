@@ -104,4 +104,54 @@ class Controller extends BaseController
 
         return $query->where($whereInfo);
     }
+
+    public function getCandidateHtml($submissions, $row, $page = 'requirement') {
+        $user = Auth::user();
+        $candidate = '';
+        $submissionModel = new Submission();
+        foreach ($submissions as $submission){
+            $textColor = '';
+            $css = '';
+            $userId = $row->user_id;
+            if($page == 'submission') {
+                $userId = $submission->user_id;
+            }
+
+            if($page == 'my_submission'){
+                $userId = $submission->requirement->user_id;
+            }
+
+            if($user->id == $userId || $user->role == 'admin'){
+                if($submission->is_show == 0){
+                    $textColor = 'text-primary';
+                } else{
+                    if(!empty($submission->pv_status) && $submission->pv_status){
+                        if($submission->pv_status == $submissionModel::STATUS_NO_RESPONSE_FROM_PV){
+                            $css = "border-bottom: solid;";
+                            $textColor = 'text-secondary';
+                        } else if($submission->pv_status == $submissionModel::STATUS_SUBMITTED_TO_END_CLIENT){
+                            $css = "border-bottom: solid;";
+                            $textColor = 'text-success test';
+                        }else if($submission->pv_status == $submissionModel::STATUS_REJECTED_BY_END_CLIENT){
+                            $css = "border-bottom: 6px double;";
+                            $textColor = 'text-danger';
+                        }else if($submission->pv_status == $submissionModel::STATUS_REJECTED_BY_PV){
+                            $textColor = 'text-danger seconda';
+                            $css = "border-bottom: solid;";
+                        }
+                    } else {
+                        if($submission->status == $submissionModel::STATUS_REJECTED){
+                            $textColor = 'text-danger';
+                        } elseif($submission->status == $submissionModel::STATUS_ACCEPT){
+                            $textColor = 'text-success';
+                        }
+                    }
+                }
+            }
+            $nameArray = explode(" ",$submission->name);
+            $candidateFirstName = isset($nameArray[0]) ? $nameArray[0] : '';
+            $candidate .= '<span class="candidate '.$textColor.'" style="'.$css.'" data-cid="'.$submission->id.'">'.$candidateFirstName.' - '.$submission->id.'</span><br>';
+        }
+        return $candidate;
+    }
 }

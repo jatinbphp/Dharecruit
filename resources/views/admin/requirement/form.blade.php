@@ -225,6 +225,12 @@
             @endif
         </div>
     </div>
+    <div class="col-md-12">
+        <div class="form-group">
+            <label class="control-label" for="recruiter">Assign To Recruter :</label>
+            {!! Form::select('recruiter[]', $recruiter, !empty($selectedRecruiter) ? $selectedRecruiter : null, ['multiple' => true ,'class' => 'form-control select2','id'=>'recruiter', 'data-placeholder' => 'Please Select Recruter']) !!}
+        </div>
+    </div>
     <div class="col-md-6">
         <div class="form-group{{ $errors->has('document') ? ' has-error' : '' }}">
             <label class="control-label" for="document">Document :<span class="text-red">*</span></label>
@@ -259,7 +265,7 @@
                     <label>{{$documentName}}</label>
                     <br>
                     <span data-toggle="tooltip" title="Delete File" data-trigger="hover">
-                        <button class="btn btn-sm btn-danger remove-document" data-id="{{$id}}" type="button"><i class="fa fa-trash"></i></button>
+                        <span class="text-danger remove-document" data-id="{{$id}}" ><i class="fa fa-trash"></i></span>
                     </span>
                 </div>
             </div>
@@ -421,7 +427,6 @@
                 type : 'POST',
                 dataType : 'json',
                 success : function(data){
-                    console.log(data);
                     if(data.status == 1){
                         $('#pocNameDiv').html(data.pocName);
                         $('#pocModal').modal('show');
@@ -479,5 +484,38 @@
                 }
             });
         }
+        $(".remove-document").click(function(){
+            var id = $(this).attr('data-id');
+            swal({
+                title: "Are you sure?",
+                text: "You want to delete this document?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#DD6B55',
+                confirmButtonText: 'Yes, Delete',
+                cancelButtonText: "No, cancel",
+                closeOnConfirm: false,
+                closeOnCancel: false
+            },
+            function(isConfirm) {
+                if (isConfirm) {
+                    $.ajax({
+                        url: "{{url('admin/requirement/removeDocument')}}/"+id,
+                        type: "POST",
+                        data: {_token: '{{csrf_token()}}' },
+                        success: function(data){
+                            if(data.status == 1){
+                                swal("Deleted", "Your data successfully deleted!", "success");
+                                $('#document-'+id).remove();
+                            } else {
+                                swal("Error", "Something is wrong!", "error");
+                            }
+                        }
+                    });
+                } else {
+                    swal("Cancelled", "Your data safe!", "error");
+                }
+            });
+        });
     </script>
 @endsection

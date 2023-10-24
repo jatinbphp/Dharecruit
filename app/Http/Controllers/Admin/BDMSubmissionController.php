@@ -57,9 +57,7 @@ class BDMSubmissionCOntroller extends Controller
                     return $row->recruiters->name;
                 })
                 ->addColumn('candidate_name', function($row){
-                    $nameArray = explode(" ",$row->name);
-                    $candidateFirstName = isset($nameArray[0]) ? $nameArray[0] : '';
-                    return'<span>'.$candidateFirstName.' - '.$row->id.'</span><br>';
+                    return $this->getCandidateHtml([$row], $row, $page='my_submission');
                 })
                 ->addColumn('action', function($row){
                     $status = '<select name="status" class="form-control select2 submissionStatus" data-id="'.$row->id.'">';

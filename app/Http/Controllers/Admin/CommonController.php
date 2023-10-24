@@ -11,6 +11,13 @@ use Illuminate\Support\Facades\Auth;
 class CommonController extends Controller
 {
     public function getCandidate(Request $request){
+        $submission = Submission::where('id',$request->cId)->first();
+        if(!empty($submission)){
+            if($submission->requirement->user_id == Auth::user()->id){
+                $submission->update(['is_show' => 1]);
+            }
+        }
+
         $submission = Submission::with('Recruiters','Requirement','Requirement.BDM','Requirement.Category','Requirement.PvCompany')->where('id',$request['cId'])->first();
         $rData = '';
         $cData = '';
