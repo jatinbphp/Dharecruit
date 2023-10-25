@@ -58,6 +58,7 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-md-12 border-top mb-2 pb-2" id="historyData"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

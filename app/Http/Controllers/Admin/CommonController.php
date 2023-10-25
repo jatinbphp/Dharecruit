@@ -26,6 +26,7 @@ class CommonController extends Controller
         $commSkills = '';
         $skiilsMatch = '';
         $reason = '';
+        $historyData = '';
         $status = 0;
         if(!empty($submission)){
             $status = 1;
@@ -149,12 +150,80 @@ class CommonController extends Controller
                                             </div>
                                         </div>';
                         }
+            if(in_array(Auth::user()->role, ['bdm','admin'])){
+                $candidateHistory = Submission::where('email',$submission->email)->where('id','!=',$submission->id)->orderBy('id', 'DESC')->get();
+                $historyData .= '<h3>Candidate History</h3>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">Date Of Submission</th>
+                            <th scope="col">Job Id</th>
+                            <th scope="col">Job TItle</th>
+                            <th scope="col">BDM</th>
+                            <th scope="col">Recruiter</th>
+                            <th scope="col">Submission Status</th>
+                            <th scope="col">Employer</th>
+                            <th scope="col">Download Resume</th>
+                        </tr>
+                    </thead>
+                    <tbody>';
+                    if(!count($candidateHistory)){
+                        $historyData .= '<tr>
+                                            <td align="center" colspan="8">No History Found.</td>
+                                        </tr>';
+                    } else {
+                        $submissionObj = new Submission();
+                        foreach($candidateHistory as $candidateData){
+                            $candidateStatus = '';
+                            if($candidateData->status == $submissionObj::STATUS_REJECTED){
+                                $candidateStatus = ucfirst($submissionObj::STATUS_REJECTED);
+                            } else {
+                                if(!empty($candidateData->pv_status)){
+                                    if($candidateData->pv_status == $submissionObj::STATUS_REJECTED_BY_PV){
+                                        $candidateStatus = $submissionObj::STATUS_REJECTED_BY_PV_TEXT;
+                                    }
+                                    if($candidateData->pv_status == $submissionObj::STATUS_SUBMITTED_TO_END_CLIENT){
+                                        $candidateStatus = $submissionObj::STATUS_SUBMITTED_TO_END_CLIENT_TEXT;
+                                    }
+                                    if($candidateData->pv_status == $submissionObj::STATUS_REJECTED_BY_END_CLIENT){
+                                        $candidateStatus = $submissionObj::STATUS_REJECTED_BY_END_CLIENT_TEXT;
+                                    }
+                                    if($candidateData->pv_status == $submissionObj::STATUS_NO_RESPONSE_FROM_PV){
+                                        $candidateStatus = $submissionObj::STATUS_NO_RESPONSE_FROM_PV_TEXT;
+                                    }
+                                } else {
+                                    $candidateStatus = ucfirst($candidateData->status);
+                                }
+                                //$candidateStatus = $candidateData->pv_status;
+                            }
+                            $historyData .= '<tr data-id='.$candidateData->id.'>
+                                                <td>'.date('m-d-Y',strtotime($candidateData->created_at)).'</td>
+                                                <td>'.$candidateData->requirement->job_id.'</td>
+                                                <td>'.$candidateData->requirement->job_title.'</td>
+                                                <td>'.$candidateData->requirement->BDM->name.'</td>
+                                                <td>'.$candidateData->recruiters->name.'</td>
+                                                <td>'.$candidateStatus.'</td>
+                                                <td>'.$candidateData->employer_name.'</td>
+                                                <td>
+                                                    <div class="col-md-2 mt-2">
+                                                        <div class="text-center">
+                                                            <a href="'.asset('storage/'.$candidateData->documents).'" target="_blank"><img src="'.url('assets/dist/img/resume.png').'" height="50"></a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>';
+                        }
+                    }
+                    $historyData .= '</tbody>
+                </table>';
+            }
         }
         $data['requirementData'] = $rData;
         $data['candidateData'] = $cData;
         $data['submission'] = $submission;
         $data['candidateStatus'] = $candidateStatus;
         $data['status'] = $status;
+        $data['historyData'] = $historyData;
         return $data;
     }
 

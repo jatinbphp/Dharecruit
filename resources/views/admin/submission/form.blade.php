@@ -144,7 +144,7 @@
         </div>
     </div>
 
-    <div class="col-md-6">
+    <div class="col-md-12">
         <div class="form-group{{ $errors->has('resume') ? ' has-error' : '' }}">
             <label class="control-label" for="resume">Resume :<span class="text-red">*</span></label>
             {!! Form::file('resume', ['class' => '', 'id'=> 'resume','accept'=>'.xlsx,.xls,.doc,.docx,.ppt,.pptx,.txt,.pdf']) !!}
@@ -157,6 +157,18 @@
             @endif
         </div>
     </div>
+    @if(isset($submission['documents']))
+        <div class="col-md-2 mt-2">
+            <div class="text-center">
+                <a href="{{asset('storage/'.$submission['documents'])}}" target="_blank"><img src="{{url('assets/dist/img/resume.png')}}" height="50"></a>
+                @php
+                    $documentNameArray = explode('/',$submission['documents']);
+                    $documentName = isset($documentNameArray[2]) ? $documentNameArray[2] : '';
+                @endphp
+                <label>{{$documentName}}</label>
+            </div>
+        </div>
+    @endif
 </div>
 @if(!isset($submission))
     <div class="text-right">
@@ -265,8 +277,12 @@
                                     var type = $("#" + elementId).attr("type");
                                     if(type == 'file'){
                                         $('#resumeId').remove();
-                                        var resumeElement = '<div id="resumeId" class="mt-2"><a href="{{asset("storage")}}/'+ data['documents']+'" target="_blank"><img src=" {{url('assets/dist/img/resume.png')}}" height="50"></a></div>';
+                                        var resumeElement = '<div id="resumeId" class="col-md-2 mt-4 "><div id="documentContent" class="text-center"><a href="{{asset("storage")}}/'+ data['documents']+'" target="_blank"><img src=" {{url('assets/dist/img/resume.png')}}" height="50"></a></div></div>';
+                                        var documentNameArray = data['documents'].split('/');
+                                        var documentName = '2' in documentNameArray ? documentNameArray[2] : '';
+                                        var label = "<label>"+documentName+"</label>";
                                         $("#" + elementId).closest('div').append(resumeElement);
+                                        $("#documentContent").append(label);
                                     } else {
                                         var id = "#" + elementId;
                                         $(id).val(data[elementId]);

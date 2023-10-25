@@ -74,11 +74,16 @@ class Submission extends Model
     const STATUS_REJECTED_BY_END_CLIENT  = 'rejected_by_end_client';
     const STATUS_NO_RESPONSE_FROM_PV     = 'no_response_from_pv';
 
+    const STATUS_REJECTED_BY_PV_TEXT          = 'Rejected By PV';
+    const STATUS_SUBMITTED_TO_END_CLIENT_TEXT = 'Submitted To End Client';
+    const STATUS_REJECTED_BY_END_CLIENT_TEXT  = 'Rejected By End Client';
+    const STATUS_NO_RESPONSE_FROM_PV_TEXT     = 'No Response From PV';
+
     public static $pvStatus = [
-        self::STATUS_REJECTED_BY_PV          => 'Rejected By PV',
-        self::STATUS_SUBMITTED_TO_END_CLIENT => 'Submitted To End Client',
-        self::STATUS_REJECTED_BY_END_CLIENT  => 'Rejected By End Client',
-        self::STATUS_NO_RESPONSE_FROM_PV     => 'No Response From PV',
+        self::STATUS_REJECTED_BY_PV          => self::STATUS_REJECTED_BY_PV_TEXT,
+        self::STATUS_SUBMITTED_TO_END_CLIENT => self::STATUS_SUBMITTED_TO_END_CLIENT_TEXT,
+        self::STATUS_REJECTED_BY_END_CLIENT  => self::STATUS_REJECTED_BY_END_CLIENT_TEXT,
+        self::STATUS_NO_RESPONSE_FROM_PV     => self::STATUS_NO_RESPONSE_FROM_PV_TEXT,
     ];
 
     public function Recruiters(){

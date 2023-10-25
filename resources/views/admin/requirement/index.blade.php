@@ -220,6 +220,7 @@
                 type: "post",
                 data: {'cId': cId,'_token' : $('meta[name=_token]').attr('content') },
                 success: function(data){
+                    console.log(data);
                     if(data.status == 1){
                         var submission = data.submission;
                         $('#jobTitle').html(submission.requirement.job_title);
@@ -230,6 +231,7 @@
                         $("#reason").val(submission.reason);
                         $('#requirementData').html(data.requirementData);
                         $('#candidateData').html(data.candidateData);
+                        $('#historyData').html(data.historyData);
                         $('#candidateModal').modal('show');
                     }else{
                         swal("Cancelled", "Something is wrong. Please try again!", "error");

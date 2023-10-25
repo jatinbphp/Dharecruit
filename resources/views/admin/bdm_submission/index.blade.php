@@ -168,7 +168,11 @@
                         type: "POST",
                         data: {'pv_status':status, _token: '{{csrf_token()}}' },
                         success: function(data){
-                            if(data == 1){
+                            if(data.status == 1){
+                                $("#candidate-"+submissionId).removeAttr("style");
+                                $("#candidate-"+submissionId).removeClass();
+                                $("#candidate-"+submissionId).addClass(data.class);
+                                $("#candidate-"+submissionId).attr('style', 'border-bottom :'+data.css);
                                 swal("Success", "PV Status successfully updated!", "success");
                             }else{
                                 swal("Error", "Something is wrong!", "error");

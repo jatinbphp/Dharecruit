@@ -72,6 +72,7 @@ class BDMSubmissionCOntroller extends Controller
                 ->addColumn('status', function($row){
                     $status = '<select name="pvstatus" class="form-control select2 submissionPvStatus" data-id="'.$row->id.'">';
                     $submissionPvStatus = Submission::$pvStatus;
+                    $status .= '<option value="">Select Status</option>';
                     foreach ($submissionPvStatus as $key => $val){
                         $selected = $row->pv_status == $key ? 'selected' : '';
                         $status .= '<option value="'.$key.'" '.$selected.'>'.$val.'</option>';
@@ -131,10 +132,14 @@ class BDMSubmissionCOntroller extends Controller
             $input['pv_status'] = $request['pv_status'];
             $input['pv_reason'] = '';
             $submission->update($input);
-            return 1;
+            $data['status'] = 1;
+            $data['css']    = $this->getCandidateCss($submission);
+            $data['class']  = $this->getCandidateClass($submission);
         }else{
-           return 0;
+           $data['status'] = 0;
         }
+
+        return $data;
     }
 
     public function pvRejectReasonUpdate(Request $request)
