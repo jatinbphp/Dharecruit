@@ -14,7 +14,7 @@ class AddIsShowFiledToSubmissionTable extends Migration
     public function up()
     {
         Schema::table('submissions', function (Blueprint $table) {
-            $table->string('is_show')->default('0')->after('pv_reason');
+            $table->integer('is_show')->default('0')->after('pv_reason');
         });
     }
 
