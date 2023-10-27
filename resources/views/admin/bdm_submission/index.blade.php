@@ -40,7 +40,7 @@
                                         <th>Location</th>
                                         <th>Job Keyword</th>
                                         <th>Duration</th>
-                                        <th>client</th>
+                                        <th>Client</th>
                                         <th>Recruiter</th>
                                         <th>Candidate Name</th>
                                         <th>Employer Name</th>

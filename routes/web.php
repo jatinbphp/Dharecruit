@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\PVCompanyController;
 use App\Http\Controllers\Admin\SubmissionController;
 use App\Http\Controllers\Admin\BDMSubmissionController;
 use App\Http\Controllers\Admin\CommonController;
+use App\Http\Controllers\Admin\InterviewController;
 use App\Http\Controllers\Auth\RegisterController;
 /*
 |--------------------------------------------------------------------------
@@ -113,6 +114,12 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::resource('bdm_submission', BDMSubmissionController::class);
     Route::post('bdm_submission/changePvStatus/{id}', [BDMSubmissionController::class,'changePvStatus'])->name('requirement.changePvStatus');
     Route::post('pv_reject_reason_update', [BDMSubmissionController::class,'pvRejectReasonUpdate'])->name('pv_reject_reason_update.update');
+
+    /* INTERVIEW MANAGEMENT */
+    Route::resource('interview', InterviewController::class);
+    Route::post('interview/changeInterviewStatus/{id}', [InterviewController::class,'changeInterviewStatus']);
+    Route::post('interview/getCandidatesName/', [InterviewController::class,'getCandidatesName'])->name('interview.getCandidatesName');
+    Route::post('interciew/getCandidateData', [InterviewController::class,'getCandidateData'])->name('interview.getCandidateData');
 
     Auth::routes();
 });

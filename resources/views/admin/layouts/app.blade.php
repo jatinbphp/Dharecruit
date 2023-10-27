@@ -295,6 +295,15 @@
                             </a>
                         </li>
                     @endif
+
+                    @if(\Illuminate\Support\Facades\Auth::user()->role == 'bdm')
+                        <li class="nav-item">
+                            <a href="{{ route('interview.index') }}" class="nav-link @if($menu=='Manage Interview') active @endif">
+                                <i class="nav-icon fa fa-question-circle"></i>
+                                <p>Manage Interview</p>
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </nav>
         </div>
