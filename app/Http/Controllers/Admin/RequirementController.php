@@ -69,7 +69,7 @@ class RequirementController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'job_title' => 'required',
+            /*'job_title' => 'required',
             'no_of_position' => 'required',
             'experience' => 'required',
             'location' => 'required',
@@ -85,12 +85,12 @@ class RequirementController extends Controller
             'moi' => 'required',
             'job_keyword' => 'required',
             'description' => 'required',
-            'document' => 'required',
-            /*'pv_company_name' => 'required',
+            'document' => 'required',*/
+            'pv_company_name' => 'required',
             'poc_name' => 'required',
             'poc_email' => 'required',
             'poc_phone_number' => 'required',
-            'client_name' => 'required',*/
+            'client_name' => 'required',
         ]);
 
         $input = $request->all();

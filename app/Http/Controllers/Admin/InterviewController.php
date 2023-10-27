@@ -126,7 +126,7 @@ class InterviewController extends Controller
             return 0;
         }
         $requirementId = Requirement::where('job_id',$request->job_id)->pluck('id')->first();
-        $candidateData = Submission::where('requirement_id',$requirementId)->whereNotNull('name')->select('name','id')->orderBy('id', 'DESC')->get()->unique('name');
+        $candidateData = Submission::where('requirement_id',$requirementId)->where('status',Submission::STATUS_ACCEPT)->whereNotNull('name')->select('name','id')->orderBy('id', 'DESC')->get()->unique('name');
 
         $data['status']        = 0;
         $data['cnadidateName'] = '';
@@ -165,11 +165,12 @@ class InterviewController extends Controller
             return $data;
         }
 
-        $candidateData['client'] = $submissionData->Requirement->client_name;
+        $candidateData['client']                 = $submissionData->Requirement->client_name;
         $candidateData['candidate_phone_number'] = $submissionData->phone;
-        $candidateData['candidate_email'] = $submissionData->email;
+        $candidateData['candidate_email']        = $submissionData->email;
+        $candidateData['recruiter_name']         = $submissionData->Recruiters->name;
 
-        $data['status'] = 1;
+        $data['status']        = 1;
         $data['candidateData'] = $candidateData;
 
         return $data;

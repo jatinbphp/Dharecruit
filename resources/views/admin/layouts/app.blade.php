@@ -296,7 +296,7 @@
                         </li>
                     @endif
 
-                    @if(\Illuminate\Support\Facades\Auth::user()->role == 'bdm')
+                    @if($loginRole == 'admin' || $check13)
                         <li class="nav-item">
                             <a href="{{ route('interview.index') }}" class="nav-link @if($menu=='Manage Interview') active @endif">
                                 <i class="nav-icon fa fa-question-circle"></i>

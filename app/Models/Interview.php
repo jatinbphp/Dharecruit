@@ -19,6 +19,9 @@ class Interview extends Model
         'candidate_email',
         'time_zone',
         'status',
+        'recruiter_name',
+        'job_id',
+        'submission_id',
     ];
 
     const STATUS_SCHEDULED               = 'scheduled';

@@ -44,8 +44,8 @@
                                         <th>Recruiter</th>
                                         <th>Candidate Name</th>
                                         <th>Employer Name</th>
-                                        <th>Action</th>
-                                        <th>Status</th>
+                                        <th>BDM Status</th>
+                                        <th>PV Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>

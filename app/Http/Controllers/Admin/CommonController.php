@@ -161,7 +161,8 @@ class CommonController extends Controller
                             <th scope="col">Job TItle</th>
                             <th scope="col">BDM</th>
                             <th scope="col">Recruiter</th>
-                            <th scope="col">Submission Status</th>
+                            <th scope="col">BDM Status</th>
+                            <th scope="col">PV Status</th>
                             <th scope="col">Employer</th>
                             <th scope="col">Download Resume</th>
                         </tr>
@@ -173,36 +174,23 @@ class CommonController extends Controller
                                         </tr>';
                     } else {
                         $submissionObj = new Submission();
+                        $allPvStatus   = $submissionObj::$pvStatus;
+
                         foreach($candidateHistory as $candidateData){
-                            $candidateStatus = '';
-                            if($candidateData->status == $submissionObj::STATUS_REJECTED){
-                                $candidateStatus = ucfirst($submissionObj::STATUS_REJECTED);
-                            } else {
-                                if(!empty($candidateData->pv_status)){
-                                    if($candidateData->pv_status == $submissionObj::STATUS_REJECTED_BY_PV){
-                                        $candidateStatus = $submissionObj::STATUS_REJECTED_BY_PV_TEXT;
-                                    }
-                                    if($candidateData->pv_status == $submissionObj::STATUS_SUBMITTED_TO_END_CLIENT){
-                                        $candidateStatus = $submissionObj::STATUS_SUBMITTED_TO_END_CLIENT_TEXT;
-                                    }
-                                    if($candidateData->pv_status == $submissionObj::STATUS_REJECTED_BY_END_CLIENT){
-                                        $candidateStatus = $submissionObj::STATUS_REJECTED_BY_END_CLIENT_TEXT;
-                                    }
-                                    if($candidateData->pv_status == $submissionObj::STATUS_NO_RESPONSE_FROM_PV){
-                                        $candidateStatus = $submissionObj::STATUS_NO_RESPONSE_FROM_PV_TEXT;
-                                    }
-                                } else {
-                                    $candidateStatus = ucfirst($candidateData->status);
-                                }
-                                //$candidateStatus = $candidateData->pv_status;
+                            $pvStatus = '';
+
+                            if(!empty($candidateData->pv_status)){
+                                $pvStatus = isset($allPvStatus[$candidateData->pv_status]) ? $allPvStatus[$candidateData->pv_status] : '';
                             }
+
                             $historyData .= '<tr data-id='.$candidateData->id.'>
                                                 <td>'.date('m-d-Y',strtotime($candidateData->created_at)).'</td>
                                                 <td>'.$candidateData->requirement->job_id.'</td>
                                                 <td>'.$candidateData->requirement->job_title.'</td>
                                                 <td>'.$candidateData->requirement->BDM->name.'</td>
                                                 <td>'.$candidateData->recruiters->name.'</td>
-                                                <td>'.$candidateStatus.'</td>
+                                                <td>'.ucfirst($candidateData->status).'</td>
+                                                <td>'.$pvStatus.'</td>
                                                 <td>'.$candidateData->employer_name.'</td>
                                                 <td>
                                                     <div class="col-md-2 mt-2">

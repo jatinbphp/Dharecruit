@@ -25,6 +25,18 @@
     </div>
 
     <div class="col-md-6">
+        <div class="form-group{{ $errors->has('recruiter_name') ? ' has-error' : '' }}">
+            <label class="control-label" for="recruiter_name">Enter Recruiter Name :<span class="text-red">*</span></label>
+            {!! Form::text('recruiter_name', null, ['class' => 'form-control', 'placeholder' => 'Enter Recruiter Name', 'id' => 'recruiter_name', 'readonly' => true]) !!}
+            @if ($errors->has('recruiter_name'))
+                <span class="text-danger">
+                    <strong>{{ $errors->first('recruiter_name') }}</strong>
+                </span>
+            @endif
+        </div>
+    </div>
+
+    <div class="col-md-6">
         <div class="form-group{{ $errors->has('interview_date') ? ' has-error' : '' }}">
             <label class="control-label" for="interview_date">Select Interview Date :<span class="text-red">*</span></label>
             {!! Form::date('interview_date', null, ['class' => 'form-control', 'placeholder' => 'Select Interview Date ', 'id' => 'interview_date']) !!}

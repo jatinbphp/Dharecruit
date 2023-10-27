@@ -26,6 +26,8 @@
                         <h3 class="card-title">Add {{$menu}}</h3>
                     </div>
                     {!! Form::open(['url' => route('interview.store'), 'id' => 'interviewForm', 'class' => 'form-horizontal','files'=>true]) !!}
+                    {!! Form::hidden('job_id', null, ['class' => 'form-control', 'id' => 'job_id']) !!}
+                    {!! Form::hidden('submission_id', null, ['class' => 'form-control', 'id' => 'submission_id']) !!}
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-4">
@@ -98,6 +100,16 @@
     
     function loadCandidateData(select){
         var candidateId = $('#candidateSelection').val();
+        var jobId       = $('#search_by_job_id').val();
+
+        if(!candidateId || !jobId){
+            swal("Error", "Something is wrong!", "error");
+            return;
+        }
+
+        $('#job_id').val(jobId);
+        $('#submission_id').val(candidateId);
+
         $.ajax({
             url : "{{ route('interview.getCandidateData') }}",
             data : {'candidate_id' : candidateId , "_token": "{{ csrf_token() }}",},
