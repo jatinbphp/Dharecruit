@@ -13,6 +13,30 @@
     </div>
 
     <div class="col-md-6">
+        <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
+            <label class="control-label" for="email">Email :<span class="text-red">*</span></label>
+            {!! Form::text('email', null, ['class' => 'form-control', 'placeholder' => 'Enter Email', 'id' => 'email']) !!}
+            @if ($errors->has('email'))
+                <span class="text-danger">
+                    <strong>{{ $errors->first('email') }}</strong>
+                </span>
+            @endif
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="form-group{{ $errors->has('phone') ? ' has-error' : '' }}">
+            <label class="control-label" for="phone">Phone :<span class="text-red">*</span></label>
+            {!! Form::text('phone', null, ['class' => 'form-control', 'placeholder' => 'Enter Phone', 'id' => 'phone']) !!}
+            @if ($errors->has('phone'))
+                <span class="text-danger">
+                    <strong>{{ $errors->first('phone') }}</strong>
+                </span>
+            @endif
+        </div>
+    </div>
+
+    <div class="col-md-6">
         <div class="form-group{{ $errors->has('status') ? ' has-error' : '' }}">
             <label class="col-md-12 control-label" for="status">Status :<span class="text-red">*</span></label>
             <div class="col-md-12">

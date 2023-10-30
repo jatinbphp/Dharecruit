@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Requirement;
 use App\Models\Submission;
+use App\Models\Interview;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -109,9 +110,12 @@ class Controller extends BaseController
         $user = Auth::user();
         $candidate = '';
         $submissionModel = new Submission();
+        $interviewModel  = new Interview();
         foreach ($submissions as $submission){
             $textColor = '';
             $css = '';
+            $divClass = 'a-center pt-2 pl-2 pb-2 pr-2 mt-2 ';
+            $divCss = '';
             $userId = $row->user_id;
             if($page == 'submission') {
                 $userId = $submission->user_id;
@@ -125,7 +129,26 @@ class Controller extends BaseController
                 if($submission->is_show == 0){
                     $textColor = 'text-primary';
                 } else{
-                    if(!empty($submission->pv_status) && $submission->pv_status){
+                    $interviewStatus = $this->getInterviewStatus($submission, $row);
+                    if($interviewStatus){
+                        $divCss = "width: fit-content;";
+                        if($interviewStatus == $interviewModel::STATUS_SCHEDULED){
+                            $divClass .= 'border border-warning rounded-pill';
+                            $textColor = 'text-dark';
+                        } else if($interviewStatus == $interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND){
+                            $divClass .= 'bg-warning rounded-pill';
+                            $textColor = 'text-dark';
+                        } else if($interviewStatus == $interviewModel::STATUS_CONFIRMED_POSITION){
+                            $divClass .= 'bg-success';
+                            $textColor = 'text-dark';
+                        } else if($interviewStatus == $interviewModel::STATUS_REJECTED){
+                            $divClass .= 'bg-danger';
+                            $textColor = 'text-white';
+                        } else if($interviewStatus == $interviewModel::STATUS_BACKOUT){
+                            $divClass .= 'bg-dark';
+                            $textColor = 'text-white';
+                        }
+                    } else if(!empty($submission->pv_status) && $submission->pv_status){
                         if($submission->pv_status == $submissionModel::STATUS_NO_RESPONSE_FROM_PV){
                             $css = "border-bottom: solid;";
                             $textColor = 'text-secondary';
@@ -136,7 +159,7 @@ class Controller extends BaseController
                             $css = "border-bottom: 6px double;";
                             $textColor = 'text-danger';
                         }else if($submission->pv_status == $submissionModel::STATUS_REJECTED_BY_PV){
-                            $textColor = 'text-danger seconda';
+                            $textColor = 'text-dange';
                             $css = "border-bottom: solid;";
                         }
                     } else {
@@ -150,7 +173,7 @@ class Controller extends BaseController
             }
             $nameArray = explode(" ",$submission->name);
             $candidateFirstName = isset($nameArray[0]) ? $nameArray[0] : '';
-            $candidate .= '<span class="candidate '.$textColor.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.$candidateFirstName.' - '.$submission->id.'</span><br>';
+            $candidate .= '<div class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.$candidateFirstName.' - '.$submission->id.'</span></div>';
         }
         return $candidate;
     }
@@ -203,5 +226,20 @@ class Controller extends BaseController
             }
         }
         return '';
+    }
+
+    function getInterviewStatus($submission, $row) {
+        $jobId = $row->job_id;
+        $submissionId = $submission->id;
+        
+        if(!$jobId || !$submissionId){
+            return '';
+        }
+
+        $statusData = Interview::where('submission_id', $submissionId)->where('job_id', $jobId)->first(['status']);
+        if(!$statusData || !$statusData->status){
+            return '';
+        }
+        return $statusData->status;
     }
 }

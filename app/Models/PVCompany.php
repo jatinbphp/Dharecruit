@@ -10,7 +10,7 @@ class PVCompany extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['user_id','name','status'];
+    protected $fillable = ['user_id','name','status','email','phone'];
 
     const STATUS_ACTIVE = 'active';
     const STATUS_INACTIVE = 'inactive';

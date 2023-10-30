@@ -75,6 +75,8 @@ class PVCompanyController extends Controller
         $this->validate($request, [
             'name' => 'required',
             'status' => 'required',
+            'email' => 'required|email',
+            'phone' => 'required|numeric|digits:10',
         ]);
 
         $input = $request->all();

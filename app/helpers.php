@@ -52,6 +52,19 @@ if(!function_exists('getRecruiterHtml')){
             return '';
         }
         $recName = '';
+
+        $user = Auth::user();
+
+        if($user->role == 'recruiter'){
+            if(in_array($user->id, $recruiterIds)){
+                $recruiterIds = array_flip($recruiterIds);
+                unset($recruiterIds[ $user->id ]);
+                $recruiterIds = array_flip($recruiterIds);
+                array_unshift($recruiterIds,$user->id);    
+            }
+        }
+        
+        $recruiterIds = array_filter($recruiterIds);
         foreach ($recruiterIds as $recruiterId){
             $recruterUser = Admin::where('id',$recruiterId)->first();
             if(empty($recruterUser)){

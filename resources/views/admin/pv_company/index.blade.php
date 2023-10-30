@@ -36,9 +36,11 @@
                             <table id="pv_companyTable" class="table table-bordered table-striped">
                                 <thead>
                                     <tr>
-                                        <th>Name</th>
-                                        <th style="width: 15%;">Status</th>
-                                        <th>Action</th>
+                                        <th style="width: 25%;">Name</th>
+                                        <th style="width: 25%;">Email</th>
+                                        <th style="width: 25%;">Phone</th>
+                                        <th style="width: 12.5%;">Status</th>
+                                        <th style="width: 12.5%;">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -58,11 +60,14 @@
         var table = $('#pv_companyTable').DataTable({
             processing: true,
             serverSide: true,
+            responsive: true,
             ajax: "{{ route('pv_company.index') }}",
             columns: [
-                {data: 'name', "width": "70%", name: 'name'},
-                {data: 'status', "width": "15%", name: 'status'},
-                {data: 'action', "width": "15%", name: 'action', orderable: false, searchable: false},
+                {data: 'name', "width": "25%", name: 'name'},
+                {data: 'email', "width": "25%", name: 'email'},
+                {data: 'phone', "width": "25%", name: 'phone'},
+                {data: 'status', "width": "12.5%", name: 'status'},
+                {data: 'action', "width": "12.5%", name: 'action', orderable: false, searchable: false},
             ]
         });
 
