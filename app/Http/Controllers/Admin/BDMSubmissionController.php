@@ -80,7 +80,10 @@ class BDMSubmissionCOntroller extends Controller
                     $status .= '</select>';
                     return $status;
                 })
-                ->rawColumns(['job_id','job_title','job_keyword','duration','client_name','recruter_name','candidate_name','action','status'])
+                ->addColumn('created_at', function($row){
+                    return date('m-d-Y', strtotime($row->created_at));
+                })
+                ->rawColumns(['job_id','job_title','job_keyword','duration','client_name','recruter_name','candidate_name','action','status','created_at'])
                 ->make(true);
         }
 

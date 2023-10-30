@@ -117,9 +117,18 @@ if(!function_exists('getStatusHtml')){
 
 if(!function_exists('getcandidateHtml')){
     function getcandidateHtml($row, $page='requirement'){
-        $allSubmission = Submission::where('requirement_id',$row->id)->where('status','!=','reject')->get();
+
+        if(Auth::user()->role == 'recruiter'){
+            $loggedInRecruterSubmission = Submission::where('user_id', Auth::user()->id)->where('requirement_id',$row->id)->where('status','!=','reject')->orderby('user_id','DESC')->get();
+            $notLoggedInRecruterSubmission = Submission::where('user_id', '!=',Auth::user()->id)->where('requirement_id',$row->id)->where('status','!=','reject')->orderby('user_id','DESC')->get();
+            $allSubmission = $loggedInRecruterSubmission->merge($notLoggedInRecruterSubmission);
+        } else {
+            $allSubmission = Submission::where('requirement_id',$row->id)->where('status','!=','reject')->orderby('user_id','DESC')->get();
+        }
+
         $candidate = '<br>';
         $controllerObj = new Controller();
+
         if(count($allSubmission) > 0){
             $candidate .= $controllerObj->getCandidateHtml($allSubmission, $row, $page);
         } else {

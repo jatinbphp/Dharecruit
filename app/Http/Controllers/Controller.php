@@ -111,6 +111,7 @@ class Controller extends BaseController
         $candidate = '';
         $submissionModel = new Submission();
         $interviewModel  = new Interview();
+
         foreach ($submissions as $submission){
             $textColor = '';
             $css = '';
@@ -231,6 +232,7 @@ class Controller extends BaseController
     function getInterviewStatus($submission, $row) {
         $jobId = $row->job_id;
         $submissionId = $submission->id;
+
         
         if(!$jobId || !$submissionId){
             return '';
@@ -240,6 +242,7 @@ class Controller extends BaseController
         if(!$statusData || !$statusData->status){
             return '';
         }
+
         return $statusData->status;
     }
 }

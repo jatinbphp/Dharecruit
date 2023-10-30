@@ -35,6 +35,7 @@
                             <table id="mySubmissionTable" class="table table-bordered table-striped">
                                 <thead>
                                     <tr>
+                                        <th>Date</th>
                                         <th>Job Id</th>
                                         <th>Job Title</th>
                                         <th>Location</th>
@@ -201,6 +202,7 @@
                 }
             },
             columns: [
+                {data: 'created_at', name: 'created_at'},
                 {data: 'job_id', name: 'job_id'},
                 {data: 'job_title', 'width': '10%', name: 'job_title'},
                 {data: 'location', name: 'location'},

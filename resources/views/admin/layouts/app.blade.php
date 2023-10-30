@@ -118,6 +118,52 @@
             <li class="nav-item d-none d-sm-inline-block">
                 <a href="{{ url('admin/dashboard') }}" class="nav-link">Home</a>
             </li>
+            @if($loginRole == 'admin' || $check9)
+                <li class="nav-item d-none d-sm-inline-block ml-2">
+                    <a href="{{ route('requirement.index') }}">
+                        <button class="btn btn-block btn-outline-primary btn-sm @if($menu=='Requirements') active @endif">All</button>
+                    </a>
+                </li>
+            @endif
+
+            @if(\Illuminate\Support\Facades\Auth::user()->role == 'bdm')
+                <li class="nav-item d-none d-sm-inline-block ml-2">
+                    <a href="{{ route('my_requirement') }}">
+                        <button class="btn btn-block btn-outline-primary btn-sm @if($menu=='My Requirements') active @endif">My Requirements</button>
+                    </a>
+                </li>
+            @endif
+
+            @if($check11)
+                <li class="nav-item d-none d-sm-inline-block ml-2">
+                    <a href="{{ route('submission.index') }}">
+                        <button class="btn btn-block btn-outline-primary btn-sm @if($menu=='Requirements') active @endif">All</button>
+                    </a>
+                </li>
+            @endif
+
+            @if(\Illuminate\Support\Facades\Auth::user()->role == 'recruiter')
+                <li class="nav-item d-none d-sm-inline-block ml-2" class="nav-item">
+                    <a href="{{ route('my_submission') }}">
+                        <button class="btn btn-block btn-outline-primary btn-sm @if($menu=='My Requirements') active @endif">My Requirements</button>
+                    </a>
+                </li>
+            @endif
+
+            @if(\Illuminate\Support\Facades\Auth::user()->role == 'bdm')
+                <li class="nav-item d-none d-sm-inline-block ml-2">
+                    <a href="{{ route('bdm_submission.index') }}">
+                        <button class="btn btn-block btn-outline-primary btn-sm @if($menu=='Manage Submission') active @endif">Submission</button>
+                    </a>
+                </li>
+            @endif
+            @if($loginRole == 'admin' || $check13)
+                <li class="nav-item d-none d-sm-inline-block ml-2">
+                    <a href="{{ route('interview.index') }}">
+                        <button class="btn btn-block btn-outline-primary btn-sm  @if($menu=='Manage Interview') active @endif">Interview</button>
+                    </a>
+                </li>
+            @endif
         </ul>
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
