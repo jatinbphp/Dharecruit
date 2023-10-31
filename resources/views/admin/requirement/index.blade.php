@@ -27,8 +27,16 @@
                     <div class="card card-info card-outline">
                         <div class="card-header">
                             <div class="row">
-                                <div class="col-md-12">
+                                <div class="col-md-2">
                                     <button class="btn btn-info" type="button" id="filterBtn"><i class="fa fa-search pr-1"></i> Search</button>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check mt-2">
+                                        <input class="form-check-input" type="checkbox" value="" id="showDate">
+                                        <label class="form-check-label" for="showDate">Show Date</label>
+                                      </div>
+                                </div>
+                                <div class="col-md-4">    
                                     <a href="{{ route('requirement.create') }}"><button class="btn btn-info float-right" type="button"><i class="fa fa-plus pr-1"></i> Add New</button></a>
                                 </div>
                                 <div class="col-md-12 border mt-3 pb-3" id="filterDiv">
@@ -112,7 +120,16 @@
                 }
             },
             columns: [
-                {data: 'DT_RowIndex', 'width': '6%', name: 'DT_RowIndex', orderable: false, searchable: false },
+                {data: 'DT_RowIndex', 'width': '6%', name: 'DT_RowIndex', orderable: false, searchable: false, render: function(data, type, full, meta){
+                    var columnData = data;
+                    var objectDate = new Date(full['created_at']);
+                    let day = objectDate.getDate();
+                    // Added 1 in month as in javascript month range is 0-11
+                    let month = objectDate.getMonth() + 1;
+                    let year = objectDate.getFullYear();
+                    columnData += '<p>'+ month +'/'+ day +'/'+ year +'</p>';
+                    return columnData;
+                }},
                 {data: 'job_id', 'width': '8%', name: 'job_id'},
                 {data: 'job_title', 'width': '30%', name: 'job_title'},
                 {data: 'user_id', 'width': '6%', name: 'user_id'},

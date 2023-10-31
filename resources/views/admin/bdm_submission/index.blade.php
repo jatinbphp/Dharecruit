@@ -174,6 +174,7 @@
                                 $("#candidate-"+submissionId).removeClass();
                                 $("#candidate-"+submissionId).addClass(data.class);
                                 $("#candidate-"+submissionId).attr('style', 'border-bottom :'+data.css);
+                                $('#pvStatusUpdatedAt-'+submissionId).html(data.updated_date_html);
                                 swal("Success", "PV Status successfully updated!", "success");
                             }else{
                                 swal("Error", "Something is wrong!", "error");

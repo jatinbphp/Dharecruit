@@ -551,6 +551,10 @@
                 }
             });
         });
+
+        $('#showDate').click(function(){
+            $(".submission-date").toggle();
+        })
     });
 
     $('#filterBtn').on('click', function(){

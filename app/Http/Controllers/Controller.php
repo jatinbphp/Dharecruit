@@ -174,7 +174,7 @@ class Controller extends BaseController
             }
             $nameArray = explode(" ",$submission->name);
             $candidateFirstName = isset($nameArray[0]) ? $nameArray[0] : '';
-            $candidate .= '<div class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.$candidateFirstName.' - '.$submission->id.'</span></div>';
+            $candidate .= '<div class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.$candidateFirstName.' - '.$submission->id.'</span></div><span style="color:#AF62B0; font-weight: bold; display:none" class="submission-date">'.date('d-m-Y', strtotime($submission->created_at)).'</span>';
         }
         return $candidate;
     }

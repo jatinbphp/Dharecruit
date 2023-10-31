@@ -10,6 +10,7 @@ use App\Models\PVCompany;
 use App\Models\Requirement;
 use App\Models\Submission;
 use App\Models\RequirementDocuments;
+use App\Models\EntityHistory;
 use DataTables;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -274,6 +275,14 @@ class RequirementController extends Controller
         if(!empty($submission)){
             $input['status'] = $request['status'];
             $submission->update($input);
+
+            $inputData['submission_id']  = $id;
+            $inputData['requirement_id'] = $submission->requirement_id;
+            $inputData['entity_type']    = EntityHistory::ENTITY_TYPE_BDM_STATUS;
+            $inputData['entity_value']   = $request->status;
+
+            EntityHistory::create($inputData);
+
             return 1;
         }else{
            return 0;
@@ -289,6 +298,14 @@ class RequirementController extends Controller
         }
         $input = $request->all();
         $submission->update($input);
+
+        $inputData['submission_id']  = $submission->id;
+        $inputData['requirement_id'] = $submission->requirement_id;
+        $inputData['entity_type']    = EntityHistory::ENTITY_TYPE_BDM_STATUS;
+        $inputData['entity_value']   = $submission->status;
+
+        EntityHistory::create($inputData);
+
         \Session::flash('success', 'Candidate status has been updated successfully!');
         return redirect()->back();
     }

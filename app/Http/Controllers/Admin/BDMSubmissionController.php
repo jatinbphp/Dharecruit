@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use DataTables;
 use App\Models\Submission;
 use App\Models\Requirement;
+use App\Models\EntityHistory;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -67,6 +68,11 @@ class BDMSubmissionCOntroller extends Controller
                         $status .= '<option value="'.$key.'" '.$selected.'>'.$val.'</option>';
                     }
                     $status .= '</select>';
+                    $statusLastUpdatedAtHtml = $this->getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_BDM_STATUS,$row->id);
+                    if($statusLastUpdatedAtHtml){
+                        $status .= $statusLastUpdatedAtHtml;
+                    }
+                    
                     return $status;
                 })
                 ->addColumn('status', function($row){
@@ -78,6 +84,12 @@ class BDMSubmissionCOntroller extends Controller
                         $status .= '<option value="'.$key.'" '.$selected.'>'.$val.'</option>';
                     }
                     $status .= '</select>';
+                    $statusLastUpdatedAtHtml = $this->getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_PV_STATUS,$row->id);
+                    if($statusLastUpdatedAtHtml){
+                        $status .= $statusLastUpdatedAtHtml;
+                    }else{
+                        $status .= '<div id="pvStatusUpdatedAt-'.$row->id.'"></div>';
+                    }
                     return $status;
                 })
                 ->addColumn('created_at', function($row){
@@ -135,9 +147,18 @@ class BDMSubmissionCOntroller extends Controller
             $input['pv_status'] = $request['pv_status'];
             $input['pv_reason'] = '';
             $submission->update($input);
+
+            $inputData['submission_id']  = $submission->id;
+            $inputData['requirement_id'] = $submission->requirement_id;
+            $inputData['entity_type']    = EntityHistory::ENTITY_TYPE_PV_STATUS;
+            $inputData['entity_value']   = $submission->status;
+    
+            EntityHistory::create($inputData);
+
             $data['status'] = 1;
             $data['css']    = $this->getCandidateCss($submission);
             $data['class']  = $this->getCandidateClass($submission);
+            $data['updated_date_html'] = $this->getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_PV_STATUS,$submission->id);
         }else{
            $data['status'] = 0;
         }
@@ -156,5 +177,13 @@ class BDMSubmissionCOntroller extends Controller
         }
 
         return redirect()->route('bdm_submission.index')->with('filter', $request['filter']);
+    }
+
+    public function getEntityLastUpdatedAtHtml($entityType,$submissioId){
+        $lastUpdatedAt =  EntityHistory::where('entity_type',$entityType)->where('submission_id',$submissioId)->orderBy('id','DESC')->first(['created_at']); 
+        if(empty($lastUpdatedAt) || !$lastUpdatedAt->created_at){
+            return '';
+        }
+        return '<div class="border border-dark floar-left p-1 mt-2" style="border-radius: 5px; width: auto"><span style="color:#AF62B0">'.date('m/d/Y', strtotime($lastUpdatedAt->created_at)).'</span></div>';
     }
 }
