@@ -16,6 +16,7 @@ class EntityHistory extends Model
         'entity_value',
     ];
 
-    const ENTITY_TYPE_BDM_STATUS = 'bdm_status';
-    const ENTITY_TYPE_PV_STATUS  = 'pv_status';
+    const ENTITY_TYPE_BDM_STATUS        = 'bdm_status';
+    const ENTITY_TYPE_PV_STATUS         = 'pv_status';
+    const ENTITY_TYPE_INTERVIEW_STATUS  = 'interview_status';
 }

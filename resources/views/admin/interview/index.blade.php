@@ -50,6 +50,11 @@
                                             </label>
                                         </div>
                                     @endforeach
+                                    {{-- <div class="col-md-3">
+                                        <label>
+                                            {!! Form::checkbox('', $key, null, ['id' => "showTime"]) !!} <span style="margin-right: 10px">Status Time</span>
+                                        </label>
+                                    </div> --}}
                                     @if ($errors->has('status'))
                                         <span class="text-danger" id="statusError">
                                             <strong>{{ $errors->first('status') }}</strong>
@@ -154,8 +159,9 @@
                         url: "{{url('admin/interview/changeInterviewStatus')}}/"+interviewId,
                         type: "POST",
                         data: {'status':status, _token: '{{csrf_token()}}' },
-                        success: function(data){
-                            if(data == 1){
+                        success: function(responce){
+                            if(responce.status == 1){
+                                $('#interviewStatusUpdatedAt-'+interviewId).html(responce.updated_date_html);
                                 swal("Success", "Status successfully updated!", "success");
                             }else{
                                 swal("Error", "Something is wrong!", "error");
@@ -166,6 +172,10 @@
                     swal("Cancelled", "Your data safe!", "error");
                 }
             });
+        });
+
+        $('#showTime').click(function(){
+            
         });
     });
 

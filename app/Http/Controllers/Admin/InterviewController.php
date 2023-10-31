@@ -6,6 +6,7 @@ use DataTables;
 use App\Models\Interview;
 use App\Models\Submission;
 use App\Models\Requirement;
+use App\Models\EntityHistory;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -35,6 +36,12 @@ class InterviewController extends Controller
                         $status .= '<option value="'.$key.'" '.$selected.'>'.$val.'</option>';
                     }
                     $status .= '</select>';
+                    $statusLastUpdatedAtHtml = getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_INTERVIEW_STATUS,$row->submission_id);
+                    if($statusLastUpdatedAtHtml){
+                        $status .= $statusLastUpdatedAtHtml;
+                    }else{
+                        $status .= '<div id="interviewStatusUpdatedAt-'.$row->id.'"></div>';
+                    }
                     return $status;
                 })
                 ->addColumn('action', function($row){
@@ -110,7 +117,14 @@ class InterviewController extends Controller
 
         $input = $request->all();
         $input['user_id'] = Auth::user()->id;
-        Interview::create($input);
+        $interview = Interview::create($input);
+
+        $inputData['submission_id']  = $interview->submission_id;
+        $inputData['requirement_id'] = $interview->Submission->Requirement->id;
+        $inputData['entity_type']    = EntityHistory::ENTITY_TYPE_INTERVIEW_STATUS;
+        $inputData['entity_value']   = $interview->status;
+
+        EntityHistory::create($inputData);
 
         \Session::flash('success', 'Interview has been inserted successfully!');
         return redirect()->route('interview.index');
@@ -156,12 +170,22 @@ class InterviewController extends Controller
     public function changeInterviewStatus(Request $request, $id){
         $interview = Interview::where('id',$id)->first();
         if(empty($interview)){
-            return 0;
-        }else{
-            $input['status'] = $request['status'];
-            $interview->update($input);
-            return 1;
+            $data['status'] = 0;
+            return $data;
         }
+        $input['status'] = $request['status'];
+        $interview->update($input);
+
+        $inputData['submission_id']  = $interview->submission_id;
+        $inputData['requirement_id'] = $interview->Submission->Requirement->id;
+        $inputData['entity_type']    = EntityHistory::ENTITY_TYPE_INTERVIEW_STATUS;
+        $inputData['entity_value']   = $interview->status;
+
+        EntityHistory::create($inputData);
+
+        $data['status'] = 1;
+        $data['updated_date_html'] = getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_PV_STATUS,$interview->submission_id);
+        return $data;
     }
 
     function getCandidatesName(Request $request) {

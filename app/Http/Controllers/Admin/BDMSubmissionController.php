@@ -68,7 +68,7 @@ class BDMSubmissionCOntroller extends Controller
                         $status .= '<option value="'.$key.'" '.$selected.'>'.$val.'</option>';
                     }
                     $status .= '</select>';
-                    $statusLastUpdatedAtHtml = $this->getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_BDM_STATUS,$row->id);
+                    $statusLastUpdatedAtHtml = getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_BDM_STATUS,$row->id);
                     if($statusLastUpdatedAtHtml){
                         $status .= $statusLastUpdatedAtHtml;
                     }
@@ -84,7 +84,7 @@ class BDMSubmissionCOntroller extends Controller
                         $status .= '<option value="'.$key.'" '.$selected.'>'.$val.'</option>';
                     }
                     $status .= '</select>';
-                    $statusLastUpdatedAtHtml = $this->getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_PV_STATUS,$row->id);
+                    $statusLastUpdatedAtHtml = getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_PV_STATUS,$row->id);
                     if($statusLastUpdatedAtHtml){
                         $status .= $statusLastUpdatedAtHtml;
                     }else{
@@ -158,7 +158,7 @@ class BDMSubmissionCOntroller extends Controller
             $data['status'] = 1;
             $data['css']    = $this->getCandidateCss($submission);
             $data['class']  = $this->getCandidateClass($submission);
-            $data['updated_date_html'] = $this->getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_PV_STATUS,$submission->id);
+            $data['updated_date_html'] = getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_PV_STATUS,$submission->id);
         }else{
            $data['status'] = 0;
         }
@@ -177,13 +177,5 @@ class BDMSubmissionCOntroller extends Controller
         }
 
         return redirect()->route('bdm_submission.index')->with('filter', $request['filter']);
-    }
-
-    public function getEntityLastUpdatedAtHtml($entityType,$submissioId){
-        $lastUpdatedAt =  EntityHistory::where('entity_type',$entityType)->where('submission_id',$submissioId)->orderBy('id','DESC')->first(['created_at']); 
-        if(empty($lastUpdatedAt) || !$lastUpdatedAt->created_at){
-            return '';
-        }
-        return '<div class="border border-dark floar-left p-1 mt-2" style="border-radius: 5px; width: auto"><span style="color:#AF62B0">'.date('m/d/Y', strtotime($lastUpdatedAt->created_at)).'</span></div>';
     }
 }
