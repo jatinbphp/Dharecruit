@@ -4,7 +4,7 @@ use App\Models\Admin;
 use App\Models\Submission;
 use App\Models\EntityHistory;
 use App\Http\Controllers\Controller;
-// use DataTables;
+use DataTables;
 use Illuminate\Support\Facades\Auth;
 
 if(!function_exists('getListHtml')){
