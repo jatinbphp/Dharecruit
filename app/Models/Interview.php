@@ -47,4 +47,28 @@ class Interview extends Model
         self::STATUS_BACKOUT                 => self::STATUS_BACKOUT_TEXT,
         self::STATUS_REJECTED                => self::STATUS_REJECTED_TEXT,
     ];
+
+    public static $toggleOptions = [
+        'poc_name' => 'Show Poc',
+        'client' => 'Show Client',
+        'employer_name' => 'Show Employer',
+        'candidate_phone' => 'Show Candidate Phone',
+        'candidate_email' => 'Show Candidate Email',
+        'hiring_manager' => 'Show Hiring Manager',
+        'pv_name' => 'Show PV',
+        'emp_poc' => 'Show Emp POC',
+    ];
+
+    public static $hideForBDA = [
+        'emp_poc',
+    ];
+
+    public static $hideForReq = [
+        'poc_name',
+        'pv_name',
+    ];
+
+    public function Submission(){
+        return $this->belongsTo('App\Models\Submission','submission_id');
+    }
 }

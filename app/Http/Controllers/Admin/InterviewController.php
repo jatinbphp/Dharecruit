@@ -40,7 +40,50 @@ class InterviewController extends Controller
                 ->addColumn('action', function($row){
                     return '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/interview/'.$row->id.'/edit').'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Edit Interview" data-trigger="hover" type="submit" ><i class="fa fa-edit"></i></button></a></div>';
                 })
-                ->rawColumns(['status','action'])
+                ->addColumn('candidate_phone_number', function($row){
+                    return '<i class="fa fa-eye candidate_phone-icon candidate-phone-icon-'.$row->id.'" onclick="showData('.$row->id.',\'candidate-phone-\')" aria-hidden="true"></i><span class="candidate_phone candidate-phone-'.$row->id.'" style="display:none">'.$row->candidate_phone_number.'</span>';
+                })
+                ->addColumn('candidate_email', function($row){
+                    return '<i class="fa fa-eye candidate_email-icon candidate-email-icon-'.$row->id.'" onclick="showData('.$row->id.',\'candidate-email-\')" aria-hidden="true"></i><span class="candidate_email candidate-email-'.$row->id.'" style="display:none">'.$row->candidate_email.'</span>';
+                })
+                ->addColumn('candidate_name', function($row){
+                    return $row->Submission->name;
+                })
+                ->addColumn('created_at', function($row){
+                    return date('m/d/Y', strtotime($row->created_at));
+                })
+                ->addColumn('client_location', function($row){
+                    return $row->Submission->Requirement->location;
+                })
+                ->addColumn('candidate_location', function($row){
+                    return $row->Submission->location;
+                })
+                ->addColumn('recruiter', function($row){
+                    return $row->Submission->Recruiters->name;
+                })
+                ->addColumn('employer_name', function($row){
+                    return '<i class="fa fa-eye employer_name-icon employer-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'employer-name-\')" aria-hidden="true"></i><span class="employer_name employer-name-'.$row->id.'" style="display:none">'.$row->Submission->employer_name.'</span>';
+                })
+                ->addColumn('emp_poc', function($row){
+                    return '<i class="fa fa-eye emp_poc-icon emp-poc-icon-'.$row->id.'" onclick="showData('.$row->id.',\'emp-poc-\')" aria-hidden="true"></i><span class="emp_poc emp-poc-'.$row->id.'" style="display:none">'.$row->Submission->employee_phone.'</span>';
+                })
+                ->addColumn('poc_name', function($row){
+                    return '<i class="fa fa-eye poc_name-icon poc-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'poc-name-\')" aria-hidden="true"></i><span class="poc_name poc-name-'.$row->id.'" style="display:none">'.$row->Submission->Requirement->poc_name.'</span>';
+                })
+                ->addColumn('pv_name', function($row){
+                    return '<i class="fa fa-eye pv_name-icon pv-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'pv-name-\')" aria-hidden="true"></i><span class="pv_name pv-name-'.$row->id.'" style="display:none">'.$row->Submission->Requirement->pv_company_name.'</span>';
+                })
+                ->addColumn('hiring_manager', function($row){
+                    return '<i class="fa fa-eye hiring_manager-icon hiring-manager-icon-'.$row->id.'" onclick="showData('.$row->id.',\'hiring-manager-\')" aria-hidden="true"></i><span class="hiring_manager hiring-manager-'.$row->id.'" style="display:none">'.$row->hiring_manager.'</span>';
+                })
+                ->addColumn('client', function($row){
+                    return '<i class="fa fa-eye client-icon client-icon-'.$row->id.'" onclick="showData('.$row->id.',\'client-\')" aria-hidden="true"></i><span class="client client-'.$row->id.'" style="display:none">'.$row->client.'</span>';
+                })
+                ->addColumn('interview_time', function($row){
+                    return '<br><span style="font-weight:bold">'.date('m/d l', strtotime($row->interview_date)).'</span><br>
+                    <span>'.date('H:i:s', strtotime($row->interview_time)) .' '. $row->time_zone.'</span>';
+                })
+                ->rawColumns(['status','action','candidate_phone_number','emp_poc','candidate_email','employer_name','poc_name','pv_name','hiring_manager','client','interview_time'])
                 ->make(true);
         }
 

@@ -1,5 +1,8 @@
 @extends('admin.layouts.app')
 @section('content')
+@php
+    $userType = Auth::user()->role;
+@endphp
 <div class="content-wrapper">
     <section class="content-header">
         <div class="container-fluid">
@@ -27,7 +30,34 @@
                 <div class="card card-info card-outline">
                     <div class="card-header">
                         <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-10">
+                                <div class="row">
+                                    @foreach (\App\Models\Interview::$toggleOptions as $key => $value)
+                                        @php
+                                            if($userType == 'bdm'){
+                                                if(in_array($key,\App\Models\Interview::$hideForBDA)){
+                                                    continue;
+                                                }
+                                            } elseif($userType == 'recruiter'){
+                                                if(in_array($key,\App\Models\Interview::$hideForReq)){
+                                                    continue;
+                                                }
+                                            }
+                                        @endphp
+                                        <div class="col-md-3">
+                                            <label>
+                                                {!! Form::checkbox('', $key, null, ['id' => "$key", 'onChange' => 'toggleOptions("'.$key.'")']) !!} <span style="margin-right: 10px">{{ $value }}</span>
+                                            </label>
+                                        </div>
+                                    @endforeach
+                                    @if ($errors->has('status'))
+                                        <span class="text-danger" id="statusError">
+                                            <strong>{{ $errors->first('status') }}</strong>
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="col-md-2">
                                 <a href="{{ route('interview.create') }}"><button class="btn btn-info float-right" type="button"><i class="fa fa-plus pr-1"></i> Add New</button></a>
                             </div>
                         </div>
@@ -36,14 +66,25 @@
                         <table id="interviewTable" class="table table-bordered table-striped">
                             <thead>
                                 <tr>
+                                    <th>Date</th>
                                     <th>Id</th>
+                                    <th>Candidate Name</th>
+                                    <th>Candidate Phone</th>
+                                    <th>Candidate Email</th>
+                                    <th>Client Location</th>
+                                    <th>Candidate Location</th>
+                                    <th>Recruiter</th>
+                                    <th>Employer</th>
+                                    @if(in_array($userType,['admin','recruiter']))
+                                        <th>EmpPOC</th>
+                                    @endif
+                                    @if(in_array($userType,['admin','bdm']))
+                                        <th>POC</th>
+                                        <th>PV</th>
+                                    @endif
                                     <th>Hiring Manager</th>
                                     <th>Client</th>
-                                    <th>Interview Date</th>
                                     <th>Interview Time</th>
-                                    <th>Candidate Phone Number</th>
-                                    <th>Candidate Email</th>
-                                    <th>Time Zone</th>
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
@@ -65,16 +106,28 @@
         var table = $('#interviewTable').DataTable({
             processing: true,
             serverSide: true,
+            responsive: true,
             ajax: "{{ route('interview.index') }}",
             columns: [
+                {data: 'created_at', name: 'created_at'},
                 {data: 'DT_RowIndex', 'width': '6%', name: 'DT_RowIndex', orderable: false, searchable: false },
-                {data: 'hiring_manager', name: 'hiring_manager'},
-                {data: 'client', name: 'client'},
-                {data: 'interview_date', name: 'interview_date'},
-                {data: 'interview_time', name: 'interview_time'},
+                {data: 'candidate_name', name: 'candidate_name'},
                 {data: 'candidate_phone_number', name: 'candidate_phone_number'},
                 {data: 'candidate_email', name: 'candidate_email'},
-                {data: 'time_zone', name: 'time_zone'},
+                {data: 'client_location', name: 'client_location'},
+                {data: 'candidate_location', name: 'candidate_location'},
+                {data: 'recruiter', name: 'recruiter'},
+                {data: 'employer_name', name: 'employer_name'},
+                @if(in_array($userType,['admin','recruiter']))
+                    {data: 'emp_poc', name: 'emp_poc'},
+                @endif
+                @if(in_array($userType,['admin','bdm']))
+                    {data: 'poc_name', name: 'poc_name'},
+                    {data: 'pv_name', name: 'pv_name'},
+                @endif
+                {data: 'hiring_manager', name: 'hiring_manager'},
+                {data: 'client', name: 'client'},
+                {data: 'interview_time', name: 'interview_time'},
                 {data: 'status', name: 'status'},
                 {data: 'action', name: 'action', orderable: false, searchable: false},
             ]
@@ -115,5 +168,20 @@
             });
         });
     });
+
+    function showData(id,type) {
+        $("."+type+id).show();
+        $("."+type+"icon-"+id).hide();
+    }
+
+    function toggleOptions(type) {
+        if($("#"+type).is(':checked')){
+            $('.'+type).show();
+            $('.'+type+'-icon').hide();
+        } else {
+            $('.'+type).hide();
+            $('.'+type+'-icon').show();
+        }
+    }
   </script>
 @endsection
