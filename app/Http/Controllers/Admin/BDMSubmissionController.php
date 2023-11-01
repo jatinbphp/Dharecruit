@@ -84,12 +84,7 @@ class BDMSubmissionCOntroller extends Controller
                         $status .= '<option value="'.$key.'" '.$selected.'>'.$val.'</option>';
                     }
                     $status .= '</select>';
-                    $statusLastUpdatedAtHtml = getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_PV_STATUS,$row->id);
-                    if($statusLastUpdatedAtHtml){
-                        $status .= $statusLastUpdatedAtHtml;
-                    }else{
-                        $status .= '<div id="pvStatusUpdatedAt-'.$row->id.'"></div>';
-                    }
+                    $status .= getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_PV_STATUS,$row->id);
                     return $status;
                 })
                 ->addColumn('created_at', function($row){
@@ -158,6 +153,7 @@ class BDMSubmissionCOntroller extends Controller
             $data['status'] = 1;
             $data['css']    = $this->getCandidateCss($submission);
             $data['class']  = $this->getCandidateClass($submission);
+            $data['entity_type'] = EntityHistory::ENTITY_TYPE_PV_STATUS;
             $data['updated_date_html'] = getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_PV_STATUS,$submission->id);
         }else{
            $data['status'] = 0;

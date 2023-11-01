@@ -50,11 +50,11 @@
                                             </label>
                                         </div>
                                     @endforeach
-                                    {{-- <div class="col-md-3">
+                                    <div class="col-md-3">
                                         <label>
-                                            {!! Form::checkbox('', $key, null, ['id' => "showTime"]) !!} <span style="margin-right: 10px">Status Time</span>
+                                            {!! Form::checkbox('', 'show-time', null, ['id' => "showTime"]) !!} <span style="margin-right: 10px; color:#AF63B0 ">Status Time</span>
                                         </label>
-                                    </div> --}}
+                                    </div>
                                     @if ($errors->has('status'))
                                         <span class="text-danger" id="statusError">
                                             <strong>{{ $errors->first('status') }}</strong>
@@ -79,6 +79,8 @@
                                     <th>Client Location</th>
                                     <th>Candidate Location</th>
                                     <th>Recruiter</th>
+                                    <th>BR</th>
+                                    <th>RR</th>
                                     <th>Employer</th>
                                     @if(in_array($userType,['admin','recruiter']))
                                         <th>EmpPOC</th>
@@ -115,13 +117,15 @@
             ajax: "{{ route('interview.index') }}",
             columns: [
                 {data: 'created_at', name: 'created_at'},
-                {data: 'DT_RowIndex', 'width': '6%', name: 'DT_RowIndex', orderable: false, searchable: false },
+                {data: 'DT_RowIndex', 'width': '2%', name: 'DT_RowIndex', orderable: false, searchable: false },
                 {data: 'candidate_name', name: 'candidate_name'},
                 {data: 'candidate_phone_number', name: 'candidate_phone_number'},
                 {data: 'candidate_email', name: 'candidate_email'},
                 {data: 'client_location', name: 'client_location'},
                 {data: 'candidate_location', name: 'candidate_location'},
                 {data: 'recruiter', name: 'recruiter'},
+                {data: 'br', name: 'br'},
+                {data: 'rr', name: 'rr'},
                 {data: 'employer_name', name: 'employer_name'},
                 @if(in_array($userType,['admin','recruiter']))
                     {data: 'emp_poc', name: 'emp_poc'},
@@ -161,7 +165,11 @@
                         data: {'status':status, _token: '{{csrf_token()}}' },
                         success: function(responce){
                             if(responce.status == 1){
-                                $('#interviewStatusUpdatedAt-'+interviewId).html(responce.updated_date_html);
+                                $('.statusUpdatedAt-'+responce.entity_type+'-'+responce.submission_id).html(responce.updated_date_html);
+                                if($("#showTime").is(':checked')){
+                                    $('.statusUpdatedAt-'+responce.entity_type+'-'+responce.submission_id).show();    
+                                }
+                                $('.candidate-'+interviewId).html(responce.updated_candidate_html);
                                 swal("Success", "Status successfully updated!", "success");
                             }else{
                                 swal("Error", "Something is wrong!", "error");
@@ -175,7 +183,11 @@
         });
 
         $('#showTime').click(function(){
-            
+            if($('#showTime').is(':checked')){
+                $('.status-time').show();    
+            } else {
+                $('.status-time').hide();
+            }
         });
     });
 

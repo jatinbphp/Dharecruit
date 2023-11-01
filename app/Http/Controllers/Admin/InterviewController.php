@@ -36,12 +36,8 @@ class InterviewController extends Controller
                         $status .= '<option value="'.$key.'" '.$selected.'>'.$val.'</option>';
                     }
                     $status .= '</select>';
-                    $statusLastUpdatedAtHtml = getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_INTERVIEW_STATUS,$row->submission_id);
-                    if($statusLastUpdatedAtHtml){
-                        $status .= $statusLastUpdatedAtHtml;
-                    }else{
-                        $status .= '<div id="interviewStatusUpdatedAt-'.$row->id.'"></div>';
-                    }
+                    $status .= getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_INTERVIEW_STATUS,$row->submission_id);
+
                     return $status;
                 })
                 ->addColumn('action', function($row){
@@ -54,7 +50,7 @@ class InterviewController extends Controller
                     return '<i class="fa fa-eye candidate_email-icon candidate-email-icon-'.$row->id.'" onclick="showData('.$row->id.',\'candidate-email-\')" aria-hidden="true"></i><span class="candidate_email candidate-email-'.$row->id.'" style="display:none">'.$row->candidate_email.'</span>';
                 })
                 ->addColumn('candidate_name', function($row){
-                    return $row->Submission->name;
+                    return $this->getCandidateStatusWiseHtml($row);
                 })
                 ->addColumn('created_at', function($row){
                     return date('m/d/Y', strtotime($row->created_at));
@@ -67,6 +63,12 @@ class InterviewController extends Controller
                 })
                 ->addColumn('recruiter', function($row){
                     return $row->Submission->Recruiters->name;
+                })
+                ->addColumn('br', function($row){
+                    return $row->Submission->Requirement->my_rate;
+                })
+                ->addColumn('rr', function($row){
+                    return $row->Submission->recruiter_rate;
                 })
                 ->addColumn('employer_name', function($row){
                     return '<i class="fa fa-eye employer_name-icon employer-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'employer-name-\')" aria-hidden="true"></i><span class="employer_name employer-name-'.$row->id.'" style="display:none">'.$row->Submission->employer_name.'</span>';
@@ -90,7 +92,7 @@ class InterviewController extends Controller
                     return '<br><span style="font-weight:bold">'.date('m/d l', strtotime($row->interview_date)).'</span><br>
                     <span>'.date('H:i:s', strtotime($row->interview_time)) .' '. $row->time_zone.'</span>';
                 })
-                ->rawColumns(['status','action','candidate_phone_number','emp_poc','candidate_email','employer_name','poc_name','pv_name','hiring_manager','client','interview_time'])
+                ->rawColumns(['status','candidate_name','action','candidate_phone_number','emp_poc','candidate_email','employer_name','poc_name','pv_name','hiring_manager','client','interview_time'])
                 ->make(true);
         }
 
@@ -176,15 +178,20 @@ class InterviewController extends Controller
         $input['status'] = $request['status'];
         $interview->update($input);
 
+        $entityTypeInterviewStatus = EntityHistory::ENTITY_TYPE_INTERVIEW_STATUS;
+
         $inputData['submission_id']  = $interview->submission_id;
         $inputData['requirement_id'] = $interview->Submission->Requirement->id;
-        $inputData['entity_type']    = EntityHistory::ENTITY_TYPE_INTERVIEW_STATUS;
+        $inputData['entity_type']    = $entityTypeInterviewStatus;
         $inputData['entity_value']   = $interview->status;
 
         EntityHistory::create($inputData);
 
-        $data['status'] = 1;
-        $data['updated_date_html'] = getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_PV_STATUS,$interview->submission_id);
+        $data['status']                 = 1;
+        $data['updated_date_html']      = getEntityLastUpdatedAtHtml($entityTypeInterviewStatus,$interview->submission_id);
+        $data['updated_candidate_html'] = $this->getCandidateStatusWiseHtml($interview);
+        $data['submission_id']          = $interview->submission_id;
+        $data['entity_type']            = $entityTypeInterviewStatus;
         return $data;
     }
 
@@ -241,5 +248,38 @@ class InterviewController extends Controller
         $data['candidateData'] = $candidateData;
 
         return $data;
+    }
+
+    public function getCandidateStatusWiseHtml($interview){
+        $statusData = Interview::where('id',$interview->id)->first(['status']);
+        if(!$statusData || !$statusData->status){
+            return '';
+        }
+
+        $textColor = '';
+        $divClass  = '';
+
+        $interviewStatus = $statusData->status;
+        $interviewModel  = new Interview();
+        $divCss          = "width: fit-content;";
+        
+        if($interviewStatus == $interviewModel::STATUS_SCHEDULED){
+            $divClass .= 'border border-warning rounded-pill';
+            $textColor = 'text-dark';
+        } else if($interviewStatus == $interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND){
+            $divClass .= 'bg-warning rounded-pill';
+            $textColor = 'text-dark';
+        } else if($interviewStatus == $interviewModel::STATUS_CONFIRMED_POSITION){
+            $divClass .= 'bg-success';
+            $textColor = 'text-dark';
+        } else if($interviewStatus == $interviewModel::STATUS_REJECTED){
+            $divClass .= 'bg-danger';
+            $textColor = 'text-white';
+        } else if($interviewStatus == $interviewModel::STATUS_BACKOUT){
+            $divClass .= 'bg-dark';
+            $textColor = 'text-white';
+        }
+
+        return '<div class="candidate-'. $interview->id .'"><div class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.'" >'.$interview->Submission->name.'</span></div></div>';
     }
 }

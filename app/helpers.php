@@ -195,8 +195,8 @@ if(!function_exists('getEntityLastUpdatedAtHtml')){
     function getEntityLastUpdatedAtHtml($entityType,$submissioId){
         $lastUpdatedAt =  EntityHistory::where('entity_type',$entityType)->where('submission_id',$submissioId)->orderBy('id','DESC')->first(['created_at']); 
         if(empty($lastUpdatedAt) || !$lastUpdatedAt->created_at){
-            return '';
+            return '<div style="display:none" class="status-time statusUpdatedAt-'.$entityType.'-'.$submissioId.'"></div>';
         }
-        return '<div class="border border-dark floar-left p-1 mt-2" style="border-radius: 5px; width: auto"><span style="color:#AF62B0">'.date('m/d/Y', strtotime($lastUpdatedAt->created_at)).'</span></div>';
+        return '<div style="display:none" class="status-time statusUpdatedAt-'.$entityType.'-'.$submissioId.'"><div class="border border-dark floar-left p-1 mt-2" style="border-radius: 5px; width: auto"><span style="color:#AF63B0">'.date('d/m h:i A', strtotime($lastUpdatedAt->created_at)).'</span></div></div>';
     }
 }

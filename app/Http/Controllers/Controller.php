@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Requirement;
 use App\Models\Submission;
 use App\Models\Interview;
+use App\Models\EntityHistory;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -174,7 +175,8 @@ class Controller extends BaseController
             }
             $nameArray = explode(" ",$submission->name);
             $candidateFirstName = isset($nameArray[0]) ? $nameArray[0] : '';
-            $candidate .= '<div class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.$candidateFirstName.' - '.$submission->id.'</span></div><span style="color:#AF62B0; font-weight: bold; display:none" class="submission-date">'.date('d-m-Y', strtotime($submission->created_at)).'</span>';
+            $candidateLastDate = ($this->getCandidateLastStatusUpdatedAt($submission)) ? date('d/m h:i A', strtotime($this->getCandidateLastStatusUpdatedAt($submission))) : ''; 
+            $candidate .= '<div class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.$candidateFirstName.' - '.$submission->id.'</span></div><span style="color:#AF62B0; font-weight: bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
         }
         return $candidate;
     }
@@ -244,5 +246,19 @@ class Controller extends BaseController
         }
 
         return $statusData->status;
+    }
+
+    public function getCandidateLastStatusUpdatedAt($submission){
+        $submissionId = $submission->id;
+
+        if(!$submissionId){
+            return '';
+        }
+
+        $statuslastUpdatedAt =  EntityHistory::whereIn('entity_type',[EntityHistory::ENTITY_TYPE_PV_STATUS,EntityHistory::ENTITY_TYPE_BDM_STATUS])->where('submission_id',$submissionId)->orderBy('id','DESC')->first(['created_at']); 
+        if(empty($statuslastUpdatedAt) || !$statuslastUpdatedAt->created_at){
+            return '';
+        }
+        return $statuslastUpdatedAt->created_at;
     }
 }

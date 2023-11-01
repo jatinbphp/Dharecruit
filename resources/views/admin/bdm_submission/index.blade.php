@@ -28,9 +28,25 @@
                     {!! Form::select('filter', $filterOptions, 'null', ['class' => 'form-control select2','id'=>'filter_status']) !!}
                 </div>
             </div>
+
+            
+
             <div class="row">
                 <div class="col-12">
                     <div class="card card-info card-outline">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <label>
+                                                {!! Form::checkbox('', 'show-time', null, ['id' => "showTime"]) !!} <span style="margin-right: 10px; color:#AF63B0 ">Status Time</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="card-body table-responsive">
                             <table id="mySubmissionTable" class="table table-bordered table-striped">
                                 <thead>
@@ -174,7 +190,10 @@
                                 $("#candidate-"+submissionId).removeClass();
                                 $("#candidate-"+submissionId).addClass(data.class);
                                 $("#candidate-"+submissionId).attr('style', 'border-bottom :'+data.css);
-                                $('#pvStatusUpdatedAt-'+submissionId).html(data.updated_date_html);
+                                $('.statusUpdatedAt-'+data.entity_type+'-'+submissionId).html(data.updated_date_html);
+                                if($("#showTime").is(':checked')){
+                                    $('.statusUpdatedAt-'+data.entity_type+'-'+submissionId).show();    
+                                }
                                 swal("Success", "PV Status successfully updated!", "success");
                             }else{
                                 swal("Error", "Something is wrong!", "error");
@@ -188,6 +207,8 @@
         });
     });
     function dataTable(){
+        console.log('dt call start');
+        $('#showTime').prop('checked', false);
         $("#mySubmissionTable").dataTable().fnDestroy();
         var selectedFilter = $("#filter_status").val();
         
@@ -221,6 +242,14 @@
 
     $('#filter_status').on('change', function(){
         dataTable();
+    });
+
+    $('#showTime').click(function(){
+        if($('#showTime').is(':checked')){
+            $('.status-time').show();    
+        } else {
+            $('.status-time').hide();
+        }
     });
   </script>
 @endsection
