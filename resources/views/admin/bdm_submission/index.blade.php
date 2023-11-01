@@ -207,7 +207,6 @@
         });
     });
     function dataTable(){
-        console.log('dt call start');
         $('#showTime').prop('checked', false);
         $("#mySubmissionTable").dataTable().fnDestroy();
         var selectedFilter = $("#filter_status").val();
