@@ -11,6 +11,7 @@ use App\Models\Requirement;
 use App\Models\Submission;
 use App\Models\RequirementDocuments;
 use App\Models\EntityHistory;
+use App\Models\Visa;
 use DataTables;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -58,10 +59,12 @@ class RequirementController extends Controller
             $data['category'] = Category::where('status','active')->pluck('name','id')->prepend('Please Select','');
             $data['moi'] = Moi::where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
             $data['pv_company'] = PVCompany::where('status','active')->pluck('name','id')->prepend('Please Select','');
+            $data['visa'] = Visa::where('status','active')->pluck('name','id')->prepend('Please Select','');
         }else{
             $data['category'] = Category::where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
             $data['moi'] = Moi::where('user_id',Auth::user()->id)->where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
             $data['pv_company'] = PVCompany::where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
+            $data['visa'] = Visa::where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
         }
         $data['recruiter'] = Admin::where('role','recruiter')->pluck('name','id');
         return view("admin.requirement.create",$data);
@@ -172,6 +175,7 @@ class RequirementController extends Controller
             $data['category'] = Category::where('status','active')->pluck('name','id')->prepend('Please Select','');
             $data['moi'] = Moi::where('status','active')->pluck('name','id')->prepend('Please Select','');
             $data['pv_company'] = PVCompany::where('status','active')->pluck('name','id')->prepend('Please Select','');
+            $data['visa'] = Visa::where('status','active')->pluck('name','id')->prepend('Please Select','');
         }else{
             if($user['id'] != $data['requirement']['user_id']){
                 \Session::flash('danger',"You can not update other's requirement.");
@@ -181,6 +185,7 @@ class RequirementController extends Controller
             $data['category'] = Category::where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
             $data['moi'] = Moi::where('user_id',Auth::user()->id)->where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
             $data['pv_company'] = PVCompany::where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
+            $data['visa'] = Visa::where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
         }
         $data['requirementDocuments'] = RequirementDocuments::where('requirement_id',$id)->pluck('document','id');
         $data['recruiter'] = Admin::where('role','recruiter')->pluck('name','id');

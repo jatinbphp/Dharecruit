@@ -288,6 +288,15 @@
                         </li>
                     @endif
 
+                    @if($loginRole == 'admin' || $check14)
+                        <li class="nav-item">
+                            <a href="{{ route('visa.index') }}" class="nav-link @if($menu=='Visa') active @endif">
+                                <i class="nav-icon fa fa-passport"></i>
+                                <p>Manage Visa</p>
+                            </a>
+                        </li>
+                    @endif
+
                     @if($loginRole == 'admin' || $check10)
                         <li class="nav-item">
                             <a href="{{ route('pv_company.index') }}" class="nav-link @if($menu=='PV Company') active @endif">

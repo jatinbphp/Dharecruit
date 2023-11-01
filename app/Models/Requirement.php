@@ -73,4 +73,8 @@ class Requirement extends Model
     public function MOI(){
         return $this->belongsTo('App\Models\Moi','moi');
     }
+
+    public function Visa(){
+        return $this->belongsTo('App\Models\Visa','visa');
+    }
 }

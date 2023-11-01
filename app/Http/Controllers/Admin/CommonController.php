@@ -255,7 +255,7 @@ class CommonController extends Controller
             </div>
             <div class="row mt-2">
                 <div class="col-md-6">
-                    <strong>Visa:</strong> '.$requirement->visa.'
+                    <strong>Visa:</strong> '.$requirement->Visa->name.'
                 </div>
                 <div class="col-md-6">
                     <strong>Client:</strong> '.$requirement->client.'

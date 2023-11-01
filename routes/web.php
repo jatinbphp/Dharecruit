@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\SubmissionController;
 use App\Http\Controllers\Admin\BDMSubmissionController;
 use App\Http\Controllers\Admin\CommonController;
 use App\Http\Controllers\Admin\InterviewController;
+use App\Http\Controllers\Admin\VisaController;
 use App\Http\Controllers\Auth\RegisterController;
 /*
 |--------------------------------------------------------------------------
@@ -120,6 +121,11 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('interview/changeInterviewStatus/{id}', [InterviewController::class,'changeInterviewStatus']);
     Route::post('interview/getCandidatesName/', [InterviewController::class,'getCandidatesName'])->name('interview.getCandidatesName');
     Route::post('interciew/getCandidateData', [InterviewController::class,'getCandidateData'])->name('interview.getCandidateData');
+
+    /* VISa MANAGEMENT */
+    Route::post('visa/assign', [VisaController::class,'assign'])->name('visa.assign');
+    Route::post('visa/unassign', [VisaController::class,'unassign'])->name('visa.unassign');
+    Route::resource('visa', VisaController::class);
 
     Auth::routes();
 });

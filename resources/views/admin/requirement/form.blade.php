@@ -11,7 +11,7 @@
             @endif
         </div>
     </div>
-    
+
     <div class="col-md-6">
         <div class="form-group{{ $errors->has('poc_name') ? ' has-error' : '' }}">
             <label class="control-label" for="poc_name">POC Name :<span class="text-red">*</span></label>
@@ -215,7 +215,7 @@
         <div class="col-md-4">
             <div class="form-group{{ $errors->has('visa') ? ' has-error' : '' }}">
                 <label class="control-label" for="visa">Visa :@if (empty($customers))<span class="text-red">*</span>@endif</label>
-                {!! Form::text('visa', null, ['class' => 'form-control', 'placeholder' => 'Enter Visa', 'id' => 'visa']) !!}
+                {!! Form::select('visa', $visa, null, ['class' => 'form-control select2','id'=>'visa']) !!}
                 @if ($errors->has('visa'))
                     <span class="text-danger">
                         <strong>{{ $errors->first('visa') }}</strong>
@@ -285,7 +285,7 @@
                 @endif
             </div>
         </div>
-    
+
         <div class="col-md-12" id="priorityReason" style="display: none;">
             <div class="form-group{{ $errors->has('reason') ? ' has-error' : '' }}">
                 <label class="control-label" for="reason">Reason :<span class="text-red"></span></label>
