@@ -93,4 +93,21 @@ class Submission extends Model
     public function Requirement(){
         return $this->belongsTo('App\Models\Requirement','requirement_id');
     }
+
+    public static $toggleOptions = [
+        'pv_name' => 'Show PV',
+        'client' => 'Show Client',
+        'poc_name' => 'Show Poc',
+        'employer_name' => 'Show Employer',
+        'emp_poc' => 'Show Emp POC',
+    ];
+
+    public static $hideForBDA = [
+        'emp_poc',
+    ];
+
+    public static $hideForReq = [
+        'poc_name',
+        'pv_name',
+    ];
 }

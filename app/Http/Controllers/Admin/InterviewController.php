@@ -37,7 +37,7 @@ class InterviewController extends Controller
                     }
                     $status .= '</select>';
                     $status .= getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_INTERVIEW_STATUS,$row->submission_id);
-
+                    $status .= '<span class="feedback">'.$row->feedback.'</span>';
                     return $status;
                 })
                 ->addColumn('action', function($row){
@@ -110,12 +110,19 @@ class InterviewController extends Controller
     {
         $this->validate($request, [
             'interview_date' => 'required|date',
-            'interview_time' => 'required|date_format:H:i',
+            'interview_time' => 'required',
             'candidate_phone_number' => 'required|numeric|digits:10',
             'candidate_email' => 'required|email',
             'time_zone' => 'required',
             'status' => 'required',
         ]);
+
+        $existInterview = Interview::where('submission_id',$request->submission_id)->where('job_id',$request->job_id)->first();
+        if(!empty($existInterview)){
+            $msg = 'Interview has been already Added For '.$existInterview->Submission->name;
+            \Session::flash('danger', $msg);
+            return redirect()->back();
+        }
 
         $input = $request->all();
         $input['user_id'] = Auth::user()->id;
@@ -149,7 +156,7 @@ class InterviewController extends Controller
     {
         $this->validate($request, [
             'interview_date' => 'required|date',
-            'interview_time' => 'required|date_format:H:i',
+            'interview_time' => 'required',
             'candidate_phone_number' => 'required|numeric|digits:10',
             'candidate_email' => 'required|email',
             'time_zone' => 'required',

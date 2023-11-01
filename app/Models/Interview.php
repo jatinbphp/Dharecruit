@@ -22,6 +22,7 @@ class Interview extends Model
         'recruiter_name',
         'job_id',
         'submission_id',
+        'feedback',
     ];
 
     const STATUS_SCHEDULED               = 'scheduled';

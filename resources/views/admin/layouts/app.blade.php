@@ -150,7 +150,7 @@
                 </li>
             @endif
 
-            @if(\Illuminate\Support\Facades\Auth::user()->role == 'bdm')
+            @if($loginRole == 'admin' || $check12)
                 <li class="nav-item d-none d-sm-inline-block ml-2">
                     <a href="{{ route('bdm_submission.index') }}">
                         <button class="btn btn-block btn-outline-primary btn-sm @if($menu=='Manage Submission') active @endif">Submission</button>
@@ -342,7 +342,7 @@
                         </li>
                     @endif
 
-                    @if(\Illuminate\Support\Facades\Auth::user()->role == 'bdm')
+                    @if($loginRole == 'admin' || $check12)
                         <li class="nav-item">
                             <a href="{{ route('bdm_submission.index') }}" class="nav-link @if($menu=='Manage Submission') active @endif">
                                 <i class="nav-icon fa fa fa-paper-plane"></i>
@@ -569,6 +569,21 @@
     $('#filterBtn').on('click', function(){
         $('#filterDiv').toggle('show');
     });
+
+    function showData(id,type) {
+        $("."+type+id).show();
+        $("."+type+"icon-"+id).hide();
+    }
+
+    function toggleOptions(type) {
+        if($("#"+type).is(':checked')){
+            $('.'+type).show();
+            $('.'+type+'-icon').hide();
+        } else {
+            $('.'+type).hide();
+            $('.'+type+'-icon').show();
+        }
+    }
 </script>
 @yield('jquery')
 </body>

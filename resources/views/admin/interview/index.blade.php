@@ -52,7 +52,7 @@
                                     @endforeach
                                     <div class="col-md-3">
                                         <label>
-                                            {!! Form::checkbox('', 'show-time', null, ['id' => "showTime"]) !!} <span style="margin-right: 10px; color:#AF63B0 ">Status Time</span>
+                                            {!! Form::checkbox('', 'show-time', null, ['id' => "showTime"]) !!} <span style="margin-right: 10px; color:#AC5BAD; font-weight:bold; ">Status Time</span>
                                         </label>
                                     </div>
                                     @if ($errors->has('status'))
@@ -79,8 +79,8 @@
                                     <th>Client Location</th>
                                     <th>Candidate Location</th>
                                     <th>Recruiter</th>
-                                    <th>BR</th>
-                                    <th>RR</th>
+                                    <th>B Rate</th>
+                                    <th>R Rate</th>
                                     <th>Employer</th>
                                     @if(in_array($userType,['admin','recruiter']))
                                         <th>EmpPOC</th>
@@ -190,20 +190,5 @@
             }
         });
     });
-
-    function showData(id,type) {
-        $("."+type+id).show();
-        $("."+type+"icon-"+id).hide();
-    }
-
-    function toggleOptions(type) {
-        if($("#"+type).is(':checked')){
-            $('.'+type).show();
-            $('.'+type+'-icon').hide();
-        } else {
-            $('.'+type).hide();
-            $('.'+type+'-icon').show();
-        }
-    }
   </script>
 @endsection

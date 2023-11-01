@@ -95,6 +95,19 @@
             @endif
         </div>
     </div>
+    @if(isset($interview))
+        <div class="col-md-12">
+            <div class="form-group{{ $errors->has('feedback') ? ' has-error' : '' }}">
+                <label class="control-label" for="feedback">Feedback :</label>
+                {!! Form::textarea('feedback', null, ['class'=>'form-control','rows' => 4, 'cols' => 54,]) !!}
+                @if ($errors->has('feedback'))         
+                <span class="text-danger">
+                        <strong>{{ $errors->first('feedback') }}</strong>
+                    </span>
+                @endif
+            </div>
+        </div>
+    @endif
 
     <div class="col-md-6">
         <div class="form-group{{ $errors->has('status') ? ' has-error' : '' }}">

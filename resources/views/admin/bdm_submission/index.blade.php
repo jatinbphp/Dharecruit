@@ -1,5 +1,8 @@
 @extends('admin.layouts.app')
 @section('content')
+@php
+    $userType = Auth::user()->role;
+@endphp
     <div class="content-wrapper">
         <section class="content-header">
             <div class="container-fluid">
@@ -28,19 +31,34 @@
                     {!! Form::select('filter', $filterOptions, 'null', ['class' => 'form-control select2','id'=>'filter_status']) !!}
                 </div>
             </div>
-
-            
-
             <div class="row">
                 <div class="col-12">
                     <div class="card card-info card-outline">
                         <div class="card-header">
                             <div class="row">
-                                <div class="col-md-10">
+                                <div class="col-md-12">
                                     <div class="row">
+                                        @foreach (\App\Models\Submission::$toggleOptions as $key => $value)
+                                            @php
+                                                if($userType == 'bdm'){
+                                                    if(in_array($key,\App\Models\Interview::$hideForBDA)){
+                                                        continue;
+                                                    }
+                                                } elseif($userType == 'recruiter'){
+                                                    if(in_array($key,\App\Models\Interview::$hideForReq)){
+                                                        continue;
+                                                    }
+                                                }
+                                            @endphp
+                                            <div class="col-md-2">
+                                                <label>
+                                                    {!! Form::checkbox('', $key, null, ['id' => "$key", 'onChange' => 'toggleOptions("'.$key.'")']) !!} <span style="margin-right: 10px">{{ $value }}</span>
+                                                </label>
+                                            </div>
+                                        @endforeach
                                         <div class="col-md-3">
                                             <label>
-                                                {!! Form::checkbox('', 'show-time', null, ['id' => "showTime"]) !!} <span style="margin-right: 10px; color:#AF63B0 ">Status Time</span>
+                                                {!! Form::checkbox('', 'show-time', null, ['id' => "showTime"]) !!} <span style="margin-right: 10px; color:#AC5BAD; font-weight:bold; ">Status Time</span>
                                             </label>
                                         </div>
                                     </div>
@@ -52,13 +70,24 @@
                                 <thead>
                                     <tr>
                                         <th>Date</th>
+                                        <th>Sub Id</th>
                                         <th>Job Id</th>
                                         <th>Job Title</th>
                                         <th>Location</th>
+                                        <th>Candidate Location</th>
                                         <th>Job Keyword</th>
                                         <th>Duration</th>
                                         <th>Client</th>
+                                        @if(in_array($userType,['admin','recruiter']))
+                                            <th>EmpPOC</th>
+                                        @endif
+                                        @if(in_array($userType,['admin','bdm']))
+                                            <th>PV</th>
+                                            <th>POC</th>
+                                        @endif
                                         <th>Recruiter</th>
+                                        <th>B Rate</th>
+                                        <th>R Rate</th>
                                         <th>Candidate Name</th>
                                         <th>Employer Name</th>
                                         <th>BDM Status</th>
@@ -224,13 +253,24 @@
             },
             columns: [
                 {data: 'created_at', name: 'created_at'},
+                {data: 'id', name: 'id'},
                 {data: 'job_id', name: 'job_id'},
                 {data: 'job_title', 'width': '10%', name: 'job_title'},
                 {data: 'location', name: 'location'},
+                {data: 'candidate_location', name: 'candidate_location'},
                 {data: 'job_keyword', 'width': '10%',  name: 'job_keyword'},
                 {data: 'duration',  name: 'duration'},
                 {data: 'client_name',  name: 'client_name'},
+                @if(in_array($userType,['admin','recruiter']))
+                    {data: 'employer_phone',  name: 'employer_phone'},
+                @endif
+                @if(in_array($userType,['admin','bdm']))
+                    {data: 'pv',  name: 'pv'},
+                    {data: 'poc',  name: 'poc'},
+                @endif
                 {data: 'recruter_name',  name: 'recruter_name'},
+                {data: 'b_rate',  name: 'b_rate'},
+                {data: 'r_rate',  name: 'recruter_name'},
                 {data: 'candidate_name',  name: 'candidate_name'},
                 {data: 'employer_name',  name: 'employer_name'},
                 {data: 'action', "width": "9%", name: 'action', orderable: false, searchable: false},

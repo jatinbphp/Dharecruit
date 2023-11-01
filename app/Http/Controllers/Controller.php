@@ -176,7 +176,7 @@ class Controller extends BaseController
             $nameArray = explode(" ",$submission->name);
             $candidateFirstName = isset($nameArray[0]) ? $nameArray[0] : '';
             $candidateLastDate = ($this->getCandidateLastStatusUpdatedAt($submission)) ? date('d/m h:i A', strtotime($this->getCandidateLastStatusUpdatedAt($submission))) : ''; 
-            $candidate .= '<div class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.$candidateFirstName.' - '.$submission->id.'</span></div><span style="color:#AF62B0; font-weight: bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
+            $candidate .= '<div class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.$candidateFirstName.' - '.$submission->id.'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
         }
         return $candidate;
     }

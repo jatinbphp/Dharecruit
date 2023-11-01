@@ -197,6 +197,6 @@ if(!function_exists('getEntityLastUpdatedAtHtml')){
         if(empty($lastUpdatedAt) || !$lastUpdatedAt->created_at){
             return '<div style="display:none" class="status-time statusUpdatedAt-'.$entityType.'-'.$submissioId.'"></div>';
         }
-        return '<div style="display:none" class="status-time statusUpdatedAt-'.$entityType.'-'.$submissioId.'"><div class="border border-dark floar-left p-1 mt-2" style="border-radius: 5px; width: auto"><span style="color:#AF63B0">'.date('d/m h:i A', strtotime($lastUpdatedAt->created_at)).'</span></div></div>';
+        return '<div style="display:none" class="status-time statusUpdatedAt-'.$entityType.'-'.$submissioId.'"><div class="border border-dark floar-left p-1 mt-2" style="border-radius: 5px; width: auto"><span style="color:#AC5BAD; font-weight:bold;">'.date('d/m h:i A', strtotime($lastUpdatedAt->created_at)).'</span></div></div>';
     }
 }
