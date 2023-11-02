@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Submission;
 use App\Models\Requirement;
+use App\Models\EntityHistory;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -170,7 +171,7 @@ class CommonController extends Controller
                     <tbody>';
                     if(!count($candidateHistory)){
                         $historyData .= '<tr>
-                                            <td align="center" colspan="8">No History Found.</td>
+                                            <td align="center" colspan="9">No History Found.</td>
                                         </tr>';
                     } else {
                         $submissionObj = new Submission();
@@ -299,6 +300,132 @@ class CommonController extends Controller
         $data['requirementTitle']   = $requirementTitle;
         $data['requirememt']        = $requirement;
 
+        return $data;
+    }
+    
+    public function getSubmissionData(Request $request){
+        if(!$request->requirement_id){
+            $data['status'] = 0;
+            return $data;
+        }
+        $requirement = Requirement::where('id',$request->requirement_id)->first();
+
+        $user = Auth::user();
+        if($user->role == 'recruiter'){
+            $submissions = Submission::where('user_id', $user->id)->where('requirement_id',$request->requirement_id)->get();
+        }elseif($user->role == 'bdm'){
+            $requirementIds = Requirement::where('user_id', $user->id)->pluck('id')->toArray();
+            $submissions = Submission::whereIn('requirement_id', $requirementIds)->where('requirement_id',$request->requirement_id)->get();
+        }else{
+            $submissions = Submission::where('requirement_id',$request->requirement_id)->get();
+        }
+    
+        $submissionData = '';
+        $submissionHeadingData = '';
+        $submissionHeaderData = '';
+
+        if(!empty($requirement)){
+            $submissionHeadingData .= 
+                '<div class="col-md-12">
+                    <span class="h5" style="font-weight:bold">('.$requirement->job_title.')</span>
+                </div>
+                <div class="col-md-12">
+                    <sapm class="h5" style="font-weight:bold">'.date('m/d  h:i A', strtotime($requirement->created_at)).'</span>
+                </div>
+                ';
+            
+            $submissionHeaderData .=
+                '<div class="row">
+                    <div class="col">
+                        <span class="h5" style="font-weight:bold">Req.:<br>'.$requirement->id.'</span>
+                    </div>
+                    <div class="col">
+                        <span class="h5" style="font-weight:bold">Client Loc:<br>'.$requirement->location.'</span>
+                    </div>
+                    <div class="col">
+                        <span class="h5" style="font-weight:bold">BDM:<br>'.$requirement->BDM->name.'</span>
+                    </div>
+                    <div class="col">
+                        <span class="h5" style="font-weight:bold">PV:<br>'.$requirement->pv_company_name.'</span>
+                    </div>
+                    <div class="col">
+                        <span class="h5" style="font-weight:bold">Client:<br>'.$requirement->client.'</span>
+                    </div>
+                    <div class="col">
+                        <span class="h5" style="font-weight:bold">BDM Rate:<br>'.$requirement->my_rate.'</span>
+                    </div>
+                    <div class="col">
+                        <span class="h5" style="font-weight:bold">Term:<br>'.$requirement->term.'</span>
+                    </div>
+                    <div class="col">
+                        <span class="h5" style="font-weight:bold">Type:<br>'.$requirement->work_type.'</span>
+                    </div>
+                </div>';
+        }
+
+        $submissionData .= '
+        <table class="table table-striped" id="submissionDataTable">
+            <thead>
+                <tr>
+                    <th scope="col">Time Span</th>
+                    <th scope="col">Consultant</th>
+                    <th scope="col">Location</th>
+                    <th scope="col">Recruiter</th>
+                    <th scope="col">RRate</th>
+                    <th scope="col">Sub ID</th>
+                    <th scope="col">BDM Status</th>
+                    <th scope="col">Vendor Status</th>
+                </tr>
+            </thead>
+        ';
+        
+        if(!empty($submissions) && count($submissions)){
+            $submissionModel = new Submission();
+            $entityModel     = new EntityHistory();
+            $bdmStatus       = $submissionModel::$status;
+            $pvStatus        = $submissionModel::$pvStatus;
+            $entityTypeBdm   = $entityModel::ENTITY_TYPE_BDM_STATUS;
+            $entityTypePv    = $entityModel::ENTITY_TYPE_PV_STATUS;
+            foreach($submissions as $submission){
+                $candidateClass = $this->getCandidateClass($submission,true);
+                $candidateCss   = $this->getCandidateCss($submission,true);
+                $submissionData .= 
+                    '<tr>
+                        <td>' .$submission->created_at->diffForHumans(). '</td>
+                        <td>
+                            <span class="'.$candidateClass.' candidate" style="border-bottom:'.$candidateCss.'">'. $submission->name. '</span>
+                        </td>
+                        <td>'. $submission->location .'</td>
+                        <td>'. $submission->Recruiters->name .'</td>
+                        <td>'. $submission->recruiter_rate .'</td>
+                        <td>
+                            <span>' .$submission->id. '</span><br>
+                            <div style="display:none" class="status-time"><div class="border border-dark floar-left p-1 mt-2" style="border-radius: 5px; width: auto"><span style="color:#AC5BAD; font-weight:bold;">'.date('m/d h:i A', strtotime($submission->updated_at)).'</span></div></div>
+                        </td>
+                        <td>
+                            <span>' .(isset($bdmStatus[$submission->status]) ? $bdmStatus[$submission->status]  :''). '</span><br>
+                            '. getEntityLastUpdatedAtHtml($entityTypeBdm, $submission->id) .'
+                        </td>
+                        <td>
+                            <span>' .(isset($pvStatus[$submission->pv_status]) ? $pvStatus[$submission->pv_status] :''). '</span><br>
+                            '.getEntityLastUpdatedAtHtml($entityTypePv, $submission->id).'
+                        </td>
+                    </tr>';
+            }
+        }else{
+            $submissionData .= 
+                '<tbody>
+                    <tr>
+                        <td colspan="8" class="text-center">No Records Found</td>
+                    </tr>
+                </tbody>
+            </table>';
+        }
+        $data['status'] = 1;
+        $data['submissionHeadingData'] = $submissionHeadingData;
+        $data['submissionHeaderData'] = $submissionHeaderData;
+        $data['submissionData'] = $submissionData;
+        
         return $data;
     }
 }

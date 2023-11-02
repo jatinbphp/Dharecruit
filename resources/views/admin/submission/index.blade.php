@@ -76,6 +76,7 @@
         </section>
     </div>
     @include('admin.requirement.candidateModal',['hide'=>0, 'isSubmission'=>0,])
+    @include('admin.viewSubmissionModel')
 @endsection
 
 @section('jquery')

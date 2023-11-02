@@ -39,6 +39,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
     <link rel="stylesheet" href="{{ URL::asset('assets/dist/css/custom.css') }}">
     <link rel="stylesheet" href="{{ URL::asset('assets/plugins/ladda/ladda-themeless.min.css')}}">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
     <style>
         .candidate, .job-title {cursor: pointer}
         a.disabled {
@@ -584,6 +585,37 @@
             $('.'+type+'-icon').show();
         }
     }
+    
+    $('#requirementTable, #mySubmissionTable tbody').on('click', '.view-submission', function (event) {
+        var requirementId = $(this).attr('data-id');
+        console.log('called');
+        console.log(requirementId);
+        $.ajax({
+            url: "{{route('get_submission')}}",
+            type: "post",
+            data: {'requirement_id': requirementId,'_token' : $('meta[name=_token]').attr('content') },
+            success: function(responce){
+                console.log(responce);
+                if(responce.status == 1){
+                    $('#submissionHeadingData').html(responce.submissionHeadingData);
+                    $('#submissionHeaderData').html(responce.submissionHeaderData);
+                    $('#submissionData').html(responce.submissionData);
+                    $('#viewSubmissionCandidateModal').modal('show');
+                }else{
+                    swal("Cancelled", "Something is wrong. Please try again!", "error");
+                }
+            }
+        });
+    });
+
+    $('#showTime').click(function(){
+        if($('#showTime').is(':checked')){
+            $('.status-time').show();    
+        } else {
+            $('.status-time').hide();
+        }
+    });
+
 </script>
 @yield('jquery')
 </body>

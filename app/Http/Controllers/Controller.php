@@ -176,17 +176,17 @@ class Controller extends BaseController
             $nameArray = explode(" ",$submission->name);
             $candidateFirstName = isset($nameArray[0]) ? $nameArray[0] : '';
             $candidateLastDate = ($this->getCandidateLastStatusUpdatedAt($submission)) ? date('d/m h:i A', strtotime($this->getCandidateLastStatusUpdatedAt($submission))) : ''; 
-            $candidate .= '<div class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.$candidateFirstName.' - '.$submission->id.'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
+            $candidate .= '<div class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.$candidateFirstName.' - '.$submission->id.'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
         }
         return $candidate;
     }
 
-    public function getCandidateCss($submission) {
+    public function getCandidateCss($submission,$checkUser = false) {
         $userId = $submission->requirement->user_id;
         $user = Auth::user();
         $submissionModel = new Submission();
 
-        if($user->id == $userId || $user->role == 'admin'){
+        if($user->id == $userId || $user->role == 'admin' || $checkUser){
             if($submission->pv_status == $submissionModel::STATUS_NO_RESPONSE_FROM_PV){
                 return "solid;";
             } else if($submission->pv_status == $submissionModel::STATUS_SUBMITTED_TO_END_CLIENT){
@@ -200,12 +200,12 @@ class Controller extends BaseController
         return '';
     }
 
-    public function getCandidateClass($submission) {
+    public function getCandidateClass($submission,$checkUser = false) {
         $userId = $submission->requirement->user_id;
         $user = Auth::user();
         $submissionModel = new Submission();
 
-        if($user->id == $userId || $user->role == 'admin'){
+        if($user->id == $userId || $user->role == 'admin' || $checkUser){
             if($submission->is_show == 0){
                 return 'text-primary';
             } else{

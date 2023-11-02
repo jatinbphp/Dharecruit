@@ -60,12 +60,15 @@ if(!function_exists('getRecruiterHtml')){
             if(in_array($user->id, $recruiterIds)){
                 $recruiterIds = array_flip($recruiterIds);
                 unset($recruiterIds[ $user->id ]);
-                $recruiterIds = array_flip($recruiterIds);
+                $recruiterIds = array_filter(array_flip($recruiterIds));
+                sort($recruiterIds);
                 array_unshift($recruiterIds,$user->id);    
             }
+        } else {
+            $recruiterIds = array_filter($recruiterIds);
+            sort($recruiterIds);
         }
-        
-        $recruiterIds = array_filter($recruiterIds);
+
         foreach ($recruiterIds as $recruiterId){
             $recruterUser = Admin::where('id',$recruiterId)->first();
             if(empty($recruterUser)){
@@ -121,10 +124,10 @@ if(!function_exists('getcandidateHtml')){
 
         if(Auth::user()->role == 'recruiter'){
             $loggedInRecruterSubmission = Submission::where('user_id', Auth::user()->id)->where('requirement_id',$row->id)->where('status','!=','reject')->orderby('user_id','DESC')->get();
-            $notLoggedInRecruterSubmission = Submission::where('user_id', '!=',Auth::user()->id)->where('requirement_id',$row->id)->where('status','!=','reject')->orderby('user_id','DESC')->get();
+            $notLoggedInRecruterSubmission = Submission::where('user_id', '!=',Auth::user()->id)->where('requirement_id',$row->id)->where('status','!=','reject')->orderby('user_id','ASC')->get();
             $allSubmission = $loggedInRecruterSubmission->merge($notLoggedInRecruterSubmission);
         } else {
-            $allSubmission = Submission::where('requirement_id',$row->id)->where('status','!=','reject')->orderby('user_id','DESC')->get();
+            $allSubmission = Submission::where('requirement_id',$row->id)->where('status','!=','reject')->orderby('user_id','ASC')->get();
         }
 
         $candidate = '<br>';
@@ -149,7 +152,8 @@ if(!function_exists('getActionHtml')){
             if($row->submissionCounter < 3){
                 $rId = !empty($row->recruiter) ? explode(',',$row->recruiter) : [];
                 if(!empty($rId) && in_array(Auth::user()->id,$rId)){
-                    $btn = '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/submission/'.$row->id).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" ><i class="fa fa-eye"></i></button></a></div>';
+                    //$btn = '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/submission/'.$row->id).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" ><i class="fa fa-eye"></i></button></a></div>';
+                    $btn = '<div class="btn-group btn-group-sm mr-2"><button class="btn btn-sm btn-default tip view-submission" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" data-id="'.$row->id.'" ><i class="fa fa-eye"></i></button></div>';
                     $btn .= '<div class="btn-group btn-group-sm"><a href="'.url('admin/submission/new/'.$row->id).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Add New Submission" data-trigger="hover" type="submit" ><i class="fa fa-upload"></i></button></a></div>';
                 }else{
                     $btn = '';
@@ -173,7 +177,8 @@ if(!function_exists('getActionHtml')){
                             <button class="btn btn-sm btn-default deleteRequirement mr-2" data-id="'.$row->id.'" type="button"><i class="fa fa-trash"></i></button>
                         </span>';
             }
-            $btn .= '<div class="btn-group btn-group-sm"><a href="'.url('admin/requirement/'.$row->id).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" ><i class="fa fa-eye"></i></button></a></div>';
+            //$btn .= '<div class="btn-group btn-group-sm"><a href="'.url('admin/requirement/'.$row->id).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" ><i class="fa fa-eye"></i></button></a></div>';
+            $btn .= '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-default tip view-submission" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" data-id="'.$row->id.'"><i class="fa fa-eye"></i></button></div>';
             $btn .= '<div class="border border-dark floar-left p-1 mt-2" style="
                 border-radius: 5px; width: auto"><span>'.$row->created_at->diffForHumans().'</span></div>';
         }

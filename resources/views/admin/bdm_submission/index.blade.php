@@ -215,10 +215,10 @@
                         data: {'pv_status':status, _token: '{{csrf_token()}}' },
                         success: function(data){
                             if(data.status == 1){
-                                $("#candidate-"+submissionId).removeAttr("style");
-                                $("#candidate-"+submissionId).removeClass();
-                                $("#candidate-"+submissionId).addClass(data.class);
-                                $("#candidate-"+submissionId).attr('style', 'border-bottom :'+data.css);
+                                $(".candidate-"+submissionId).removeAttr("style");
+                                $(".candidate-"+submissionId).removeClass().addClass("candidate-"+submissionId);
+                                $(".candidate-"+submissionId).addClass(data.class);
+                                $(".candidate-"+submissionId).attr('style', 'border-bottom :'+data.css);
                                 $('.statusUpdatedAt-'+data.entity_type+'-'+submissionId).html(data.updated_date_html);
                                 if($("#showTime").is(':checked')){
                                     $('.statusUpdatedAt-'+data.entity_type+'-'+submissionId).show();    
@@ -262,7 +262,7 @@
                 {data: 'duration',  name: 'duration'},
                 {data: 'client_name',  name: 'client_name'},
                 @if(in_array($userType,['admin','recruiter']))
-                    {data: 'employer_phone',  name: 'employer_phone'},
+                    {data: 'emp_poc',  name: 'emp_poc'},
                 @endif
                 @if(in_array($userType,['admin','bdm']))
                     {data: 'pv',  name: 'pv'},

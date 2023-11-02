@@ -516,5 +516,14 @@
                 }
             });
         });
+
+        var availablePvCompanyName = <?php echo json_encode($pvCompanyName);?>;
+ 
+        $(document).on('focusout keydown', '#pv_company_name', function (index, value) {
+            $("#pv_company_name").autocomplete({
+                source: availablePvCompanyName,
+                minLength: 4 
+            });
+        });
     </script>
 @endsection

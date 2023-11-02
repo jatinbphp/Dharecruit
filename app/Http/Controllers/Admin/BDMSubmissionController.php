@@ -109,7 +109,9 @@ class BDMSubmissionCOntroller extends Controller
                     return '<i class="fa fa-eye pv_name-icon pv-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'pv-name-\')" aria-hidden="true"></i><span class="pv_name pv-name-'.$row->id.'" style="display:none">'.$row->Requirement->pv_company_name.'</span>';
                 })
                 ->addColumn('poc', function($row){
-                    return '<i class="fa fa-eye poc_name-icon poc-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'poc-name-\')" aria-hidden="true"></i><span class="poc_name poc-name-'.$row->id.'" style="display:none">'.$row->Requirement->poc_name.'</span>';
+                    $pocNameArray = explode(' ', $row->Requirement->poc_name);
+                    $pocFirstName = isset($pocNameArray[0]) ? $pocNameArray[0] : '';
+                    return '<i class="fa fa-eye poc_name-icon poc-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'poc-name-\')" aria-hidden="true"></i><span class="poc_name poc-name-'.$row->id.'" style="display:none">'.$pocFirstName.'</span>';
                 })
                 ->addColumn('b_rate', function($row){
                     return $row->Requirement->my_rate;
@@ -120,10 +122,12 @@ class BDMSubmissionCOntroller extends Controller
                 ->addColumn('employer_name', function($row){
                     return '<i class="fa fa-eye employer_name-icon employer-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'employer-name-\')" aria-hidden="true"></i><span class="employer_name employer-name-'.$row->id.'" style="display:none">'.$row->employer_name.'</span>';
                 })
-                ->addColumn('employer_phone', function($row){
-                    return '<i class="fa fa-eye emp_poc-icon emp_poc-icon-'.$row->id.'" onclick="showData('.$row->id.',\'emp_poc-\')" aria-hidden="true"></i><span class="emp_poc emp_poc-'.$row->id.'" style="display:none">'.$row->employee_phone.'</span>';
+                ->addColumn('emp_poc', function($row){
+                    $empPocNameArray = explode(' ', $row->employee_name);
+                    $empPocFirstName = isset($empPocNameArray[0]) ? $empPocNameArray[0] : '';
+                    return '<i class="fa fa-eye emp_poc-icon emp_poc-icon-'.$row->id.'" onclick="showData('.$row->id.',\'emp_poc-\')" aria-hidden="true"></i><span class="emp_poc emp_poc-'.$row->id.'" style="display:none">'.$empPocFirstName.'</span>';
                 })
-                ->rawColumns(['job_id','job_title','job_keyword','duration','client_name','poc','pv','employer_name','recruter_name','candidate_name','action','status','employer_phone','created_at'])
+                ->rawColumns(['job_id','job_title','job_keyword','duration','client_name','poc','pv','employer_name','recruter_name','candidate_name','action','status','emp_poc','created_at'])
                 ->make(true);
         }
 

@@ -67,6 +67,7 @@ class RequirementController extends Controller
             $data['visa'] = Visa::where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
         }
         $data['recruiter'] = Admin::where('role','recruiter')->pluck('name','id');
+        $data['pvCompanyName'] = $this->getPvCompanyName();
         return view("admin.requirement.create",$data);
     }
 
@@ -190,6 +191,7 @@ class RequirementController extends Controller
         $data['requirementDocuments'] = RequirementDocuments::where('requirement_id',$id)->pluck('document','id');
         $data['recruiter'] = Admin::where('role','recruiter')->pluck('name','id');
         $data['selectedRecruiter'] = !empty($data['requirement']) && !empty($data['requirement']['recruiter']) ? explode(',',$data['requirement']['recruiter']) : [];
+        $data['pvCompanyName'] = $this->getPvCompanyName();
         return view('admin.requirement.edit',$data);
     }
 
@@ -367,5 +369,9 @@ class RequirementController extends Controller
 
     public function getAllRecruiter($recruiters) {
         return ','.implode(',',$recruiters).',';
+    }
+
+    public function getPvCompanyName() {
+        return Requirement::whereNotNull('pv_company_name')->groupBy('pv_company_name')->pluck('pv_company_name')->toArray();
     }
 }
