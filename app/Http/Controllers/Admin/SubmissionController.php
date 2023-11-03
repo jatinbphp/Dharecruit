@@ -59,13 +59,17 @@ class SubmissionController extends Controller
             'phone' => 'required|numeric',
             'employer_detail' => 'required',
             'work_authorization' => 'required',
-            //'recruiter_rate' => 'required',
+            'recruiter_rate' => 'required',
             'last_4_ssn' => 'required',
             'education_details' => 'required',
             'resume_experience' => 'required',
             'linkedin_id' => 'required',
             'relocation' => 'required',
             'vendor_rate' => 'required',
+            'employer_name' => 'required',
+            'employee_name' => 'required',
+            'employee_email' => 'required|email',
+            'employee_phone' => 'required|numeric|digits:10'
         ];
 
         if(empty($request['resume']) && empty($request['existResume'])){
@@ -109,7 +113,7 @@ class SubmissionController extends Controller
         }
 
         \Session::flash('success', 'New submission has been inserted successfully!');
-        return redirect(route('submission.edit',['submission'=>$submission['id']]));
+        return redirect()->route('submission.index');
     }
 
     public function show(Request $request, $id)
@@ -184,6 +188,7 @@ class SubmissionController extends Controller
             'employer_detail' => 'required',
             'work_authorization' => 'required',
             'last_4_ssn' => 'required',
+            'recruiter_rate' => 'required',
             'education_details' => 'required',
             'resume_experience' => 'required',
             'linkedin_id' => 'required',

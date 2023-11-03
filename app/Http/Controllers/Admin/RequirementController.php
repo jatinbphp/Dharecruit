@@ -74,7 +74,7 @@ class RequirementController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            /*'job_title' => 'required',
+            'job_title' => 'required',
             'no_of_position' => 'required',
             'experience' => 'required',
             'location' => 'required',
@@ -90,7 +90,7 @@ class RequirementController extends Controller
             'moi' => 'required',
             'job_keyword' => 'required',
             'description' => 'required',
-            'document' => 'required',*/
+            //'document' => 'required',
             'pv_company_name' => 'required',
             'poc_name' => 'required',
             'poc_email' => 'required',
@@ -130,7 +130,7 @@ class RequirementController extends Controller
         }
 
         \Session::flash('success', 'Requirement has been inserted successfully!');
-        return redirect(route('requirement.edit',['requirement'=>$req['id']]));
+        return redirect()->route('requirement.index');
     }
 
     public function show(Request $request, $id){

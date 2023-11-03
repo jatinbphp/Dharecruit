@@ -73,6 +73,7 @@
                                 <tr>
                                     <th>Date</th>
                                     <th>Id</th>
+                                    <th>Job Id</th>
                                     <th>Candidate Name</th>
                                     <th>Candidate Phone</th>
                                     <th>Candidate Email</th>
@@ -118,6 +119,7 @@
             columns: [
                 {data: 'created_at', name: 'created_at'},
                 {data: 'DT_RowIndex', 'width': '2%', name: 'DT_RowIndex', orderable: false, searchable: false },
+                {data: 'job_id', name: 'job_id'},
                 {data: 'candidate_name', name: 'candidate_name'},
                 {data: 'candidate_phone_number', name: 'candidate_phone_number'},
                 {data: 'candidate_email', name: 'candidate_email'},

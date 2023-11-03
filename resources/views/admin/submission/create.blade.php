@@ -54,7 +54,7 @@
                                 </div>
                             <div class="card-footer">
                                 <a href="{{ route('submission.show',['submission'=>$requirement['id']]) }}" ><button class="btn btn-default" type="button">Back</button></a>
-                                <!-- <button class="btn btn-info float-right" type="submit">Add</button> -->
+                                <button class="btn btn-info float-right" type="submit">Add</button>
                             </div>
                         {!! Form::close() !!}
                     </div>

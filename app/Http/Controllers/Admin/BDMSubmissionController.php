@@ -63,7 +63,7 @@ class BDMSubmissionCOntroller extends Controller
                 ->addColumn('candidate_name', function($row){
                     return $this->getCandidateHtml([$row], $row, $page='my_submission');
                 })
-                ->addColumn('action', function($row){
+                ->addColumn('bdm_status', function($row){
                     if(in_array(Auth::user()->role,['admin','bdm'])){
                         $status = '<select name="status" class="form-control select2 submissionStatus" data-id="'.$row->id.'">';
                         $submissionStatus = Submission::$status;
@@ -127,7 +127,10 @@ class BDMSubmissionCOntroller extends Controller
                     $empPocFirstName = isset($empPocNameArray[0]) ? $empPocNameArray[0] : '';
                     return '<i class="fa fa-eye emp_poc-icon emp_poc-icon-'.$row->id.'" onclick="showData('.$row->id.',\'emp_poc-\')" aria-hidden="true"></i><span class="emp_poc emp_poc-'.$row->id.'" style="display:none">'.$empPocFirstName.'</span>';
                 })
-                ->rawColumns(['job_id','job_title','job_keyword','duration','client_name','poc','pv','employer_name','recruter_name','candidate_name','action','status','emp_poc','created_at'])
+                ->addColumn('action', function($row){
+                    return '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/bdm_submission/'.$row->id.'/edit').'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Edit Interview" data-trigger="hover" type="submit" ><i class="fa fa-edit"></i></button></a></div>';
+                })
+                ->rawColumns(['job_id','job_title','job_keyword','duration','client_name','poc','pv','employer_name','recruter_name','candidate_name','action','bdm_status','status','emp_poc','created_at'])
                 ->make(true);
         }
 
@@ -158,12 +161,42 @@ class BDMSubmissionCOntroller extends Controller
 
     public function edit($id)
     {
-        //
+        $data['menu'] = "Manage Submission";
+        $data['submission'] = Submission::where('id',$id)->first();
+        $data['sub_menu'] = "Submission";
+        $data['isFromBDM'] = 1;
+
+        return view('admin.submission.edit',$data);
     }
 
     public function update(Request $request, $id)
     {
-        //
+        $this->validate($request, [
+            'name' => 'required',
+            'email' => 'required',
+            'location' => 'required',
+            'phone' => 'required|numeric',
+            'employer_detail' => 'required',
+            'work_authorization' => 'required',
+            'last_4_ssn' => 'required',
+            'recruiter_rate' => 'required',
+            'education_details' => 'required',
+            'resume_experience' => 'required',
+            'linkedin_id' => 'required',
+            'relocation' => 'required',
+            'vendor_rate' => 'required',
+            'employer_name' => 'required',
+            'employee_name' => 'required',
+            'employee_email' => 'required|email',
+            'employee_phone' => 'required|numeric|digits:10',
+        ]);
+
+        $input = $request->all();
+        $Submission = Submission::where('id',$id)->first();
+        $Submission->update($request->all());
+
+        \Session::flash('success','Submission  has been updated successfully!');
+        return redirect(route('bdm_submission.index'));
     }
 
     public function destroy($id)

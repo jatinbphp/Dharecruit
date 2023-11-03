@@ -25,13 +25,19 @@
                         <div class="card-header">
                             <h3 class="card-title">Edit {{$menu}}</h3>
                         </div>
-                        {!! Form::model($submission,['url' => route('submission.update',['submission'=>$submission->id]),'method'=>'patch','id' => 'submissionsForm','class' => 'form-horizontal','files'=>true]) !!}
+                        @php
+                            $updateUrl = route('submission.update',['submission'=>$submission->id]);
+                            if(isset($isFromBDM) && $isFromBDM == 1){
+                                $updateUrl = route('bdm_submission.update',['bdm_submission'=>$submission->id]);
+                            }
+                        @endphp
+                        {!! Form::model($submission,['url' => $updateUrl,'method'=>'patch','id' => 'submissionsForm','class' => 'form-horizontal','files'=>true]) !!}
                         <div class="card-body">
                             @include ('admin.submission.form')
                         </div>
                         <div class="card-footer">
                             <a href="{{ route('submission.index') }}" ><button class="btn btn-default" type="button">Back</button></a>
-                            <!-- <button class="btn btn-info float-right" type="submit">Update</button> -->
+                            <button class="btn btn-info float-right" type="submit">Update</button>
                         </div>
                         {!! Form::close() !!}
                     </div>

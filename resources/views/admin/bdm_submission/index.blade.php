@@ -92,6 +92,7 @@
                                         <th>Employer Name</th>
                                         <th>BDM Status</th>
                                         <th>PV Status</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -273,8 +274,9 @@
                 {data: 'r_rate',  name: 'recruter_name'},
                 {data: 'candidate_name',  name: 'candidate_name'},
                 {data: 'employer_name',  name: 'employer_name'},
-                {data: 'action', "width": "9%", name: 'action', orderable: false, searchable: false},
+                {data: 'bdm_status', "width": "9%", name: 'bdm_status', orderable: false, searchable: false},
                 {data: 'status', "width": "10%", name: 'status', orderable: false, searchable: false},
+                {data: 'action', "width": "9%", name: 'action', orderable: false, searchable: false},
             ]
         });
     }

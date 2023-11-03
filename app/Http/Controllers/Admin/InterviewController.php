@@ -24,7 +24,12 @@ class InterviewController extends Controller
 
         if ($request->ajax()) {
             $loggedinUser = Auth::user()->id;
-            $data = Interview::where('user_id', $loggedinUser)->get();
+
+            if(Auth::user()->role == 'admin'){
+                $data = Interview::get();
+            }else{
+                $data = Interview::where('user_id', $loggedinUser)->get();
+            }
             
             return Datatables::of($data)
                 ->addIndexColumn()
@@ -95,6 +100,9 @@ class InterviewController extends Controller
                 ->addColumn('interview_time', function($row){
                     return '<br><span style="font-weight:bold">'.date('m/d l', strtotime($row->interview_date)).'</span><br>
                     <span>'.date('H:i:s', strtotime($row->interview_time)) .' '. $row->time_zone.'</span>';
+                })
+                ->addColumn('job_id', function($row){
+                    return $row->job_id;
                 })
                 ->rawColumns(['status','candidate_name','action','candidate_phone_number','emp_poc','candidate_email','employer_name','poc_name','pv_name','hiring_manager','client','interview_time'])
                 ->make(true);

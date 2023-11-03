@@ -337,28 +337,28 @@ class CommonController extends Controller
             $submissionHeaderData .=
                 '<div class="row">
                     <div class="col">
-                        <span class="h5" style="font-weight:bold">Req.:<br>'.$requirement->id.'</span>
+                        <span class="h5" style="font-weight:bold">Req.:</span><br><span>'.$requirement->id.'</span>
                     </div>
                     <div class="col">
-                        <span class="h5" style="font-weight:bold">Client Loc:<br>'.$requirement->location.'</span>
+                        <span class="h5" style="font-weight:bold">Client Loc:</span><br><span>'.$requirement->location.'</span>
                     </div>
                     <div class="col">
-                        <span class="h5" style="font-weight:bold">BDM:<br>'.$requirement->BDM->name.'</span>
+                        <span class="h5" style="font-weight:bold">BDM:</span><br><span>'.$requirement->BDM->name.'</span>
                     </div>
                     <div class="col">
-                        <span class="h5" style="font-weight:bold">PV:<br>'.$requirement->pv_company_name.'</span>
+                        <span class="h5" style="font-weight:bold">PV:</span><br><span>'.$requirement->pv_company_name.'</span>
                     </div>
                     <div class="col">
-                        <span class="h5" style="font-weight:bold">Client:<br>'.$requirement->client.'</span>
+                        <span class="h5" style="font-weight:bold">Client:</span><br><span>'.$requirement->client.'</span>
                     </div>
                     <div class="col">
-                        <span class="h5" style="font-weight:bold">BDM Rate:<br>'.$requirement->my_rate.'</span>
+                        <span class="h5" style="font-weight:bold">BDM Rate:</span><br><span>'.$requirement->my_rate.'</span>
                     </div>
                     <div class="col">
-                        <span class="h5" style="font-weight:bold">Term:<br>'.$requirement->term.'</span>
+                        <span class="h5" style="font-weight:bold">Term:</span><br><span>'.$requirement->term.'</span>
                     </div>
                     <div class="col">
-                        <span class="h5" style="font-weight:bold">Type:<br>'.$requirement->work_type.'</span>
+                        <span class="h5" style="font-weight:bold">Type:</span><br><span>'.$requirement->work_type.'</span>
                     </div>
                 </div>';
         }
@@ -389,9 +389,15 @@ class CommonController extends Controller
             foreach($submissions as $submission){
                 $candidateClass = $this->getCandidateClass($submission,true);
                 $candidateCss   = $this->getCandidateCss($submission,true);
+                $timeSpan = '';
+                if(!empty($requirement) && $requirement->created_at){
+                    if($submission->created_at){
+                        $timeSpan = $submission->created_at->diffForHumans($requirement->created_at);
+                    }
+                }
                 $submissionData .= 
                     '<tr>
-                        <td>' .$submission->created_at->diffForHumans(). '</td>
+                        <td>' .$timeSpan. '</td>
                         <td>
                             <span class="'.$candidateClass.' candidate" style="border-bottom:'.$candidateCss.'">'. $submission->name. '</span>
                         </td>
