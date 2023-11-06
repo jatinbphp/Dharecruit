@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\Requirement;
 use App\Models\Submission;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use DataTables;
 use Illuminate\Support\Facades\Auth;
@@ -151,6 +152,7 @@ class SubmissionController extends Controller
         $data['menu'] = "Requirements";
         $data['sub_menu'] = "Submission";
         $data['requirement'] = Requirement::where('id',$id)->first();
+        $data['settings'] = $this->getSettingData();
         if(!empty($data['requirement'])){
             $user = Auth::user();
             $recruiter = explode(',',$data['requirement']['recruiter']);
@@ -174,6 +176,7 @@ class SubmissionController extends Controller
         $data['menu'] = "Requirements";
         $data['submission'] = Submission::where('id',$id)->first();
         $data['sub_menu'] = "Submission";
+        $data['settings'] = $this->getSettingData();
        
         return view('admin.submission.edit',$data);
     }
@@ -297,5 +300,9 @@ class SubmissionController extends Controller
             $data['requs'] = $requs;
         }
         return $data;
+    }
+
+    public function getSettingData() {
+        return Setting::pluck('value','name')->toArray();
     }
 }

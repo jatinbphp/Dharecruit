@@ -178,7 +178,9 @@ if(!function_exists('getActionHtml')){
                         </span>';
             }
             //$btn .= '<div class="btn-group btn-group-sm"><a href="'.url('admin/requirement/'.$row->id).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" ><i class="fa fa-eye"></i></button></a></div>';
-            $btn .= '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-default tip view-submission" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" data-id="'.$row->id.'"><i class="fa fa-eye"></i></button></div>';
+            if(($user['role'] == 'admin') || ($user->id == $row->user_id)){
+               $btn .= '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-default tip view-submission" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" data-id="'.$row->id.'"><i class="fa fa-eye"></i></button></div>';
+            }
             $btn .= '<div class="border border-dark floar-left p-1 mt-2" style="
                 border-radius: 5px; width: auto"><span>'.$row->created_at->diffForHumans().'</span></div>';
         }

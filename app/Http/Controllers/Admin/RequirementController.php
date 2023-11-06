@@ -56,18 +56,22 @@ class RequirementController extends Controller
         $data['menu'] = "Requirements";
         $user = $this->getUser();
         if($user['role'] == 'admin'){
-            $data['category'] = Category::where('status','active')->pluck('name','id')->prepend('Please Select','');
-            $data['moi'] = Moi::where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
+            // $data['category'] = Category::where('status','active')->pluck('name','id')->prepend('Please Select','');
+            // $data['moi'] = Moi::where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
             $data['pv_company'] = PVCompany::where('status','active')->pluck('name','id')->prepend('Please Select','');
-            $data['visa'] = Visa::where('status','active')->pluck('name','id')->prepend('Please Select','');
+            // $data['visa'] = Visa::where('status','active')->pluck('name','id')->prepend('Please Select','');
         }else{
-            $data['category'] = Category::where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
-            $data['moi'] = Moi::where('user_id',Auth::user()->id)->where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
+            // $data['category'] = Category::where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
+            // $data['moi'] = Moi::where('user_id',Auth::user()->id)->where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
             $data['pv_company'] = PVCompany::where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
-            $data['visa'] = Visa::where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
+            // $data['visa'] = Visa::where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
         }
         $data['recruiter'] = Admin::where('role','recruiter')->pluck('name','id');
         $data['pvCompanyName'] = $this->getPvCompanyName();
+        $data['category'] = Category::where('status','active')->pluck('name','id')->prepend('Please Select','');
+        $data['moi'] = Moi::where('status','active')->pluck('name','id')->prepend('Please Select','');
+        $data['visa'] = Visa::where('status','active')->pluck('name','id')->prepend('Please Select','');
+        
         return view("admin.requirement.create",$data);
     }
 

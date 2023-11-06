@@ -130,6 +130,7 @@ class Controller extends BaseController
             if($user->id == $userId || $user->role == 'admin'){
                 if($submission->is_show == 0){
                     $textColor = 'text-primary';
+                    $divClass .= 'border border-primary';
                 } else{
                     $interviewStatus = $this->getInterviewStatus($submission, $row);
                     if($interviewStatus){
@@ -169,6 +170,8 @@ class Controller extends BaseController
                             $textColor = 'text-danger';
                         } elseif($submission->status == $submissionModel::STATUS_ACCEPT){
                             $textColor = 'text-success';
+                        } elseif($submission->is_show == 1) {
+                            $textColor = 'text-primary';
                         }
                     }
                 }

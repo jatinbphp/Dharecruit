@@ -360,6 +360,15 @@
                             </a>
                         </li>
                     @endif
+
+                    @if($loginRole == 'admin')
+                        <li class="nav-item">
+                            <a href="{{ route('setting.index') }}" class="nav-link @if($menu=='Manage Setting') active @endif">
+                                <i class="nav-icon fa fa-cog"></i>
+                                <p>Manage Settings</p>
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </nav>
         </div>
@@ -588,14 +597,11 @@
     
     $('#requirementTable, #mySubmissionTable tbody').on('click', '.view-submission', function (event) {
         var requirementId = $(this).attr('data-id');
-        console.log('called');
-        console.log(requirementId);
         $.ajax({
             url: "{{route('get_submission')}}",
             type: "post",
             data: {'requirement_id': requirementId,'_token' : $('meta[name=_token]').attr('content') },
             success: function(responce){
-                console.log(responce);
                 if(responce.status == 1){
                     $('#submissionHeadingData').html(responce.submissionHeadingData);
                     $('#submissionHeaderData').html(responce.submissionHeaderData);
@@ -615,6 +621,10 @@
             $('.status-time').hide();
         }
     });
+    function showPVData(){
+        $(".pv-companny-popup-icon").hide();
+        $(".pv-company").show();
+    }
 
 </script>
 @yield('jquery')

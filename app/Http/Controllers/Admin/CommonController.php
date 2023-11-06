@@ -344,12 +344,16 @@ class CommonController extends Controller
                     </div>
                     <div class="col">
                         <span class="h5" style="font-weight:bold">BDM:</span><br><span>'.$requirement->BDM->name.'</span>
-                    </div>
-                    <div class="col">
-                        <span class="h5" style="font-weight:bold">PV:</span><br><span>'.$requirement->pv_company_name.'</span>
-                    </div>
-                    <div class="col">
-                        <span class="h5" style="font-weight:bold">Client:</span><br><span>'.$requirement->client.'</span>
+                    </div>';
+
+                    if(Auth::user()->role != 'recruiter'){
+                        $submissionHeaderData .= '<div class="col">
+                            <span class="h5" style="font-weight:bold">PV:</span><br>
+                            <i class="fa fa-eye  pv-companny-popup-icon" onclick="showPVData()" aria-hidden="true"></i><span class="pv-company" style="display:none">'.$requirement->pv_company_name.'</span>
+                        </div>';
+                    }
+                    $submissionHeaderData .='<div class="col">
+                        <span class="h5" style="font-weight:bold">Client:</span><br><span>'.(($requirement->display_client && $requirement->display_client == 1) ? $requirement->client_name : '').'</span>
                     </div>
                     <div class="col">
                         <span class="h5" style="font-weight:bold">BDM Rate:</span><br><span>'.$requirement->my_rate.'</span>

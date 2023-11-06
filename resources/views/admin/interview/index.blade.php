@@ -79,7 +79,12 @@
                                     <th>Candidate Email</th>
                                     <th>Client Location</th>
                                     <th>Candidate Location</th>
+                                    @if(in_array($userType,['admin','recruiter']))
+                                        <th>BDM</th>
+                                    @endif
+                                    @if(in_array($userType,['admin','bdm']))
                                     <th>Recruiter</th>
+                                    @endif
                                     <th>B Rate</th>
                                     <th>R Rate</th>
                                     <th>Employer</th>
@@ -125,7 +130,12 @@
                 {data: 'candidate_email', name: 'candidate_email'},
                 {data: 'client_location', name: 'client_location'},
                 {data: 'candidate_location', name: 'candidate_location'},
-                {data: 'recruiter', name: 'recruiter'},
+                @if(in_array($userType,['admin','recruiter']))
+                    {data: 'bdm', name: 'bdm'},    
+                @endif
+                @if(in_array($userType,['admin','bdm']))
+                    {data: 'recruiter', name: 'recruiter'},
+                @endif
                 {data: 'br', name: 'br'},
                 {data: 'rr', name: 'rr'},
                 {data: 'employer_name', name: 'employer_name'},

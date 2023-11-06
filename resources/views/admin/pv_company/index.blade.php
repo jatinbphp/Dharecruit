@@ -28,7 +28,11 @@
                         <div class="card-header">
                             <div class="row">
                                 <div class="col-md-12">
-                                    <a href="{{ route('pv_company.create') }}"><button class="btn btn-info float-right" type="button" ><i class="fa fa-plus pr-1"></i> Add New</button></a>
+                                    @if(Auth::user()->role == 'admin')
+                                        <a href="#"><button class="btn btn-info float-right disabled" type="button" ><i class="fa fa-plus pr-1"></i> Add New</button></a>
+                                    @else
+                                        <a href="{{ route('pv_company.create') }}"><button class="btn btn-info float-right" type="button" ><i class="fa fa-plus pr-1"></i> Add New</button></a>
+                                    @endif
                                 </div>
                             </div>
                         </div>

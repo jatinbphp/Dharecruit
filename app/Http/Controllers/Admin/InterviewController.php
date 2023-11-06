@@ -27,6 +27,10 @@ class InterviewController extends Controller
 
             if(Auth::user()->role == 'admin'){
                 $data = Interview::get();
+            }elseif(Auth::user()->role == 'recruiter'){
+                $data = Interview::join('submissions', 'submissions.id', '=', 'interviews.submission_id')->where('submissions.user_id', $loggedinUser)->get(['interviews.*']);
+            }elseif(Auth::user()->role == 'bdm'){
+                $data = Interview::join('submissions', 'submissions.id', '=', 'interviews.submission_id')->join('requirements', 'requirements.id', '=', 'submissions.requirement_id')->where('requirements.user_id', $loggedinUser)->get(['interviews.*']);
             }else{
                 $data = Interview::where('user_id', $loggedinUser)->get();
             }
@@ -68,6 +72,9 @@ class InterviewController extends Controller
                 })
                 ->addColumn('recruiter', function($row){
                     return $row->Submission->Recruiters->name;
+                })
+                ->addColumn('bdm', function($row){
+                    return $row->Submission->Requirement->BDM->name;
                 })
                 ->addColumn('br', function($row){
                     return $row->Submission->Requirement->my_rate;

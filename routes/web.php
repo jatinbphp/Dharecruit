@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\BDMSubmissionController;
 use App\Http\Controllers\Admin\CommonController;
 use App\Http\Controllers\Admin\InterviewController;
 use App\Http\Controllers\Admin\VisaController;
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Auth\RegisterController;
 /*
 |--------------------------------------------------------------------------
@@ -128,6 +129,9 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('visa/assign', [VisaController::class,'assign'])->name('visa.assign');
     Route::post('visa/unassign', [VisaController::class,'unassign'])->name('visa.unassign');
     Route::resource('visa', VisaController::class);
+
+    /* SETTING MANAGEMENT */
+    Route::resource('setting', SettingController::class);
 
     Auth::routes();
 });

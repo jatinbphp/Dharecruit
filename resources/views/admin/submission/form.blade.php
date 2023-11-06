@@ -273,9 +273,15 @@
 
 @section('jquery')
     <script type="text/javascript">
+    var settings = <?php echo json_encode($settings);?>;
         $("#search_fill").click(function(){
             var email = $('#search_email').val();
             var id = $('#search_id').val();
+            var notUpdateFileds = [
+                'employee_name',
+                'employee_email',
+                'employee_phone',
+            ];
             $.ajax({
                 url : "{{ route('submission.alreadyAddedUserDetail') }}",
                 data : {'email' : email, 'id' : id , "_token": "{{ csrf_token() }}",},
@@ -299,8 +305,17 @@
                                         $("#" + elementId).closest('div').append(resumeElement);
                                         $("#documentContent").append(label);
                                     } else {
-                                        var id = "#" + elementId;
-                                        $(id).val(data[elementId]);
+                                        if(!notUpdateFileds.includes(elementId)){
+                                            if(elementId == 'employer_name'){
+                                                if(settings.hasOwnProperty('is_fill_employer_name') && settings['is_fill_employer_name'] == 'yes'){
+                                                    var id = "#" + elementId;
+                                                    $(id).val(data[elementId]); 
+                                                }
+                                            } else {
+                                                var id = "#" + elementId;
+                                                $(id).val(data[elementId]);
+                                            }
+                                        }
                                     }
                                 } else if(tagType == 'select'){
                                     $("#" +elementId).select2("val", data[elementId]);

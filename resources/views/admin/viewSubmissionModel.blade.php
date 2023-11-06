@@ -1,3 +1,4 @@
+@extends('admin.layouts.app')
 <div class="modal fade bd-example-modal-xl" id="viewSubmissionCandidateModal" tabindex="-1" role="dialog" aria-labelledby="viewSubmissionCandidateModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
@@ -33,3 +34,11 @@
         </div>
     </div>
 </div>
+@section('jQuery')
+<script type="text/javascript">
+    function showPVData(){
+        $(".pv-companny-popup-icon").hide();
+        $(".pv-company").show();
+    }
+</script>
+@endsection
