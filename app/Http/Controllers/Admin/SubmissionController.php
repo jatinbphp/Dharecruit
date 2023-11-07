@@ -301,8 +301,4 @@ class SubmissionController extends Controller
         }
         return $data;
     }
-
-    public function getSettingData() {
-        return Setting::pluck('value','name')->toArray();
-    }
 }

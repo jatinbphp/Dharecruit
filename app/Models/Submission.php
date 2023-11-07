@@ -98,7 +98,7 @@ class Submission extends Model
         'pv_name' => 'Show PV',
         'client' => 'Show Client',
         'poc_name' => 'Show Poc',
-        'employer_name' => 'Show Employer',
+        'show_employer_name' => 'Show Employer',
         'emp_poc' => 'Show Emp POC',
     ];
 

@@ -6,6 +6,7 @@ use App\Models\Requirement;
 use App\Models\Submission;
 use App\Models\Interview;
 use App\Models\EntityHistory;
+use App\Models\Setting;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -132,7 +133,7 @@ class Controller extends BaseController
                     $textColor = 'text-primary';
                     $divClass .= 'border border-primary';
                 } else{
-                    $interviewStatus = $this->getInterviewStatus($submission, $row);
+                    $interviewStatus = $this->getInterviewStatus($submission->id, $row->job_id);
                     if($interviewStatus){
                         $divCss = "width: fit-content;";
                         if($interviewStatus == $interviewModel::STATUS_SCHEDULED){
@@ -162,7 +163,7 @@ class Controller extends BaseController
                             $css = "border-bottom: 6px double;";
                             $textColor = 'text-danger';
                         }else if($submission->pv_status == $submissionModel::STATUS_REJECTED_BY_PV){
-                            $textColor = 'text-dange';
+                            $textColor = 'text-danger';
                             $css = "border-bottom: solid;";
                         }
                     } else {
@@ -179,7 +180,11 @@ class Controller extends BaseController
             $nameArray = explode(" ",$submission->name);
             $candidateFirstName = isset($nameArray[0]) ? $nameArray[0] : '';
             $candidateLastDate = ($this->getCandidateLastStatusUpdatedAt($submission)) ? date('d/m h:i A', strtotime($this->getCandidateLastStatusUpdatedAt($submission))) : ''; 
-            $candidate .= '<div class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.$candidateFirstName.' - '.$submission->id.'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
+            if($user->id == $userId && $user->role == 'recruiter'){
+                $candidate .= '<div onClick="showUpdateSubmissionModel('.$submission->id.')" class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.$candidateFirstName.' - '.$submission->id.'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
+            } else {
+                $candidate .= '<div class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.$candidateFirstName.' - '.$submission->id.'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
+            }
         }
         return $candidate;
     }
@@ -188,16 +193,51 @@ class Controller extends BaseController
         $userId = $submission->requirement->user_id;
         $user = Auth::user();
         $submissionModel = new Submission();
+        $interviewModel  = new Interview();
 
         if($user->id == $userId || $user->role == 'admin' || $checkUser){
+            if($submission->is_show == 0){
+                return 'border border-primary';
+            } else {
+                $interviewStatus = $this->getInterviewStatus($submission->id, $submission->Requirement->job_id);
+                if($interviewStatus){
+                    //$divCss .= "width: fit-content;";
+                    if($interviewStatus == $interviewModel::STATUS_SCHEDULED){
+                        return 'border border-warning rounded-pill';
+                    } else if($interviewStatus == $interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND){
+                        return 'bg-warning rounded-pill';
+                    } else if($interviewStatus == $interviewModel::STATUS_CONFIRMED_POSITION){
+                        return 'bg-success';
+                    } else if($interviewStatus == $interviewModel::STATUS_REJECTED){
+                        return 'bg-danger';
+                    } else if($interviewStatus == $interviewModel::STATUS_BACKOUT){
+                        return 'bg-dark';
+                    }
+                } else if($submission->pv_status == $submissionModel::STATUS_NO_RESPONSE_FROM_PV){
+                    return "solid;";
+                } else if($submission->pv_status == $submissionModel::STATUS_SUBMITTED_TO_END_CLIENT){
+                    return "solid;";
+                }else if($submission->pv_status == $submissionModel::STATUS_REJECTED_BY_END_CLIENT){
+                    return "6px double;";
+                }else if($submission->pv_status == $submissionModel::STATUS_REJECTED_BY_PV){
+                    return "solid;";
+                }
+            }
+        }
+        return '';
+    }
+
+    public function getCandidateBorderCss($submission){
+        if($submission->is_show == 1 && !empty($submission->pv_status) && $submission->pv_status){
+            $submissionModel = new Submission();
             if($submission->pv_status == $submissionModel::STATUS_NO_RESPONSE_FROM_PV){
-                return "solid;";
+                return "border-bottom: solid;";
             } else if($submission->pv_status == $submissionModel::STATUS_SUBMITTED_TO_END_CLIENT){
-                return "solid;";
+                return "border-bottom: solid;";
             }else if($submission->pv_status == $submissionModel::STATUS_REJECTED_BY_END_CLIENT){
-                return "6px double;";
+                return "border-bottom: 6px double;";
             }else if($submission->pv_status == $submissionModel::STATUS_REJECTED_BY_PV){
-                return "solid;";
+                return "border-bottom: solid;";
             }
         }
         return '';
@@ -207,12 +247,26 @@ class Controller extends BaseController
         $userId = $submission->requirement->user_id;
         $user = Auth::user();
         $submissionModel = new Submission();
+        $interviewModel  = new Interview();
 
         if($user->id == $userId || $user->role == 'admin' || $checkUser){
             if($submission->is_show == 0){
                 return 'text-primary';
-            } else{
-                if(!empty($submission->pv_status) && $submission->pv_status){
+            } else {
+                $interviewStatus = $this->getInterviewStatus($submission->id, $submission->Requirement->job_id);
+                if($interviewStatus){
+                    if($interviewStatus == $interviewModel::STATUS_SCHEDULED){
+                        return 'text-dark';
+                    } else if($interviewStatus == $interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND){
+                        return 'text-dark';
+                    } else if($interviewStatus == $interviewModel::STATUS_CONFIRMED_POSITION){
+                        return 'text-dark';
+                    } else if($interviewStatus == $interviewModel::STATUS_REJECTED){
+                        return 'text-white';
+                    } else if($interviewStatus == $interviewModel::STATUS_BACKOUT){
+                        return 'text-white';
+                    }
+                } else if(!empty($submission->pv_status) && $submission->pv_status){
                     if($submission->pv_status == $submissionModel::STATUS_NO_RESPONSE_FROM_PV){
                         return 'text-secondary';
                     } else if($submission->pv_status == $submissionModel::STATUS_SUBMITTED_TO_END_CLIENT){
@@ -227,6 +281,8 @@ class Controller extends BaseController
                         return 'text-danger';
                     } elseif($submission->status == $submissionModel::STATUS_ACCEPT){
                         return 'text-success';
+                    } elseif($submission->is_show == 1) {
+                        return 'text-primary';
                     }
                 }
             }
@@ -234,11 +290,7 @@ class Controller extends BaseController
         return '';
     }
 
-    function getInterviewStatus($submission, $row) {
-        $jobId = $row->job_id;
-        $submissionId = $submission->id;
-
-        
+    function getInterviewStatus($submissionId, $jobId) {
         if(!$jobId || !$submissionId){
             return '';
         }
@@ -263,5 +315,9 @@ class Controller extends BaseController
             return '';
         }
         return $statuslastUpdatedAt->created_at;
+    }
+
+    public function getSettingData() {
+        return Setting::pluck('value','name')->toArray();
     }
 }

@@ -306,6 +306,9 @@ class InterviewController extends Controller
             $textColor = 'text-white';
         }
 
-        return '<div class="candidate-'. $interview->id .'"><div class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.'" >'.$interview->Submission->name.'</span></div></div>';
+        $candidateNames = explode(' ',$interview->Submission->name);
+        $candidateName = isset($candidateNames[0]) ? $candidateNames[0] : '';
+
+        return '<div class="candidate-'. $interview->id .'"><div class="'.$divClass.'  pt-2 pl-2 pb-2 pr-2" style="'.$divCss.'"><span class="candidate '.$textColor.'" >'.$candidateName.'</span></div></div>';
     }
 }

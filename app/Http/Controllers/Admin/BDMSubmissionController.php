@@ -60,8 +60,16 @@ class BDMSubmissionCOntroller extends Controller
                 ->addColumn('recruter_name', function($row){
                     return $row->recruiters->name;
                 })
+                ->addColumn('bdm', function($row){
+                    return $row->Requirement->BDM->name;
+                })
                 ->addColumn('candidate_name', function($row){
-                    return $this->getCandidateHtml([$row], $row, $page='my_submission');
+                    $candidateClass = $this->getCandidateClass($row,true);
+                    $candidateCss   = $this->getCandidateCss($row,true);
+                    $candidateBorderCss = $this->getCandidateBorderCss($row);
+                    $candidateNames = explode(' ',$row->name);
+                    $candidateName = isset($candidateNames[0]) ? $candidateNames[0] : '';
+                    return '<div onClick="showUpdateSubmissionModel('.$row->id.')" class="a-center pt-2 pl-2 pb-2 pr-2 '. $candidateCss.'" style="width: fit-content;"><span class="'.$candidateClass.'" style="'.$candidateBorderCss.'" data-id="'.$row->id.'">'. $candidateName. '</span></div>';
                 })
                 ->addColumn('bdm_status', function($row){
                     if(in_array(Auth::user()->role,['admin','bdm'])){
@@ -120,7 +128,7 @@ class BDMSubmissionCOntroller extends Controller
                     return $row->recruiter_rate;
                 })
                 ->addColumn('employer_name', function($row){
-                    return '<i class="fa fa-eye employer_name-icon employer-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'employer-name-\')" aria-hidden="true"></i><span class="employer_name employer-name-'.$row->id.'" style="display:none">'.$row->employer_name.'</span>';
+                    return '<i class="fa fa-eye show_employer_name-icon employer-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'employer-name-\')" aria-hidden="true"></i><span class="show_employer_name employer-name-'.$row->id.'" style="display:none">'.$row->employer_name.'</span>';
                 })
                 ->addColumn('emp_poc', function($row){
                     $empPocNameArray = explode(' ', $row->employee_name);
@@ -165,6 +173,7 @@ class BDMSubmissionCOntroller extends Controller
         $data['submission'] = Submission::where('id',$id)->first();
         $data['sub_menu'] = "Submission";
         $data['isFromBDM'] = 1;
+        $data['settings'] = $this->getSettingData();
 
         return view('admin.submission.edit',$data);
     }
@@ -243,5 +252,36 @@ class BDMSubmissionCOntroller extends Controller
         }
 
         return redirect()->route('bdm_submission.index')->with('filter', $request['filter']);
+    }
+
+    public function getUpdateSubmissionData(Request $request){
+        $data['status'] = 0;
+        $submissionData = Submission::where('id', $request->id)->first();
+        
+        if(empty($submissionData)){
+            return $data;
+        }
+
+        $data['status'] = 1;
+        $data['submissionData'] = $submissionData;
+
+        return $data;
+    }
+
+    public function updateSubmissionData(Request $request){
+        $data['status'] = 0;
+        if(empty($request->submission_id)){
+            return $data;
+        }
+        $submission = Submission::where('id',$request->submission_id)->first();
+        if(empty($submission)){
+            return $data;
+        }
+        $inputData = $request->except(['submission_id']);
+        $submission->update($inputData);
+        $data['status'] = 1;
+        $data['url'] = route('bdm_submission.index');
+        \Session::flash('success','Submission has been updated successfully!');
+        return $data;
     }
 }

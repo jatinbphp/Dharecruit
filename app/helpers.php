@@ -42,7 +42,13 @@ if(!function_exists('getListHtml')){
 
 if(!function_exists('getJonbTitleHtml')){
     function getJobTitleHtml($row){
-        return '<span class="job-title"  data-id="'.$row->id.'">'.$row->job_title.'</span>';
+        $loggedinUser = Auth::user()->id;
+        $isShowRecruiters = explode(',', $row->is_show_recruiter);
+        $textStyle = '';
+        if(Auth::user()->role == 'recruiter' && !in_array($loggedinUser, $isShowRecruiters)){
+            $textStyle = 'pt-1 pl-2 pb-1 pr-2 border border-primary text-primary';
+        }
+        return '<span class="job-title font-weight-bold '. $textStyle .' job-title-'.$row->id.'" data-id="'.$row->id.'">'.$row->job_title.'</span>';
     }
 }
 
@@ -69,14 +75,19 @@ if(!function_exists('getRecruiterHtml')){
             sort($recruiterIds);
         }
 
+
         foreach ($recruiterIds as $recruiterId){
             $recruterUser = Admin::where('id',$recruiterId)->first();
             if(empty($recruterUser)){
                 continue;
             }
+            $bgColor = '';
+            if($user->id == $recruterUser->id){
+                $bgColor = '#BED8E2';
+            }
             $submission = Submission::where('user_id',$recruiterId)->where('requirement_id',$row->id)->count();
             $recName .= '<div class="border border-dark floar-left p-1 mt-2" style="
-                border-radius: 5px; width: auto"><span>'. $submission.' '.$recruterUser['name']. '</span></div>';
+                border-radius: 5px; width: auto; background-color:'.$bgColor.'"><span>'. $submission.' '.$recruterUser['name']. '</span></div>';
         }
         return $recName;
     }
@@ -120,6 +131,7 @@ if(!function_exists('getStatusHtml')){
 }
 
 if(!function_exists('getcandidateHtml')){
+
     function getcandidateHtml($row, $page='requirement'){
 
         if(Auth::user()->role == 'recruiter'){

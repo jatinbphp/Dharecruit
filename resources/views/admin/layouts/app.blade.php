@@ -564,6 +564,9 @@
                         $('#statusUpdate').remove();
                         $('#requirementData').removeClass('border-bottom mb-2 pb-2');
                         $('#candidateModal').modal('show');
+                        if(data.is_show_requirement == 1){
+                            $('.job-title-'+id).removeClass('pt-1 pl-2 pb-1 pr-2 border border-primary text-primary');
+                        }
                     }else{
                         swal("Cancelled", "Something is wrong. Please try again!", "error");
                     }
@@ -572,7 +575,11 @@
         });
 
         $('#showDate').click(function(){
-            $(".submission-date").toggle();
+            if($('#showDate').is(":checked")){
+                $(".submission-date").show();
+            }else{
+                $(".submission-date").hide();
+            }
         })
     });
 
@@ -624,6 +631,64 @@
     function showPVData(){
         $(".pv-companny-popup-icon").hide();
         $(".pv-company").show();
+    }
+
+    function showUpdateSubmissionModel(id){
+        console.log(id);
+        $.ajax({
+            url: "{{route('get_update_submission_data')}}",
+            type: "POST",
+            data: {'id':id, _token: '{{csrf_token()}}' },
+            success: function(response){
+                if(response.status == 1){
+                    var data = response.submissionData;
+                    $('#submissionsForm *').filter(':input').each(function () {
+                            var tagType = $(this).prop("tagName").toLowerCase();
+                            var elementId = this.id;
+                            if(elementId){
+                                if(tagType == 'input'){
+                                    var type = $("#" + elementId).attr("type");
+                                    if(type == 'file'){
+                                        $('#resumeId').remove();
+                                        var resumeElement = '<div id="resumeId" class="col-md-2 mt-4 "><div id="documentContent" class="text-center"><a href="{{asset("storage")}}/'+ data['documents']+'" target="_blank"><img src=" {{url('assets/dist/img/resume.png')}}" height="50"></a></div></div>';
+                                        var documentNameArray = data['documents'].split('/');
+                                        var documentName = '2' in documentNameArray ? documentNameArray[2] : '';
+                                        var label = "<label>"+documentName+"</label>";
+                                        $("#" + elementId).closest('div').append(resumeElement);
+                                        $("#documentContent").append(label);
+                                    } else {
+                                        var id = "#" + elementId;
+                                        $(id).val(data[elementId]);
+                                    }
+                                } else if(tagType == 'select'){
+                                    $("#" +elementId).select2("val", data[elementId]);
+                                }
+                            }
+                            $("#existResume").val(data['documents']);
+                        });
+                    $("#updateSubmissionCandidateModal").modal('show');
+                    console.log('test');
+                }else{
+                    swal("Error", "Something is wrong!", "error");
+                }
+            }
+        });
+    };
+
+    function updateSubmission(){
+        $.ajax({
+            url: "{{route('update_submission_data')}}",
+            type: "POST",
+            data: $('#submissionsForm').serialize(),
+            success: function(response){
+                $("#updateSubmissionCandidateModal").modal('hide');
+                if(response.status == 1){
+                    window.location.replace(response.url);
+                }else{
+                    swal("Error", "Something is wrong!", "error");
+                }
+            }
+        });
     }
 
 </script>

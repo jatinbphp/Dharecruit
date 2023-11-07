@@ -118,6 +118,8 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::resource('bdm_submission', BDMSubmissionController::class);
     Route::post('bdm_submission/changePvStatus/{id}', [BDMSubmissionController::class,'changePvStatus'])->name('requirement.changePvStatus');
     Route::post('pv_reject_reason_update', [BDMSubmissionController::class,'pvRejectReasonUpdate'])->name('pv_reject_reason_update.update');
+    Route::post('get_update_submission_data', [BDMSubmissionController::class,'getUpdateSubmissionData'])->name('get_update_submission_data');
+    Route::post('update_submission_data', [BDMSubmissionController::class,'updateSubmissionData'])->name('update_submission_data');
 
     /* INTERVIEW MANAGEMENT */
     Route::resource('interview', InterviewController::class);

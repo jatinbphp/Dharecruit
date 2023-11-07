@@ -13,9 +13,11 @@ class CommonController extends Controller
 {
     public function getCandidate(Request $request){
         $submission = Submission::where('id',$request->cId)->first();
+        $data['is_show'] = 0;
         if(!empty($submission)){
             if($submission->requirement->user_id == Auth::user()->id){
                 $submission->update(['is_show' => 1]);
+                $data['is_show'] = 1;
             }
         }
 
@@ -226,8 +228,19 @@ class CommonController extends Controller
         $requirement = Requirement::where('id',$request->id)->first();
         $requirementTitle = '';
         $requirementContent = '';
+        $data['is_show_requirement'] = 0;
         if(!empty($requirement)){
             $status = 1;
+            $user = Auth::user();
+            if($user->role == 'recruiter'){
+                $isShowRecruiters = array_filter(explode(',', $requirement->is_show_recruiter));
+                if(!in_array($user->id, $isShowRecruiters)){
+                    array_push($isShowRecruiters, $user->id);
+                    $requirement->is_show_recruiter = implode(',', $isShowRecruiters);
+                    $requirement->save();
+                    $data['is_show_requirement'] = 1;    
+                }
+            }
             $requirementTitle = $requirement->job_title;
             $requirementContent .= '
             <div class="row">
@@ -393,6 +406,9 @@ class CommonController extends Controller
             foreach($submissions as $submission){
                 $candidateClass = $this->getCandidateClass($submission,true);
                 $candidateCss   = $this->getCandidateCss($submission,true);
+                $candidateBorderCss = $this->getCandidateBorderCss($submission);
+                $candidateNames = explode(' ',$submission->name);
+                $candidateName = isset($candidateNames[0]) ? $candidateNames[0] : '';
                 $timeSpan = '';
                 if(!empty($requirement) && $requirement->created_at){
                     if($submission->created_at){
@@ -401,22 +417,22 @@ class CommonController extends Controller
                 }
                 $submissionData .= 
                     '<tr>
-                        <td>' .$timeSpan. '</td>
+                        <td class="pt-4">' .$timeSpan. '</td>
                         <td>
-                            <span class="'.$candidateClass.' candidate" style="border-bottom:'.$candidateCss.'">'. $submission->name. '</span>
+                            <div class="a-center pt-2 pl-2 pb-2 pr-2 '. $candidateCss.'" style="width: fit-content;"><span class="'.$candidateClass.' candidate" style="'.$candidateBorderCss.'">'. $candidateName. '</span></div>
                         </td>
-                        <td>'. $submission->location .'</td>
-                        <td>'. $submission->Recruiters->name .'</td>
-                        <td>'. $submission->recruiter_rate .'</td>
-                        <td>
+                        <td class="pt-4">'. $submission->location .'</td>
+                        <td class="pt-4">'. $submission->Recruiters->name .'</td>
+                        <td class="pt-4">'. $submission->recruiter_rate .'</td>
+                        <td class="pt-4">
                             <span>' .$submission->id. '</span><br>
                             <div style="display:none" class="status-time"><div class="border border-dark floar-left p-1 mt-2" style="border-radius: 5px; width: auto"><span style="color:#AC5BAD; font-weight:bold;">'.date('m/d h:i A', strtotime($submission->updated_at)).'</span></div></div>
                         </td>
-                        <td>
+                        <td class="pt-4">
                             <span>' .(isset($bdmStatus[$submission->status]) ? $bdmStatus[$submission->status]  :''). '</span><br>
                             '. getEntityLastUpdatedAtHtml($entityTypeBdm, $submission->id) .'
                         </td>
-                        <td>
+                        <td class="pt-4">
                             <span>' .(isset($pvStatus[$submission->pv_status]) ? $pvStatus[$submission->pv_status] :''). '</span><br>
                             '.getEntityLastUpdatedAtHtml($entityTypePv, $submission->id).'
                         </td>

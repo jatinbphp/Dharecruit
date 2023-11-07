@@ -80,12 +80,13 @@
                                         <th>Client</th>
                                         @if(in_array($userType,['admin','recruiter']))
                                             <th>EmpPOC</th>
+                                            <th>BDM</th>
                                         @endif
                                         @if(in_array($userType,['admin','bdm']))
                                             <th>PV</th>
                                             <th>POC</th>
+                                            <th>Recruiter</th>
                                         @endif
-                                        <th>Recruiter</th>
                                         <th>B Rate</th>
                                         <th>R Rate</th>
                                         <th>Candidate Name</th>
@@ -140,6 +141,7 @@
         </div>
     </div>
     @include('admin.requirement.candidateModal',['hide'=>0, 'isSubmission'=>0,])
+    @include('admin.updateSubmissionModel')
 @endsection
 
 @section('jquery')
@@ -264,14 +266,15 @@
                 {data: 'client_name',  name: 'client_name'},
                 @if(in_array($userType,['admin','recruiter']))
                     {data: 'emp_poc',  name: 'emp_poc'},
+                    {data: 'bdm',  name: 'bdm'},
                 @endif
                 @if(in_array($userType,['admin','bdm']))
                     {data: 'pv',  name: 'pv'},
                     {data: 'poc',  name: 'poc'},
+                    {data: 'recruter_name',  name: 'recruter_name'},
                 @endif
-                {data: 'recruter_name',  name: 'recruter_name'},
                 {data: 'b_rate',  name: 'b_rate'},
-                {data: 'r_rate',  name: 'recruter_name'},
+                {data: 'r_rate',  name: 'r_rate'},
                 {data: 'candidate_name',  name: 'candidate_name'},
                 {data: 'employer_name',  name: 'employer_name'},
                 {data: 'bdm_status', "width": "9%", name: 'bdm_status', orderable: false, searchable: false},
