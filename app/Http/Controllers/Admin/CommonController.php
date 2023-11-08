@@ -298,19 +298,19 @@ class CommonController extends Controller
                 </div>
             </div>
             <div class="row mt-2">
-                <div class="col-md-6">
+                <div class="col-md-12">
                     <strong>Download Attachments:</strong><br>';
                     if(!empty($requirementDocuments) && count($requirementDocuments)){
                         $requirementContent .= '
                         <div class="border border-primary">';
                             foreach($requirementDocuments as $id => $document){
                                 $requirementContent .=
-                                '<div class="col-md-2 mt-2">
+                                '<div class="col-md-12 mt-2">
                                     <div class="text-center">';
                                         $documentNameArray = explode('/',$document);
                                         $documentName = isset($documentNameArray[2]) ? $documentNameArray[2] : '';
                                         $requirementContent .=
-                                        '<a href="'. asset('storage/'.$document).'" target="_blank">'.$documentName.'</a>
+                                        '<a href="'. asset('storage/'.$document).'" target="_blank"><p class="text-left">'.$documentName.'</p></a>
                                     </div>
                                 </div>';
                             }
