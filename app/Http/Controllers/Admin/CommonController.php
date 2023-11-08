@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use \Carbon\Carbon;
 use App\Models\Submission;
 use App\Models\Requirement;
-use App\Models\EntityHistory;
 use Illuminate\Http\Request;
+use App\Models\EntityHistory;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,8 +17,10 @@ class CommonController extends Controller
         $data['is_show'] = 0;
         if(!empty($submission)){
             if($submission->requirement->user_id == Auth::user()->id){
-                $submission->update(['is_show' => 1]);
-                $data['is_show'] = 1;
+                if($submission->is_show == 0){
+                    $submission->update(['is_show' => 1]);
+                    $data['is_show'] = 1;
+                }
             }
         }
 
@@ -61,14 +64,6 @@ class CommonController extends Controller
                             </div>
                             <div class="col-md-6">
                                 <strong>Work Type:</strong> '.$submission['Requirement']['work_type'].'
-                            </div>
-                        </div>
-                        <div class="row mt-2">
-                            <div class="col-md-6">
-                                <strong>Pv Company:</strong> '.$submission['Requirement']['pv_company_name'].'
-                            </div>
-                            <div class="col-md-6">
-                                <strong>Poc Email:</strong> '.$submission['Requirement']['poc_email'].'
                             </div>
                         </div>';
 
@@ -269,7 +264,7 @@ class CommonController extends Controller
             </div>
             <div class="row mt-2">
                 <div class="col-md-6">
-                    <strong>Visa:</strong> '.$requirement->Visa->name.'
+                    <strong>Visa:</strong> '.Requirement::getVisaNames($requirement->visa) .'
                 </div>
                 <div class="col-md-6">
                     <strong>Client:</strong> '.$requirement->client.'
@@ -288,7 +283,7 @@ class CommonController extends Controller
                     <strong>Category:</strong> '.$requirement->Category->name.'
                 </div>
                 <div class="col-md-6">
-                    <strong>MOI:</strong> '.$requirement->MOI->name.'
+                    <strong>MOI:</strong> '.Requirement::getMoiNames($requirement->moi).'
                 </div>
             </div>
             <div class="row mt-2">
@@ -385,16 +380,18 @@ class CommonController extends Controller
             <thead>
                 <tr>
                     <th scope="col">Time Span</th>
+                    <th scope="col">Sub ID</th>
                     <th scope="col">Consultant</th>
                     <th scope="col">Location</th>
                     <th scope="col">Recruiter</th>
                     <th scope="col">RRate</th>
-                    <th scope="col">Sub ID</th>
                     <th scope="col">BDM Status</th>
                     <th scope="col">Vendor Status</th>
                 </tr>
             </thead>
         ';
+        
+        $requirementCreatedDate = Carbon::parse($requirement->created_at);
         
         if(!empty($submissions) && count($submissions)){
             $submissionModel = new Submission();
@@ -410,24 +407,43 @@ class CommonController extends Controller
                 $candidateNames = explode(' ',$submission->name);
                 $candidateName = isset($candidateNames[0]) ? $candidateNames[0] : '';
                 $timeSpan = '';
-                if(!empty($requirement) && $requirement->created_at){
-                    if($submission->created_at){
-                        $timeSpan = $submission->created_at->diffForHumans($requirement->created_at);
+                
+                $submissionCreatedDate  = Carbon::parse($submission->created_at);
+                $timeSpan = '';
+
+                // Calculate the difference in hours and minutes
+                $diffInHours   = $requirementCreatedDate->diffInHours($submissionCreatedDate);
+                $diffInMinutes = $requirementCreatedDate->diffInMinutes($submissionCreatedDate) % 60;
+
+                if ($diffInHours >= 24) {
+                    // If the difference is more than 24 hours
+                    $diffInDays = floor($diffInHours / 24);
+                    $diffInHours = $diffInHours % 24;
+
+                    $timeSpan = "$diffInDays days, $diffInHours hr : $diffInMinutes mins";
+                } else {
+                    if($diffInHours > 1){
+                        // If the difference is less than 24 hours
+                        $timeSpan = "$diffInHours hr:$diffInMinutes mins";
+                    }else{
+                        // If the difference is less than 1 hours
+                        $timeSpan = "$diffInMinutes mins";
                     }
                 }
+
                 $submissionData .= 
                     '<tr>
-                        <td class="pt-4">' .$timeSpan. '</td>
+                        <td class="pt-4">' .$timeSpan . '</td>
+                        <td class="pt-4">
+                            <span>' .$submission->id. '</span><br>
+                            <div style="display:none" class="status-time"><div class="border border-dark floar-left p-1 mt-2" style="border-radius: 5px; width: auto"><span style="color:#AC5BAD; font-weight:bold;">'.date('m/d h:i A', strtotime($submission->updated_at)).'</span></div></div>
+                        </td>
                         <td>
                             <div class="a-center pt-2 pl-2 pb-2 pr-2 '. $candidateCss.'" style="width: fit-content;"><span class="'.$candidateClass.' candidate" style="'.$candidateBorderCss.'">'. $candidateName. '</span></div>
                         </td>
                         <td class="pt-4">'. $submission->location .'</td>
                         <td class="pt-4">'. $submission->Recruiters->name .'</td>
                         <td class="pt-4">'. $submission->recruiter_rate .'</td>
-                        <td class="pt-4">
-                            <span>' .$submission->id. '</span><br>
-                            <div style="display:none" class="status-time"><div class="border border-dark floar-left p-1 mt-2" style="border-radius: 5px; width: auto"><span style="color:#AC5BAD; font-weight:bold;">'.date('m/d h:i A', strtotime($submission->updated_at)).'</span></div></div>
-                        </td>
                         <td class="pt-4">
                             <span>' .(isset($bdmStatus[$submission->status]) ? $bdmStatus[$submission->status]  :''). '</span><br>
                             '. getEntityLastUpdatedAtHtml($entityTypeBdm, $submission->id) .'

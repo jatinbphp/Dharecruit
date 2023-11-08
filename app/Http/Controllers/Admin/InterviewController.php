@@ -6,6 +6,7 @@ use DataTables;
 use App\Models\Interview;
 use App\Models\Submission;
 use App\Models\Requirement;
+use App\Models\InterviewDocuments;
 use App\Models\EntityHistory;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -134,6 +135,7 @@ class InterviewController extends Controller
             'candidate_email' => 'required|email',
             'time_zone' => 'required',
             'status' => 'required',
+            'document' => 'required',
         ]);
 
         $existInterview = Interview::where('submission_id',$request->submission_id)->where('job_id',$request->job_id)->first();
@@ -146,6 +148,18 @@ class InterviewController extends Controller
         $input = $request->all();
         $input['user_id'] = Auth::user()->id;
         $interview = Interview::create($input);
+
+        if(!empty($interview)){
+            if(!empty($request['document'])){
+                if($files = $request->file('document')){
+                    foreach ($files as $file) {
+                        $documentData['interview_id'] = $interview->id;
+                        $documentData['document'] = $this->fileMove($file,'user_documents');
+                        InterviewDocuments::create($documentData);
+                    }
+                }
+            }
+        }
 
         $inputData['submission_id']  = $interview->submission_id;
         $inputData['requirement_id'] = $interview->Submission->Requirement->id;
@@ -168,6 +182,7 @@ class InterviewController extends Controller
         $data['menu'] = "My Interview";
         $data['interview'] = Interview::where('id',$id)->first();
         $data['interviewStatus'] = Interview::$interviewStatusOptions;
+        $data['interviewDocuments'] = InterviewDocuments::where('interview_id',$id)->pluck('document','id');
         return view('admin.interview.edit',$data);
     }
 
@@ -310,5 +325,17 @@ class InterviewController extends Controller
         $candidateName = isset($candidateNames[0]) ? $candidateNames[0] : '';
 
         return '<div class="candidate-'. $interview->id .'"><div class="'.$divClass.'  pt-2 pl-2 pb-2 pr-2" style="'.$divCss.'"><span class="candidate '.$textColor.'" >'.$candidateName.'</span></div></div>';
+    }
+
+    public function removeDocument($id) {
+        $data = [];
+        if(!$id){
+            $data['status'] = 0;
+            return $data;
+        }
+        InterviewDocuments::where('id', $id)->delete();
+        $data['status'] = 1;
+
+        return $data;
     }
 }

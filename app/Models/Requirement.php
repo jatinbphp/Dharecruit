@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Visa;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Requirement extends Model
 {
@@ -76,5 +77,17 @@ class Requirement extends Model
 
     public function Visa(){
         return $this->belongsTo('App\Models\Visa','visa');
+    }
+
+    public static function getVisaNames(string $ids){
+        $ids = array_filter(explode(',',$ids));
+        $visaNames = Visa::whereIn('id', $ids)->pluck('name')->toArray();
+        return implode(', ',$visaNames);
+    }
+
+    public static function getMoiNames(string $ids){
+        $ids = array_filter(explode(',',$ids));
+        $moiNames = Moi::whereIn('id', $ids)->pluck('name')->toArray();
+        return implode(', ',$moiNames);
     }
 }

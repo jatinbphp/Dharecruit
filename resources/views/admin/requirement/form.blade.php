@@ -81,7 +81,7 @@
     <div class="row mb-3 pl-3 pr-3">
         <div class="col-md-6">
             <div class="form-group{{ $errors->has('client_name') ? ' has-error' : '' }}">
-                <label class="control-label" for="client_name">Client Name :<span class="text-red">*</span></label>
+                <label class="control-label" for="client_name">Client Name :</label> (optional)
                 {!! Form::text('client_name', null, ['class' => 'form-control', 'placeholder' => 'Enter Client Name', 'id' => 'client_name']) !!}
                 @if ($errors->has('client_name'))
                     <span class="text-danger">
@@ -218,7 +218,7 @@
         <div class="col-md-4">
             <div class="form-group{{ $errors->has('visa') ? ' has-error' : '' }}">
                 <label class="control-label" for="visa">Visa :@if (empty($customers))<span class="text-red">*</span>@endif</label>
-                {!! Form::select('visa', $visa, null, ['class' => 'form-control select2','id'=>'visa']) !!}
+                {!! Form::select('visa[]', $visa, !empty($selectedVisa) ? $selectedVisa : null, ['multiple' => true, 'class' => 'form-control select2','id'=>'visa', 'data-placeholder' => 'Please Select Visa']) !!}
                 @if ($errors->has('visa'))
                     <span class="text-danger">
                         <strong>{{ $errors->first('visa') }}</strong>
@@ -318,7 +318,7 @@
         <div class="col-md-6">
             <div class="form-group{{ $errors->has('moi') ? ' has-error' : '' }}">
                 <label class="control-label" for="moi">MOI <span class="text-red">*</span></label>
-                {!! Form::select('moi', $moi, null, ['class' => 'form-control select2','id'=>'moi']) !!}
+                {!! Form::select('moi[]', $moi, !empty($selectedMoi) ? $selectedMoi : null, ['multiple' => true, 'class' => 'form-control select2','id'=>'moi', 'data-placeholder' => 'Please Select MOI']) !!}
                 @if ($errors->has('moi'))
                     <span class="text-danger">
                         <strong>{{ $errors->first('moi') }}</strong>
@@ -384,7 +384,7 @@
         </div>
     </div>
 
-    <div class="row mt-2 pl-3 pr-3">
+    <div class="row mt-2 pl-3 pr-3 mb-3">
         @if(isset($requirementDocuments))
             @foreach($requirementDocuments as $id => $document)
                 <div class="col-md-2 mt-2" id="document-{{$id}}">
@@ -394,6 +394,7 @@
                             $documentNameArray = explode('/',$document);
                             $documentName = isset($documentNameArray[2]) ? $documentNameArray[2] : '';
                         @endphp
+                        <br>
                         <label>{{$documentName}}</label>
                         <br>
                         <span data-toggle="tooltip" title="Delete File" data-trigger="hover">

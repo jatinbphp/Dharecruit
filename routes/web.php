@@ -126,6 +126,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('interview/changeInterviewStatus/{id}', [InterviewController::class,'changeInterviewStatus']);
     Route::post('interview/getCandidatesName/', [InterviewController::class,'getCandidatesName'])->name('interview.getCandidatesName');
     Route::post('interciew/getCandidateData', [InterviewController::class,'getCandidateData'])->name('interview.getCandidateData');
+    Route::post('interview/removeDocument/{id}', [InterviewController::class,'removeDocument'])->name('interview.removeDocument');
 
     /* VISa MANAGEMENT */
     Route::post('visa/assign', [VisaController::class,'assign'])->name('visa.assign');

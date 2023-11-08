@@ -183,7 +183,12 @@ class Controller extends BaseController
             if($user->id == $userId && $user->role == 'recruiter'){
                 $candidate .= '<div onClick="showUpdateSubmissionModel('.$submission->id.')" class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.$candidateFirstName.' - '.$submission->id.'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
             } else {
-                $candidate .= '<div class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.$candidateFirstName.' - '.$submission->id.'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
+                if(($user->id == $userId && $user->role == 'bdm') || $user->role == 'admin'){
+                    $class = 'candidate';
+                } else {
+                    $class = '';   
+                }
+                $candidate .= '<div class="'.$divClass.'" style="'.$divCss.'"><span class="'.$class.' '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.$candidateFirstName.' - '.$submission->id.'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
             }
         }
         return $candidate;

@@ -109,7 +109,7 @@
         </div>
     @endif
 
-    <div class="col-md-6">
+    <div class="col-md-12">
         <div class="form-group{{ $errors->has('status') ? ' has-error' : '' }}">
             <label class="control-label" for="status">Status :<span class="text-red">*</span></label>
             {!! Form::select('status', $interviewStatus, null, ['class' => 'form-control select2','id'=>'status']) !!}
@@ -120,4 +120,76 @@
             @endif
         </div>
     </div>
+
+    <div class="col-md-6">
+        <div class="form-group{{ $errors->has('document') ? ' has-error' : '' }}">
+            <label class="control-label" for="document">Document :</label><br>
+            {!! Form::file('document[]', ['class' => '', 'id'=> 'document','multiple'=>true]) !!}
+            @if ($errors->has('document'))
+            <br>
+            <span class="text-danger">
+                    <strong>{{ $errors->first('document') }}</strong>
+                </span>
+            @endif
+        </div>
+    </div>
 </div>
+<div class="row mt-2 pl-3 pr-3">
+    @if(isset($interviewDocuments))
+        @foreach($interviewDocuments as $id => $document)
+            <div class="col-md-2 mt-2" id="document-{{$id}}">
+                <div class="text-center">
+                    <a href="{{asset('storage/'.$document)}}" target="_blank"><img src="{{url('assets/dist/img/resume.png')}}" height="50"></a>
+                    @php
+                        $documentNameArray = explode('/',$document);
+                        $documentName = isset($documentNameArray[2]) ? $documentNameArray[2] : '';
+                    @endphp
+                    <br>
+                    <label>{{$documentName}}</label>
+                    <br>
+                    <span data-toggle="tooltip" title="Delete File" data-trigger="hover">
+                        <span class="text-danger remove-interview-document" data-id="{{$id}}" ><i class="fa fa-trash"></i></span>
+                    </span>
+                </div>
+            </div>
+        @endforeach
+    @endif
+</div>
+@section('jquery')
+    <script type="text/javascript">
+        $(".remove-interview-document").click(function(){
+            var id = $(this).attr('data-id');
+            console.log('calles');  
+            swal({
+                title: "Are you sure?",
+                text: "You want to delete this document?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#DD6B55',
+                confirmButtonText: 'Yes, Delete',
+                cancelButtonText: "No, cancel",
+                closeOnConfirm: false,
+                closeOnCancel: false
+            },
+            function(isConfirm) {
+                if (isConfirm) {
+                    $.ajax({
+                        url: "{{url('admin/interview/removeDocument')}}/"+id,
+                        type: "POST",
+                        data: {_token: '{{csrf_token()}}' },
+                        success: function(data){
+                            if(data.status == 1){
+                                swal("Deleted", "Your data successfully deleted!", "success");
+                                $('#document-'+id).remove();
+                            } else {
+                                swal("Error", "Something is wrong!", "error");
+                            }
+                        }
+                    });
+                } else {
+                    swal("Cancelled", "Your data safe!", "error");
+                }
+            });
+        });
+    </script>
+@endsection

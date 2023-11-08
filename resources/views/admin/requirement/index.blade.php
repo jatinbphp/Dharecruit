@@ -250,8 +250,6 @@
                         $('#candidateData').html(data.candidateData);
                         $('#historyData').html(data.historyData);
                         $('#candidateModal').modal('show');
-                        console.log(data.is_show);
-                        console.log('.candidate-'+cId);
                         if(data.is_show == 1){
                             $('.candidate-'+cId).parent('div').removeClass('border');
                         }

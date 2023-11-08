@@ -69,8 +69,8 @@ class RequirementController extends Controller
         $data['recruiter'] = Admin::where('role','recruiter')->pluck('name','id');
         $data['pvCompanyName'] = $this->getPvCompanyName();
         $data['category'] = Category::where('status','active')->pluck('name','id')->prepend('Please Select','');
-        $data['moi'] = Moi::where('status','active')->pluck('name','id')->prepend('Please Select','');
-        $data['visa'] = Visa::where('status','active')->pluck('name','id')->prepend('Please Select','');
+        $data['moi'] = Moi::where('status','active')->pluck('name','id');
+        $data['visa'] = Visa::where('status','active')->pluck('name','id');
         
         return view("admin.requirement.create",$data);
     }
@@ -99,13 +99,15 @@ class RequirementController extends Controller
             'poc_name' => 'required',
             'poc_email' => 'required',
             'poc_phone_number' => 'required',
-            'client_name' => 'required',
+            //'client_name' => 'required',
         ]);
 
         $input = $request->all();
         $input['user_id'] = Auth::user()->id;
         $input['job_id'] = 0;
         unset($input['recruiter']);
+        unset($input['visa']);
+        unset($input['moi']);
         if(isset($input['display_client']) && $input['display_client'] == 'on'){
             $input['display_client'] = 1;
         } else {
@@ -128,8 +130,18 @@ class RequirementController extends Controller
             }
 
             if(!empty($request['recruiter']) && $requirements){
-                $recruiter['recruiter'] = $this->getAllRecruiter($request['recruiter']);
+                $recruiter['recruiter'] = $this->getCommaSeperatedValues($request['recruiter']);
                 $requirements->update($recruiter);
+            }
+
+            if(!empty($request['visa']) && $requirements){
+                $visa['visa'] = $this->getCommaSeperatedValues($request['visa']);
+                $requirements->update($visa);
+            }
+
+            if(!empty($request['moi']) && $requirements){
+                $moi['moi'] = $this->getCommaSeperatedValues($request['moi']);
+                $requirements->update($moi);
             }
         }
 
@@ -177,24 +189,29 @@ class RequirementController extends Controller
         $data['requirement'] = Requirement::where('id',$id)->first();
         $user = $this->getUser();
         if($user['role'] == 'admin'){
-            $data['category'] = Category::where('status','active')->pluck('name','id')->prepend('Please Select','');
-            $data['moi'] = Moi::where('status','active')->pluck('name','id')->prepend('Please Select','');
+            //$data['category'] = Category::where('status','active')->pluck('name','id')->prepend('Please Select','');
+            //$data['moi'] = Moi::where('status','active')->pluck('name','id')->prepend('Please Select','');
             $data['pv_company'] = PVCompany::where('status','active')->pluck('name','id')->prepend('Please Select','');
-            $data['visa'] = Visa::where('status','active')->pluck('name','id')->prepend('Please Select','');
+            //$data['visa'] = Visa::where('status','active')->pluck('name','id')->prepend('Please Select','');
         }else{
             if($user['id'] != $data['requirement']['user_id']){
                 \Session::flash('danger',"You can not update other's requirement.");
                 return redirect(route('requirement.index'));
             }
 
-            $data['category'] = Category::where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
-            $data['moi'] = Moi::where('user_id',Auth::user()->id)->where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
+            //$data['category'] = Category::where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
+            //$data['moi'] = Moi::where('user_id',Auth::user()->id)->where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
             $data['pv_company'] = PVCompany::where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
-            $data['visa'] = Visa::where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
+            //$data['visa'] = Visa::where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
         }
+        $data['category'] = Category::where('status','active')->pluck('name','id')->prepend('Please Select','');
+        $data['moi'] = Moi::where('status','active')->pluck('name','id');
+        $data['visa'] = Visa::where('status','active')->pluck('name','id');
         $data['requirementDocuments'] = RequirementDocuments::where('requirement_id',$id)->pluck('document','id');
         $data['recruiter'] = Admin::where('role','recruiter')->pluck('name','id');
         $data['selectedRecruiter'] = !empty($data['requirement']) && !empty($data['requirement']['recruiter']) ? explode(',',$data['requirement']['recruiter']) : [];
+        $data['selectedVisa'] = !empty($data['requirement']) && !empty($data['requirement']['visa']) ? explode(',',$data['requirement']['visa']) : [];
+        $data['selectedMoi'] = !empty($data['requirement']) && !empty($data['requirement']['moi']) ? explode(',',$data['requirement']['moi']) : [];
         $data['pvCompanyName'] = $this->getPvCompanyName();
         return view('admin.requirement.edit',$data);
     }
@@ -222,11 +239,13 @@ class RequirementController extends Controller
             'poc_name' => 'required',
             'poc_email' => 'required',
             'poc_phone_number' => 'required',
-            'client_name' => 'required',
+            //'client_name' => 'required',
         ]);
 
         $input = $request->all();
         unset($input['recruiter']);
+        unset($input['visa']);
+        unset($input['moi']);
         if(isset($input['display_client']) && $input['display_client'] == 'on'){
             $input['display_client'] = 1;
         } else {
@@ -247,10 +266,19 @@ class RequirementController extends Controller
             }
 
             if(!empty($request['recruiter'])){
-                $recruiter['recruiter'] = $this->getAllRecruiter($request['recruiter']);
+                $recruiter['recruiter'] = $this->getCommaSeperatedValues($request['recruiter']);
                 $requirement->update($recruiter);
             }
 
+            if(!empty($request['visa'])){
+                $visa['visa'] = $this->getCommaSeperatedValues($request['visa']);
+                $requirement->update($visa);
+            }
+
+            if(!empty($request['moi'])){
+                $moi['moi'] = $this->getCommaSeperatedValues($request['moi']);
+                $requirement->update($moi);
+            }
         }
 
         \Session::flash('success','Requirement has been updated successfully!');
@@ -371,8 +399,8 @@ class RequirementController extends Controller
         return $data;
     }
 
-    public function getAllRecruiter($recruiters) {
-        return ','.implode(',',$recruiters).',';
+    public function getCommaSeperatedValues($data) {
+        return ','.implode(',',$data).',';
     }
 
     public function getPvCompanyName() {
