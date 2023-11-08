@@ -198,8 +198,20 @@ class InterviewController extends Controller
         ]);
 
         $input = $request->all();
-        $requirement = Interview::where('id',$id)->first();
-        $requirement->update($request->all());
+        $interview = Interview::where('id',$id)->first();
+        $interview->update($request->all());
+
+        if($interview){
+            if(!empty($request['document'])){
+                if($files = $request->file('document')){
+                    foreach ($files as $file) {
+                        $documentData['interview_id'] = $interview->id;
+                        $documentData['document'] = $this->fileMove($file,'user_documents');
+                        InterviewDocuments::create($documentData);
+                    }
+                }
+            }
+        }
 
         \Session::flash('success','Interview has been updated successfully!');
         return redirect()->route('interview.index');
