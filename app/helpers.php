@@ -48,7 +48,7 @@ if(!function_exists('getJonbTitleHtml')){
         if(Auth::user()->role == 'recruiter' && !in_array($loggedinUser, $isShowRecruiters)){
             $textStyle = 'pt-1 pl-2 pb-1 pr-2 border border-primary text-primary';
         }
-        return '<span class="job-title font-weight-bold '. $textStyle .' job-title-'.$row->id.'" data-id="'.$row->id.'">'.$row->job_title.'</span>';
+        return '<div class="'.$textStyle.' job-title job-title-'.$row->id.'" data-id="'.$row->id.'"><span class="font-weight-bold">'.$row->job_title.'</span></div>';
     }
 }
 

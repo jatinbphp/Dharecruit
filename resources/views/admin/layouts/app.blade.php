@@ -107,6 +107,9 @@
             -webkit-transform: scale(1);
             transform: scale(1);
         }
+        .border-warning-10{
+            border: 10px solid #ffc107!important;
+        }
     </style>
 </head>
 <body class="hold-transition sidebar-mini sidebar-collapse" id="bodyid">

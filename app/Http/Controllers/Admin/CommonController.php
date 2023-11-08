@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use \Carbon\Carbon;
 use App\Models\Submission;
 use App\Models\Requirement;
+use App\Models\RequirementDocuments;
 use Illuminate\Http\Request;
 use App\Models\EntityHistory;
 use App\Http\Controllers\Controller;
@@ -237,6 +238,8 @@ class CommonController extends Controller
                 }
             }
             $requirementTitle = $requirement->job_title;
+            $requirementDocuments = RequirementDocuments::where('requirement_id',$request->id)->pluck('document','id');
+
             $requirementContent .= '
             <div class="row">
                 <div class="col-md-6">
@@ -292,6 +295,30 @@ class CommonController extends Controller
                 </div>
                 <div class="col-md-6">
                     <strong>Special Notes:</strong> '.$requirement->notes.'
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <strong>Download Attachments:</strong><br>';
+                    if(!empty($requirementDocuments) && count($requirementDocuments)){
+                        $requirementContent .= '
+                        <div class="border border-primary">';
+                            foreach($requirementDocuments as $id => $document){
+                                $requirementContent .=
+                                '<div class="col-md-2 mt-2">
+                                    <div class="text-center">';
+                                        $documentNameArray = explode('/',$document);
+                                        $documentName = isset($documentNameArray[2]) ? $documentNameArray[2] : '';
+                                        $requirementContent .=
+                                        '<a href="'. asset('storage/'.$document).'" target="_blank">'.$documentName.'</a>
+                                    </div>
+                                </div>';
+                            }
+                        $requirementContent .= '
+                        </div>';
+                    }
+                    $requirementContent .= '
+                    </div>
                 </div>
             </div>
             <div class="row mt-2">

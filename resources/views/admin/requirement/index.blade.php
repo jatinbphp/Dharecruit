@@ -136,7 +136,7 @@
                 {data: 'user_id', 'width': '6%', name: 'user_id'},
                 {data: 'duration', name: 'duration'},
                 {data: 'location', name: 'location'},
-                {data: 'vendor_rate', name: 'vendor_rate'},
+                {data: 'my_rate', name: 'my_rate'},
                 {data: 'work_type', name: 'work_type'},
                 {data: 'category', name: 'category'},
                 // {data: 'created_at', 'width': '18%', name: 'created_at'},

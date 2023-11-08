@@ -133,7 +133,7 @@
             </div>
         </div>
 
-        <div class="col-md-6">
+        {{-- <div class="col-md-6">
             <div class="form-group{{ $errors->has('vendor_rate') ? ' has-error' : '' }}">
                 <label class="control-label" for="vendor_rate">Vendor Rate :<span class="text-red">*</span></label>
                 {!! Form::text('vendor_rate', null, ['class' => 'form-control', 'placeholder' => 'Enter Vendor Rate', 'id' => 'vendor_rate']) !!}
@@ -143,7 +143,7 @@
                     </span>
                 @endif
             </div>
-        </div>
+        </div> --}}
 
         <div class="col-md-6">
             <div class="form-group{{ $errors->has('recruiter_rate') ? ' has-error' : '' }}">

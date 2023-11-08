@@ -319,6 +319,9 @@ class InterviewController extends Controller
         if($interviewStatus == $interviewModel::STATUS_SCHEDULED){
             $divClass .= 'border border-warning rounded-pill';
             $textColor = 'text-dark';
+        } else if($interviewStatus == $interviewModel::STATUS_RE_SCHEDULED){
+            $divClass .= 'border-warning-10 rounded-pill';
+            $textColor = 'text-dark';
         } else if($interviewStatus == $interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND){
             $divClass .= 'bg-warning rounded-pill';
             $textColor = 'text-dark';

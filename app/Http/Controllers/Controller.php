@@ -139,6 +139,9 @@ class Controller extends BaseController
                         if($interviewStatus == $interviewModel::STATUS_SCHEDULED){
                             $divClass .= 'border border-warning rounded-pill';
                             $textColor = 'text-dark';
+                        } else if($interviewStatus == $interviewModel::STATUS_RE_SCHEDULED){
+                            $divClass .= 'border-warning-10 rounded-pill';
+                            $textColor = 'text-dark';
                         } else if($interviewStatus == $interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND){
                             $divClass .= 'bg-warning rounded-pill';
                             $textColor = 'text-dark';
@@ -209,6 +212,8 @@ class Controller extends BaseController
                     //$divCss .= "width: fit-content;";
                     if($interviewStatus == $interviewModel::STATUS_SCHEDULED){
                         return 'border border-warning rounded-pill';
+                    } else if($interviewStatus == $interviewModel::STATUS_RE_SCHEDULED){
+                        return 'border-warning-10 rounded-pill';
                     } else if($interviewStatus == $interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND){
                         return 'bg-warning rounded-pill';
                     } else if($interviewStatus == $interviewModel::STATUS_CONFIRMED_POSITION){
@@ -233,7 +238,8 @@ class Controller extends BaseController
     }
 
     public function getCandidateBorderCss($submission){
-        if($submission->is_show == 1 && !empty($submission->pv_status) && $submission->pv_status){
+        $interviewStatus = $this->getInterviewStatus($submission->id, $submission->Requirement->job_id);
+        if(!$interviewStatus && $submission->is_show == 1 && !empty($submission->pv_status) && $submission->pv_status){
             $submissionModel = new Submission();
             if($submission->pv_status == $submissionModel::STATUS_NO_RESPONSE_FROM_PV){
                 return "border-bottom: solid;";
@@ -260,15 +266,9 @@ class Controller extends BaseController
             } else {
                 $interviewStatus = $this->getInterviewStatus($submission->id, $submission->Requirement->job_id);
                 if($interviewStatus){
-                    if($interviewStatus == $interviewModel::STATUS_SCHEDULED){
+                    if(in_array($interviewStatus, [$interviewModel::STATUS_SCHEDULED, $interviewModel::STATUS_RE_SCHEDULED, $interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND, $interviewModel::STATUS_CONFIRMED_POSITION])){
                         return 'text-dark';
-                    } else if($interviewStatus == $interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND){
-                        return 'text-dark';
-                    } else if($interviewStatus == $interviewModel::STATUS_CONFIRMED_POSITION){
-                        return 'text-dark';
-                    } else if($interviewStatus == $interviewModel::STATUS_REJECTED){
-                        return 'text-white';
-                    } else if($interviewStatus == $interviewModel::STATUS_BACKOUT){
+                    } else if(in_array($interviewStatus, [$interviewModel::STATUS_REJECTED, $interviewModel::STATUS_BACKOUT])){
                         return 'text-white';
                     }
                 } else if(!empty($submission->pv_status) && $submission->pv_status){

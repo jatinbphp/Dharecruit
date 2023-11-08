@@ -21,24 +21,62 @@ class BDMSubmissionCOntroller extends Controller
     {
         $data['menu'] = "Manage Submission";
         if ($request->ajax()) {
+            $reqFilterStatus = $request->filter_status;
 
             $filterStatus = [];
+            $showUnviewed = 0;
             
-            if(empty($request->filter_status)){
-                $filterStatus[] = 'accepted';
-            } else if($request->filter_status == 'both'){
-                $filterStatus[] = 'accepted';
-                $filterStatus[] = 'rejected';
-            } else {
-                $filterStatus[] = $request->filter_status;
+            if(!empty($reqFilterStatus)){
+                if(in_array('both',$reqFilterStatus)){
+                    $filterStatus[] = 'accepted';
+                    $filterStatus[] = 'rejected';
+                }
+    
+                if(in_array('accepted',$reqFilterStatus)){
+                    $filterStatus[] = 'accepted';
+                }
+    
+                if(in_array('rejected',$reqFilterStatus)){
+                    $filterStatus[] = 'rejected';
+                }
+    
+                if(in_array('pending',$reqFilterStatus)){
+                    $filterStatus[] = 'pending';
+                }
+
+                if(in_array('un_viewed',$reqFilterStatus)){
+                    $showUnviewed = 1;
+                }
             }
 
             $user = Auth::user();
             if($user->role == 'recruiter'){
-                $data = Submission::where('user_id', $user->id)->whereIn('status',$filterStatus)->get();
+                if(!empty($filterStatus)){
+                    $data = Submission::where('user_id', $user->id)->whereIn('status',$filterStatus)->get();
+                    if($showUnviewed){
+                        $data = Submission::where('user_id', $user->id)->whereIn('status',$filterStatus)->where('is_show','0')->get();
+                    }
+                } else {
+                    if($showUnviewed){
+                        $data = Submission::where('user_id', $user->id)->where('is_show','0')->get();
+                    } else {
+                        $data = Submission::where('user_id', $user->id)->get();
+                    }
+                }                
             }else{
                 $requirementIds = Requirement::where('user_id', $user->id)->pluck('id')->toArray();
-                $data = Submission::whereIn('requirement_id', $requirementIds)->whereIn('status',$filterStatus)->get();
+                if(!empty($filterStatus)){
+                    $data = Submission::whereIn('requirement_id', $requirementIds)->whereIn('status',$filterStatus)->get();
+                    if($showUnviewed){
+                        $data = Submission::whereIn('requirement_id', $requirementIds)->whereIn('status',$filterStatus)->where('is_show','0')->get();
+                    }    
+                } else {
+                    if($showUnviewed){
+                        $data = Submission::whereIn('requirement_id', $requirementIds)->where('is_show','0')->get();
+                    } else {
+                        $data = Submission::whereIn('requirement_id', $requirementIds)->get();
+                    }
+                }
             }
 
             return Datatables::of($data)
@@ -145,6 +183,8 @@ class BDMSubmissionCOntroller extends Controller
         $submissionModel = new Submission();
         $submissionStatusOptions[$submissionModel::STATUS_ACCEPT] = 'Show Accepted only';
         $submissionStatusOptions[$submissionModel::STATUS_REJECTED] = 'Show Rejected only';
+        $submissionStatusOptions[$submissionModel::STATUS_PENDING] = 'Show Pending only';
+        $submissionStatusOptions['un_viewed'] = 'Show Unviewed Only';
         $submissionStatusOptions['both'] = 'Show Both';
 
         $data['filterOptions'] = $submissionStatusOptions;

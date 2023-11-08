@@ -28,7 +28,7 @@
             <div class="col-md-3">
                 <div class="form-group">
                     <label class="control-label" for="filter_status">Filter</label>
-                    {!! Form::select('filter', $filterOptions, 'null', ['class' => 'form-control select2','id'=>'filter_status']) !!}
+                    {!! Form::select('filter[]', $filterOptions, 'null', ['multiple' => true,'class' => 'form-control select2','id'=>'filter_status','data-placeholder'=>'Please Select Filetr']) !!}
                 </div>
             </div>
             <div class="row">
