@@ -75,8 +75,8 @@
                                         <th>Job Title</th>
                                         <th>Location</th>
                                         <th>Candidate Location</th>
-                                        <th>Job Keyword</th>
-                                        <th>Duration</th>
+                                        {{-- <th>Job Keyword</th>
+                                        <th>Duration</th> --}}
                                         <th>Client</th>
                                         @if(in_array($userType,['admin','recruiter']))
                                             <th>EmpPOC</th>
@@ -90,10 +90,10 @@
                                         <th>B Rate</th>
                                         <th>R Rate</th>
                                         <th>Candidate Name</th>
-                                        <th>Employer Name</th>
+                                        <th>Emp Name</th>
                                         <th>BDM Status</th>
                                         <th>PV Status</th>
-                                        <th>Action</th>
+                                        {{-- <th>Action</th> --}}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -261,8 +261,8 @@
                 {data: 'job_title', 'width': '10%', name: 'job_title'},
                 {data: 'location', name: 'location'},
                 {data: 'candidate_location', name: 'candidate_location'},
-                {data: 'job_keyword', 'width': '10%',  name: 'job_keyword'},
-                {data: 'duration',  name: 'duration'},
+                // {data: 'job_keyword', 'width': '10%',  name: 'job_keyword'},
+                // {data: 'duration',  name: 'duration'},
                 {data: 'client_name',  name: 'client_name'},
                 @if(in_array($userType,['admin','recruiter']))
                     {data: 'emp_poc',  name: 'emp_poc'},
@@ -279,7 +279,7 @@
                 {data: 'employer_name',  name: 'employer_name'},
                 {data: 'bdm_status', "width": "9%", name: 'bdm_status', orderable: false, searchable: false},
                 {data: 'status', "width": "10%", name: 'status', orderable: false, searchable: false},
-                {data: 'action', "width": "9%", name: 'action', orderable: false, searchable: false},
+                // {data: 'action', "width": "9%", name: 'action', orderable: false, searchable: false},
             ]
         });
     }

@@ -114,7 +114,7 @@ class CommonController extends Controller
                                 <strong>Linkedin Id:</strong> '.$submission['linkedin_id'].'
                             </div>
                             <div class="col-md-6">
-                                <strong>Vendor Rate:</strong> '.$submission['vendor_rate'].'
+                                <strong>R Rate:</strong> '.$submission['recruiter_rate'].'
                             </div>
                         </div>';
                         if(Auth::user()->role == 'bdm'){
@@ -233,6 +233,13 @@ class CommonController extends Controller
                 if(!in_array($user->id, $isShowRecruiters)){
                     array_push($isShowRecruiters, $user->id);
                     $requirement->is_show_recruiter = implode(',', $isShowRecruiters);
+                    $requirement->save();
+                    $data['is_show_requirement'] = 1;    
+                }
+                $isShowRecruiterAfterUpdate = array_filter(explode(',', $requirement->is_show_recruiter_after_update));
+                if(!in_array($user->id, $isShowRecruiterAfterUpdate)){
+                    array_push($isShowRecruiterAfterUpdate, $user->id);
+                    $requirement->is_show_recruiter_after_update = implode(',', $isShowRecruiterAfterUpdate);
                     $requirement->save();
                     $data['is_show_requirement'] = 1;    
                 }

@@ -35,7 +35,10 @@ if(!function_exists('getListHtml')){
             ->addColumn('client', function($row) {
                 return getClientHtml($row);
             })
-            ->rawColumns(['user_id','category','recruiter','status','candidate','action','client','job_title'])
+            ->addColumn('job_keyword', function($row) {
+                return getJobKeywordHtml($row);
+            })
+            ->rawColumns(['user_id','category','recruiter','status','candidate','action','client','job_title','job_keyword'])
             ->make(true);
     }
 }
@@ -44,9 +47,16 @@ if(!function_exists('getJonbTitleHtml')){
     function getJobTitleHtml($row){
         $loggedinUser = Auth::user()->id;
         $isShowRecruiters = explode(',', $row->is_show_recruiter);
+        $isShowRecruitersAfterUpdate = explode(',', $row->is_show_recruiter_after_update);
         $textStyle = '';
-        if(Auth::user()->role == 'recruiter' && !in_array($loggedinUser, $isShowRecruiters)){
-            $textStyle = 'pt-1 pl-2 pb-1 pr-2 border border-primary text-primary';
+        if(Auth::user()->role == 'recruiter'){
+            if(!in_array($loggedinUser, $isShowRecruiters)){
+                $textStyle = 'pt-1 pl-2 pb-1 pr-2 border border-primary text-primary';
+            } else if($row->is_update_requirement == 1){
+                if(!in_array($loggedinUser, $isShowRecruitersAfterUpdate) && in_array($loggedinUser, $isShowRecruiters)){
+                    $textStyle = 'pt-1 pl-2 pb-1 pr-2 border border-warning text-warning';
+                }
+            }
         }
         return '<div class="'.$textStyle.' job-title job-title-'.$row->id.'" data-id="'.$row->id.'"><span class="font-weight-bold">'.$row->job_title.'</span></div>';
     }
@@ -142,7 +152,7 @@ if(!function_exists('getcandidateHtml')){
             $allSubmission = Submission::where('requirement_id',$row->id)->where('status','!=','reject')->orderby('user_id','ASC')->get();
         }
 
-        $candidate = '<br>';
+        $candidate = '';
         $controllerObj = new Controller();
 
         if(count($allSubmission) > 0){
@@ -179,7 +189,7 @@ if(!function_exists('getActionHtml')){
                 $btn = '';
             }
             $btn .= '<div class="border border-dark floar-left p-1 mt-2" style="
-                border-radius: 5px; width: auto"><span>'.$row->created_at->diffForHumans().'</span></div>';
+                border-radius: 5px; width: auto"><span>'.getTimeInReadableFormate($row->created_at).'</span></div>';
         } else {
             if(($user['role'] == 'admin') || ($user['role'] == 'bdm' && $user['id'] == $row->user_id)){
                 $btn .= '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/requirement/'.$row->id.'/edit').'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Edit Requirement" data-trigger="hover" type="submit" ><i class="fa fa-edit"></i></button></a></div>';
@@ -194,7 +204,7 @@ if(!function_exists('getActionHtml')){
                $btn .= '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-default tip view-submission" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" data-id="'.$row->id.'"><i class="fa fa-eye"></i></button></div>';
             }
             $btn .= '<div class="border border-dark floar-left p-1 mt-2" style="
-                border-radius: 5px; width: auto"><span>'.$row->created_at->diffForHumans().'</span></div>';
+                border-radius: 5px; width: auto"><span>'.getTimeInReadableFormate($row->created_at).'</span></div>';
         }
         return $btn;
     }
@@ -210,12 +220,52 @@ if(!function_exists('getClientHtml')){
     }
 }
 
+if(!function_exists('getJobKeywordHtml')){
+    function getJobKeywordHtml($row){
+        $jobKeyword = $row->job_keyword;
+        if(strlen($jobKeyword) > 60){
+            $shortString = substr($jobKeyword, 0, 60);
+            return '<p>' . $shortString . '<span class=" job-title" data-id="'.$row->id.'"><span class="font-weight-bold"> More +</span></span>'; 
+        }
+        return '<p>'.$row->job_keyword.'</p>';
+    }
+}
+
 if(!function_exists('getEntityLastUpdatedAtHtml')){
     function getEntityLastUpdatedAtHtml($entityType,$submissioId){
         $lastUpdatedAt =  EntityHistory::where('entity_type',$entityType)->where('submission_id',$submissioId)->orderBy('id','DESC')->first(['created_at']); 
         if(empty($lastUpdatedAt) || !$lastUpdatedAt->created_at){
             return '<div style="display:none" class="status-time statusUpdatedAt-'.$entityType.'-'.$submissioId.'"></div>';
         }
-        return '<div style="display:none" class="status-time statusUpdatedAt-'.$entityType.'-'.$submissioId.'"><div class="border border-dark floar-left p-1 mt-2" style="border-radius: 5px; width: auto"><span style="color:#AC5BAD; font-weight:bold;">'.date('d/m h:i A', strtotime($lastUpdatedAt->created_at)).'</span></div></div>';
+        return '<div style="display:none" class="status-time statusUpdatedAt-'.$entityType.'-'.$submissioId.'"><div class="border border-dark floar-left p-1 mt-2" style="border-radius: 5px; width: auto"><span style="color:#AC5BAD; font-weight:bold;">'.date('m/d h:i A', strtotime($lastUpdatedAt->created_at)).'</span></div></div>';
+    }
+}
+
+if(!function_exists('getTimeInReadableFormate')){
+    function getTimeInReadableFormate($date){
+        $currentDateAndTime  = Carbon\Carbon::now();
+        $requirementCreatedDate = Carbon\Carbon::parse($date);
+        $timeSpan = '';
+
+        // Calculate the difference in hours and minutes
+        $diffInHours   = $currentDateAndTime->diffInHours($requirementCreatedDate);
+        $diffInMinutes = $requirementCreatedDate->diffInMinutes($currentDateAndTime) % 60;
+
+        if ($diffInHours >= 24) {
+            // If the difference is more than 24 hours
+            $diffInDays = floor($diffInHours / 24);
+            $diffInHours = $diffInHours % 24;
+
+            $timeSpan = "$diffInDays days, $diffInHours hr : $diffInMinutes m";
+        } else {
+            if($diffInHours > 1){
+                // If the difference is less than 24 hours
+                $timeSpan = "$diffInHours hr:$diffInMinutes m";
+            }else{
+                // If the difference is less than 1 hours
+                $timeSpan = "$diffInMinutes m";
+            }
+        }
+        return $timeSpan;
     }
 }

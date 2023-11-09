@@ -27,10 +27,10 @@
                     <div class="card card-info card-outline">
                         <div class="card-header">
                             <div class="row">
-                                <div class="col-md-2">
+                                <div class="col-md-1">
                                     <button class="btn btn-info" type="button" id="filterBtn"><i class="fa fa-search pr-1"></i> Search</button>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-7">
                                     <div class="form-check mt-2">
                                         <input class="form-check-input" type="checkbox" value="" id="showDate">
                                         <label class="form-check-label" for="showDate">Show Date</label>
@@ -51,7 +51,7 @@
                                 <thead>
                                     <tr>
                                         <th>Daily #</th>
-                                        <th>Job Id</th>
+                                        <th>J Id</th>
                                         <th>Job Title</th>
                                         <th>BDM</th>
                                         <th>Duration</th>
@@ -121,13 +121,13 @@
                 }
             },
             columns: [
-                {data: 'DT_RowIndex', 'width': '6%', name: 'DT_RowIndex', orderable: false, searchable: false, render: function(data, type, full, meta){
+                {data: 'DT_RowIndex', 'width': '4%', name: 'DT_RowIndex', orderable: false, searchable: false, render: function(data, type, full, meta){
                     var columnData = data;
                     var objectDate = new Date(full['created_at']);
                     let day = objectDate.getDate();
                     // Added 1 in month as in javascript month range is 0-11
                     let month = objectDate.getMonth() + 1;
-                    let year = objectDate.getFullYear();
+                    let year = objectDate.getFullYear().toString().substr(-2);
                     columnData += '<p>'+ month +'/'+ day +'/'+ year +'</p>';
                     return columnData;
                 }},

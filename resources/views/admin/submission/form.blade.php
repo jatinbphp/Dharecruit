@@ -207,7 +207,7 @@
             </div>
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-6" @if(Auth::user()->role == 'bdm') style="display: none;" @endif>
             <div class="form-group{{ $errors->has('employee_name') ? ' has-error' : '' }}">
                 <label class="control-label" for="employee_name">Employee Name :<span class="text-red">*</span></label>
                 {!! Form::text('employee_name', null, ['class' => 'form-control', 'placeholder' => 'Enter Employee Name', 'id' => 'employee_name']) !!}
@@ -220,7 +220,7 @@
         </div>
     </div>
 
-    <div class="row mt-3 pl-3 pr-3">
+    <div class="row mt-3 pl-3 pr-3" @if(Auth::user()->role == 'bdm') style="display: none;" @endif>
         <div class="col-md-6">
             <div class="form-group{{ $errors->has('employee_email') ? ' has-error' : '' }}">
                 <label class="control-label" for="employee_email">Employee Email :<span class="text-red">*</span></label>

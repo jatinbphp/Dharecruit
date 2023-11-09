@@ -568,7 +568,7 @@
                         $('#requirementData').removeClass('border-bottom mb-2 pb-2');
                         $('#candidateModal').modal('show');
                         if(data.is_show_requirement == 1){
-                            $('.job-title-'+id).removeClass('pt-1 pl-2 pb-1 pr-2 border border-primary text-primary');
+                            $('.job-title-'+id).removeClass('pt-1 pl-2 pb-1 pr-2 border border-primary text-primary border-warning text-warning');
                         }
                     }else{
                         swal("Cancelled", "Something is wrong. Please try again!", "error");

@@ -31,6 +31,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label class="control-label" for="name">Fill Employer Name :</label>
+                                        <div class="col-md-12">
                                             @foreach ($yesNoOptions as $key => $value)
                                                     <?php $checked = (isset($settingData['is_fill_employer_name']) && $settingData['is_fill_employer_name'] == $key) ? 'checked' : '';?>
                                                 <label>
@@ -38,6 +39,7 @@
                                                 </label>
                                             @endforeach
                                         </div>
+                                    </div>
                                 </div>
                             </div>                            
                         </div>

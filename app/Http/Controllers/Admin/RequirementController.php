@@ -251,6 +251,8 @@ class RequirementController extends Controller
         } else {
             $input['display_client'] = 0;
         }
+        $input['is_update_requirement'] = 1;
+        $input['is_show_recruiter_after_update'] = null;
         $requirement = Requirement::where('id',$id)->first();
         $requirement->update($input);
 

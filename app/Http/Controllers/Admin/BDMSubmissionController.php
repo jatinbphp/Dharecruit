@@ -52,29 +52,42 @@ class BDMSubmissionCOntroller extends Controller
             $user = Auth::user();
             if($user->role == 'recruiter'){
                 if(!empty($filterStatus)){
-                    $data = Submission::where('user_id', $user->id)->whereIn('status',$filterStatus)->get();
+                    $data = Submission::where('user_id', $user->id)->whereIn('status',$filterStatus)->latest('updated_at')->get();
                     if($showUnviewed){
-                        $data = Submission::where('user_id', $user->id)->whereIn('status',$filterStatus)->where('is_show','0')->get();
+                        $data = Submission::where('user_id', $user->id)->whereIn('status',$filterStatus)->where('is_show','0')->latest('updated_at')->get();
                     }
                 } else {
                     if($showUnviewed){
-                        $data = Submission::where('user_id', $user->id)->where('is_show','0')->get();
+                        $data = Submission::where('user_id', $user->id)->where('is_show','0')->latest('updated_at')->get();
                     } else {
-                        $data = Submission::where('user_id', $user->id)->get();
+                        $data = Submission::where('user_id', $user->id)->latest('updated_at')->get();
                     }
                 }                
-            }else{
+            }else if($user->role == 'bdm'){
                 $requirementIds = Requirement::where('user_id', $user->id)->pluck('id')->toArray();
                 if(!empty($filterStatus)){
-                    $data = Submission::whereIn('requirement_id', $requirementIds)->whereIn('status',$filterStatus)->get();
+                    $data = Submission::whereIn('requirement_id', $requirementIds)->whereIn('status',$filterStatus)->latest('updated_at')->get();
                     if($showUnviewed){
-                        $data = Submission::whereIn('requirement_id', $requirementIds)->whereIn('status',$filterStatus)->where('is_show','0')->get();
+                        $data = Submission::whereIn('requirement_id', $requirementIds)->whereIn('status',$filterStatus)->where('is_show','0')->latest('updated_at')->get();
                     }    
                 } else {
                     if($showUnviewed){
-                        $data = Submission::whereIn('requirement_id', $requirementIds)->where('is_show','0')->get();
+                        $data = Submission::whereIn('requirement_id', $requirementIds)->where('is_show','0')->latest('updated_at')->get();
                     } else {
-                        $data = Submission::whereIn('requirement_id', $requirementIds)->get();
+                        $data = Submission::whereIn('requirement_id', $requirementIds)->latest('updated_at')->get();
+                    }
+                }
+            }else{
+                if(!empty($filterStatus)){
+                    $data = Submission::whereIn('status',$filterStatus)->get();
+                    if($showUnviewed){
+                        $data = Submission::whereIn('status',$filterStatus)->where('is_show','0')->get();
+                    }    
+                } else {
+                    if($showUnviewed){
+                        $data = Submission::where('is_show','0')->get();
+                    } else {
+                        $data = Submission::get();
                     }
                 }
             }
@@ -86,12 +99,12 @@ class BDMSubmissionCOntroller extends Controller
                 ->addColumn('job_title', function($row){
                     return '<span class="job-title" data-id="'.$row->requirement_id.'">'.$row->Requirement->job_title.'</span>';
                 })
-                ->addColumn('job_keyword', function($row){
-                    return $row->Requirement->job_keyword;
-                })
-                ->addColumn('duration', function($row){
-                    return $row->Requirement->duration;
-                })
+                // ->addColumn('job_keyword', function($row){
+                //     return $row->Requirement->job_keyword;
+                // })
+                // ->addColumn('duration', function($row){
+                //     return $row->Requirement->duration;
+                // })
                 ->addColumn('client_name', function($row){
                     return '<i class="fa fa-eye client-icon client-icon-'.$row->id.'" onclick="showData('.$row->id.',\'client-\')" aria-hidden="true"></i><span class="client client-'.$row->id.'" style="display:none">'.(($row->Requirement->display_client) ? $row->Requirement->client_name : '').'</span>';
                 })
@@ -143,7 +156,7 @@ class BDMSubmissionCOntroller extends Controller
                     return $status;
                 })
                 ->addColumn('created_at', function($row){
-                    return date('m/d/Y', strtotime($row->created_at));
+                    return date('m/d/y', strtotime($row->created_at));
                 })
                 ->addColumn('location', function($row){
                     return $row->Requirement->location;
@@ -173,9 +186,9 @@ class BDMSubmissionCOntroller extends Controller
                     $empPocFirstName = isset($empPocNameArray[0]) ? $empPocNameArray[0] : '';
                     return '<i class="fa fa-eye emp_poc-icon emp_poc-icon-'.$row->id.'" onclick="showData('.$row->id.',\'emp_poc-\')" aria-hidden="true"></i><span class="emp_poc emp_poc-'.$row->id.'" style="display:none">'.$empPocFirstName.'</span>';
                 })
-                ->addColumn('action', function($row){
-                    return '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/bdm_submission/'.$row->id.'/edit').'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Edit Interview" data-trigger="hover" type="submit" ><i class="fa fa-edit"></i></button></a></div>';
-                })
+                // ->addColumn('action', function($row){
+                //     return '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/bdm_submission/'.$row->id.'/edit').'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Edit Interview" data-trigger="hover" type="submit" ><i class="fa fa-edit"></i></button></a></div>';
+                // })
                 ->rawColumns(['job_id','job_title','job_keyword','duration','client_name','poc','pv','employer_name','recruter_name','candidate_name','action','bdm_status','status','emp_poc','created_at'])
                 ->make(true);
         }
@@ -233,7 +246,7 @@ class BDMSubmissionCOntroller extends Controller
             'resume_experience' => 'required',
             'linkedin_id' => 'required',
             'relocation' => 'required',
-            'vendor_rate' => 'required',
+            //'vendor_rate' => 'required',
             'employer_name' => 'required',
             'employee_name' => 'required',
             'employee_email' => 'required|email',
@@ -243,7 +256,6 @@ class BDMSubmissionCOntroller extends Controller
         $input = $request->all();
         $Submission = Submission::where('id',$id)->first();
         $Submission->update($request->all());
-
         \Session::flash('success','Submission  has been updated successfully!');
         return redirect(route('bdm_submission.index'));
     }
