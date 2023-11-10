@@ -242,7 +242,25 @@ class RequirementController extends Controller
             //'client_name' => 'required',
         ]);
 
+        $requirement = Requirement::where('id',$id)->first();
         $input = $request->all();
+        $oldData = $requirement->toArray();
+
+        $differentValueKeys = [];
+        foreach ($input as $key => $value) {
+            if(is_array($value)){
+                $value = ','. implode(',',$value).',';
+            }
+            if($value == 'on'){
+                $value = '1';
+            }elseif($value == 'off'){
+                $value = '0';
+            }
+            if (isset($oldData[$key]) && $oldData[$key] != $value) {
+                $differentValueKeys[] = $key;
+            }
+        }
+
         unset($input['recruiter']);
         unset($input['visa']);
         unset($input['moi']);
@@ -253,7 +271,7 @@ class RequirementController extends Controller
         }
         $input['is_update_requirement'] = 1;
         $input['is_show_recruiter_after_update'] = null;
-        $requirement = Requirement::where('id',$id)->first();
+        $input['updated_fileds'] = implode(',',$differentValueKeys);
         $requirement->update($input);
 
         if($requirement){

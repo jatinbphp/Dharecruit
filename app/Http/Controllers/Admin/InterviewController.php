@@ -135,7 +135,7 @@ class InterviewController extends Controller
             'candidate_email' => 'required|email',
             'time_zone' => 'required',
             'status' => 'required',
-            'document' => 'required',
+            //'document' => 'required',
         ]);
 
         $existInterview = Interview::where('submission_id',$request->submission_id)->where('job_id',$request->job_id)->first();
@@ -253,7 +253,7 @@ class InterviewController extends Controller
             return 0;
         }
         $requirementId = Requirement::where('job_id',$request->job_id)->pluck('id')->first();
-        $candidateData = Submission::where('requirement_id',$requirementId)->where('status',Submission::STATUS_ACCEPT)->whereNotNull('name')->select('name','id')->orderBy('id', 'DESC')->get()->unique('name');
+        $candidateData = Submission::where('requirement_id',$requirementId)->where('status',Submission::STATUS_ACCEPT)->where('pv_status',Submission::STATUS_SUBMITTED_TO_END_CLIENT)->whereNotNull('name')->select('name','id')->orderBy('id', 'DESC')->get()->unique('name');
 
         $data['status']        = 0;
         $data['cnadidateName'] = '';

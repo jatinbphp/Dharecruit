@@ -72,4 +72,15 @@ class Interview extends Model
     public function Submission(){
         return $this->belongsTo('App\Models\Submission','submission_id');
     }
+
+    public function getInterviewStatusBasedOnSubmissionIdAndJobId($submisionId, $jobId){
+        if(!$submisionId || !$jobId){
+            return '';
+        }
+        $interview = Interview::where('submission_id',$submisionId)->where('job_id',$jobId)->first();
+        if(!empty($interview) && $interview->status){
+            return isset(self::$interviewStatusOptions[$interview->status]) ? self::$interviewStatusOptions[$interview->status] : '';
+        }
+        return '';
+    }
 }

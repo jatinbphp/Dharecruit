@@ -93,6 +93,7 @@
                                         <th>Emp Name</th>
                                         <th>BDM Status</th>
                                         <th>PV Status</th>
+                                        <th>Client Status</th>
                                         {{-- <th>Action</th> --}}
                                     </tr>
                                 </thead>
@@ -278,7 +279,8 @@
                 {data: 'candidate_name',  name: 'candidate_name'},
                 {data: 'employer_name',  name: 'employer_name'},
                 {data: 'bdm_status', "width": "9%", name: 'bdm_status', orderable: false, searchable: false},
-                {data: 'status', "width": "10%", name: 'status', orderable: false, searchable: false},
+                {data: 'pv_status', "width": "10%", name: 'pv_status', orderable: false, searchable: false},
+                {data: 'client_status', "width": "10%", name: 'client_status', orderable: false, searchable: false},
                 // {data: 'action', "width": "9%", name: 'action', orderable: false, searchable: false},
             ]
         });
@@ -295,5 +297,10 @@
             $('.status-time').hide();
         }
     });
+
+    function showStatusOptions(id) {
+        $('.show-pv-status-'+id).hide();
+        $('.pv-status-'+id).show();
+    }
   </script>
 @endsection

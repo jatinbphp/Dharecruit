@@ -6,6 +6,7 @@ use DataTables;
 use App\Models\Submission;
 use App\Models\Requirement;
 use App\Models\EntityHistory;
+use App\Models\Interview;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -138,16 +139,25 @@ class BDMSubmissionCOntroller extends Controller
                     $status .= getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_BDM_STATUS,$row->id);
                     return $status;
                 })
-                ->addColumn('status', function($row){
+                ->addColumn('pv_status', function($row){
                     if(in_array(Auth::user()->role,['admin','bdm'])){
-                        $status = '<select name="pvstatus" class="form-control select2 submissionPvStatus" data-id="'.$row->id.'">';
-                        $submissionPvStatus = Submission::$pvStatus;
-                        $status .= '<option value="">Select Status</option>';
-                        foreach ($submissionPvStatus as $key => $val){
-                            $selected = $row->pv_status == $key ? 'selected' : '';
-                            $status .= '<option value="'.$key.'" '.$selected.'>'.$val.'</option>';
+                        $status = '';
+                        if($row->status == Submission::STATUS_ACCEPT){
+                            $isDisplay = 0;
+                            if(!empty($row->pv_status)){
+                                $isDisplay = 1;       
+                           } else {
+                                $status .= '<button class="btn btn-sm btn-default show-pv-status-'.$row->id.' mr-2" data-id="'.$row->id.'" onclick="showStatusOptions('.$row->id.')"><i class="fa fa-plus-square"></i></button>';
+                           }
+                           $status .= '<select style=" '.(!$isDisplay ? "display:none;" : "").'" name="pvstatus" class="form-control select2 submissionPvStatus pv-status-'.$row->id.'" data-id="'.$row->id.'">';
+                            $submissionPvStatus = Submission::$pvStatus;
+                            $status .= '<option value="">Select Status</option>';
+                            foreach ($submissionPvStatus as $key => $val){
+                                $selected = $row->pv_status == $key ? 'selected' : '';
+                                $status .= '<option value="'.$key.'" '.$selected.'>'.$val.'</option>';
+                            }
+                            $status .= '</select>'; 
                         }
-                        $status .= '</select>';
                     }else{
                         $status = isset(Submission::$pvStatus[$row->pv_status]) ? Submission::$pvStatus[$row->pv_status] : '';
                     }
@@ -189,7 +199,11 @@ class BDMSubmissionCOntroller extends Controller
                 // ->addColumn('action', function($row){
                 //     return '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/bdm_submission/'.$row->id.'/edit').'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Edit Interview" data-trigger="hover" type="submit" ><i class="fa fa-edit"></i></button></a></div>';
                 // })
-                ->rawColumns(['job_id','job_title','job_keyword','duration','client_name','poc','pv','employer_name','recruter_name','candidate_name','action','bdm_status','status','emp_poc','created_at'])
+                ->addColumn('client_status', function($row){
+                    $interviewModel = new Interview();
+                    return $interviewModel->getInterviewStatusBasedOnSubmissionIdAndJobId($row->id, $row->Requirement->job_id);
+                })
+                ->rawColumns(['job_id','job_title','job_keyword','duration','client_name','poc','pv','employer_name','recruter_name','candidate_name','action','bdm_status','pv_status','emp_poc','created_at'])
                 ->make(true);
         }
 

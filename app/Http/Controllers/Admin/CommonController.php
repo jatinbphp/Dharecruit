@@ -225,83 +225,90 @@ class CommonController extends Controller
         $requirementTitle = '';
         $requirementContent = '';
         $data['is_show_requirement'] = 0;
+        $isRecruiter = 0;
+        $isShowRecruiterAfterUpdate = 0;
         if(!empty($requirement)){
             $status = 1;
             $user = Auth::user();
             if($user->role == 'recruiter'){
-                $isShowRecruiters = array_filter(explode(',', $requirement->is_show_recruiter));
-                if(!in_array($user->id, $isShowRecruiters)){
-                    array_push($isShowRecruiters, $user->id);
-                    $requirement->is_show_recruiter = implode(',', $isShowRecruiters);
-                    $requirement->save();
-                    $data['is_show_requirement'] = 1;    
-                }
                 $isShowRecruiterAfterUpdate = array_filter(explode(',', $requirement->is_show_recruiter_after_update));
                 if(!in_array($user->id, $isShowRecruiterAfterUpdate)){
                     array_push($isShowRecruiterAfterUpdate, $user->id);
-                    $requirement->is_show_recruiter_after_update = implode(',', $isShowRecruiterAfterUpdate);
+                    $requirement->is_show_recruiter_after_update = ','.implode(',', $isShowRecruiterAfterUpdate).',';
                     $requirement->save();
-                    $data['is_show_requirement'] = 1;    
+                    $data['is_show_requirement'] = 1;
+                    $isShowRecruiterAfterUpdate = 1;
+                }
+                $isRecruiter = 1;
+                $isShowRecruiters = array_filter(explode(',', $requirement->is_show_recruiter));
+                if(!in_array($user->id, $isShowRecruiters)){
+                    array_push($isShowRecruiters, $user->id);
+                    $requirement->is_show_recruiter = ','.implode(',', $isShowRecruiters).',';
+                    $requirement->save();
+                    $data['is_show_requirement'] = 1;
+                    $isShowRecruiterAfterUpdate = 0;
                 }
             }
+            $updatedFileds = (!empty($requirement->updated_fileds)) ? explode(',', $requirement->updated_fileds) : [];
+
             $requirementTitle = $requirement->job_title;
             $requirementDocuments = RequirementDocuments::where('requirement_id',$request->id)->pluck('document','id');
 
             $requirementContent .= '
             <div class="row">
                 <div class="col-md-6">
-                    <strong>Job Title:</strong> '.$requirement->job_title.'
+                    <strong>Job Title:</strong> <span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("job_title",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->job_title.'</span>
                 </div>
                 <div class="col-md-6">
-                    <strong>No # Position:</strong> '.$requirement->no_of_position.'
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-md-6">
-                    <strong>Experience:</strong> '.$requirement->experience.'
-                </div>
-                <div class="col-md-6">
-                    <strong>Location:</strong> '.$requirement->location.'
+                    <strong>No # Position:</strong> <span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("no_of_position",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->no_of_position.'</span>
                 </div>
             </div>
             <div class="row mt-2">
                 <div class="col-md-6">
-                    <strong>Onsite/Hybrid/Remote:</strong> '.$requirement->work_type.'
+                    <strong>Experience:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("experience",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->experience.'</span>
                 </div>
                 <div class="col-md-6">
-                    <strong>Duration:</strong> '.$requirement->duration.'
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-md-6">
-                    <strong>Visa:</strong> '.Requirement::getVisaNames($requirement->visa) .'
-                </div>
-                <div class="col-md-6">
-                    <strong>Client:</strong> '.$requirement->client.'
+                    <strong>Location:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("location",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->location.'</span>
                 </div>
             </div>
             <div class="row mt-2">
                 <div class="col-md-6">
-                    <strong>Priority:</strong> '.$requirement->priority.'
+                    <strong>Onsite/Hybrid/Remote:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("work_type",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->work_type.'</span>
                 </div>
                 <div class="col-md-6">
-                    <strong>Term:</strong> '.$requirement->term.'
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-md-6">
-                    <strong>Category:</strong> '.$requirement->Category->name.'
-                </div>
-                <div class="col-md-6">
-                    <strong>MOI:</strong> '.Requirement::getMoiNames($requirement->moi).'
+                    <strong>Duration:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("duration",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->duration.'</span>
                 </div>
             </div>
             <div class="row mt-2">
                 <div class="col-md-6">
-                    <strong>Job Keyword:</strong> '.$requirement->job_keyword.'
+                    <strong>Visa:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("visa",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.Requirement::getVisaNames($requirement->visa) .'</span>
                 </div>
                 <div class="col-md-6">
-                    <strong>Special Notes:</strong> '.$requirement->notes.'
+                    <strong>Client:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("client",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->client.'</span>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <strong>Priority:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("priority",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->priority.'</span>
+                </div>
+                <div class="col-md-6">
+                    <strong>Term:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("term",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->term.'</span>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <strong>Category:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("category",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->Category->name.'</span>
+                </div>
+                <div class="col-md-6">
+                    <strong>MOI:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("moi",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.Requirement::getMoiNames($requirement->moi).'</span>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <strong>Job Keyword:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("job_keyword",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->job_keyword.'</span>
+                </div>
+                <div class="col-md-6">
+                    <strong>Special Notes:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("notes",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->notes.'</span>
                 </div>
             </div>
             <div class="row mt-2">
@@ -333,7 +340,9 @@ class CommonController extends Controller
                     <strong>Job Description:</strong>
                 </div>
                 <div class="col-md-12">
-                    '.$requirement->description.'
+                    <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("description",$updatedFileds) ? "text-primary font-weight-bold" : "").'">
+                        '.$requirement->description.'
+                    </span>
                 </div>
             </div>';
         }
