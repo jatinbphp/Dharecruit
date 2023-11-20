@@ -222,10 +222,10 @@ if(!function_exists('getClientHtml')){
 
 if(!function_exists('getJobKeywordHtml')){
     function getJobKeywordHtml($row){
-        $jobKeyword = $row->job_keyword;
+        $jobKeyword = strip_tags($row->job_keyword);
         if(strlen($jobKeyword) > 60){
             $shortString = substr($jobKeyword, 0, 60);
-            return '<p>' . $shortString . '<span class=" job-title" data-id="'.$row->id.'"><span class="font-weight-bold"> More +</span></span>'; 
+            return '<p>' . $shortString . '<span class=" job-title" data-id="'.$row->id.'"><span class="font-weight-bold"> More +</span></p>';
         }
         return '<p>'.$row->job_keyword.'</p>';
     }

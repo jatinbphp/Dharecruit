@@ -303,7 +303,7 @@
     </div>
 
     <div class="row pl-3 pr-3">
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="form-group{{ $errors->has('category') ? ' has-error' : '' }}">
                 <label class="control-label" for="category">Category <span class="text-red">*</span></label>
                 {!! Form::select('category', $category, null, ['class' => 'form-control select2','id'=>'category']) !!}
@@ -315,7 +315,7 @@
             </div>
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="form-group{{ $errors->has('moi') ? ' has-error' : '' }}">
                 <label class="control-label" for="moi">MOI <span class="text-red">*</span></label>
                 {!! Form::select('moi[]', $moi, !empty($selectedMoi) ? $selectedMoi : null, ['multiple' => true, 'class' => 'form-control select2','id'=>'moi', 'data-placeholder' => 'Please Select MOI']) !!}
@@ -326,22 +326,7 @@
                 @endif
             </div>
         </div>
-    </div>
-
-    <div class="row pl-3 pr-3">
-        <div class="col-md-6">
-            <div class="form-group{{ $errors->has('job_keyword') ? ' has-error' : '' }}">
-                <label class="control-label" for="job_keyword">Job Keyword :<span class="text-red">*</span></label>
-                {!! Form::text('job_keyword', null, ['class' => 'form-control', 'placeholder' => 'Enter Job Keyword', 'id' => 'job_keyword']) !!}
-                @if ($errors->has('job_keyword'))
-                    <span class="text-danger">
-                        <strong>{{ $errors->first('job_keyword') }}</strong>
-                    </span>
-                @endif
-            </div>
-        </div>
-
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="form-group{{ $errors->has('notes') ? ' has-error' : '' }}">
                 <label class="control-label" for="notes">Special Notes :<span class="text-red"></span></label>
                 {!! Form::text('notes', null, ['class' => 'form-control', 'placeholder' => 'Enter Notes', 'id' => 'notes']) !!}
@@ -352,11 +337,25 @@
                 @endif
             </div>
         </div>
+    </div>
+
+    <div class="row pl-3 pr-3">
+        <div class="col-md-12">
+            <div class="form-group{{ $errors->has('job_keyword') ? ' has-error' : '' }}">
+                <label class="control-label" for="job_keyword">Job Keyword :<span class="text-red">*</span></label>
+                {!! Form::textarea('job_keyword', null, ['class' => 'form-control description', 'rows'=>4, 'placeholder' => 'Enter Job Keyword', 'id' => 'job_keyword']) !!}
+                @if ($errors->has('job_keyword'))
+                    <span class="text-danger">
+                        <strong>{{ $errors->first('job_keyword') }}</strong>
+                    </span>
+                @endif
+            </div>
+        </div>
 
         <div class="col-md-12">
             <div class="form-group{{ $errors->has('description') ? ' has-error' : '' }}">
                 <label class="control-label" for="notes">Job Description :<span class="text-red">*</span></label>
-                {!! Form::textarea('description', null, ['class' => 'form-control', 'rows'=>4, 'placeholder' => 'Enter Job Description', 'id' => 'description']) !!}
+                {!! Form::textarea('description', null, ['class' => 'form-control description', 'rows'=>4, 'placeholder' => 'Enter Job Description', 'id' => 'description']) !!}
                 @if ($errors->has('description'))
                     <span class="text-danger">
                         <strong>{{ $errors->first('description') }}</strong>

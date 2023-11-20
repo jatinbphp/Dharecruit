@@ -127,6 +127,8 @@ class Controller extends BaseController
             if($page == 'my_submission'){
                 $userId = $submission->requirement->user_id;
             }
+            
+            $isSamePvCandidate = $this->isSamePvCandidate($submission->email, $submission->requirement_id, $submission->id);
 
             if($user->id == $userId || $user->role == 'admin'){
                 if($submission->is_show == 0){
@@ -183,15 +185,16 @@ class Controller extends BaseController
             $nameArray = explode(" ",$submission->name);
             $candidateFirstName = isset($nameArray[0]) ? $nameArray[0] : '';
             $candidateLastDate = ($this->getCandidateLastStatusUpdatedAt($submission)) ? date('m/d h:i A', strtotime($this->getCandidateLastStatusUpdatedAt($submission))) : ''; 
+    
             if($user->id == $userId && $user->role == 'recruiter'){
-                $candidate .= '<div onClick="showUpdateSubmissionModel('.$submission->id.')" class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.$candidateFirstName.'-'.$submission->id.'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
+                $candidate .= '<div onClick="showUpdateSubmissionModel('.$submission->id.')" class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i>  ": "").$candidateFirstName.'-'.$submission->candidate_id.' '.($isSamePvCandidate ? "<br>JID:$row->job_id" : "").'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
             } else {
                 if(($user->id == $userId && $user->role == 'bdm') || $user->role == 'admin'){
                     $class = 'candidate';
                 } else {
-                    $class = '';   
+                    $class = '';
                 }
-                $candidate .= '<div class="'.$divClass.'" style="'.$divCss.'"><span class="'.$class.' '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.$candidateFirstName.'-'.$submission->id.'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
+                $candidate .= '<div class="'.$divClass.'" style="'.$divCss.'"><span class="'.$class.' '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i> " :"").$candidateFirstName.'-'.$submission->candidate_id.''.($isSamePvCandidate ? "<br>JID:$row->job_id" : "").'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
             }
         }
         return $candidate;
@@ -324,5 +327,35 @@ class Controller extends BaseController
 
     public function getSettingData() {
         return Setting::pluck('value','name')->toArray();
+    }
+
+    public function isSamePvCandidate($submissionEmail, $requirementId, $submissionId = 0){
+        if(!$submissionEmail || !$requirementId){
+            return 0;
+        }
+
+        $requirementIdsWithCurrentEmail = Submission::where('email', $submissionEmail)->pluck('requirement_id')->toArray();
+
+        if($submissionId){
+            $requirementIdsWithCurrentEmail = Submission::where('email', $submissionEmail)->where('id','!=',$submissionId)->pluck('requirement_id')->toArray();
+        }
+
+        if(!$requirementIdsWithCurrentEmail || !count($requirementIdsWithCurrentEmail)){
+            return 0;
+        }
+
+        $currentRequirement = Requirement::where('id', $requirementId)->first();
+        if(!$currentRequirement){
+            return 0;
+        }
+        $currentRequirementPvCompany = $currentRequirement->pv_company_name;
+
+        $samePvCompanyCandidate = Requirement::whereIn('id',$requirementIdsWithCurrentEmail)->where('pv_company_name',$currentRequirementPvCompany)->first();
+        
+        if(empty($samePvCompanyCandidate)){
+            return 0;
+        }
+    
+        return 1;
     }
 }

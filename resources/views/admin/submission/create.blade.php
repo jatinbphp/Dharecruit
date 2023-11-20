@@ -49,12 +49,12 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <input type="hidden" name="requirement_id" value="{{$requirement['id']}}">
+                                    <input type="hidden" id="requirement_id" name="requirement_id" value="{{$requirement['id']}}">
                                     @include ('admin.submission.form')
                                 </div>
                             <div class="card-footer">
                                 <a href="{{ route('submission.show',['submission'=>$requirement['id']]) }}" ><button class="btn btn-default" type="button">Back</button></a>
-                                <button class="btn btn-info float-right" type="submit">Add</button>
+                                <button class="btn btn-info float-right add-submission" type="button">Add</button>
                             </div>
                         {!! Form::close() !!}
                     </div>

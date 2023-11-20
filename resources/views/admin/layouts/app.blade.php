@@ -516,7 +516,7 @@
         $( "#sortable" ).disableSelection();
 
         /*SUMMER NOTE CODE*/
-        $("textarea[id=description]").summernote({
+        $(".description").summernote({
             height: 250,
             toolbar: [
                 ['style', ['bold', 'italic', 'underline', 'clear']],
@@ -525,7 +525,7 @@
                 ['color', ['color']],
                 ['para', ['ul', 'ol', 'paragraph']],
                 ['insert', ['table','picture','link','map','minidiag']],
-                ['misc', ['fullscreen', 'codeview']],
+                ['misc', ['codeview']],
             ],
             callbacks: {
                 onImageUpload: function(files) {

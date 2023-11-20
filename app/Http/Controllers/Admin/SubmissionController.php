@@ -78,7 +78,6 @@ class SubmissionController extends Controller
         }
 
         $this->validate($request, $fileds);
-
         $requirement = Requirement::where('id',$request['requirement_id'])->first();
         $existSubmission = Submission::where('requirement_id',$request['requirement_id'])->where('email',$request['email'])->first();
         if(!empty($existSubmission)){
@@ -101,7 +100,19 @@ class SubmissionController extends Controller
                 'resume' => 'required|mimes:doc,docx,pdf',
             ]);
         }
+
         $submission = Submission::create($input);
+
+        if($submission && !empty($request->email)){
+            $existingSubmission = Submission::where('email',$request->email)->first();
+            if(!empty($existingSubmission) && $existingSubmission->id){
+                $submission->candidate_id = $existingSubmission->id;
+                $submission->save();
+            }else{
+                $submission->candidate_id = $submission->id;
+                $submission->save();
+            }
+        }
 
         if($requirement['submissionCounter'] < 3){
             $in['submissionCounter'] = $requirement['submissionCounter'] + 1;
@@ -299,6 +310,18 @@ class SubmissionController extends Controller
             $data['status'] = 1;
             $data['requs'] = $requs;
         }
+        return $data;
+    }
+
+    public function checkPvCompany(Request $request){
+        $data['status'] = 0;
+        if(empty($request) || empty($request->requirement_id) || empty($request->email)){
+            return $data;
+        }
+        
+        $data['status']            = 1;
+        $data['isSamePvCandidate'] = $this->isSamePvCandidate($request->email, $request->requirement_id);
+
         return $data;
     }
 }

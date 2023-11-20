@@ -281,6 +281,7 @@
                 'employee_name',
                 'employee_email',
                 'employee_phone',
+                'requirement_id',
             ];
             $.ajax({
                 url : "{{ route('submission.alreadyAddedUserDetail') }}",
@@ -388,5 +389,50 @@
                 }
             });
         }
+    
+        $('.add-submission').click(function(){
+            var requirementId = $('#requirement_id').val();
+            var candidateEmail = $('#email').val();
+            console.log(requirementId);
+            console.log(candidateEmail);
+            if(!requirementId || !candidateEmail){
+                swal("Error", "Please Fill Data!", "error");
+            }
+
+            $.ajax({
+                url: "{{url('admin/submission/checkPvCompany')}}",
+                type: "POST",
+                data: {'requirement_id':requirementId, 'email':candidateEmail, _token: '{{csrf_token()}}' },
+                success: function(data){
+                    if(data.status == 0){
+                        swal("Error", "Something is wrong!", "error");
+                        return;
+                    }
+                    console.log(data);
+                    if(data.isSamePvCandidate == 1){
+                        swal({
+                            title: "Are you sure?",
+                            text: "This candidate has already been submitted, you would like to submit?",
+                            type: "warning",
+                            showCancelButton: true,
+                            confirmButtonColor: '#DD6B55',
+                            confirmButtonText: 'Yes, Add',
+                            cancelButtonText: "No, cancel",
+                            closeOnConfirm: false,
+                            closeOnCancel: false
+                        },
+                        function(isConfirm) {
+                            if (isConfirm) {
+                                $('#submissionsForm').submit();
+                            } else {
+                                swal("Cancelled", "Your data safe!", "error");
+                            }
+                        });
+                    } else {
+                        $('#submissionsForm').submit();
+                    }
+                }
+            });
+        });
     </script>
 @endsection

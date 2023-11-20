@@ -489,10 +489,12 @@ class CommonController extends Controller
                         <td class="pt-4">'. $submission->recruiter_rate .'</td>
                         <td class="pt-4">
                             <span>' .(isset($bdmStatus[$submission->status]) ? $bdmStatus[$submission->status]  :''). '</span><br>
+                            <span>'.$submission->reason.'</span>
                             '. getEntityLastUpdatedAtHtml($entityTypeBdm, $submission->id) .'
                         </td>
                         <td class="pt-4">
                             <span>' .(isset($pvStatus[$submission->pv_status]) ? $pvStatus[$submission->pv_status] :''). '</span><br>
+                            <span>'.$submission->pv_reason.'</span>
                             '.getEntityLastUpdatedAtHtml($entityTypePv, $submission->id).'
                         </td>
                     </tr>';
