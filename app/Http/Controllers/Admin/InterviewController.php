@@ -110,9 +110,9 @@ class InterviewController extends Controller
                     <span>'.date('H:i:s', strtotime($row->interview_time)) .' '. $row->time_zone.'</span>';
                 })
                 ->addColumn('job_id', function($row){
-                    return $row->job_id;
+                    return '<span class=" job-title" data-id="'.$row->Submission->requirement_id.'">'.$row->job_id.'</span>';;
                 })
-                ->rawColumns(['status','candidate_name','action','candidate_phone_number','emp_poc','candidate_email','employer_name','poc_name','pv_name','hiring_manager','client','interview_time'])
+                ->rawColumns(['status','candidate_name','action','candidate_phone_number','emp_poc','candidate_email','employer_name','poc_name','pv_name','hiring_manager','client','interview_time','job_id'])
                 ->make(true);
         }
 
@@ -336,10 +336,12 @@ class InterviewController extends Controller
             $textColor = 'text-white';
         }
 
+        $candidateCount = $this->getCandidateCountByEmail($interview->Submission->email);
+
         $candidateNames = explode(' ',$interview->Submission->name);
         $candidateName = isset($candidateNames[0]) ? $candidateNames[0] : '';
 
-        return '<div class="candidate-'. $interview->id .'"><div class="'.$divClass.'  pt-2 pl-2 pb-2 pr-2" style="'.$divCss.'"><span class="candidate '.$textColor.'" >'.$candidateName.'</span></div></div>';
+        return '<span class="badge bg-indigo position-absolute top-0 start-100 translate-middle">'.$candidateCount.'</span><div class="candidate-'. $interview->id .'"><div class="'.$divClass.'  pt-2 pl-2 pb-2 pr-2" style="'.$divCss.'"><span class="candidate '.$textColor.'" >'.$candidateName.'-'.$interview->Submission->candidate_id.'</span></div></div>';
     }
 
     public function removeDocument($id) {

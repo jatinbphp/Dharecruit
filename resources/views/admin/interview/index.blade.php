@@ -111,6 +111,7 @@
         </div>
     </section>
 </div>
+@include('admin.requirement.candidateModal',['hide'=>0, 'isSubmission'=>0,])
 @endsection
 
 @section('jquery')
@@ -202,5 +203,6 @@
             }
         });
     });
+
   </script>
 @endsection

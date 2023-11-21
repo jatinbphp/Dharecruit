@@ -552,8 +552,10 @@
             });
         }
 
-        $('#requirementTable, #mySubmissionTable tbody').on('click', '.job-title', function (event) {
+        $('#requirementTable, #mySubmissionTable, #interviewTable tbody').on('click', '.job-title', function (event) {
             var id = $(this).attr('data-id');
+            console.log('check');
+            console.log(id);
             $.ajax({
                 url: "{{route('get_requirement')}}",
                 type: "post",
@@ -569,6 +571,9 @@
                         $('#candidateModal').modal('show');
                         if(data.is_show_requirement == 1){
                             $('.job-title-'+id).removeClass('pt-1 pl-2 pb-1 pr-2 border border-primary text-primary border-warning text-warning');
+                        }
+                        if(data.isShowRequirement == 1){
+                            $('.show-logs').remove();
                         }
                     }else{
                         swal("Cancelled", "Something is wrong. Please try again!", "error");
@@ -637,7 +642,6 @@
     }
 
     function showUpdateSubmissionModel(id){
-        console.log(id);
         $.ajax({
             url: "{{route('get_update_submission_data')}}",
             type: "POST",
@@ -692,6 +696,11 @@
                 }
             }
         });
+    }
+
+    function showLogs(){
+        $('.log-data').show();
+        $('.log-data').prev().addClass('text-primary');
     }
 
 </script>

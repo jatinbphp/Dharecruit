@@ -187,14 +187,14 @@ class Controller extends BaseController
             $candidateLastDate = ($this->getCandidateLastStatusUpdatedAt($submission)) ? date('m/d h:i A', strtotime($this->getCandidateLastStatusUpdatedAt($submission))) : ''; 
     
             if($user->id == $userId && $user->role == 'recruiter'){
-                $candidate .= '<div onClick="showUpdateSubmissionModel('.$submission->id.')" class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i>  ": "").$candidateFirstName.'-'.$submission->candidate_id.' '.($isSamePvCandidate ? "<br>JID:$row->job_id" : "").'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
+                $candidate .= '<span class="badge bg-indigo position-absolute top-0 start-100 translate-middle ">'.$this->getCandidateCountByEmail($submission->email).'</span><div onClick="showUpdateSubmissionModel('.$submission->id.')" class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i>  ": "").$candidateFirstName.'-'.$submission->candidate_id.' '.($isSamePvCandidate ? "<br>JID:$row->job_id" : "").'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
             } else {
                 if(($user->id == $userId && $user->role == 'bdm') || $user->role == 'admin'){
                     $class = 'candidate';
                 } else {
                     $class = '';
                 }
-                $candidate .= '<div class="'.$divClass.'" style="'.$divCss.'"><span class="'.$class.' '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i> " :"").$candidateFirstName.'-'.$submission->candidate_id.''.($isSamePvCandidate ? "<br>JID:$row->job_id" : "").'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
+                $candidate .= '<span class="badge bg-indigo position-absolute top-0 start-100 translate-middle">'.$this->getCandidateCountByEmail($submission->email).'</span><div class="'.$divClass.'" style="'.$divCss.'"><span class="'.$class.' '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i> " :"").$candidateFirstName.'-'.$submission->candidate_id.''.($isSamePvCandidate ? "<br>JID:$row->job_id" : "").'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
             }
         }
         return $candidate;
@@ -357,5 +357,12 @@ class Controller extends BaseController
         }
     
         return 1;
+    }
+    
+    public function getCandidateCountByEmail($email){
+        if(!$email){
+            return 0;
+        }
+        return Submission::where('email', $email)->groupBy()->count();
     }
 }

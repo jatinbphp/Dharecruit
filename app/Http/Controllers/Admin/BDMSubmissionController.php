@@ -95,7 +95,7 @@ class BDMSubmissionCOntroller extends Controller
 
             return Datatables::of($data)
                 ->addColumn('job_id', function($row){
-                    return $row->Requirement->job_id;
+                    return '<span class=" job-title" data-id="'.$row->requirement_id.'">'.$row->Requirement->job_id.'</span>';
                 })
                 ->addColumn('job_title', function($row){
                     return '<span class="job-title" data-id="'.$row->requirement_id.'">'.$row->Requirement->job_title.'</span>';
@@ -269,7 +269,8 @@ class BDMSubmissionCOntroller extends Controller
 
         $input = $request->all();
         $Submission = Submission::where('id',$id)->first();
-        $Submission->update($request->all());
+        $input['log_data'] = json_encode($Submission->toArray());
+        $Submission->update($input);
         \Session::flash('success','Submission  has been updated successfully!');
         return redirect(route('bdm_submission.index'));
     }
@@ -344,6 +345,7 @@ class BDMSubmissionCOntroller extends Controller
             return $data;
         }
         $inputData = $request->except(['submission_id']);
+        $inputData['log_data'] = json_encode($submission->toArray());
         $submission->update($inputData);
         $data['status'] = 1;
         $data['url'] = route('bdm_submission.index');

@@ -2,10 +2,17 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="candidateModalLabel">Requirement : <span id="jobTitle"></span></h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <div class="col-md-6">
+                    <h5 class="modal-title" id="candidateModalLabel">Requirement : <span id="jobTitle"></span></h5>
+                </div>
+                <div class="col-md-5">
+                        <button class="btn btn-primary float-right show-logs" onclick="showLogs()" type="button">Logs</button>
+                    </div>
+                <div class="col-md-1">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
             </div>
             {!! Form::open(['url' => route('candidate.update'), 'id' => 'candidateForm', 'class' => 'form-horizontal','files'=>true]) !!}
             {!! Form::hidden('submissionId', null, ['class' => 'form-control', 'id' => 'submissionId']) !!}

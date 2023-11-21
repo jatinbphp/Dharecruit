@@ -216,7 +216,8 @@ class SubmissionController extends Controller
 
         $input = $request->all();
         $Submission = Submission::where('id',$id)->first();
-        $Submission->update($request->all());
+        $input['log_data'] = json_encode($Submission->toArray());
+        $Submission->update($input);
 
         \Session::flash('success','Submission  has been updated successfully!');
         return redirect(route('submission.show',['submission'=>$Submission['requirement_id']]));

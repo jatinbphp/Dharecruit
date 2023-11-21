@@ -38,7 +38,10 @@ if(!function_exists('getListHtml')){
             ->addColumn('job_keyword', function($row) {
                 return getJobKeywordHtml($row);
             })
-            ->rawColumns(['user_id','category','recruiter','status','candidate','action','client','job_title','job_keyword'])
+            ->addColumn('job_id', function($row) {
+                return '<span class=" job-title" data-id="'.$row->id.'">'.$row->job_id.'</span>';
+            })
+            ->rawColumns(['user_id','category','recruiter','status','candidate','action','client','job_title','job_keyword','job_id'])
             ->make(true);
     }
 }

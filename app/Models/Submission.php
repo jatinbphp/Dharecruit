@@ -13,7 +13,7 @@ class Submission extends Model
     protected $fillable = [
         'user_id','requirement_id','name','email','location','phone','employer_detail','work_authorization','recruiter_rate','last_4_ssn',
         'education_details','resume_experience','linkedin_id','relocation','vendor_rate','notes','documents','common_skills','skills_match','reason','status','employer_name','employee_name','employee_email','employee_phone','pv_status','pv_reason','is_show',
-        'candidate_id',
+        'candidate_id','log_data',
     ];
 
     const STATUS_PENDING = 'pending';
@@ -110,5 +110,17 @@ class Submission extends Model
     public static $hideForReq = [
         'poc_name',
         'pv_name',
+    ];
+
+    public static $manageLogFileds = [
+        'email',
+        'phone',
+        'work_authorization',
+        'education_details',
+        'linkedin_id',
+        'location',
+        'last_4_ssn',
+        'resume_experience',
+        'employer_name',
     ];
 }
