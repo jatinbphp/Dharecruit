@@ -121,7 +121,7 @@ class BDMSubmissionCOntroller extends Controller
                     $candidateBorderCss = $this->getCandidateBorderCss($row);
                     $candidateNames = explode(' ',$row->name);
                     $candidateName = isset($candidateNames[0]) ? $candidateNames[0] : '';
-                    return '<div onClick="showUpdateSubmissionModel('.$row->id.')" class="a-center pt-2 pl-2 pb-2 pr-2 '. $candidateCss.'" style="width: fit-content;"><span class="'.$candidateClass.'" style="'.$candidateBorderCss.'" data-id="'.$row->id.'">'. $candidateName. '</span></div>';
+                    return '<div onClick="showUpdateSubmissionModel('.$row->id.')" class="a-center pt-2 pl-2 pb-2 pr-2 '. $candidateCss.'" style="width: fit-content;"><span class="'.$candidateClass.'" style="'.$candidateBorderCss.'" data-id="'.$row->id.'">'. $candidateName. '-' .$row->candidate_id. '</span></div>';
                 })
                 ->addColumn('bdm_status', function($row){
                     if(in_array(Auth::user()->role,['admin','bdm'])){
@@ -136,6 +136,7 @@ class BDMSubmissionCOntroller extends Controller
                     }else{
                         $status = isset(Submission::$status[$row->status]) ? Submission::$status[$row->status] : '';
                     }
+                    $status .= '<span>'.$row->reason.'</span>';
                     $status .= getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_BDM_STATUS,$row->id);
                     return $status;
                 })
@@ -161,7 +162,7 @@ class BDMSubmissionCOntroller extends Controller
                     }else{
                         $status = isset(Submission::$pvStatus[$row->pv_status]) ? Submission::$pvStatus[$row->pv_status] : '';
                     }
-                    
+                    $status .= '<span>'.$row->pv_reason.'</span>';
                     $status .= getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_PV_STATUS,$row->id);
                     return $status;
                 })
@@ -269,7 +270,7 @@ class BDMSubmissionCOntroller extends Controller
 
         $input = $request->all();
         $Submission = Submission::where('id',$id)->first();
-        $input['log_data'] = json_encode($Submission->toArray());
+        $this->manageSubmissionLogs($input, $Submission);
         $Submission->update($input);
         \Session::flash('success','Submission  has been updated successfully!');
         return redirect(route('bdm_submission.index'));
@@ -345,7 +346,7 @@ class BDMSubmissionCOntroller extends Controller
             return $data;
         }
         $inputData = $request->except(['submission_id']);
-        $inputData['log_data'] = json_encode($submission->toArray());
+        $this->manageSubmissionLogs($request->all(), $submission);
         $submission->update($inputData);
         $data['status'] = 1;
         $data['url'] = route('bdm_submission.index');

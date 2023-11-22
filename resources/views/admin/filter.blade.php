@@ -7,14 +7,27 @@
 <div class="row">
     <div class="col-md-3">
         <div class="form-group{{ $errors->has('date') ? ' has-error' : '' }}">
-            <label class="control-label" for="date">From & To Date</label>
+            <label class="control-label" for="date">From Date</label>
             <div class="input-group">
                 <div class="input-group-prepend">
                     <span class="input-group-text">
                         <i class="far fa-calendar-alt"></i>
                     </span>
                 </div>
-                {!! Form::text('date', null, ['autocomplete' => 'off', 'class' => 'form-control float-right', 'placeholder' => 'Select From & To Date', 'id' => 'reqDate']) !!}
+                {!! Form::text('date', null, ['autocomplete' => 'off', 'class' => 'datepicker form-control float-right', 'placeholder' => 'Select From Date', 'id' => 'fromDate']) !!}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group{{ $errors->has('date') ? ' has-error' : '' }}">
+            <label class="control-label" for="date">To Date</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">
+                        <i class="far fa-calendar-alt"></i>
+                    </span>
+                </div>
+                {!! Form::text('date', null, ['autocomplete' => 'off', 'class' => 'datepicker form-control float-right', 'placeholder' => 'Select To Date', 'id' => 'toDate']) !!}
             </div>
         </div>
     </div>
@@ -36,8 +49,6 @@
             {!! Form::select('recruiter', $recruiter, null, ['class' => 'form-control select2','id'=>'recruiter']) !!}
         </div>
     </div>
-</div>
-<div class="row">
     <div class="col-md-3">
         <div class="form-group{{ $errors->has('poc_email') ? ' has-error' : '' }}">
             <label class="control-label" for="poc_email">POC Email</label>

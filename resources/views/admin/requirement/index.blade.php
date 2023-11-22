@@ -109,7 +109,8 @@
             ajax: {
                 url: "{{ $type == 1 ? route('requirement.index') : route('my_requirement') }}",
                 data: function (d) {
-                    d.date = $('#reqDate').val();
+                    d.fromDate = $('#fromDate').val();
+                    d.toDate = $('#toDate').val();
                     d.requirement = $('#requirement').val();
                     d.bdm = $('#bdm').val();
                     d.recruiter = $('#recruiter').val();
@@ -238,7 +239,11 @@
                 type: "post",
                 data: {'cId': cId,'_token' : $('meta[name=_token]').attr('content') },
                 success: function(data){
+                    console.log(data);
                     if(data.status == 1){
+                        if(data.showLogButton == 0){
+                            $('.show-logs').remove();
+                        }
                         var submission = data.submission;
                         $('#jobTitle').html(submission.requirement.job_title);
                         $('#submissionId').val(cId);

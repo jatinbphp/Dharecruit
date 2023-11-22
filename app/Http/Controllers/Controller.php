@@ -7,6 +7,7 @@ use App\Models\Submission;
 use App\Models\Interview;
 use App\Models\EntityHistory;
 use App\Models\Setting;
+use App\Models\DataLog;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -49,11 +50,14 @@ class Controller extends BaseController
             $query = Requirement::select();
         }
 
-        if(!empty($request->date)){
-            $date = explode('-',$request->date);
-            $dateS = date('Y-m-d', strtotime($date[0]));
-            $dateE = date('Y-m-d', strtotime($date[1]));
-            $query->whereBetween('created_at', [$dateS." 00:00:00", $dateE." 23:59:59"]);
+        if(!empty($request->fromDate)){
+            $fromDate = date('Y-m-d', strtotime($request->fromDate));
+            $query->where('created_at', '>=' ,$fromDate." 00:00:00");
+        }
+
+        if(!empty($request->toDate)){
+            $toDate = date('Y-m-d', strtotime($request->toDate));
+            $query->where('created_at', '<=' ,$toDate." 23:59:59");
         }
 
         if(!empty($request->requirement)){
@@ -83,7 +87,9 @@ class Controller extends BaseController
         if(!empty($request->work_type)){
             $whereInfo[] = ['work_type', $request->work_type];
         }
-        return $query->where($whereInfo)->orderBy('id', 'desc');
+        $a = $query->where($whereInfo)->orderBy('id', 'desc');
+        return $a;
+        
     }
 
     public function submissionFilter($request,$id){
@@ -182,19 +188,21 @@ class Controller extends BaseController
                     }
                 }
             }
-            $nameArray = explode(" ",$submission->name);
+            $nameArray          = explode(" ",$submission->name);
             $candidateFirstName = isset($nameArray[0]) ? $nameArray[0] : '';
-            $candidateLastDate = ($this->getCandidateLastStatusUpdatedAt($submission)) ? date('m/d h:i A', strtotime($this->getCandidateLastStatusUpdatedAt($submission))) : ''; 
-    
+            $candidateLastDate  = ($this->getCandidateLastStatusUpdatedAt($submission)) ? date('m/d h:i A', strtotime($this->getCandidateLastStatusUpdatedAt($submission))) : ''; 
+            $candidateCount     = $this->getCandidateCountByEmail($submission->email);
+            $latestJobIdOfMatchPvCompany = $this->getLatestJobIdOfMatchPvCompany($submission->email);
+
             if($user->id == $userId && $user->role == 'recruiter'){
-                $candidate .= '<span class="badge bg-indigo position-absolute top-0 start-100 translate-middle ">'.$this->getCandidateCountByEmail($submission->email).'</span><div onClick="showUpdateSubmissionModel('.$submission->id.')" class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i>  ": "").$candidateFirstName.'-'.$submission->candidate_id.' '.($isSamePvCandidate ? "<br>JID:$row->job_id" : "").'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
+                $candidate .= (($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").'<div onClick="showUpdateSubmissionModel('.$submission->id.')" class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i>  ": "").$candidateFirstName.'-'.$submission->candidate_id.' '.($isSamePvCandidate ? "<br>JID: $latestJobIdOfMatchPvCompany" : "").'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
             } else {
                 if(($user->id == $userId && $user->role == 'bdm') || $user->role == 'admin'){
                     $class = 'candidate';
                 } else {
                     $class = '';
                 }
-                $candidate .= '<span class="badge bg-indigo position-absolute top-0 start-100 translate-middle">'.$this->getCandidateCountByEmail($submission->email).'</span><div class="'.$divClass.'" style="'.$divCss.'"><span class="'.$class.' '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i> " :"").$candidateFirstName.'-'.$submission->candidate_id.''.($isSamePvCandidate ? "<br>JID:$row->job_id" : "").'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
+                $candidate .= (($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").'<div class="'.$divClass.'" style="'.$divCss.'"><span class="'.$class.' '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i> " :"").$candidateFirstName.'-'.$submission->candidate_id.''.($isSamePvCandidate ? "<br>JID: $latestJobIdOfMatchPvCompany" : "").'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
             }
         }
         return $candidate;
@@ -298,7 +306,7 @@ class Controller extends BaseController
         return '';
     }
 
-    function getInterviewStatus($submissionId, $jobId) {
+    public function getInterviewStatus($submissionId, $jobId) {
         if(!$jobId || !$submissionId){
             return '';
         }
@@ -363,6 +371,62 @@ class Controller extends BaseController
         if(!$email){
             return 0;
         }
-        return Submission::where('email', $email)->groupBy()->count();
+        $candidateCount = Submission::where('email', $email)->groupBy('email')->count();
+
+        return $candidateCount > 1 ? $candidateCount : 0;
+    }
+
+    public function manageSubmissionLogs($newData, $oldData) {
+        if(!$newData || !$oldData){
+            return $this;
+        }
+
+        $differentValues = [];
+
+        foreach ($newData as $key => $value) {
+            if(is_array($value)){
+                $value = ','. implode(',',$value).',';
+            }
+            if($value == 'on'){
+                $value = '1';
+            }elseif($value == 'off'){
+                $value = '0';
+            }
+            if (isset($oldData[$key]) && $oldData[$key] != $value) {
+                $differentValues[$key] = $oldData[$key];
+            } else {
+                $differentValues[$key] = '';
+            }
+        }
+
+        $this->saveDataLog($oldData->id, DataLog::SECTION_SUBMISSION, $differentValues);
+
+        return $this;
+    }
+
+    public function saveDataLog($sectionId,$section,$data){
+        if(!$sectionId || !$section || !$data){
+            return $this;
+        }
+
+        $inputData['section_id'] = $sectionId;
+        $inputData['section']    = $section;
+        $inputData['data']       = json_encode($data);
+
+        DataLog::create($inputData);
+        return $this;
+    }
+
+    public function getLatestJobIdOfMatchPvCompany($email){
+        if(!$email){
+            return '';
+        }
+
+        $submission = Submission::where('email', $email)->orderBy('created_at','DESC')->first();
+        
+        if(!empty($submission) && $submission->Requirement->job_id){
+            return $submission->Requirement->job_id;
+        }
+        return '';
     }
 }

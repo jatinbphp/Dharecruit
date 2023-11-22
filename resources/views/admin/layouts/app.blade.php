@@ -447,13 +447,27 @@
             todayHighlight: true
         });
 
-        $('#reqDate').daterangepicker({
+        $('#reqDateFrom').daterangepicker({
+            singleDatePicker: true,
             autoUpdateInput: false
         });
 
-        $('#reqDate').on('apply.daterangepicker', function (event, picker) {
-            if (picker.startDate && picker.endDate) {
-                $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));
+        $('#reqDateFrom').on('apply.daterangepicker', function (event, picker) {
+            if (picker.startDate) {
+                $(this).val(picker.startDate.format('DD/MM/YYYY'));
+            } else {
+                $(this).val('');
+            }
+        });
+
+        $('#reqDateTo').daterangepicker({
+            singleDatePicker: true,
+            autoUpdateInput: false
+        });
+
+        $('#reqDateTo').on('apply.daterangepicker', function (event, picker) {
+            if (picker.startDate) {
+                $(this).val(picker.startDate.format('DD/MM/YYYY'));
             } else {
                 $(this).val('');
             }
@@ -617,6 +631,7 @@
             type: "post",
             data: {'requirement_id': requirementId,'_token' : $('meta[name=_token]').attr('content') },
             success: function(responce){
+                console.log(responce);
                 if(responce.status == 1){
                     $('#submissionHeadingData').html(responce.submissionHeadingData);
                     $('#submissionHeaderData').html(responce.submissionHeaderData);

@@ -230,7 +230,7 @@ if(!function_exists('getJobKeywordHtml')){
             $shortString = substr($jobKeyword, 0, 60);
             return '<p>' . $shortString . '<span class=" job-title" data-id="'.$row->id.'"><span class="font-weight-bold"> More +</span></p>';
         }
-        return '<p>'.$row->job_keyword.'</p>';
+        return '<p>'.strip_tags($row->job_keyword).'</p>';
     }
 }
 

@@ -216,7 +216,7 @@ class SubmissionController extends Controller
 
         $input = $request->all();
         $Submission = Submission::where('id',$id)->first();
-        $input['log_data'] = json_encode($Submission->toArray());
+        $this->manageSubmissionLogs($input, $Submission);
         $Submission->update($input);
 
         \Session::flash('success','Submission  has been updated successfully!');

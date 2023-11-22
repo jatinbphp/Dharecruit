@@ -341,7 +341,7 @@ class InterviewController extends Controller
         $candidateNames = explode(' ',$interview->Submission->name);
         $candidateName = isset($candidateNames[0]) ? $candidateNames[0] : '';
 
-        return '<span class="badge bg-indigo position-absolute top-0 start-100 translate-middle">'.$candidateCount.'</span><div class="candidate-'. $interview->id .'"><div class="'.$divClass.'  pt-2 pl-2 pb-2 pr-2" style="'.$divCss.'"><span class="candidate '.$textColor.'" >'.$candidateName.'-'.$interview->Submission->candidate_id.'</span></div></div>';
+        return ($candidateCount ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").'<div class="candidate-'. $interview->id .'"><div class="'.$divClass.'  pt-2 pl-2 pb-2 pr-2" style="'.$divCss.'"><span class="candidate '.$textColor.'" >'.$candidateName.'-'.$interview->Submission->candidate_id.'</span></div></div>';
     }
 
     public function removeDocument($id) {

@@ -7,6 +7,7 @@ use App\Models\Submission;
 use App\Models\Requirement;
 use App\Models\RequirementDocuments;
 use App\Models\Interview;
+use App\Models\DataLog;
 use Illuminate\Http\Request;
 use App\Models\EntityHistory;
 use App\Http\Controllers\Controller;
@@ -36,6 +37,7 @@ class CommonController extends Controller
         $reason = '';
         $historyData = '';
         $status = 0;
+        $showLogButton = 1;
         $manageLogFileds = Submission::$manageLogFileds;
         if(!empty($submission)){
             $status = 1;
@@ -53,6 +55,9 @@ class CommonController extends Controller
             $oldResumeExperience = $this->getLogDataByName($submission, 'resume_experience');
             $oldLinkedinId = $this->getLogDataByName($submission, 'linkedin_id');
             $oldEmployerName = $this->getLogDataByName($submission, 'employer_name');
+            if(!$oldEmail && !$oldLocation && !$oldPhone && !$oldWorkAuthorization && !$oldLast4ssn && !$oldEducationDetails && !$oldResumeExperience && !$oldLinkedinId && !$oldEmployerName){
+                $showLogButton = 0;
+            }
             $rData .= '<h3>Requirement</h3>
                         <div class="row">
                             <div class="col-md-6">
@@ -196,7 +201,7 @@ class CommonController extends Controller
                             }
 
                             $historyData .= '<tr data-id='.$candidateData->id.'>
-                                                <td>'.date('m-d-Y',strtotime($candidateData->created_at)).'</td>
+                                                <td class="'.(($submission->Requirement->pv_company_name == $candidateData->Requirement->pv_company_name) ? "bg-primary" : "").'">'.date('m-d-Y',strtotime($candidateData->created_at)).'</td>
                                                 <td>'.$candidateData->requirement->job_id.'</td>
                                                 <td>'.$candidateData->requirement->job_title.'</td>
                                                 <td>'.$candidateData->requirement->BDM->name.'</td>
@@ -232,6 +237,7 @@ class CommonController extends Controller
         $data['candidateStatus'] = $candidateStatus;
         $data['status'] = $status;
         $data['historyData'] = $historyData;
+        $data['showLogButton'] = $showLogButton;
         return $data;
     }
 
@@ -552,13 +558,21 @@ class CommonController extends Controller
             return '';
         }
 
-        $allLogData = json_decode($submission->log_data, 1);
-        $logData = isset($allLogData[$key]) ? $allLogData[$key] : '';
-        
-        if(isset($submission[$key]) && $submission[$key] == $logData){
+        $allLogData = DataLog::where('section_id', $submission->id)->where('section', DataLog::SECTION_SUBMISSION)->orderBy('created_at', 'DESC')->get();
+
+        if(empty($allLogData) || !count($allLogData)){
             return '';
         }
 
-        return $logData;
+        $logData = [];
+
+        foreach($allLogData as $data){
+            $allData = json_decode($data->data, 1);
+            if(isset($allData[$key]) && $allData[$key]){
+                $logData[] = $allData[$key];
+            }
+        }
+
+        return implode(' | ', $logData);
     }
 }
