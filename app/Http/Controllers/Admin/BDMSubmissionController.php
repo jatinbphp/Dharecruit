@@ -249,8 +249,8 @@ class BDMSubmissionCOntroller extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'name' => 'required',
-            'email' => 'required',
+            // 'name' => 'required',
+            // 'email' => 'required',
             'location' => 'required',
             'phone' => 'required|numeric',
             'employer_detail' => 'required',
@@ -269,6 +269,9 @@ class BDMSubmissionCOntroller extends Controller
         ]);
 
         $input = $request->all();
+        unset($input['submission_id']);
+        unset($input['name']);
+        unset($input['email']);
         $Submission = Submission::where('id',$id)->first();
         $this->manageSubmissionLogs($input, $Submission);
         $Submission->update($input);
@@ -345,7 +348,10 @@ class BDMSubmissionCOntroller extends Controller
         if(empty($submission)){
             return $data;
         }
-        $inputData = $request->except(['submission_id']);
+        $inputData = $request->all();
+        unset($inputData['submission_id']);
+        unset($inputData['name']);
+        unset($inputData['email']);
         $this->manageSubmissionLogs($request->all(), $submission);
         $submission->update($inputData);
         $data['status'] = 1;

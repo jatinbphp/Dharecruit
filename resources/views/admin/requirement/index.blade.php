@@ -242,14 +242,25 @@
                     console.log(data);
                     if(data.status == 1){
                         if(data.showLogButton == 0){
-                            $('.show-logs').remove();
+                            $('.show-logs').hide();
+                        } else {
+                            $('.show-logs').show();
                         }
                         var submission = data.submission;
                         $('#jobTitle').html(submission.requirement.job_title);
                         $('#submissionId').val(cId);
-                        $("#candidateStatus").select2("val", submission.status);
-                        $("#common_skills").select2("val", submission.common_skills);
-                        $("#skills_match").select2("val", submission.skills_match);
+                        $('#status_submit').show();
+                        $('#candidateData').show();
+                        $('#statusUpdate').show();
+                        if ($("#candidateStatus").length > 0) {
+                            $("#candidateStatus").select2("val", submission.status);
+                        }
+                        if ($("#common_skills").length > 0) {
+                            $("#common_skills").select2("val", submission.common_skills);
+                        }
+                        if ($("#skills_match").length > 0) {
+                            $("#skills_match").select2("val", submission.skills_match);
+                        }
                         $("#reason").val(submission.reason);
                         $('#requirementData').html(data.requirementData);
                         $('#candidateData').html(data.candidateData);

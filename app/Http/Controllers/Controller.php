@@ -193,16 +193,17 @@ class Controller extends BaseController
             $candidateLastDate  = ($this->getCandidateLastStatusUpdatedAt($submission)) ? date('m/d h:i A', strtotime($this->getCandidateLastStatusUpdatedAt($submission))) : ''; 
             $candidateCount     = $this->getCandidateCountByEmail($submission->email);
             $latestJobIdOfMatchPvCompany = $this->getLatestJobIdOfMatchPvCompany($submission->email);
+            $isCandidateHasLog  = $this->isCandidateHasLog($submission);
 
             if($user->id == $userId && $user->role == 'recruiter'){
-                $candidate .= (($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").'<div onClick="showUpdateSubmissionModel('.$submission->id.')" class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i>  ": "").$candidateFirstName.'-'.$submission->candidate_id.' '.($isSamePvCandidate ? "<br>JID: $latestJobIdOfMatchPvCompany" : "").'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
+                $candidate .= (($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "").'<div onClick="showUpdateSubmissionModel('.$submission->id.')" class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i>  ": "").$candidateFirstName.'-'.$submission->candidate_id.' '.($isSamePvCandidate ? "<br>JID: $latestJobIdOfMatchPvCompany" : "").'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
             } else {
                 if(($user->id == $userId && $user->role == 'bdm') || $user->role == 'admin'){
                     $class = 'candidate';
                 } else {
                     $class = '';
                 }
-                $candidate .= (($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").'<div class="'.$divClass.'" style="'.$divCss.'"><span class="'.$class.' '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i> " :"").$candidateFirstName.'-'.$submission->candidate_id.''.($isSamePvCandidate ? "<br>JID: $latestJobIdOfMatchPvCompany" : "").'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
+                $candidate .= (($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "").'<div class="'.$divClass.'" style="'.$divCss.'"><span class="'.$class.' '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i> " :"").$candidateFirstName.'-'.$submission->candidate_id.''.($isSamePvCandidate ? "<br>JID: $latestJobIdOfMatchPvCompany" : "").'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
             }
         }
         return $candidate;
@@ -428,5 +429,55 @@ class Controller extends BaseController
             return $submission->Requirement->job_id;
         }
         return '';
+    }
+
+    public function getLogDataByName($submission, $key){
+        if(!$submission || !$key || !in_array($key, Submission::$manageLogFileds)){
+            return '';
+        }
+
+        $allLogData = DataLog::where('section_id', $submission->id)->where('section', DataLog::SECTION_SUBMISSION)->orderBy('created_at', 'DESC')->get();
+
+        if(empty($allLogData) || !count($allLogData)){
+            return '';
+        }
+
+        $logData = [];
+
+        foreach($allLogData as $data){
+            $allData = json_decode($data->data, 1);
+            if(isset($allData[$key]) && $allData[$key]){
+                $logData[] = $allData[$key];
+            }
+        }
+
+        return implode(' | ', $logData);
+    }
+
+    public function isCandidateHasLog($submission) {
+        if(empty($submission)){
+            return 0;
+        }
+
+        $manageLogFileds = Submission::$manageLogFileds;
+
+        if(empty($manageLogFileds) || !count($manageLogFileds)){
+            return 0;
+        }
+
+        $isHasLog = 0;
+        foreach ($manageLogFileds as $value) {
+            $oldLogData = $this->getLogDataByName($submission, $value);
+            if($oldLogData){
+                $isHasLog = 1;
+                break;
+            }
+        }
+
+        if(!$oldLogData){
+            return 0;
+        }
+
+        return 1;
     }
 }

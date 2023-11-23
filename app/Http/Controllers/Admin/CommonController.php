@@ -552,27 +552,4 @@ class CommonController extends Controller
         
         return $data;
     }
-
-    public function getLogDataByName($submission, $key){
-        if(!$submission || !$key){
-            return '';
-        }
-
-        $allLogData = DataLog::where('section_id', $submission->id)->where('section', DataLog::SECTION_SUBMISSION)->orderBy('created_at', 'DESC')->get();
-
-        if(empty($allLogData) || !count($allLogData)){
-            return '';
-        }
-
-        $logData = [];
-
-        foreach($allLogData as $data){
-            $allData = json_decode($data->data, 1);
-            if(isset($allData[$key]) && $allData[$key]){
-                $logData[] = $allData[$key];
-            }
-        }
-
-        return implode(' | ', $logData);
-    }
 }

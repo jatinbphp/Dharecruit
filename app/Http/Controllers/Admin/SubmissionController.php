@@ -195,8 +195,8 @@ class SubmissionController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'name' => 'required',
-            'email' => 'required',
+            // 'name' => 'required',
+            // 'email' => 'required',
             'location' => 'required',
             'phone' => 'required|numeric',
             'employer_detail' => 'required',
@@ -215,6 +215,8 @@ class SubmissionController extends Controller
         ]);
 
         $input = $request->all();
+        unset($input['name']);
+        unset($input['email']);
         $Submission = Submission::where('id',$id)->first();
         $this->manageSubmissionLogs($input, $Submission);
         $Submission->update($input);

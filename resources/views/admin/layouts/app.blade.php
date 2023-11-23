@@ -568,8 +568,6 @@
 
         $('#requirementTable, #mySubmissionTable, #interviewTable tbody').on('click', '.job-title', function (event) {
             var id = $(this).attr('data-id');
-            console.log('check');
-            console.log(id);
             $.ajax({
                 url: "{{route('get_requirement')}}",
                 type: "post",
@@ -578,16 +576,16 @@
                     if(data.status == 1){
                         $('#jobTitle').html(data.requirementTitle);
                         $('#requirementData').html(data.requirementContent);
-                        $('#status_submit').remove();
-                        $('#candidateData').remove();
-                        $('#statusUpdate').remove();
+                        $('#status_submit').hide();
+                        $('#candidateData').hide();
+                        $('#statusUpdate').hide();
                         $('#requirementData').removeClass('border-bottom mb-2 pb-2');
                         $('#candidateModal').modal('show');
                         if(data.is_show_requirement == 1){
                             $('.job-title-'+id).removeClass('pt-1 pl-2 pb-1 pr-2 border border-primary text-primary border-warning text-warning');
                         }
                         if(data.isShowRequirement == 1){
-                            $('.show-logs').remove();
+                            $('.show-logs').hide();
                         }
                     }else{
                         swal("Cancelled", "Something is wrong. Please try again!", "error");

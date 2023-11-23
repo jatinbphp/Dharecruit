@@ -113,7 +113,7 @@ class Submission extends Model
     ];
 
     public static $manageLogFileds = [
-        'email',
+        // 'email',
         'phone',
         'work_authorization',
         'education_details',
