@@ -20,8 +20,6 @@
         <!-- Main content -->
         <section class="content">
             @include ('admin.error')
-            <div id="responce" class="alert alert-success" style="display: none;">
-            </div>
             <div class="row">
                 <div class="col-12">
                     <div class="card card-info card-outline">
@@ -31,10 +29,16 @@
                                     <button class="btn btn-info" type="button" id="filterBtn"><i class="fa fa-search pr-1"></i> Search</button>
                                 </div>
                                 <div class="col-md-7">
-                                    <div class="form-check mt-2">
-                                        <input class="form-check-input" type="checkbox" value="" id="showDate">
-                                        <label class="form-check-label" for="showDate">Show Date</label>
-                                      </div>
+                                    <div class='row'>
+                                        <div class="col-md-3 form-check mt-2">
+                                            <input class="form-check-input" type="checkbox" value="" id="showDate">
+                                            <label class="form-check-label" for="showDate">Show Date</label>
+                                        </div>
+                                        <div class="col-md-3 form-check mt-2">
+                                            <input class="form-check-input" type="checkbox" value="" id="showMerge">
+                                            <label class="form-check-label" for="showMerge">Show Merge</label>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="col-md-4">    
                                     <a href="{{ route('requirement.create') }}"><button class="btn btn-info float-right" type="button"><i class="fa fa-plus pr-1"></i> Add New</button></a>
@@ -47,9 +51,12 @@
                             </div>
                         </div>
                         <div class="card-body table-responsive">
+                            <div id="loadingSpinner" class="spinner-border text-primary" role="status" style="display: none;">
+                                <span class="sr-only">Loading...</span>
+                            </div>
                             <table id="requirementTable" class="table table-bordered table-striped">
                                 <thead>
-                                    <tr>
+                                    <tr class="border  border-danger">
                                         <th>Daily #</th>
                                         <th>J Id</th>
                                         <th>Job Title</th>
@@ -100,12 +107,21 @@
     }
 
     function datatables(){
+        var isShowMerge = 0;
+        var progressBar = $('#progress-bar');
+        if($('#showMerge').is(":checked")){
+            isShowMerge = 1;
+        }
         var table = $('#requirementTable').DataTable({
             processing: true,
             serverSide: true,
             responsive: true,
             pageLength: 100,
             lengthMenu: [ 100, 200, 300, 400, 500 ],
+            language: {
+                loadingRecords: 'Processing...',
+                processing: 'Loading...'
+            },
             ajax: {
                 url: "{{ $type == 1 ? route('requirement.index') : route('my_requirement') }}",
                 data: function (d) {
@@ -118,8 +134,9 @@
                     d.pv_company = $('#pv_company').val();
                     d.moi = $('#moi').val();
                     d.work_type = $('#work_type').val();
+                    d.show_merge = isShowMerge;
                     d._token = '{{ csrf_token() }}';
-                }
+                },
             },
             columns: [
                 {data: 'DT_RowIndex', 'width': '4%', name: 'DT_RowIndex', orderable: false, searchable: false, render: function(data, type, full, meta){
@@ -148,7 +165,48 @@
                 // {data: 'color', name: 'color'},
                 {data: 'candidate', name: 'candidate'},
                 {data: 'action', "width": "15%", name: 'action', orderable: false, searchable: false},
-            ]
+            ],
+            drawCallback: function() {
+                if($('#showMerge').is(':checked')){
+                    $('#requirementTable tbody tr').each(function(trIndex) {
+                        var currentTr = this;
+                        var rowType = '';
+                        if($(this).hasClass('parent-row')){
+                            rowType = 'parant-row';
+                        }
+                        if($(this).hasClass('child-row')){
+                            rowType = 'child-row';
+                        }
+                        if($.trim(rowType) != ''){
+                            $(this).find('td').each(function(tdIndex){
+                                $(this).addClass('color-group');
+                                if(rowType == 'parant-row'){
+                                    $(this).addClass('border-bottom');
+                                }
+                                if(rowType == 'child-row'){
+                                    if(trIndex == 0){
+                                        $(this).addClass('border-top');
+                                    }
+                                }
+                                if (tdIndex === 0) {
+                                    $(this).addClass('border-left');
+                                }
+                                if (tdIndex === $(this).siblings().length) {
+                                    $(this).addClass('border-right');
+                                }
+                            })
+                        }   
+                    });
+                }
+            },
+        });
+
+        $('#requirementTable').on('preXhr.dt', function () {
+            $('#loadingSpinner').show();
+        });
+
+        $('#requirementTable').on('xhr.dt', function () {
+            $('#loadingSpinner').hide();
         });
     }
 
@@ -283,6 +341,11 @@
                 $('.rejection').hide();
             }
         });
+
+        $('#showMerge').click(function(){
+            $("#requirementTable").dataTable().fnDestroy();
+            datatables();
+        })
     });
   </script>
 @endsection

@@ -103,7 +103,8 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('get_requirement', [CommonController::class,'getRequirement'])->name('get_requirement');
     Route::post('requirement/removeDocument/{id}', [RequirementController::class,'removeDocument'])->name('requirement.removeDocument');
     Route::post('get_submission', [CommonController::class,'getSubmissionData'])->name('get_submission');
-
+    Route::get('requirement/repostReqirement/{id}', [RequirementController::class,'repostRequirement'])->name('requirement.repost');
+    Route::post('requirement/saveRepostRequirement/{id}', [RequirementController::class,'saveRepostRequirement'])->name('requirement.saveRepostRequirement');
 
     /* SUBMISSION MANAGEMENT */
     Route::get('submission/new/{id}', [SubmissionController::class,'submissionAdd'])->name('submission.newAdd');

@@ -11,8 +11,15 @@ class DataLog extends Model
     protected $fillable = [
         'section',
         'section_id',
+        'user_id',
+        'candidate_id',
+        'job_id',
         'data',
     ];
 
     const SECTION_SUBMISSION = 'submission';
+
+    public function userDetail(){
+        return $this->belongsTo('App\Models\Admin','user_id');
+    }
 }

@@ -14,7 +14,7 @@ class Requirement extends Model
     protected $fillable = ['user_id','job_id','job_title','no_of_position','experience','location','work_type','duration','visa','client','vendor_rate','my_rate',
     'priority','reason','term','category','moi','job_keyword','notes','description','pv_company_name','poc_name','poc_email','poc_phone_number',
     'poc_location','pv_company_location','client_name','display_client','status','recruiter','color','candidate','submissionCounter','is_show_recruiter',
-    'is_update_requirement','is_show_recruiter_after_update','updated_fileds'];
+    'is_update_requirement','is_show_recruiter_after_update','updated_fileds','parent_requirement_id',];
 
     const STATUS_ACTIVE = 'active';
     const STATUS_INACTIVE = 'inactive';

@@ -4,7 +4,7 @@
         <div class="col-md-6">
             <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
                 <label class="control-label" for="name">Name :<span class="text-red">*</span></label>
-                {!! Form::text('name', null, ['class' => 'form-control', 'placeholder' => 'Enter Name', 'id' => 'name', 'readonly' => true]) !!}
+                {!! Form::text('name', null, ['class' => 'form-control', 'placeholder' => 'Enter Name', 'id' => 'name', 'readonly' => (isset($submission)) ? true : false]) !!}
                 @if ($errors->has('name'))
                     <span class="text-danger">
                         <strong>{{ $errors->first('name') }}</strong>
@@ -16,7 +16,7 @@
         <div class="col-md-6">
             <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
                 <label class="control-label" for="email">Email :<span class="text-red">*</span></label>
-                {!! Form::text('email', null, ['class' => 'form-control', 'placeholder' => 'Enter Email', 'id' => 'email', 'readonly' => true]) !!}
+                {!! Form::text('email', null, ['class' => 'form-control', 'placeholder' => 'Enter Email', 'id' => 'email', 'readonly' => (isset($submission)) ? true : false]) !!}
                 @if ($errors->has('email'))
                     <span class="text-danger">
                         <strong>{{ $errors->first('email') }}</strong>

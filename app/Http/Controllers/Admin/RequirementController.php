@@ -426,4 +426,118 @@ class RequirementController extends Controller
     public function getPvCompanyName() {
         return Requirement::whereNotNull('pv_company_name')->groupBy('pv_company_name')->pluck('pv_company_name')->toArray();
     }
+
+    public function repostRequirement($id){
+        $data['menu'] = "Requirements";
+        $data['requirement'] = Requirement::where('id',$id)->first();
+        $user = $this->getUser();
+        if($user['role'] == 'admin'){
+            $data['pv_company'] = PVCompany::where('status','active')->pluck('name','id')->prepend('Please Select','');
+        }else{
+            $data['pv_company'] = PVCompany::where('user_id',Auth::user()->id)->where('status','active')->pluck('name','id')->prepend('Please Select','');
+        }
+        $data['category'] = Category::where('status','active')->pluck('name','id')->prepend('Please Select','');
+        $data['moi'] = Moi::where('status','active')->pluck('name','id');
+        $data['visa'] = Visa::where('status','active')->pluck('name','id');
+        $data['requirementDocuments'] = RequirementDocuments::where('requirement_id',$id)->pluck('document','id');
+        $data['recruiter'] = Admin::where('role','recruiter')->pluck('name','id');
+        $data['selectedRecruiter'] = !empty($data['requirement']) && !empty($data['requirement']['recruiter']) ? explode(',',$data['requirement']['recruiter']) : [];
+        $data['selectedVisa'] = !empty($data['requirement']) && !empty($data['requirement']['visa']) ? explode(',',$data['requirement']['visa']) : [];
+        $data['selectedMoi'] = !empty($data['requirement']) && !empty($data['requirement']['moi']) ? explode(',',$data['requirement']['moi']) : [];
+        $data['pvCompanyName'] = $this->getPvCompanyName();
+        return view('admin.requirement.repost',$data);
+    }
+
+    public function saveRepostRequirement(Request $request, $id){
+        if(empty($request) || !$id){
+            \Session::flash('danger', 'Invalid Request.');
+            return redirect()->route('requirement.index');
+        }
+
+        $this->validate($request, [
+            'job_title' => 'required',
+            'no_of_position' => 'required',
+            'experience' => 'required',
+            'location' => 'required',
+            'work_type' => 'required',
+            'duration' => 'required',
+            'visa' => 'required',
+            //'client' => 'required',
+            'vendor_rate' => 'required',
+            'my_rate' => 'required',
+            //'priority' => 'required',
+            'term' => 'required',
+            'category' => 'required',
+            'moi' => 'required',
+            'job_keyword' => 'required',
+            'description' => 'required',
+            //'document' => 'required',
+            'pv_company_name' => 'required',
+            'poc_name' => 'required',
+            'poc_email' => 'required',
+            'poc_phone_number' => 'required',
+            //'client_name' => 'required',
+        ]);
+
+        $requirementRow = Requirement::findOrFail($id);
+
+        if(empty($requirementRow)){
+            \Session::flash('danger', 'Invalid Request.');
+            return redirect()->route('requirement.index');
+        }
+
+        $input = $request->all();
+        if($requirementRow->parent_requirement_id == 0) {
+            $requirementRow->parent_requirement_id = $id;
+            $input['parent_requirement_id'] = $id;
+            $requirementRow->save();
+        }else{
+            $input['parent_requirement_id'] = $requirementRow->parent_requirement_id;
+        }
+        
+        $input['user_id'] = Auth::user()->id;
+        $input['job_id'] = 0;
+        unset($input['recruiter']);
+        unset($input['visa']);
+        unset($input['moi']);
+        if(isset($input['display_client']) && $input['display_client'] == 'on'){
+            $input['display_client'] = 1;
+        } else {
+            $input['display_client'] = 0;
+        }
+        $req = Requirement::create($input);
+        if($req){
+            $requirements = Requirement::where('id',$req['id'])->first();
+            $in['job_id'] = $requirements['id'];
+            $requirements->update($in);
+
+            if(!empty($request['document'])){
+                if($files = $request->file('document')){
+                    foreach ($files as $file) {
+                        $documentData['requirement_id'] = $req['id'];
+                        $documentData['document'] = $this->fileMove($file,'user_documents');
+                        RequirementDocuments::create($documentData);
+                    }
+                }
+            }
+
+            if(!empty($request['recruiter']) && $requirements){
+                $recruiter['recruiter'] = $this->getCommaSeperatedValues($request['recruiter']);
+                $requirements->update($recruiter);
+            }
+
+            if(!empty($request['visa']) && $requirements){
+                $visa['visa'] = $this->getCommaSeperatedValues($request['visa']);
+                $requirements->update($visa);
+            }
+
+            if(!empty($request['moi']) && $requirements){
+                $moi['moi'] = $this->getCommaSeperatedValues($request['moi']);
+                $requirements->update($moi);
+            }
+        }
+
+        \Session::flash('success', 'Requirement has been reposted successfully!');
+        return redirect()->route('requirement.index');
+    }
 }

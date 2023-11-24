@@ -112,6 +112,8 @@ class SubmissionController extends Controller
                 $submission->candidate_id = $submission->id;
                 $submission->save();
             }
+
+            $this->updateCandidateWithSameCandidateId($submission);
         }
 
         if($requirement['submissionCounter'] < 3){
@@ -220,6 +222,8 @@ class SubmissionController extends Controller
         $Submission = Submission::where('id',$id)->first();
         $this->manageSubmissionLogs($input, $Submission);
         $Submission->update($input);
+
+        $this->updateCandidateWithSameCandidateId($submission);
 
         \Session::flash('success','Submission  has been updated successfully!');
         return redirect(route('submission.show',['submission'=>$Submission['requirement_id']]));

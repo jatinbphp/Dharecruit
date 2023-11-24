@@ -275,6 +275,7 @@ class BDMSubmissionCOntroller extends Controller
         $Submission = Submission::where('id',$id)->first();
         $this->manageSubmissionLogs($input, $Submission);
         $Submission->update($input);
+        $this->updateCandidateWithSameCandidateId($submission);
         \Session::flash('success','Submission  has been updated successfully!');
         return redirect(route('bdm_submission.index'));
     }
@@ -354,6 +355,8 @@ class BDMSubmissionCOntroller extends Controller
         unset($inputData['email']);
         $this->manageSubmissionLogs($request->all(), $submission);
         $submission->update($inputData);
+
+        $this->updateCandidateWithSameCandidateId($submission);
         $data['status'] = 1;
         $data['url'] = route('bdm_submission.index');
         \Session::flash('success','Submission has been updated successfully!');

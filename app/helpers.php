@@ -39,7 +39,11 @@ if(!function_exists('getListHtml')){
                 return getJobKeywordHtml($row);
             })
             ->addColumn('job_id', function($row) {
-                return '<span class=" job-title" data-id="'.$row->id.'">'.$row->job_id.'</span>';
+                return getJobIdHtml($row);
+            })
+            ->setRowClass(function ($row) {
+                return (($row->parent_requirement_id != 0 && $row->parent_requirement_id == $row->id) ? 'parent-row' : (($row->parent_requirement_id != 0) ? 'child-row' : ''));
+                ;
             })
             ->rawColumns(['user_id','category','recruiter','status','candidate','action','client','job_title','job_keyword','job_id'])
             ->make(true);
@@ -205,7 +209,9 @@ if(!function_exists('getActionHtml')){
             //$btn .= '<div class="btn-group btn-group-sm"><a href="'.url('admin/requirement/'.$row->id).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" ><i class="fa fa-eye"></i></button></a></div>';
             if(($user['role'] == 'admin') || ($user->id == $row->user_id)){
                $btn .= '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-default tip view-submission" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" data-id="'.$row->id.'"><i class="fa fa-eye"></i></button></div>';
-            }
+            }   
+            //$btn .= '<div class="btn-group btn-group-sm ml-2"><a href="'.Route('requirement.repost',[$row->id]).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Repost Requirement" data-trigger="hover" type="submit"><i class="fa fa-retweet"></i></button></a></div>';
+            $btn .= '<div class="btn-group btn-group-sm ml-2"><a href="'.url('admin/requirement/repostReqirement').'/'.$row->id.'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Repost Requirement" data-trigger="hover" type="submit"><i class="fa fa-retweet"></i></button></a></div>';
             $btn .= '<div class="border border-dark floar-left p-1 mt-2" style="
                 border-radius: 5px; width: auto"><span>'.getTimeInReadableFormate($row->created_at).'</span></div>';
         }
@@ -231,6 +237,18 @@ if(!function_exists('getJobKeywordHtml')){
             return '<p>' . $shortString . '<span class=" job-title" data-id="'.$row->id.'"><span class="font-weight-bold"> More +</span></p>';
         }
         return '<p>'.strip_tags($row->job_keyword).'</p>';
+    }
+}
+
+if(!function_exists('getJobIdHtml')){
+    function getJobIdHtml($row){
+        if($row->parent_requirement_id != $row->id && $row->parent_requirement_id != 0){
+            return '<span class="border-width-5 border-color-info job-title pt-1 pl-1 pl-1 pr-1" data-id="'.$row->id.'">'.$row->job_id.'</span>';
+        } elseif($row->parent_requirement_id == $row->id){
+            return '<span class="border-width-5 border-color-warning job-title pt-1 pl-1 pl-1 pr-1" data-id="'.$row->id.'">'.$row->job_id.'</span>';
+        } else {
+            return '<span class=" job-title" data-id="'.$row->id.'">'.$row->job_id.'</span>';
+        }
     }
 }
 

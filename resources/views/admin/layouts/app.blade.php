@@ -110,6 +110,30 @@
         .border-warning-10{
             border: 10px solid #ffc107!important;
         }
+        .border-width-5{
+            border: 5px solid!important;
+        }
+        .border-color-info{
+            color: #B266B3!important;
+        }
+        .border-color-warning{
+            color: #ffc107!important;
+        }
+        .border-top {
+            border-top: 1px solid #050505 !important;
+        }
+        .border-right {
+            border-right: 1px solid #050505 !important;
+        }
+        .border-bottom {
+            border-bottom: 1px solid #050505 !important;
+        }
+        .border-left {
+            border-left: 1px solid #050505 !important;
+        }
+        .color-group {
+            background-color: #E7FFF9
+        }
     </style>
 </head>
 <body class="hold-transition sidebar-mini sidebar-collapse" id="bodyid">
@@ -712,9 +736,27 @@
     }
 
     function showLogs(){
-        $('.log-data').show();
-        $('.log-data').prev().addClass('text-primary');
+        if($('.log-button').hasClass('show-logs')){
+            console.log('inif');
+            $('.log-data').show();
+            $('.log-button').removeClass('show-logs btn-primary');
+            $('.log-button').addClass('hide-logs btn-danger');
+            $('.log-button').html('Hide Logs');
+        } else {
+            console.log('in else');
+            $('.log-data').hide();
+            $('.log-button').addClass('show-logs btn-primary');
+            $('.log-button').removeClass('hide-logs btn-danger');
+            $('.log-button').html('Show Logs');
+        }
     }
+
+    $('.model-close').click(function(){
+        $('.log-data').hide();
+        $('.log-button').addClass('show-logs btn-primary');
+        $('.log-button').removeClass('hide-logs btn-danger');
+        $('.log-button').html('Show Logs');
+    })
 
 </script>
 @yield('jquery')

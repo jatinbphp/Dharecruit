@@ -6,10 +6,10 @@
                     <h5 class="modal-title" id="candidateModalLabel">Requirement : <span id="jobTitle"></span></h5>
                 </div>
                 <div class="col-md-5">
-                        <button class="btn btn-primary float-right show-logs" onclick="showLogs()" type="button">Logs</button>
+                        <button class="btn btn-primary float-right log-button show-logs" onclick="showLogs()" type="button">Show Logs</button>
                     </div>
                 <div class="col-md-1">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close model-close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -68,7 +68,7 @@
                 <div class="col-md-12 border-top mb-2 pb-2 table-responsive" id="historyData"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary model-close" data-dismiss="modal">Close</button>
                 @if($isSubmission == 0)
                     <button type="submit" id="status_submit" class="btn btn-primary">Submit</button>
                 @endif

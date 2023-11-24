@@ -87,9 +87,12 @@ class Controller extends BaseController
         if(!empty($request->work_type)){
             $whereInfo[] = ['work_type', $request->work_type];
         }
-        $a = $query->where($whereInfo)->orderBy('id', 'desc');
-        return $a;
-        
+
+        if(!empty($request->show_merge) && $request->show_merge == 1){
+            return $query->where($whereInfo)->orderBy('parent_requirement_id', 'DESC')->orderBy('id', 'desc');
+        }
+
+        return $query->where($whereInfo)->orderBy('id', 'desc');
     }
 
     public function submissionFilter($request,$id){
@@ -196,14 +199,14 @@ class Controller extends BaseController
             $isCandidateHasLog  = $this->isCandidateHasLog($submission);
 
             if($user->id == $userId && $user->role == 'recruiter'){
-                $candidate .= (($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "").'<div onClick="showUpdateSubmissionModel('.$submission->id.')" class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i>  ": "").$candidateFirstName.'-'.$submission->candidate_id.' '.($isSamePvCandidate ? "<br>JID: $latestJobIdOfMatchPvCompany" : "").'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
+                $candidate .= (($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "").'<div onClick="showUpdateSubmissionModel('.$submission->id.')" class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i>  ": "").$candidateFirstName.'-'.$submission->candidate_id.' '.($isSamePvCandidate ? "<br>JID: $latestJobIdOfMatchPvCompany" : "").'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span><br>';
             } else {
                 if(($user->id == $userId && $user->role == 'bdm') || $user->role == 'admin'){
                     $class = 'candidate';
                 } else {
                     $class = '';
                 }
-                $candidate .= (($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "").'<div class="'.$divClass.'" style="'.$divCss.'"><span class="'.$class.' '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i> " :"").$candidateFirstName.'-'.$submission->candidate_id.''.($isSamePvCandidate ? "<br>JID: $latestJobIdOfMatchPvCompany" : "").'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span>';
+                $candidate .= (($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "").'<div class="'.$divClass.'" style="'.$divCss.'"><span class="'.$class.' '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i> " :"").$candidateFirstName.'-'.$submission->candidate_id.''.($isSamePvCandidate ? "<br>JID: $latestJobIdOfMatchPvCompany" : "").'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span><br>';
             }
         }
         return $candidate;
@@ -383,8 +386,12 @@ class Controller extends BaseController
         }
 
         $differentValues = [];
+        $isAllSameData = 0;
 
         foreach ($newData as $key => $value) {
+            if(in_array($key,['created_at','updated_at'])){
+                continue;
+            }
             if(is_array($value)){
                 $value = ','. implode(',',$value).',';
             }
@@ -394,25 +401,31 @@ class Controller extends BaseController
                 $value = '0';
             }
             if (isset($oldData[$key]) && $oldData[$key] != $value) {
+                $isAllSameData = 1;
                 $differentValues[$key] = $oldData[$key];
             } else {
                 $differentValues[$key] = '';
             }
         }
-
-        $this->saveDataLog($oldData->id, DataLog::SECTION_SUBMISSION, $differentValues);
+        if($isAllSameData){
+            $this->saveDataLog($oldData->id, DataLog::SECTION_SUBMISSION, $differentValues,$oldData);
+        }
 
         return $this;
     }
 
-    public function saveDataLog($sectionId,$section,$data){
+    public function saveDataLog($sectionId,$section,$data,$submission){
+        $cloneSubmission = $submission->replicate();
         if(!$sectionId || !$section || !$data){
             return $this;
         }
 
-        $inputData['section_id'] = $sectionId;
-        $inputData['section']    = $section;
-        $inputData['data']       = json_encode($data);
+        $inputData['section_id']   = $sectionId;
+        $inputData['section']      = $section;
+        $inputData['candidate_id'] = $cloneSubmission->candidate_id;
+        $inputData['job_id']       = $cloneSubmission->Requirement->job_id;
+        $inputData['user_id']      = Auth::user()->id;
+        $inputData['data']         = json_encode($data);
 
         DataLog::create($inputData);
         return $this;
@@ -436,22 +449,59 @@ class Controller extends BaseController
             return '';
         }
 
-        $allLogData = DataLog::where('section_id', $submission->id)->where('section', DataLog::SECTION_SUBMISSION)->orderBy('created_at', 'DESC')->get();
+        $allLogData = DataLog::where('candidate_id', $submission->candidate_id)->where('section', DataLog::SECTION_SUBMISSION)->orderBy('created_at', 'DESC')->get();
 
         if(empty($allLogData) || !count($allLogData)){
             return '';
         }
-
-        $logData = [];
-
+        
+        $logData = 
+            '<br><table class="table table-striped log-data" style="display:none">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Value</th>
+                        <th scope="col">JID</th>
+                        <th scope="col">Modified By</th>
+                        <th scope="col">Date</th>
+                    </tr>
+                </thead>
+                <tbody>';
+        $count = 1;
+        $isNoLogData = 1;
+        $logData .= 
+            '<tr>
+                <th scope="row" class="text-success">'.$count.'</th>
+                <td class="text-success">'.(isset($submission[$key]) ? $submission[$key]:'').'</td>
+                <td class="text-success">'.$submission->Requirement->job_id.'</td>
+                <td class="text-success">'.$submission->recruiters->role.' : '.$submission->recruiters->name.'</td>
+                <td class="text-success">'.date('m-d-y',strtotime($submission->created_at)).'</td>
+            </tr>';
         foreach($allLogData as $data){
             $allData = json_decode($data->data, 1);
             if(isset($allData[$key]) && $allData[$key]){
-                $logData[] = $allData[$key];
+                $isNoLogData = 0;
+                    $count++;
+                    $logData .= 
+                    '<tr>
+                        <th scope="row" class="text-danger">'.$count.'</th>
+                        <td class="text-danger">'.$allData[$key].'</td>
+                        <td class="text-danger">'.$data->job_id.'</td>
+                        <td class="text-danger">'.$data->userDetail->role.' : '.$data->userDetail->name.'</td>
+                        <td class="text-danger">'.date('m-d-y',strtotime($data->created_at)).'</td>
+                    </tr>';
             }
         }
 
-        return implode(' | ', $logData);
+        if($isNoLogData){
+            return '';
+        }
+
+        $logData .= 
+                '</tbody>
+            </table>';
+
+        return $logData;
     }
 
     public function isCandidateHasLog($submission) {
@@ -479,5 +529,33 @@ class Controller extends BaseController
         }
 
         return 1;
+    }
+
+    public function updateCandidateWithSameCandidateId($submission){
+        if(empty($submission)){
+            return $this;
+        }
+        $submissionData = $submission->toArray();
+        unset($submissionData['id']);
+        unset($submissionData['requirement_id']);
+        unset($submissionData['user_id']);
+        unset($submissionData['email']);
+        unset($submissionData['common_skills']);
+        unset($submissionData['skills_match']);
+        unset($submissionData['reason']);
+        unset($submissionData['status']);
+        unset($submissionData['pv_status']);
+        unset($submissionData['pv_reason']);
+        unset($submissionData['is_show']);
+        unset($submissionData['deleted_at']);
+        unset($submissionData['created_at']);
+        unset($submissionData['updated_at']);
+        $candidateId = $submission->candidate_id;
+        if($candidateId){
+            $oldSubmissionRow = Submission::where('candidate_id',$candidateId)->first();
+            Submission::where('candidate_id', $candidateId)->update($submissionData);
+            $this->manageSubmissionLogs($submission->toArray(),$oldSubmissionRow);
+        }
+        return $this;
     }
 }
