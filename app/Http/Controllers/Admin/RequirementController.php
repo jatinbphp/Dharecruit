@@ -143,6 +143,8 @@ class RequirementController extends Controller
                 $moi['moi'] = $this->getCommaSeperatedValues($request['moi']);
                 $requirements->update($moi);
             }
+
+            $this->addPvCompanyDetails($req);
         }
 
         \Session::flash('success', 'Requirement has been inserted successfully!');
@@ -370,10 +372,10 @@ class RequirementController extends Controller
     }
 
     public function get_pocName(Request $request){
-        if(Auth::user()->role == 'bdm'){
-            $allReqs = Requirement::where('pv_company_name',$request['pv_company_name'])->where('user_id',Auth::user()->id)->whereNotNull('pv_company_name')->groupBy('poc_name')->select('poc_name','id')->get();
+        if(Auth::user()->role == 'admin'){
+            $allReqs = PVCompany::where('name',$request['pv_company_name'])->whereNotNull('name')->groupBy('poc_name')->select('poc_name','id')->get();
         }else{
-            $allReqs = Requirement::where('pv_company_name',$request['pv_company_name'])->whereNotNull('pv_company_name')->groupBy('poc_name')->select('poc_name','id')->get();
+            $allReqs = PVCompany::where('name',$request['pv_company_name'])->where('user_id',Auth::user()->id)->whereNotNull('name')->groupBy('poc_name')->select('poc_name','id')->get();
         }
         $data['status'] = 0;
         $data['pocName'] = '';
@@ -397,7 +399,7 @@ class RequirementController extends Controller
     }
 
     public function get_pvDetails(Request $request){
-        $requs = Requirement::orderBy('id', 'DESC')->where('pv_company_name',$request['pv_company_name'])->where('poc_name',$request['poc_name'])->first();
+        $requs = PvCompany::orderBy('id', 'DESC')->where('name',$request['pv_company_name'])->where('poc_name',$request['poc_name'])->first();
         $data['status'] = 0;
         $data['requs'] = [];
         if(!empty($requs)){
@@ -424,7 +426,7 @@ class RequirementController extends Controller
     }
 
     public function getPvCompanyName() {
-        return Requirement::whereNotNull('pv_company_name')->groupBy('pv_company_name')->pluck('pv_company_name')->toArray();
+        return PvCompany::whereNotNull('name')->groupBy('name')->pluck('name')->toArray();
     }
 
     public function repostRequirement($id){
@@ -539,5 +541,39 @@ class RequirementController extends Controller
 
         \Session::flash('success', 'Requirement has been reposted successfully!');
         return redirect()->route('requirement.index');
+    }
+
+    public function addPvCompanyDetails($requirement){
+        if(!$requirement){
+            return $this;
+        }
+
+        $pvCompanyName = $requirement->pv_company_name;
+        $pocName       = $requirement->poc_name;
+        $email         = $requirement->poc_email;
+        $phone         = $requirement->poc_phone_number;
+        $pocLocation   = $requirement->poc_location;
+        $pvCompanyLocation = $requirement->pv_company_location;
+        $clientName    = $requirement->client_name;
+
+        $oldPvCompanyData = PVCompany::where('name',$pvCompanyName)->where('poc_name',$pocName)->where('user_id',Auth::user()->id)->first();
+        
+        if($oldPvCompanyData){
+            return $this;
+        }
+
+        PVCompany::create(
+            [
+                'user_id' => Auth::user()->id,
+                'name' => $pvCompanyName,
+                'poc_name' => $pocName,
+                'email'    => $email,
+                'phone' => $phone,
+                'poc_location' => $pocLocation,
+                'pv_company_location' => $pvCompanyLocation,
+                'client_name' => $clientName,
+            ]
+        );
+        return $this;
     }
 }

@@ -34,10 +34,12 @@
                                             <input class="form-check-input" type="checkbox" value="" id="showDate">
                                             <label class="form-check-label" for="showDate">Show Date</label>
                                         </div>
-                                        <div class="col-md-3 form-check mt-2">
-                                            <input class="form-check-input" type="checkbox" value="" id="showMerge">
-                                            <label class="form-check-label" for="showMerge">Show Merge</label>
-                                        </div>
+                                        @if((Auth::user()->role == 'admin') || (Auth::user()->role == 'bdm' && $menu == 'My Requirements'))
+                                            <div class="col-md-3 form-check mt-2">
+                                                <input class="form-check-input" type="checkbox" value="" id="showMerge">
+                                                <label class="form-check-label" for="showMerge">Show Merge</label>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                                 <div class="col-md-4">    

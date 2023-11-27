@@ -20,7 +20,9 @@ class Admin extends Authenticatable
         'indian_phone',
         'password',
         'role',
-        'status'
+        'status',
+        'employee_name',
+        'added_by'
     ];
 
     protected $hidden = [

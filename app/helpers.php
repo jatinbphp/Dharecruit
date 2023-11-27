@@ -211,7 +211,9 @@ if(!function_exists('getActionHtml')){
                $btn .= '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-default tip view-submission" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" data-id="'.$row->id.'"><i class="fa fa-eye"></i></button></div>';
             }   
             //$btn .= '<div class="btn-group btn-group-sm ml-2"><a href="'.Route('requirement.repost',[$row->id]).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Repost Requirement" data-trigger="hover" type="submit"><i class="fa fa-retweet"></i></button></a></div>';
-            $btn .= '<div class="btn-group btn-group-sm ml-2"><a href="'.url('admin/requirement/repostReqirement').'/'.$row->id.'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Repost Requirement" data-trigger="hover" type="submit"><i class="fa fa-retweet"></i></button></a></div>';
+            if(($user['role'] == 'admin') || ($user['role'] == 'bdm' && $user['id'] == $row->user_id)){ 
+                $btn .= '<div class="btn-group btn-group-sm ml-2"><a href="'.url('admin/requirement/repostReqirement').'/'.$row->id.'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Repost Requirement" data-trigger="hover" type="submit"><i class="fa fa-retweet"></i></button></a></div>';
+            }
             $btn .= '<div class="border border-dark floar-left p-1 mt-2" style="
                 border-radius: 5px; width: auto"><span>'.getTimeInReadableFormate($row->created_at).'</span></div>';
         }
@@ -242,10 +244,14 @@ if(!function_exists('getJobKeywordHtml')){
 
 if(!function_exists('getJobIdHtml')){
     function getJobIdHtml($row){
-        if($row->parent_requirement_id != $row->id && $row->parent_requirement_id != 0){
-            return '<span class="border-width-5 border-color-info job-title pt-1 pl-1 pl-1 pr-1" data-id="'.$row->id.'">'.$row->job_id.'</span>';
-        } elseif($row->parent_requirement_id == $row->id){
-            return '<span class="border-width-5 border-color-warning job-title pt-1 pl-1 pl-1 pr-1" data-id="'.$row->id.'">'.$row->job_id.'</span>';
+        if(Auth::user()->role == 'admin' || (Auth::user()->role=='bdm' && Auth::user()->id == $row->user_id)){
+            if($row->parent_requirement_id != $row->id && $row->parent_requirement_id != 0){
+                return '<span class="border-width-5 border-color-info job-title pt-1 pl-1 pl-1 pr-1" data-id="'.$row->id.'">'.$row->job_id.'</span>';
+            } elseif($row->parent_requirement_id == $row->id){
+                return '<span class="border-width-5 border-color-warning job-title pt-1 pl-1 pl-1 pr-1" data-id="'.$row->id.'">'.$row->job_id.'</span>';
+            } else {
+                return '<span class=" job-title" data-id="'.$row->id.'">'.$row->job_id.'</span>';
+            }
         } else {
             return '<span class=" job-title" data-id="'.$row->id.'">'.$row->job_id.'</span>';
         }

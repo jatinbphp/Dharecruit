@@ -126,6 +126,10 @@ class SubmissionController extends Controller
             $requirement->update($in);
         }
 
+        if($submission){
+            $this->addEmployeeDetails($submission);
+        }
+
         \Session::flash('success', 'New submission has been inserted successfully!');
         return redirect()->route('submission.index');
     }
@@ -283,10 +287,10 @@ class SubmissionController extends Controller
     }
 
     function getEmpName(Request $request) {
-        if(Auth::user()->role == 'recruiter'){
-            $allReqs = Submission::where('employer_name',$request['employer_name'])->where('user_id',Auth::user()->id)->whereNotNull('employer_name')->groupBy('employee_name')->select('employee_name','id')->get();
+        if(Auth::user()->role == 'admin'){
+            $allReqs = Admin::where('name',$request['employer_name'])->whereNotNull('name')->where('role','employee')->groupBy('employee_name')->select('employee_name','id')->get();
         }else{
-            $allReqs = Submission::where('employer_name',$request['employer_name'])->whereNotNull('employer_name')->groupBy('employee_name')->select('employee_name','id')->get();
+            $allReqs = Admin::where('name',$request['employer_name'])->where('added_by',Auth::user()->id)->whereNotNull('name')->where('role','employee')->groupBy('employee_name')->select('employee_name','id')->get();
         }
         $data['status'] = 0;
         $data['empName'] = '';
@@ -310,7 +314,7 @@ class SubmissionController extends Controller
     }
 
     function getEmpDetail(Request $request){
-        $requs = Submission::orderBy('id', 'DESC')->where('employee_name',$request['employee_name'])->where('employer_name',$request['employer_name'])->first();
+        $requs = Admin::orderBy('id', 'DESC')->where('employee_name',$request['employee_name'])->where('name',$request['employer_name'])->first();
         $data['status'] = 0;
         $data['requs'] = [];
         if(!empty($requs)){
@@ -330,5 +334,35 @@ class SubmissionController extends Controller
         $data['isSamePvCandidate'] = $this->isSamePvCandidate($request->email, $request->requirement_id);
 
         return $data;
+    }
+
+    public function addEmployeeDetails($submission) {
+        if(!$submission){
+            return $this;
+        }
+
+        $employerName = $submission->employer_name;
+        $employeeName = $submission->employee_name;
+        $email        = $submission->employee_email;
+        $phone        = $submission->employee_phone;
+
+        $oldemployeeData = Admin::where('name',$employerName)->where('employee_name',$employeeName)->first();
+        
+        if($oldemployeeData){
+            return $this;
+        }
+
+        Admin::create(
+            [
+                'added_by'      => Auth::user()->id,
+                'name'          => $employerName,
+                'email'         => $email,
+                'phone'         => $phone,
+                'employee_name' => $employeeName,
+                'role'          => 'employee'
+            ]
+        );
+
+        return $this;
     }
 }

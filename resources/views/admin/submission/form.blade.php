@@ -355,6 +355,13 @@
                 'employee_phone',
             ];
 
+            var mapElementWithData = {
+                'employer_name' : 'name',
+                'employee_name' : 'employee_name',
+                'employee_email' : 'email',
+                'employee_phone' : 'phone',
+            };
+
             if(employee_name == 0){
                 for (id of updateElementIds) {
                     if(id == 'employer_name'){
@@ -380,7 +387,7 @@
                                 if(tagType == 'input'){
                                     if(updateElementIds.includes(elementId))
                                     var id = "#" + elementId;
-                                    $(id).val(data.requs[elementId]);
+                                    $(id).val(data.requs[mapElementWithData[elementId]]);
                                 }
                             }
                         });

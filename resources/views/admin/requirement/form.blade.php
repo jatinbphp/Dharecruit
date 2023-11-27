@@ -451,6 +451,16 @@
                 'client_name',
             ];
 
+            var mapElementWithData = {
+                'pv_company_name' : 'name',
+                'poc_name' : 'poc_name',
+                'poc_email' : 'email',
+                'poc_phone_number' : 'phone',
+                'poc_location':'poc_location',
+                'pv_company_location':'pv_company_location',
+                'client_name':'client_name',
+            };
+
             if(poc_name == 0){
                 for (id of updateElementIds) {
                     if(id == 'pv_company_name'){
@@ -476,7 +486,7 @@
                                 if(tagType == 'input'){
                                     if(updateElementIds.includes(elementId))
                                     var id = "#" + elementId;
-                                    $(id).val(data.requs[elementId]);
+                                    $(id).val(data.requs[mapElementWithData[elementId]]);
                                 }
                             }
                         });
