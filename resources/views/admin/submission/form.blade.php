@@ -400,8 +400,6 @@
         $('.add-submission').click(function(){
             var requirementId = $('#requirement_id').val();
             var candidateEmail = $('#email').val();
-            console.log(requirementId);
-            console.log(candidateEmail);
             if(!requirementId || !candidateEmail){
                 swal("Error", "Please Fill Data!", "error");
             }
@@ -415,7 +413,6 @@
                         swal("Error", "Something is wrong!", "error");
                         return;
                     }
-                    console.log(data);
                     if(data.isSamePvCandidate == 1){
                         swal({
                             title: "Are you sure?",

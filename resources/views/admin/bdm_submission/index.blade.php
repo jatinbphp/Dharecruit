@@ -141,7 +141,11 @@
             </div>
         </div>
     </div>
-    @include('admin.requirement.candidateModal',['hide'=>0, 'isSubmission'=>0,])
+    @if(Auth::user()->role == 'recruiter')
+        @include('admin.requirement.candidateModal',['hide'=>0, 'isSubmission'=>1,])
+    @else
+        @include('admin.requirement.candidateModal',['hide'=>0, 'isSubmission'=>0,])
+    @endif
     @include('admin.updateSubmissionModel')
 @endsection
 

@@ -208,7 +208,6 @@
         }
         $(".remove-interview-document").click(function(){
             var id = $(this).attr('data-id');
-            console.log('calles');  
             swal({
                 title: "Are you sure?",
                 text: "You want to delete this document?",

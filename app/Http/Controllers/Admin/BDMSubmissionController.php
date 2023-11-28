@@ -121,7 +121,9 @@ class BDMSubmissionCOntroller extends Controller
                     $candidateBorderCss = $this->getCandidateBorderCss($row);
                     $candidateNames = explode(' ',$row->name);
                     $candidateName = isset($candidateNames[0]) ? $candidateNames[0] : '';
-                    return '<div onClick="showUpdateSubmissionModel('.$row->id.')" class="a-center pt-2 pl-2 pb-2 pr-2 '. $candidateCss.'" style="width: fit-content;"><span class="'.$candidateClass.'" style="'.$candidateBorderCss.'" data-id="'.$row->id.'">'. $candidateName. '-' .$row->candidate_id. '</span></div>';
+                    $candidateCount = $this->getCandidateCountByEmail($row->email);
+                    $isCandidateHasLog  = $this->isCandidateHasLog($row);
+                    return ($candidateCount ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "").'<div  class="a-center pt-2 pl-2 pb-2 pr-2 '. $candidateCss.'" style="width: fit-content;"><span class="'.$candidateClass.' candidate" style="'.$candidateBorderCss.'" data-cid="'.$row->id.'">'. $candidateName. '-' .$row->candidate_id. '</span></div>';
                 })
                 ->addColumn('bdm_status', function($row){
                     if(in_array(Auth::user()->role,['admin','bdm'])){

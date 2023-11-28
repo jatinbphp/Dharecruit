@@ -87,7 +87,11 @@
             </div>
         </section>
     </div>
-    @include('admin.requirement.candidateModal',['hide'=>0, 'isSubmission'=>0,])
+    @if(Auth::user()->role == 'recruiter')
+        @include('admin.requirement.candidateModal',['hide'=>0, 'isSubmission'=>1,])
+    @else
+        @include('admin.requirement.candidateModal',['hide'=>0, 'isSubmission'=>0,])
+    @endif
     @include('admin.viewSubmissionModel')
 @endsection
 
@@ -290,58 +294,6 @@
 
         $('#requirementTable tbody').on('click', '.noChange', function (event) {
             swal("Cancelled", "You can not change the status", "error");
-        });
-
-        $('#requirementTable tbody').on('click', '.candidate', function (event) {
-            var cId = $(this).attr('data-cid');
-            $.ajax({
-                url: "{{route('get_candidate')}}",
-                type: "post",
-                data: {'cId': cId,'_token' : $('meta[name=_token]').attr('content') },
-                success: function(data){
-                    console.log(data);
-                    if(data.status == 1){
-                        if(data.showLogButton == 0){
-                            $('.show-logs').hide();
-                        } else {
-                            $('.show-logs').show();
-                        }
-                        var submission = data.submission;
-                        $('#jobTitle').html(submission.requirement.job_title);
-                        $('#submissionId').val(cId);
-                        $('#status_submit').show();
-                        $('#candidateData').show();
-                        $('#statusUpdate').show();
-                        if ($("#candidateStatus").length > 0) {
-                            $("#candidateStatus").select2("val", submission.status);
-                        }
-                        if ($("#common_skills").length > 0) {
-                            $("#common_skills").select2("val", submission.common_skills);
-                        }
-                        if ($("#skills_match").length > 0) {
-                            $("#skills_match").select2("val", submission.skills_match);
-                        }
-                        $("#reason").val(submission.reason);
-                        $('#requirementData').html(data.requirementData);
-                        $('#candidateData').html(data.candidateData);
-                        $('#historyData').html(data.historyData);
-                        $('#candidateModal').modal('show');
-                        if(data.is_show == 1){
-                            $('.candidate-'+cId).parent('div').removeClass('border');
-                        }
-                    }else{
-                        swal("Cancelled", "Something is wrong. Please try again!", "error");
-                    }
-                }
-            });
-        });
-
-        $('#candidateStatus').on('change', function(){
-            if($(this).val() == 'rejected'){
-                $('.rejection').show();
-            }else{
-                $('.rejection').hide();
-            }
         });
 
         $('#showMerge').click(function(){

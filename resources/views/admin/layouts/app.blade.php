@@ -653,7 +653,6 @@
             type: "post",
             data: {'requirement_id': requirementId,'_token' : $('meta[name=_token]').attr('content') },
             success: function(responce){
-                console.log(responce);
                 if(responce.status == 1){
                     $('#submissionHeadingData').html(responce.submissionHeadingData);
                     $('#submissionHeaderData').html(responce.submissionHeaderData);
@@ -685,39 +684,47 @@
             data: {'id':id, _token: '{{csrf_token()}}' },
             success: function(response){
                 if(response.status == 1){
-                    var data = response.submissionData;
-                    $('#submissionsForm *').filter(':input').each(function () {
-                            var tagType = $(this).prop("tagName").toLowerCase();
-                            var elementId = this.id;
-                            if(elementId){
-                                if(tagType == 'input'){
-                                    var type = $("#" + elementId).attr("type");
-                                    if(type == 'file'){
-                                        $('#resumeId').remove();
-                                        var resumeElement = '<div id="resumeId" class="col-md-2 mt-4 "><div id="documentContent" class="text-center"><a href="{{asset("storage")}}/'+ data['documents']+'" target="_blank"><img src=" {{url('assets/dist/img/resume.png')}}" height="50"></a></div></div>';
-                                        var documentNameArray = data['documents'].split('/');
-                                        var documentName = '2' in documentNameArray ? documentNameArray[2] : '';
-                                        var label = "<label>"+documentName+"</label>";
-                                        $("#" + elementId).closest('div').append(resumeElement);
-                                        $("#documentContent").append(label);
-                                    } else {
-                                        var id = "#" + elementId;
-                                        $(id).val(data[elementId]);
-                                    }
-                                } else if(tagType == 'select'){
-                                    $("#" +elementId).select2("val", data[elementId]);
-                                }
-                            }
-                            $("#existResume").val(data['documents']);
-                        });
+                    addSubmissionData(response.submissionData);
                     $("#updateSubmissionCandidateModal").modal('show');
-                    console.log('test');
                 }else{
                     swal("Error", "Something is wrong!", "error");
                 }
             }
         });
     };
+
+    function addSubmissionData(submissionData){
+        $('#submissionsForm *').filter(':input').each(function () {
+            var tagType = $(this).prop("tagName").toLowerCase();
+            var elementId = this.id;
+            if(elementId){
+                if(tagType == 'input'){
+                    var type = $("#" + elementId).attr("type");
+                    if(type == 'file'){
+                        $('#resumeId').remove();
+                        var resumeElement = '<div id="resumeId" class="col-md-2 mt-4 "><div id="documentContent" class="text-center"><a href="{{asset("storage")}}/'+ submissionData['documents']+'" target="_blank"><img src=" {{url('assets/dist/img/resume.png')}}" height="50"></a></div></div>';
+                        var documentNameArray = submissionData['documents'].split('/');
+                        var documentName = '2' in documentNameArray ? documentNameArray[2] : '';
+                        var label = "<label>"+documentName+"</label>";
+                        $("#" + elementId).closest('div').append(resumeElement);
+                        $("#documentContent").append(label);
+                    } else {
+                        var id = "#" + elementId;
+                        $(id).val(submissionData[elementId]);
+                    }
+                } else if(tagType == 'select'){
+                    if($("#" +elementId).length > 0){
+                        if($("#" +elementId).hasClass('select2-hidden-accessible')){
+                            $("#" +elementId).select2("val", submissionData[elementId]);
+                        }else{
+                            $("#" +elementId).val(submissionData[elementId])
+                        }
+                    }
+                }
+            }
+            $("#existResume").val(submissionData['documents']);
+        });
+    }
 
     function updateSubmission(){
         $.ajax({
@@ -737,18 +744,36 @@
 
     function showLogs(){
         if($('.log-button').hasClass('show-logs')){
-            console.log('inif');
             $('.log-data').show();
             $('.log-button').removeClass('show-logs btn-primary');
             $('.log-button').addClass('hide-logs btn-danger');
             $('.log-button').html('Hide Logs');
         } else {
-            console.log('in else');
             $('.log-data').hide();
             $('.log-button').addClass('show-logs btn-primary');
             $('.log-button').removeClass('hide-logs btn-danger');
             $('.log-button').html('Show Logs');
         }
+    }
+
+    function showView() {
+        $('.model-data-view').show();
+        $('.model-data-edit').hide();
+        $('.log-button').show();
+        $('.show-view').addClass('btn-primary');
+        $('.show-view').removeClass('btn-outline-primary');
+        $('.show-edit').removeClass('btn-warning');
+        $('.show-edit').addClass('btn-outline-warning');
+    }
+
+    function showEdit() {
+        $('.model-data-view').hide();
+        $('.model-data-edit').show();
+        $('.log-button').hide();
+        $('.show-edit').addClass('btn-warning');
+        $('.show-edit').removeClass('btn-outline-warning');
+        $('.show-view').addClass('btn-outline-primary');
+        $('.show-view').removeClass('btn-primary');
     }
 
     $('.model-close').click(function(){
@@ -757,6 +782,63 @@
         $('.log-button').removeClass('hide-logs btn-danger');
         $('.log-button').html('Show Logs');
     })
+
+    $('#requirementTable, #interviewTable, #mySubmissionTable tbody').on('click', '.candidate', function (event) {
+        var cId = $(this).attr('data-cid');
+        $.ajax({
+            url: "{{route('get_candidate')}}",
+            type: "post",
+            data: {'cId': cId,'_token' : $('meta[name=_token]').attr('content') },
+            success: function(data){
+                if(data.status == 1){
+                    if(data.showLogButton == 0){
+                        $('.show-logs').hide();
+                    } else {
+                        $('.show-logs').show();
+                    }
+                    var submission = data.submission;
+                    $('#jobTitle').html(submission.requirement.job_title);
+                    $('#submissionId').val(cId);
+                    $('#status_submit').show();
+                    $('#candidateData').show();
+                    $('#statusUpdate').show();
+                    if ($("#candidateStatus").length > 0) {
+                        $("#candidateStatus").select2("val", submission.status);
+                    }
+                    if ($("#common_skills").length > 0) {
+                        $("#common_skills").select2("val", submission.common_skills);
+                    }
+                    if ($("#skills_match").length > 0) {
+                        $("#skills_match").select2("val", submission.skills_match);
+                    }
+                    $("#reason").val(submission.reason);
+                    $('#requirementData').html(data.requirementData);
+                    $('#candidateData').html(data.candidateData);
+                    $('#historyData').html(data.historyData);
+                    $('#edit-section').html(data.editData);
+                    $('#common-skill').html(submission.common_skills);
+                    $('#skill-match').html(submission.skills_match);
+                    $('#other-reason').html(submission.reason);
+                    $('#status').html(submission.status[0].toUpperCase() + submission.status.slice(1))
+                    addSubmissionData(data.submission);
+                    $('#candidateModal').modal('show');
+                    if(data.is_show == 1){
+                        $('.candidate-'+cId).parent('div').removeClass('border');
+                    }
+                }else{
+                    swal("Cancelled", "Something is wrong. Please try again!", "error");
+                }
+            }
+        });
+    });
+
+    $('#candidateStatus').on('change', function(){
+        if($(this).val() == 'rejected'){
+            $('.rejection').show();
+        }else{
+            $('.rejection').hide();
+        }
+    });
 
 </script>
 @yield('jquery')

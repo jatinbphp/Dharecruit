@@ -229,6 +229,8 @@ class CommonController extends Controller
                     $historyData .= '</tbody>
                 </table>';
             }
+
+            $editData = view('admin/updateSubmissionForm')->toHtml();
         }
         $data['requirementData'] = $rData;
         $data['candidateData'] = $cData;
@@ -237,6 +239,7 @@ class CommonController extends Controller
         $data['status'] = $status;
         $data['historyData'] = $historyData;
         $data['showLogButton'] = $showLogButton;
+        $data['editData'] = $editData;
         return $data;
     }
 

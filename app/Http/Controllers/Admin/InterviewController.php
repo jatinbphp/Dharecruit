@@ -84,7 +84,7 @@ class InterviewController extends Controller
                     return $row->Submission->recruiter_rate;
                 })
                 ->addColumn('employer_name', function($row){
-                    return '<i class="fa fa-eye employer_name-icon employer-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'employer-name-\')" aria-hidden="true"></i><span class="employer_name employer-name-'.$row->id.'" style="display:none">'.$row->Submission->employer_name.'</span>';
+                    return '<i class="fa fa-eye show_employer_name-icon show-employer-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'show-employer-name-\')" aria-hidden="true"></i><span class="show_employer_name show-employer-name-'.$row->id.'" style="display:none">'.$row->Submission->employer_name.'</span>';
                 })
                 ->addColumn('emp_poc', function($row){
                     $empPocNameArray = explode(' ', $row->Submission->employee_name);
@@ -337,11 +337,12 @@ class InterviewController extends Controller
         }
 
         $candidateCount = $this->getCandidateCountByEmail($interview->Submission->email);
-
+        $submission = Submission::where('id',$interview->submission_id)->first();
         $candidateNames = explode(' ',$interview->Submission->name);
         $candidateName = isset($candidateNames[0]) ? $candidateNames[0] : '';
+        $isCandidateHasLog  = $this->isCandidateHasLog($submission);
 
-        return ($candidateCount ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").'<div class="candidate-'. $interview->id .'"><div class="'.$divClass.'  pt-2 pl-2 pb-2 pr-2" style="'.$divCss.'"><span class="candidate '.$textColor.'" >'.$candidateName.'-'.$interview->Submission->candidate_id.'</span></div></div>';
+        return ($candidateCount ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "").'<div class="candidate-'. $interview->id .'"><div class="'.$divClass.'  pt-2 pl-2 pb-2 pr-2" style="'.$divCss.'"><span class="candidate '.$textColor.'" data-cid='.$interview->Submission->candidate_id.'>'.$candidateName.'-'.$interview->Submission->candidate_id.'</span></div></div>';
     }
 
     public function removeDocument($id) {
