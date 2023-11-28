@@ -795,13 +795,11 @@
                 if(data.status == 1){
                     if(data.showLogButton == 0){
                         $('.show-logs').hide();
-                        $('.show-view').hide();
-                        $('.show-edit').hide();
                     } else {
                         $('.show-logs').show();
-                        $('.show-view').show();
-                        $('.show-edit').show();
                     }
+                    $('.show-view').show();
+                    $('.show-edit').show();
                     var submission = data.submission;
                     $('#jobTitle').html(submission.requirement.job_title);
                     $('#submissionId').val(cId);
