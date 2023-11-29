@@ -2,6 +2,7 @@
 
 use App\Models\Admin;
 use App\Models\Submission;
+use App\Models\Requirement;
 use App\Models\EntityHistory;
 use App\Http\Controllers\Controller;
 use DataTables;
@@ -143,6 +144,11 @@ if(!function_exists('getStatusHtml')){
                                 </div>';
             }
         }
+        if(in_array($row->status,[Requirement::STATUS_EXP_HOLD, Requirement::STATUS_EXP_NEED])){
+            $statusBtn .= '<div class="btn-group-horizontal">
+                                    <button class="btn btn btn-secondary noChange ladda-button" data-style="slide-left" type="button" style="height:28px; padding:0 12px"><span class="ladda-label"><b>'.(isset(Requirement::$exprieStatus[$row->status]) ? (Requirement::$exprieStatus[$row->status]) : '').'</b></span></button>
+                                </div>';
+        }
         return $statusBtn;
     }
 }
@@ -175,18 +181,19 @@ if(!function_exists('getcandidateHtml')){
 
 if(!function_exists('getActionHtml')){
     function getActionHtml($row, $page='requirement'){
+        $exprieStatus = Requirement::$exprieStatus;
         $user = Auth::user();
         $btn = '';
         if($page == 'submission'){
             if($row->submissionCounter < 3){
                 $rId = !empty($row->recruiter) ? explode(',',$row->recruiter) : [];
-                if(!empty($rId) && in_array(Auth::user()->id,$rId)){
+                if(!empty($rId) && in_array(Auth::user()->id,$rId) && !in_array($row->status,$exprieStatus)){
                     //$btn = '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/submission/'.$row->id).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" ><i class="fa fa-eye"></i></button></a></div>';
                     $btn = '<div class="btn-group btn-group-sm mr-2"><button class="btn btn-sm btn-default tip view-submission" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" data-id="'.$row->id.'" ><i class="fa fa-eye"></i></button></div>';
                     $btn .= '<div class="btn-group btn-group-sm"><a href="'.url('admin/submission/new/'.$row->id).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Add New Submission" data-trigger="hover" type="submit" ><i class="fa fa-upload"></i></button></a></div>';
                 }else{
                     $btn = '';
-                    if($row->status != "hold"){
+                    if($row->status != "hold" && !in_array($row->status,$exprieStatus)){
                         $btn = '<span data-toggle="tooltip" title="Assign Requirement" data-trigger="hover">
                                     <button class="btn btn-sm btn-default assignRequirement mr-2" data-id="'.$row->id.'" type="button"><i class="fa fa-plus-square"></i></button>
                                 </span>';
@@ -198,10 +205,10 @@ if(!function_exists('getActionHtml')){
             $btn .= '<div class="border border-dark floar-left p-1 mt-2" style="
                 border-radius: 5px; width: auto"><span>'.getTimeInReadableFormate($row->created_at).'</span></div>';
         } else {
-            if(($user['role'] == 'admin') || ($user['role'] == 'bdm' && $user['id'] == $row->user_id)){
+            if(($user['role'] == 'admin' && !array_key_exists($row->status,$exprieStatus)) || ($user['role'] == 'bdm' && $user['id'] == $row->user_id && !array_key_exists($row->status,$exprieStatus))){
                 $btn .= '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/requirement/'.$row->id.'/edit').'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Edit Requirement" data-trigger="hover" type="submit" ><i class="fa fa-edit"></i></button></a></div>';
             }
-            if($user['role'] == 'admin'){
+            if($user['role'] == 'admin' && !array_key_exists($row->status,$exprieStatus)){
                 $btn .= '<span data-toggle="tooltip" title="Delete Requirement" data-trigger="hover">
                             <button class="btn btn-sm btn-default deleteRequirement mr-2" data-id="'.$row->id.'" type="button"><i class="fa fa-trash"></i></button>
                         </span>';
@@ -211,7 +218,7 @@ if(!function_exists('getActionHtml')){
                $btn .= '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-default tip view-submission" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" data-id="'.$row->id.'"><i class="fa fa-eye"></i></button></div>';
             }   
             //$btn .= '<div class="btn-group btn-group-sm ml-2"><a href="'.Route('requirement.repost',[$row->id]).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Repost Requirement" data-trigger="hover" type="submit"><i class="fa fa-retweet"></i></button></a></div>';
-            if(($user['role'] == 'admin') || ($user['role'] == 'bdm' && $user['id'] == $row->user_id)){ 
+            if(($user['role'] == 'admin') || ($user['role'] == 'bdm' && $user['id'] == $row->user_id && $page != 'all_requirement')){ 
                 $btn .= '<div class="btn-group btn-group-sm ml-2"><a href="'.url('admin/requirement/repostReqirement').'/'.$row->id.'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Repost Requirement" data-trigger="hover" type="submit"><i class="fa fa-retweet"></i></button></a></div>';
             }
             $btn .= '<div class="border border-dark floar-left p-1 mt-2" style="

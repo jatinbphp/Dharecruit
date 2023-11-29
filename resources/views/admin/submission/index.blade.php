@@ -30,12 +30,20 @@
                                 <div class="col-md-2">
                                     <button class="btn btn-info" type="button" id="filterBtn"><i class="fa fa-search pr-1"></i> Search</button>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-2">
                                     <div class="form-check mt-2">
                                         <input class="form-check-input" type="checkbox" value="" id="showDate">
                                         <label class="form-check-label" for="showDate">Show Date</label>
-                                      </div>
+                                    </div>
                                 </div>
+                                @if(Auth::user()->role == 'recruiter')
+                                    <div class="col-md-2">
+                                        <div class="form-check mt-2">
+                                            <input class="form-check-input" type="checkbox" value="" id="show_my_candidate">
+                                            <label class="form-check-label" for="show_my_candidate">Show My Candidates Only</label>
+                                        </div>
+                                    </div>
+                                @endif
                                 <div class="col-md-12 border mt-3 pb-3" id="filterDiv">
                                     {!! Form::open(['id' => 'filterForm', 'class' => 'form-horizontal','files'=>true,'onsubmit' => 'return false;']) !!}
                                     @include('admin.filter')
@@ -142,10 +150,10 @@
                 {data: 'work_type', name: 'work_type'},
                 {data: 'category', name: 'category'},
                 // {data: 'created_at', 'width': '18%', name: 'created_at'},
-                {data: 'job_keyword', 'width': '20%', name: 'job_keyword'},
+                {data: 'job_keyword', 'width': '15%', name: 'job_keyword'},
                 {data: 'client', name: 'client'},
                 {data: 'recruiter', name: 'recruiter'},
-                {data: 'status', name: 'status'},
+                {data: 'status', 'width': '20%', name: 'status'},
                 // {data: 'color', name: 'color'},
                 {data: 'candidate', name: 'candidate'},
                 {data: 'action', "width": "15%", name: 'action', orderable: false, searchable: false},

@@ -37,17 +37,22 @@ class Controller extends BaseController
         return Auth::user();
     }
 
-    public function Filter($request){
+    public function Filter($request, $page=''){
         $whereInfo = [];
 
         $user = Auth::user();
 
+        $expStatus = [Requirement::STATUS_EXP_HOLD , Requirement::STATUS_EXP_NEED];
         if($user['role'] == 'bdm' && isset($request->authId) && $request->authId > 0){
             $query = Requirement::where('user_id',$request->authId)->select();
         }elseif($user['role'] == 'recruiter' && isset($request->authId) && $request->authId > 0){
             $query = Requirement::whereRaw("find_in_set($request->authId,recruiter)")->select();
         }else{
             $query = Requirement::select();
+        }
+
+        if(in_array(Auth::user()->role, ['bdm', 'recruiter']) && $page == 'all'){
+            $query->whereNotIn('status',$expStatus);
         }
 
         if(!empty($request->fromDate)){
@@ -138,8 +143,9 @@ class Controller extends BaseController
             }
             
             $isSamePvCandidate = $this->isSamePvCandidate($submission->email, $submission->requirement_id, $submission->id);
-
+            $otherCandidate = 'other-candidate';
             if($user->id == $userId || $user->role == 'admin'){
+                $otherCandidate = '';
                 if($submission->is_show == 0){
                     $textColor = 'text-primary';
                     $divClass .= 'border border-primary';
@@ -199,14 +205,14 @@ class Controller extends BaseController
             $isCandidateHasLog  = $this->isCandidateHasLog($submission);
 
             if($user->id == $userId && $user->role == 'recruiter'){
-                $candidate .= (($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "").'<div class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i>  ": "").$candidateFirstName.'-'.$submission->candidate_id.'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span><br>';
+                $candidate .= "<div class='$otherCandidate'>".(($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "").'<div class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i>  ": "").$candidateFirstName.'-'.$submission->candidate_id.'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span></div><br>';
             } else {
                 if(($user->id == $userId && $user->role == 'bdm') || $user->role == 'admin'){
                     $class = 'candidate';
                 } else {
                     $class = '';
                 }
-                $candidate .= (($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "").'<div class="'.$divClass.'" style="'.$divCss.'"><span class="'.$class.' '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i> " :"").$candidateFirstName.'-'.$submission->candidate_id.'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span><br>';
+                $candidate .= "<div class='$otherCandidate'>".(($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "").'<div class="'.$divClass.'" style="'.$divCss.'"><span class="'.$class.' '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i> " :"").$candidateFirstName.'-'.$submission->candidate_id.'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span></div><br>';
             }
         }
         return $candidate;
@@ -556,6 +562,50 @@ class Controller extends BaseController
             Submission::where('candidate_id', $candidateId)->update($submissionData);
             $this->manageSubmissionLogs($submission->toArray(),$oldSubmissionRow);
         }
+        return $this;
+    }
+
+    public function ExpireRequirement(){
+        $settingRow =  Setting::where('name', 'no_of_hours_for_expire')->first();
+
+        if(empty($settingRow) || !$settingRow->value){
+            return $this;
+        }
+
+        $expHours = $settingRow->value;
+        $requirementObj = new Requirement();
+
+        $requirementData = Requirement::
+            whereNotIn('status', [$requirementObj::STATUS_EXP_HOLD, $requirementObj::STATUS_EXP_NEED])
+            ->whereRaw('TIMESTAMPDIFF(HOUR, created_at, NOW()) >= ?', [$expHours])
+            ->get();
+        
+        if(empty($requirementData)){
+            return $this;
+        }
+
+        $logData = [];
+
+        foreach ($requirementData as $requirement) {
+            $data = [];
+
+            $data['status'] = ($requirement->status == 'unhold') ? $requirementObj::STATUS_EXP_NEED : $requirementObj::STATUS_EXP_HOLD;
+            
+            $requirement->update($data);
+            
+            $data['requirement_id'] = $requirement->id;
+            $data['created_at'] = $requirement->created_at;
+            $logData[$requirement->id] = $data;
+        }
+
+        if($logData){
+            $inputData['section_id'] = 0;
+            $inputData['section']    = 'requirement';
+            $inputData['data']       = json_encode($logData);
+
+            DataLog::create($inputData);   
+        }
+
         return $this;
     }
 }

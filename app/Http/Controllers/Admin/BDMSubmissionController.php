@@ -16,6 +16,7 @@ class BDMSubmissionCOntroller extends Controller
     public function __construct(){
         $this->middleware('auth');
         $this->middleware('accessright:manage_bdm_submission');
+        $this->ExpireRequirement();
     }
 
     public function index(Request $request)

@@ -28,7 +28,7 @@
                         {!! Form::open(['url' => route('setting.store'), 'id' => 'settingForm', 'class' => 'form-horizontal','files'=>true]) !!}
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label class="control-label" for="name">Fill Employer Name :</label>
                                         <div class="col-md-12">
@@ -38,6 +38,14 @@
                                                     {!! Form::radio('is_fill_employer_name', $key, null, ['class' => 'flat-red',$checked]) !!} <span style="margin-right: 10px">{{ $value }}</span>
                                                 </label>
                                             @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="control-label" for="no_of_hours_for_expire"># Of Hours Requirement Expired</label>
+                                        <div class="col-md-12">
+                                            {!! Form::number('no_of_hours_for_expire', (isset($settingData['no_of_hours_for_expire']) && $settingData['no_of_hours_for_expire']) ? $settingData['no_of_hours_for_expire'] : '', ['class' => 'form-control', 'placeholder' => 'Enter # Of Hours Requirement Expired', 'id' => 'no_of_hours_for_expire']) !!}
                                         </div>
                                     </div>
                                 </div>

@@ -19,6 +19,7 @@ class SubmissionController extends Controller
     {
         $this->middleware('auth');
         $this->middleware('accessright:manage_submission');
+        $this->ExpireRequirement();
     }
 
     public function index(Request $request){
@@ -26,7 +27,7 @@ class SubmissionController extends Controller
         $data['search'] = $request['search'];
 
         if ($request->ajax()) {
-            $data = $this->Filter($request);
+            $data = $this->Filter($request,'all');
             return getListHtml($data, 'submission');
         }
         $data['type'] = 1;

@@ -32,6 +32,7 @@ class SettingController extends Controller
     {
         $requestData = $request->except(['_token']);
         $storedData = Setting::pluck('name')->toArray();
+
         foreach ($requestData as $key => $value) {
             if(in_array($key,$storedData)){
                 $settingData = Setting::where('name', $key)->first();

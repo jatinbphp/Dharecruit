@@ -134,6 +134,32 @@
         .color-group {
             background-color: #E7FFF9
         }
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7); /* Adjust the transparency as needed */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #spinner {
+            border: 10px solid #f3f3f3;
+            border-top: 10px solid #0b0b0c;
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="hold-transition sidebar-mini sidebar-collapse" id="bodyid">
@@ -841,6 +867,14 @@
             $('.rejection').show();
         }else{
             $('.rejection').hide();
+        }
+    });
+
+    $('#show_my_candidate').on('change', function(){
+        if($('#show_my_candidate').is(':checked')){
+            $('.other-candidate').hide();
+        }else{
+            $('.other-candidate').show();
         }
     });
 

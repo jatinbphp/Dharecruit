@@ -542,7 +542,7 @@ class CommonController extends Controller
             $submissionData .= 
                 '<tbody>
                     <tr>
-                        <td colspan="8" class="text-center">No Records Found</td>
+                        <td colspan="10" class="text-center">No Records Found</td>
                     </tr>
                 </tbody>
             </table>';

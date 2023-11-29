@@ -53,8 +53,8 @@
                             </div>
                         </div>
                         <div class="card-body table-responsive">
-                            <div id="loadingSpinner" class="spinner-border text-primary" role="status" style="display: none;">
-                                <span class="sr-only">Loading...</span>
+                            <div id="overlay">
+                                <div id="spinner"></div>
                             </div>
                             <table id="requirementTable" class="table table-bordered table-striped">
                                 <thead>
@@ -167,7 +167,7 @@
                 {data: 'job_keyword', 'width': '20%', name: 'job_keyword'},
                 {data: 'client', name: 'client'},
                 {data: 'recruiter', name: 'recruiter'},
-                {data: 'status', name: 'status'},
+                {data: 'status', 'width': '20%', name: 'status'},
                 // {data: 'color', name: 'color'},
                 {data: 'candidate', name: 'candidate'},
                 {data: 'action', "width": "15%", name: 'action', orderable: false, searchable: false},
@@ -208,11 +208,11 @@
         });
 
         $('#requirementTable').on('preXhr.dt', function () {
-            $('#loadingSpinner').show();
+            $('#overlay').show();
         });
 
         $('#requirementTable').on('xhr.dt', function () {
-            $('#loadingSpinner').hide();
+            $('#overlay').hide();
         });
     }
 

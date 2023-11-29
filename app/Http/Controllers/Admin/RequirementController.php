@@ -23,6 +23,7 @@ class RequirementController extends Controller
     public function __construct(){
         $this->middleware('auth');
         $this->middleware('accessright:manage_requirement');
+        $this->ExpireRequirement();
     }
 
     public function index(Request $request)
@@ -31,8 +32,8 @@ class RequirementController extends Controller
         $data['search'] = $request['search'];
 
         if ($request->ajax()) {
-            $data = $this->Filter($request);
-            return getListHtml($data);
+            $data = $this->Filter($request,'all');
+            return getListHtml($data, 'all_requirement');
         }
         $data['type'] = 1;
         return view('admin.requirement.index', $data);

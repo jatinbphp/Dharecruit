@@ -18,10 +18,17 @@ class Requirement extends Model
 
     const STATUS_ACTIVE = 'active';
     const STATUS_INACTIVE = 'inactive';
+    const STATUS_EXP_HOLD = 'exp_hold';
+    const STATUS_EXP_NEED = 'exp_need';
 
     public static $status = [
         self::STATUS_ACTIVE => 'Active',
         self::STATUS_INACTIVE => 'In Active',
+    ];
+
+    public static $exprieStatus = [
+        self::STATUS_EXP_HOLD => 'Exp-Hold',
+        self::STATUS_EXP_NEED => 'Exp-Need',
     ];
 
     const PRIORITY_0 = '';
