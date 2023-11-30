@@ -406,17 +406,28 @@ class Controller extends BaseController
             }elseif($value == 'off'){
                 $value = '0';
             }
-            if (isset($oldData[$key]) && $oldData[$key] != $value) {
+            if (isset($oldData[$key]) && strtolower($oldData[$key]) != strtolower($value)) {
                 $isAllSameData = 1;
-                $differentValues[$key] = $oldData[$key];
+                $differentValues[$key] = $value;
+
             } else {
                 $differentValues[$key] = '';
             }
         }
+
         if($isAllSameData){
             $this->saveDataLog($oldData->id, DataLog::SECTION_SUBMISSION, $differentValues,$oldData);
         }
 
+        return $this;
+    }
+
+    public function addNewDataInLog($submission){
+        if(!$submission){
+            return $this;
+        }
+
+        $this->saveDataLog($submission->id, DataLog::SECTION_SUBMISSION, $submission->toArray(),$submission);
         return $this;
     }
 
@@ -455,7 +466,7 @@ class Controller extends BaseController
             return '';
         }
 
-        $allLogData = DataLog::where('candidate_id', $submission->candidate_id)->where('section', DataLog::SECTION_SUBMISSION)->orderBy('created_at', 'DESC')->get();
+        $allLogData = DataLog::where('section_id', $submission->id)->where('section', DataLog::SECTION_SUBMISSION)->orderBy('created_at', 'DESC')->get();
 
         if(empty($allLogData) || !count($allLogData)){
             return '';
@@ -464,42 +475,39 @@ class Controller extends BaseController
         $logData = 
             '<br><table class="table table-striped log-data" style="display:none">
                 <thead>
+                
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col">Value</th>
+                        <th scope="col">Latest First <br>Value</th>
                         <th scope="col">JID</th>
                         <th scope="col">Modified By</th>
                         <th scope="col">Date</th>
                     </tr>
                 </thead>
                 <tbody>';
-        $count = 1;
+        $count = 0;
         $isNoLogData = 1;
-        $logData .= 
-            '<tr>
-                <th scope="row" class="text-success">'.$count.'</th>
-                <td class="text-success">'.(isset($submission[$key]) ? $submission[$key]:'').'</td>
-                <td class="text-success">'.$submission->Requirement->job_id.'</td>
-                <td class="text-success">'.$submission->recruiters->role.' : '.$submission->recruiters->name.'</td>
-                <td class="text-success">'.date('m-d-y',strtotime($submission->created_at)).'</td>
-            </tr>';
         foreach($allLogData as $data){
             $allData = json_decode($data->data, 1);
             if(isset($allData[$key]) && $allData[$key]){
+                $count++;
                 $isNoLogData = 0;
-                    $count++;
-                    $logData .= 
+                $logData .= 
                     '<tr>
-                        <th scope="row" class="text-danger">'.$count.'</th>
-                        <td class="text-danger">'.$allData[$key].'</td>
-                        <td class="text-danger">'.$data->job_id.'</td>
-                        <td class="text-danger">'.$data->userDetail->role.' : '.$data->userDetail->name.'</td>
-                        <td class="text-danger">'.date('m-d-y',strtotime($data->created_at)).'</td>
+                        <th scope="row">'.$count.'</th>
+                        <td>'.$allData[$key].'</td>
+                        <td>'.$data->job_id.'</td>
+                        <td>'.$data->userDetail->role.' : '.$data->userDetail->name.'</td>
+                        <td>'.date('m-d-y',strtotime($data->created_at)).'</td>
                     </tr>';
             }
         }
 
         if($isNoLogData){
+            return '';
+        }
+
+        if($count == 1){
             return '';
         }
 
@@ -511,7 +519,7 @@ class Controller extends BaseController
     }
 
     public function isCandidateHasLog($submission) {
-        if(empty($submission) || Auth::user()->role == 'recruiter'){
+        if(empty($submission)){
             return 0;
         }
 
@@ -524,17 +532,18 @@ class Controller extends BaseController
         $isHasLog = 0;
         foreach ($manageLogFileds as $value) {
             $oldLogData = $this->getLogDataByName($submission, $value);
+
             if($oldLogData){
                 $isHasLog = 1;
                 break;
             }
         }
 
-        if(!$oldLogData){
-            return 0;
+        if($isHasLog){
+            return 1;
         }
 
-        return 1;
+        return 0;
     }
 
     public function updateCandidateWithSameCandidateId($submission){
@@ -558,9 +567,14 @@ class Controller extends BaseController
         unset($submissionData['updated_at']);
         $candidateId = $submission->candidate_id;
         if($candidateId){
-            $oldSubmissionRow = Submission::where('candidate_id',$candidateId)->first();
-            Submission::where('candidate_id', $candidateId)->update($submissionData);
-            $this->manageSubmissionLogs($submission->toArray(),$oldSubmissionRow);
+            $oldSubmissionRows = Submission::where('candidate_id',$candidateId)->where('id', '!=', $submission->id)->get();
+            if(!empty($oldSubmissionRows) && $oldSubmissionRows->count()){
+                foreach($oldSubmissionRows as $oldSubmissionRow){
+                    Submission::where('id', $oldSubmissionRow->id)->update($submissionData);
+                    $newSubmission = Submission::where('id', $oldSubmissionRow->id)->first();
+                    $this->manageSubmissionLogs($newSubmission->toArray(),$oldSubmissionRow);
+                }
+            }
         }
         return $this;
     }

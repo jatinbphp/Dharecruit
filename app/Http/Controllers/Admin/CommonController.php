@@ -97,12 +97,12 @@ class CommonController extends Controller
                                 <strong>Email:</strong> '.$submission['email'].'
                             </div>
                             <div class="col-md-6">
-                                <strong>Location:</strong> <span class="actual-data">'.$submission['location'].'</span>'.((in_array('location',$manageLogFileds) && $oldLocationHtml) ? $oldLocationHtml : "").'
+                                <strong>Location:</strong> <span class="actual-data">'.$submission['location'].'</span>'.((in_array('location',$manageLogFileds) && $oldLocationHtml) ? "<span class='badge badge-primary ml-2'>L</span>" : "").((in_array('location',$manageLogFileds) && $oldLocationHtml) ? $oldLocationHtml : "").'
                             </div>
                         </div>
                         <div class="row mt-2">
                             <div class="col-md-6">
-                                <strong>Phone:</strong> <span class="actual-data">'.$submission['phone'].'</span>'.((in_array('phone',$manageLogFileds) && $oldPhoneHtml) ? $oldPhoneHtml : "").'
+                                <strong>Phone:</strong> <span class="actual-data">'.$submission['phone'].'</span>'.((in_array('phone',$manageLogFileds) && $oldPhoneHtml) ? "<span class='badge badge-primary ml-2'>L</span>" : "").((in_array('phone',$manageLogFileds) && $oldPhoneHtml) ? $oldPhoneHtml : "").'
                             </div>
                             <div class="col-md-6">
                                 <strong>Employer Detail:</strong> '.$submission['employer_detail'].'
@@ -110,23 +110,23 @@ class CommonController extends Controller
                         </div>
                         <div class="row mt-2">
                             <div class="col-md-6">
-                                <strong>Work Authorization:</strong> <span class="actual-data">'.$submission['work_authorization'].'</span>'.((in_array('work_authorization',$manageLogFileds) && $oldWorkAuthorizationHtml) ? $oldWorkAuthorizationHtml : "").'
+                                <strong>Work Authorization:</strong> <span class="actual-data">'.$submission['work_authorization'].'</span>'.((in_array('work_authorization',$manageLogFileds) && $oldWorkAuthorizationHtml) ? "<span class='badge badge-primary ml-2'>L</span>" : "").((in_array('work_authorization',$manageLogFileds) && $oldWorkAuthorizationHtml) ? $oldWorkAuthorizationHtml : "").'
                             </div>
                             <div class="col-md-6">
-                                <strong>Last 4 SSN:</strong> <span class="actual-data">'.$submission['last_4_ssn'].'</span>'.((in_array('last_4_ssn',$manageLogFileds) && $oldLast4ssnHtml) ? $oldLast4ssnHtml : "").'
-                            </div>
-                        </div>
-                        <div class="row mt-2">
-                            <div class="col-md-6">
-                                <strong>Education Detail:</strong> <span class="actual-data">'.$submission['education_details'].'</span>'.((in_array('education_details',$manageLogFileds) && $oldEducationDetailsHtml) ? $oldEducationDetailsHtml : "").'
-                            </div>
-                            <div class="col-md-6">
-                                <strong>Resume Experience:</strong> <span class="actual-data">'.$submission['resume_experience'].'</span>'.((in_array('resume_experience',$manageLogFileds) && $oldResumeExperienceHtml) ? $oldResumeExperienceHtml : "").'
+                                <strong>Last 4 SSN:</strong> <span class="actual-data">'.$submission['last_4_ssn'].'</span>'.((in_array('last_4_ssn',$manageLogFileds) && $oldLast4ssnHtml) ? "<span class='badge badge-primary ml-2'>L</span>" : "").((in_array('last_4_ssn',$manageLogFileds) && $oldLast4ssnHtml) ? $oldLast4ssnHtml : "").'
                             </div>
                         </div>
                         <div class="row mt-2">
                             <div class="col-md-6">
-                                <strong>Linkedin Id:</strong> <span class="actual-data">'.$submission['linkedin_id'].'</span>'.((in_array('linkedin_id',$manageLogFileds) && $oldLinkedinIdHtml) ? $oldLinkedinIdHtml : "").'
+                                <strong>Education Detail:</strong> <span class="actual-data">'.$submission['education_details'].'</span>'.((in_array('education_details',$manageLogFileds) && $oldEducationDetailsHtml) ? "<span class='badge badge-primary ml-2'>L</span>" : "").((in_array('education_details',$manageLogFileds) && $oldEducationDetailsHtml) ? $oldEducationDetailsHtml : "").'
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Resume Experience:</strong> <span class="actual-data">'.$submission['resume_experience'].'</span>'.((in_array('resume_experience',$manageLogFileds) && $oldResumeExperienceHtml) ? "<span class='badge badge-primary ml-2'>L</span>" : "").((in_array('resume_experience',$manageLogFileds) && $oldResumeExperienceHtml) ? $oldResumeExperienceHtml : "").'
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-6">
+                                <strong>Linkedin Id:</strong> <span class="actual-data">'.$submission['linkedin_id'].'</span>'.((in_array('linkedin_id',$manageLogFileds) && $oldLinkedinIdHtml) ? "<span class='badge badge-primary ml-2'>L</span>" : "").((in_array('linkedin_id',$manageLogFileds) && $oldLinkedinIdHtml) ? $oldLinkedinIdHtml : "").'
                             </div>
                             <div class="col-md-6">
                                 <strong>R Rate:</strong> '.$submission['recruiter_rate'].'
@@ -135,7 +135,7 @@ class CommonController extends Controller
                         if(Auth::user()->role == 'bdm'){
                             $cData .= '<div class="row mt-2">
                                             <div class="col-md-6">
-                                                <strong>Employer Name:</strong> <span class="actual-data">'.$submission['employer_name'].'</span>'.((in_array('employer_name',$manageLogFileds) && $oldEmployerNameHtml) ? $oldEmployerNameHtml : "").'
+                                                <strong>Employer Name:</strong> <span class="actual-data">'.$submission['employer_name'].'</span>'.((in_array('employer_name',$manageLogFileds) && $oldEmployerNameHtml) ? "<span class='badge badge-primary ml-2'>L</span>" : "").((in_array('employer_name',$manageLogFileds) && $oldEmployerNameHtml) ? $oldEmployerNameHtml : "").'
                                             </div>
                                             <div class="col-md-6">
                                                 <strong>Resume:</strong><a href="'.asset('storage/'.$submission['documents']).'" target="_blank"><img src="'.url('assets/dist/img/resume.png').'" height="50"></a>
@@ -144,7 +144,7 @@ class CommonController extends Controller
                         } else {
                             $cData .= '<div class="row mt-2">
                                             <div class="col-md-6">
-                                                <strong>Employer Name:</strong> '.$submission['employer_name'].'
+                                                <strong>Employer Name:</strong> <span class="actual-data">'.$submission['employer_name'].'</span>'.((in_array('employer_name',$manageLogFileds) && $oldEmployerNameHtml) ? "<span class='badge badge-primary ml-2'>L</span>" : "").((in_array('employer_name',$manageLogFileds) && $oldEmployerNameHtml) ? $oldEmployerNameHtml : "").'
                                             </div>
                                             <div class="col-md-6">
                                                 <strong>Employee Name:</strong> '.$submission['employee_name'].'

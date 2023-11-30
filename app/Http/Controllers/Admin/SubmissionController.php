@@ -113,7 +113,7 @@ class SubmissionController extends Controller
                 $submission->candidate_id = $submission->id;
                 $submission->save();
             }
-
+            $this->addNewDataInLog($submission);
             $this->updateCandidateWithSameCandidateId($submission);
         }
 

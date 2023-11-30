@@ -356,7 +356,7 @@ class BDMSubmissionCOntroller extends Controller
         unset($inputData['submission_id']);
         unset($inputData['name']);
         unset($inputData['email']);
-        $this->manageSubmissionLogs($request->all(), $submission);
+        $this->manageSubmissionLogs($inputData, $submission);
         $submission->update($inputData);
 
         $this->updateCandidateWithSameCandidateId($submission);

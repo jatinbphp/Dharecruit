@@ -9,9 +9,7 @@
                     <div class="float-right">
                         <button class="mr-1 btn btn-primary show-view" onclick="showView()" type="button">View</button>
                         <button class="mr-1 btn btn-outline-warning show-edit" onclick="showEdit()" type="button">Edit</button>
-                        @if(Auth::user()->role != 'recruiter')
-                            <button class="mr-1 btn btn-primary log-button show-logs" onclick="showLogs()" type="button">Show Logs</button>
-                        @endif
+                        <button class="mr-1 btn btn-primary log-button show-logs" onclick="showLogs()" type="button">Show Logs</button>
                     </div>
                 </div>
                 <div class="col-md-1">
