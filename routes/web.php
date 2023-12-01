@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\CommonController;
 use App\Http\Controllers\Admin\InterviewController;
 use App\Http\Controllers\Admin\VisaController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Auth\RegisterController;
 /*
 |--------------------------------------------------------------------------
@@ -137,6 +138,11 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
 
     /* SETTING MANAGEMENT */
     Route::resource('setting', SettingController::class);
+
+    /* SETTING MANAGEMENT */
+    Route::post('user/assign', [EmployeeController::class,'assign'])->name('employee.assign');
+    Route::post('user/unassign', [EmployeeController::class,'unassign'])->name('employee.unassign');
+    Route::resource('employee', EmployeeController::class);
 
     Auth::routes();
 });

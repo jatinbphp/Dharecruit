@@ -20,7 +20,7 @@
             </div>
             <div class="model-data-view">
                 {!! Form::open(['url' => route('candidate.update'), 'id' => 'candidateForm', 'class' => 'form-horizontal','files'=>true]) !!}
-                {!! Form::hidden('submissionId', null, ['class' => 'form-control', 'id' => 'submissionId']) !!}
+                {!! Form::hidden('candidatesubmissionId', null, ['class' => 'form-control', 'id' => 'candidatesubmissionId']) !!}
                 <div class="modal-body">
                     <div class="row">
                         @if($hide == 0)

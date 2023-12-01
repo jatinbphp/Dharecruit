@@ -75,7 +75,7 @@
     <div class="col-md-6">
         <div class="form-group{{ $errors->has('candidate_email') ? ' has-error' : '' }}">
             <label class="control-label" for="candidate_email">Enter Candidate Email :<span class="text-red">*</span></label>
-            {!! Form::text('candidate_email', null, ['class' => 'form-control', 'placeholder' => 'Enter Candidate Email ', 'id' => 'candidate_email']) !!}
+            {!! Form::text('candidate_email', null, ['class' => 'form-control', 'placeholder' => 'Enter Candidate Email ', 'id' => 'candidate_email', 'readonly' => true]) !!}
             @if ($errors->has('candidate_email'))
                 <span class="text-danger">
                     <strong>{{ $errors->first('candidate_email') }}</strong>

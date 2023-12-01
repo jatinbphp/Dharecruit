@@ -198,7 +198,7 @@
         <div class="col-md-6">
             <div class="form-group{{ $errors->has('employer_name') ? ' has-error' : '' }}">
                 <label class="control-label" for="employer_name">Employer Name :<span class="text-red">*</span></label>
-                {!! Form::text('employer_name', null, ['class' => 'form-control','placeholder' => 'Enter Employer Name', 'id'=>'employer_name']) !!}
+                {!! Form::text('employer_name', null, ['class' => 'form-control','placeholder' => 'Enter Employer Name', 'id'=>'employer_name', 'readonly' => (isset($submission)) ? true : false]) !!}
                 @if ($errors->has('employer_name'))
                     <span class="text-danger">
                         <strong>{{ $errors->first('employer_name') }}</strong>
@@ -210,7 +210,7 @@
         <div class="col-md-6" @if(Auth::user()->role == 'bdm') style="display: none;" @endif>
             <div class="form-group{{ $errors->has('employee_name') ? ' has-error' : '' }}">
                 <label class="control-label" for="employee_name">Employee Name :<span class="text-red">*</span></label>
-                {!! Form::text('employee_name', null, ['class' => 'form-control', 'placeholder' => 'Enter Employee Name', 'id' => 'employee_name']) !!}
+                {!! Form::text('employee_name', null, ['class' => 'form-control', 'placeholder' => 'Enter Employee Name', 'id' => 'employee_name', 'readonly' => (isset($submission)) ? true : false]) !!}
                 @if ($errors->has('employee_name'))
                     <span class="text-danger">
                         <strong>{{ $errors->first('employee_name') }}</strong>
@@ -224,7 +224,7 @@
         <div class="col-md-6">
             <div class="form-group{{ $errors->has('employee_email') ? ' has-error' : '' }}">
                 <label class="control-label" for="employee_email">Employee Email :<span class="text-red">*</span></label>
-                {!! Form::text('employee_email', null, ['class' => 'form-control', 'placeholder' => 'Enter Employee Email', 'id' => 'employee_email']) !!}
+                {!! Form::text('employee_email', null, ['class' => 'form-control', 'placeholder' => 'Enter Employee Email', 'id' => 'employee_email', 'readonly' => (isset($submission)) ? true : false]) !!}
                 @if ($errors->has('employee_email'))
                     <span class="text-danger">
                         <strong>{{ $errors->first('employee_email') }}</strong>
@@ -236,7 +236,7 @@
         <div class="col-md-6">
             <div class="form-group{{ $errors->has('employee_phone') ? ' has-error' : '' }}">
                 <label class="control-label" for="employee_phone">Employee Phone Number :<span class="text-red">*</span></label>
-                {!! Form::text('employee_phone', null, ['class' => 'form-control', 'placeholder' => 'Employee Phone Number', 'id' => 'employee_phone']) !!}
+                {!! Form::text('employee_phone', null, ['class' => 'form-control', 'placeholder' => 'Employee Phone Number', 'id' => 'employee_phone', 'readonly' => (isset($submission)) ? true : false]) !!}
                 @if ($errors->has('employee_phone'))
                     <span class="text-danger">
                         <strong>{{ $errors->first('employee_phone') }}</strong>

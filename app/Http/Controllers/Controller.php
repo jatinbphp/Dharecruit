@@ -386,7 +386,7 @@ class Controller extends BaseController
         return $candidateCount > 1 ? $candidateCount : 0;
     }
 
-    public function manageSubmissionLogs($newData, $oldData) {
+    public function manageSubmissionLogs($newData, $oldData, $jobId) {
         if(!$newData || !$oldData){
             return $this;
         }
@@ -416,7 +416,7 @@ class Controller extends BaseController
         }
 
         if($isAllSameData){
-            $this->saveDataLog($oldData->id, DataLog::SECTION_SUBMISSION, $differentValues,$oldData);
+            $this->saveDataLog($oldData->id, DataLog::SECTION_SUBMISSION, $differentValues,$oldData,$jobId);
         }
 
         return $this;
@@ -427,11 +427,13 @@ class Controller extends BaseController
             return $this;
         }
 
-        $this->saveDataLog($submission->id, DataLog::SECTION_SUBMISSION, $submission->toArray(),$submission);
+        $cloneSubmission = $submission->replicate();
+
+        $this->saveDataLog($submission->id, DataLog::SECTION_SUBMISSION, $submission->toArray(),$submission,$cloneSubmission->Requirement->job_id);
         return $this;
     }
 
-    public function saveDataLog($sectionId,$section,$data,$submission){
+    public function saveDataLog($sectionId,$section,$data,$submission,$jobId){
         $cloneSubmission = $submission->replicate();
         if(!$sectionId || !$section || !$data){
             return $this;
@@ -440,7 +442,7 @@ class Controller extends BaseController
         $inputData['section_id']   = $sectionId;
         $inputData['section']      = $section;
         $inputData['candidate_id'] = $cloneSubmission->candidate_id;
-        $inputData['job_id']       = $cloneSubmission->Requirement->job_id;
+        $inputData['job_id']       = $jobId;
         $inputData['user_id']      = Auth::user()->id;
         $inputData['data']         = json_encode($data);
 
@@ -546,7 +548,7 @@ class Controller extends BaseController
         return 0;
     }
 
-    public function updateCandidateWithSameCandidateId($submission){
+    public function updateCandidateWithSameCandidateId($submission, $jobId){
         if(empty($submission)){
             return $this;
         }
@@ -572,7 +574,7 @@ class Controller extends BaseController
                 foreach($oldSubmissionRows as $oldSubmissionRow){
                     Submission::where('id', $oldSubmissionRow->id)->update($submissionData);
                     $newSubmission = Submission::where('id', $oldSubmissionRow->id)->first();
-                    $this->manageSubmissionLogs($newSubmission->toArray(),$oldSubmissionRow);
+                    $this->manageSubmissionLogs($newSubmission->toArray(),$oldSubmissionRow, $jobId);
                 }
             }
         }
@@ -621,5 +623,20 @@ class Controller extends BaseController
         }
 
         return $this;
+    }
+
+    public function getTooltipHtml($text, $character) {
+        if(!$text){
+            return '';
+        }
+        if(!$character || !is_numeric($character)){
+            return $text;
+        }
+
+        if(strlen($text) > $character){
+            $shortString = substr($text, 0, $character);
+            return '<p>' . $shortString . '<span class="custom-tooltip" data-toggle="tooltip" data-placement="bottom" title="'.$text.'">  <i class="fa fa-info-circle"></i></span>';
+        }
+        $status .= '<span>'.$text.'</span>';
     }
 }

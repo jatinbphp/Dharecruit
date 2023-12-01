@@ -114,7 +114,8 @@ class SubmissionController extends Controller
                 $submission->save();
             }
             $this->addNewDataInLog($submission);
-            $this->updateCandidateWithSameCandidateId($submission);
+            $cloneSubmission = $submission->replicate();
+            $this->updateCandidateWithSameCandidateId($submission,$cloneSubmission->Requirement->job_id);
         }
 
         if($requirement['submissionCounter'] < 3){
@@ -225,10 +226,10 @@ class SubmissionController extends Controller
         unset($input['name']);
         unset($input['email']);
         $Submission = Submission::where('id',$id)->first();
-        $this->manageSubmissionLogs($input, $Submission);
+        $cloneSubmission = $Submission->replicate();
+        $this->manageSubmissionLogs($input, $Submission, $cloneSubmission->Requirement->job_id);
         $Submission->update($input);
-
-        $this->updateCandidateWithSameCandidateId($submission);
+        $this->updateCandidateWithSameCandidateId($Submission,$cloneSubmission->Requirement->job_id);
 
         \Session::flash('success','Submission  has been updated successfully!');
         return redirect(route('submission.show',['submission'=>$Submission['requirement_id']]));

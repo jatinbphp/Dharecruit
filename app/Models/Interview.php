@@ -31,6 +31,7 @@ class Interview extends Model
     const STATUS_CONFIRMED_POSITION      = 'confirmed_position';
     const STATUS_BACKOUT                 = 'backout';
     const STATUS_REJECTED                = 'rejected';
+    const STATUS_WAITING_FEEDBACK        = 'waiting_feedback';
 
     const STATUS_SCHEDULED_TEXT               = 'Scheduled';
     const STATUS_RE_SCHEDULED_TEXT            = 'Re Scheduled';
@@ -38,6 +39,7 @@ class Interview extends Model
     const STATUS_CONFIRMED_POSITION_TEXT      = 'Confirmed Position';
     const STATUS_BACKOUT_TEXT                 = 'Backout';
     const STATUS_REJECTED_TEXT                = 'Rejected';
+    const STATUS_WAITING_FEEDBACK_TEXT        = 'Waiting Feedback';
 
     public static $interviewStatusOptions = [
         ''                                   => 'Select Interview Status',
@@ -47,6 +49,7 @@ class Interview extends Model
         self::STATUS_CONFIRMED_POSITION      => self::STATUS_CONFIRMED_POSITION_TEXT,
         self::STATUS_BACKOUT                 => self::STATUS_BACKOUT_TEXT,
         self::STATUS_REJECTED                => self::STATUS_REJECTED_TEXT,
+        self::STATUS_WAITING_FEEDBACK        => self::STATUS_WAITING_FEEDBACK_TEXT,
     ];
 
     public static $toggleOptions = [
@@ -80,6 +83,17 @@ class Interview extends Model
         $interview = Interview::where('submission_id',$submisionId)->where('job_id',$jobId)->first();
         if(!empty($interview) && $interview->status){
             return isset(self::$interviewStatusOptions[$interview->status]) ? self::$interviewStatusOptions[$interview->status] : '';
+        }
+        return '';
+    }
+
+    public function getInterviewFeedbackBasedOnSubmissionIdAndJobId($submisionId, $jobId){
+        if(!$submisionId || !$jobId){
+            return '';
+        }
+        $interview = Interview::where('submission_id',$submisionId)->where('job_id',$jobId)->first();
+        if(!empty($interview) && $interview->feedback){
+            return $interview->feedback;
         }
         return '';
     }

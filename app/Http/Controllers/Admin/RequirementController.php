@@ -336,6 +336,7 @@ class RequirementController extends Controller
         $submission = Submission::where('id',$id)->first();
         if(!empty($submission)){
             $input['status'] = $request['status'];
+            $input['bdm_status_updated_at'] = \Carbon\Carbon::now();
             $submission->update($input);
 
             $inputData['submission_id']  = $id;
@@ -352,13 +353,18 @@ class RequirementController extends Controller
     }
 
     public function candidateUpdate(Request $request){
-        $submission = Submission::where('id',$request['submissionId'])->first();
+        if(empty($request->candidatesubmissionId)){
+            \Session::flash('danger', 'You can not update the status');
+            return redirect()->back();
+        }
+        $submission = Submission::where('id',$request['candidatesubmissionId'])->first();
         $requirement = Requirement::where('user_id',Auth::user()->id)->where('id',$submission['requirement_id'])->first();
         if(empty($requirement)){
             \Session::flash('danger', 'You can not update the status');
             return redirect()->route('requirement.index');
         }
         $input = $request->all();
+        $input['bdm_status_updated_at'] = \Carbon\Carbon::now();
         $submission->update($input);
 
         $inputData['submission_id']  = $submission->id;
@@ -565,14 +571,15 @@ class RequirementController extends Controller
 
         PVCompany::create(
             [
-                'user_id' => Auth::user()->id,
-                'name' => $pvCompanyName,
-                'poc_name' => $pocName,
-                'email'    => $email,
-                'phone' => $phone,
-                'poc_location' => $pocLocation,
+                'user_id'             => Auth::user()->id,
+                'name'                => $pvCompanyName,
+                'poc_name'            => $pocName,
+                'email'               => $email,
+                'phone'               => $phone,
+                'poc_location'        => $pocLocation,
                 'pv_company_location' => $pvCompanyLocation,
-                'client_name' => $clientName,
+                'client_name'         => $clientName,
+                'status'              => 'active',
             ]
         );
         return $this;

@@ -209,11 +209,11 @@ class CommonController extends Controller
                                                 <td>'.$candidateData->requirement->work_type.'</td>
                                                 <td>
                                                     <span>'.ucfirst($candidateData->status).'</span><br>
-                                                    <span>'.$candidateData->reason.'</span>
+                                                    <span>'.$this->getTooltipHtml($candidateData->reason,30).'</span>
                                                 </td>
                                                 <td>
                                                     <span>'.$pvStatus.'</span><br>
-                                                    <span>'.$candidateData->pv_reason.'</span>
+                                                    <span>'.$this->getTooltipHtml($candidateData->pv_reason,30).'</span>
                                                 </td>
                                                 <td>'.$candidateData->employer_name.'</td>
                                                 <td>

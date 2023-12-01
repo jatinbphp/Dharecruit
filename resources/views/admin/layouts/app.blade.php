@@ -359,6 +359,15 @@
                             </a>
                         </li>
                     @endif
+                    
+                    @if($loginRole == 'admin' || $check15)
+                        <li class="nav-item">
+                            <a href="{{ route('employee.index') }}" class="nav-link @if($menu=='Employee') active @endif">
+                                <i class="nav-icon fa fa-user"></i>
+                                <p>Manage Employee</p>
+                            </a>
+                        </li>
+                    @endif
 
                     @if($loginRole == 'admin' || $check9)
                         <li class="nav-item">
@@ -599,6 +608,9 @@
             },
         });
 
+        /* TOOLTIP CODE */
+        $('[data-toggle="tooltip"]').tooltip();
+
         function upload_image(file, el) {
             var form_data = new FormData();
             form_data.append('image', file);
@@ -787,7 +799,9 @@
     function showView() {
         $('.model-data-view').show();
         $('.model-data-edit').hide();
-        $('.log-button').show();
+        if(!$('.log-button').hasClass('no-display')){
+            $('.log-button').show();
+        }
         $('.show-view').addClass('btn-primary');
         $('.show-view').removeClass('btn-outline-primary');
         $('.show-edit').removeClass('btn-warning');
@@ -820,8 +834,10 @@
             success: function(data){
                 if(data.status == 1){
                     if(data.showLogButton == 0){
+                        $('.show-logs').addClass('no-display');
                         $('.show-logs').hide();
                     } else {
+                        $('.show-logs').removeClass('no-display');
                         $('.show-logs').show();
                     }
                     $('.show-view').show();
@@ -851,6 +867,8 @@
                     $('#other-reason').html(submission.reason);
                     $('#status').html(submission.status[0].toUpperCase() + submission.status.slice(1))
                     addSubmissionData(data.submission);
+                    console.log(data.submission.id);
+                    $('#candidatesubmissionId').val(data.submission.id);
                     $('#candidateModal').modal('show');
                     if(data.is_show == 1){
                         $('.candidate-'+cId).parent('div').removeClass('border');

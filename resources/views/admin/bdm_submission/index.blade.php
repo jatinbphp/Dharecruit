@@ -56,9 +56,14 @@
                                                 </label>
                                             </div>
                                         @endforeach
-                                        <div class="col-md-3">
+                                        <div class="col-md-2">
                                             <label>
                                                 {!! Form::checkbox('', 'show-time', null, ['id' => "showTime"]) !!} <span style="margin-right: 10px; color:#AC5BAD; font-weight:bold; ">Status Time</span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label>
+                                                {!! Form::checkbox('', 'show-feedback', null, ['id' => "showFeedback"]) !!} <span style="margin-right: 10px">Show FeedBack</span>
                                             </label>
                                         </div>
                                     </div>
@@ -282,9 +287,9 @@
                 {data: 'r_rate',  name: 'r_rate'},
                 {data: 'candidate_name',  name: 'candidate_name'},
                 {data: 'employer_name',  name: 'employer_name'},
-                {data: 'bdm_status', "width": "9%", name: 'bdm_status', orderable: false, searchable: false},
-                {data: 'pv_status', "width": "10%", name: 'pv_status', orderable: false, searchable: false},
-                {data: 'client_status', "width": "10%", name: 'client_status', orderable: false, searchable: false},
+                {data: 'bdm_status', "width": "9%", name: 'bdm_status', searchable: false},
+                {data: 'pv_status', "width": "10%", name: 'pv_status', searchable: false},
+                {data: 'client_status', "width": "10%", name: 'client_status', searchable: false},
                 // {data: 'action', "width": "9%", name: 'action', orderable: false, searchable: false},
             ]
         });
@@ -299,6 +304,14 @@
             $('.status-time').show();    
         } else {
             $('.status-time').hide();
+        }
+    });
+
+    $('#showFeedback').click(function(){
+        if($('#showFeedback').is(':checked')){
+            $('.feedback').show();    
+        } else {
+            $('.feedback').hide();
         }
     });
 

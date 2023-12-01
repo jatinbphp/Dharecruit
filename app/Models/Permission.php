@@ -27,6 +27,7 @@ class Permission extends Model
     const MODULE_BDM_SUBMISSION = 'manage_bdm_submission';
     const MODULE_INTERVIEW = 'manage_interview';
     const MODULE_VISA = 'manage_visa';
+    const MODULE_EMPLOYEE = 'manage_employee';
 
     public static $permission = [
         self::MODULE_PERMISSION => 'Manage Permission',
@@ -43,5 +44,6 @@ class Permission extends Model
         self::MODULE_BDM_SUBMISSION => 'Manage BDM Submission',
         self::MODULE_INTERVIEW => 'Manage Interview',
         self::MODULE_VISA => 'Manage Visa',
+        self::MODULE_EMPLOYEE => 'Manage Employee',
     ];
 }

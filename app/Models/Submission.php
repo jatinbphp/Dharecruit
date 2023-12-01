@@ -13,7 +13,7 @@ class Submission extends Model
     protected $fillable = [
         'user_id','requirement_id','name','email','location','phone','employer_detail','work_authorization','recruiter_rate','last_4_ssn',
         'education_details','resume_experience','linkedin_id','relocation','vendor_rate','notes','documents','common_skills','skills_match','reason','status','employer_name','employee_name','employee_email','employee_phone','pv_status','pv_reason','is_show',
-        'candidate_id','log_data',
+        'candidate_id','log_data','bdm_status_updated_at','pv_status_updated_at','interview_status_updated_at'
     ];
 
     const STATUS_PENDING = 'pending';
@@ -74,17 +74,21 @@ class Submission extends Model
     const STATUS_SUBMITTED_TO_END_CLIENT = 'submitted_to_end_client';
     const STATUS_REJECTED_BY_END_CLIENT  = 'rejected_by_end_client';
     const STATUS_NO_RESPONSE_FROM_PV     = 'no_response_from_pv';
+    const STATUS_POSITION_CLOSED         = 'position_closed';
 
     const STATUS_REJECTED_BY_PV_TEXT          = 'Rejected By PV';
     const STATUS_SUBMITTED_TO_END_CLIENT_TEXT = 'Submitted To End Client';
     const STATUS_REJECTED_BY_END_CLIENT_TEXT  = 'Rejected By End Client';
     const STATUS_NO_RESPONSE_FROM_PV_TEXT     = 'No Response From PV';
+    const STATUS_POSITION_CLOSED_TEXT         = 'Position Closed';
+
 
     public static $pvStatus = [
         self::STATUS_REJECTED_BY_PV          => self::STATUS_REJECTED_BY_PV_TEXT,
         self::STATUS_SUBMITTED_TO_END_CLIENT => self::STATUS_SUBMITTED_TO_END_CLIENT_TEXT,
         self::STATUS_REJECTED_BY_END_CLIENT  => self::STATUS_REJECTED_BY_END_CLIENT_TEXT,
         self::STATUS_NO_RESPONSE_FROM_PV     => self::STATUS_NO_RESPONSE_FROM_PV_TEXT,
+        self::STATUS_POSITION_CLOSED         => self::STATUS_POSITION_CLOSED_TEXT,
     ];
 
     public function Recruiters(){

@@ -4,7 +4,7 @@
         <div class="col-md-6">
             <div class="form-group{{ $errors->has('pv_company_name') ? ' has-error' : '' }}">
                 <label class="control-label" for="pv_company_name">PV Company Name :<span class="text-red">*</span></label>
-                {!! Form::text('pv_company_name', null, ['class' => 'form-control','placeholder' => 'Enter PV Company Name', 'id'=>'pv_company_name']) !!}
+                {!! Form::text('pv_company_name', null, ['class' => 'form-control','placeholder' => 'Enter PV Company Name', 'id'=> 'pv_company_name', 'readonly' => (isset($requirement)) ? true : false ]) !!}
                 @if ($errors->has('pv_company_name'))
                     <span class="text-danger">
                         <strong>{{ $errors->first('pv_company_name') }}</strong>
@@ -16,7 +16,7 @@
         <div class="col-md-6">
             <div class="form-group{{ $errors->has('poc_name') ? ' has-error' : '' }}">
                 <label class="control-label" for="poc_name">POC Name :<span class="text-red">*</span></label>
-                {!! Form::text('poc_name', null, ['class' => 'form-control', 'placeholder' => 'Enter POC Name', 'id' => 'poc_name']) !!}
+                {!! Form::text('poc_name', null, ['class' => 'form-control', 'placeholder' => 'Enter POC Name', 'id' => 'poc_name', 'readonly' => (isset($requirement)) ? true : false]) !!}
                 @if ($errors->has('poc_name'))
                     <span class="text-danger">
                         <strong>{{ $errors->first('poc_name') }}</strong>
@@ -30,7 +30,7 @@
         <div class="col-md-6">
             <div class="form-group{{ $errors->has('poc_email') ? ' has-error' : '' }}">
                 <label class="control-label" for="poc_email">POC Email :<span class="text-red">*</span></label>
-                {!! Form::text('poc_email', null, ['class' => 'form-control', 'placeholder' => 'Enter POC Email', 'id' => 'poc_email']) !!}
+                {!! Form::text('poc_email', null, ['class' => 'form-control', 'placeholder' => 'Enter POC Email', 'id' => 'poc_email', 'readonly' => (isset($requirement)) ? true : false]) !!}
                 @if ($errors->has('poc_email'))
                     <span class="text-danger">
                         <strong>{{ $errors->first('poc_email') }}</strong>
@@ -42,7 +42,7 @@
         <div class="col-md-6">
             <div class="form-group{{ $errors->has('poc_phone_number') ? ' has-error' : '' }}">
                 <label class="control-label" for="poc_phone_number">POC Phone Number :<span class="text-red">*</span></label>
-                {!! Form::text('poc_phone_number', null, ['class' => 'form-control', 'placeholder' => 'Enter POC Phone Number', 'id' => 'poc_phone_number']) !!}
+                {!! Form::text('poc_phone_number', null, ['class' => 'form-control', 'placeholder' => 'Enter POC Phone Number', 'id' => 'poc_phone_number', 'readonly' => (isset($requirement)) ? true : false]) !!}
                 @if ($errors->has('poc_phone_number'))
                     <span class="text-danger">
                         <strong>{{ $errors->first('poc_phone_number') }}</strong>
@@ -421,20 +421,22 @@
         });
 
         $("#pv_company_name").focusout(function(){
-            var pv_company_name = $(this).val();
-            $.ajax({
-                url : "{{ route('get_pocName') }}",
-                data : {'pv_company_name' : pv_company_name, "_token": "{{ csrf_token() }}",},
-                type : 'POST',
-                dataType : 'json',
-                success : function(data){
-                    if(data.status == 1){
-                        $('#pocNameDiv').html(data.pocName);
-                        $('#pocModal').modal('show');
-                        $('.select2').select2();
+            @if(!isset($requirement))
+                var pv_company_name = $(this).val();
+                $.ajax({
+                    url : "{{ route('get_pocName') }}",
+                    data : {'pv_company_name' : pv_company_name, "_token": "{{ csrf_token() }}",},
+                    type : 'POST',
+                    dataType : 'json',
+                    success : function(data){
+                        if(data.status == 1){
+                            $('#pocNameDiv').html(data.pocName);
+                            $('#pocModal').modal('show');
+                            $('.select2').select2();
+                        }
                     }
-                }
-            });
+                });
+            @endif
         });
 
         function checkData() {

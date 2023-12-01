@@ -166,6 +166,9 @@ class InterviewController extends Controller
         $inputData['entity_type']    = EntityHistory::ENTITY_TYPE_INTERVIEW_STATUS;
         $inputData['entity_value']   = $interview->status;
 
+        $submission = Submission::where('id', $request->submission_id)->first();
+        $submission->update(['interview_status_updated_at' => \Carbon\Carbon::now()]);
+
         EntityHistory::create($inputData);
 
         \Session::flash('success', 'Interview has been inserted successfully!');
@@ -237,6 +240,9 @@ class InterviewController extends Controller
         $inputData['requirement_id'] = $interview->Submission->Requirement->id;
         $inputData['entity_type']    = $entityTypeInterviewStatus;
         $inputData['entity_value']   = $interview->status;
+
+        $submission = Submission::where('id', $interview->submission_id)->first();
+        $submission->update(['interview_status_updated_at' => \Carbon\Carbon::now()]);
 
         EntityHistory::create($inputData);
 
