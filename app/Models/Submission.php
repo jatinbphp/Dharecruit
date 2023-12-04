@@ -125,6 +125,8 @@ class Submission extends Model
         'location',
         'last_4_ssn',
         'resume_experience',
-        'employer_name',
+        'employer_detail',
+        'relocation',
+        // 'employer_name',
     ];
 }

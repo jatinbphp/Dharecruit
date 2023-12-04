@@ -275,7 +275,7 @@ class SubmissionController extends Controller
         if (!empty($submissionEmail)){
             $data = Submission::where('email',$submissionEmail)->latest()->first();
         } else if(!empty($submissionId)){
-            $data = Submission::where('id',$submissionId)->first();
+            $data = Submission::where('candidate_id',$submissionId)->latest()->first();
         }
 
         if($data) {

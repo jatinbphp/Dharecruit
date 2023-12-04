@@ -187,13 +187,13 @@ if(!function_exists('getActionHtml')){
         if($page == 'submission'){
             if($row->submissionCounter < 3){
                 $rId = !empty($row->recruiter) ? explode(',',$row->recruiter) : [];
-                if(!empty($rId) && in_array(Auth::user()->id,$rId) && !in_array($row->status,$exprieStatus)){
+                if(!empty($rId) && in_array(Auth::user()->id,$rId) && !array_key_exists($row->status,$exprieStatus)){
                     //$btn = '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/submission/'.$row->id).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" ><i class="fa fa-eye"></i></button></a></div>';
                     $btn = '<div class="btn-group btn-group-sm mr-2"><button class="btn btn-sm btn-default tip view-submission" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" data-id="'.$row->id.'" ><i class="fa fa-eye"></i></button></div>';
                     $btn .= '<div class="btn-group btn-group-sm"><a href="'.url('admin/submission/new/'.$row->id).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Add New Submission" data-trigger="hover" type="submit" ><i class="fa fa-upload"></i></button></a></div>';
                 }else{
                     $btn = '';
-                    if($row->status != "hold" && !in_array($row->status,$exprieStatus)){
+                    if($row->status != "hold" && !array_key_exists($row->status,$exprieStatus)){
                         $btn = '<span data-toggle="tooltip" title="Assign Requirement" data-trigger="hover">
                                     <button class="btn btn-sm btn-default assignRequirement mr-2" data-id="'.$row->id.'" type="button"><i class="fa fa-plus-square"></i></button>
                                 </span>';

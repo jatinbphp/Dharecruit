@@ -4,7 +4,7 @@
         <div class="col-md-6">
             <div class="form-group{{ $errors->has('pv_company_name') ? ' has-error' : '' }}">
                 <label class="control-label" for="pv_company_name">PV Company Name :<span class="text-red">*</span></label>
-                {!! Form::text('pv_company_name', null, ['class' => 'form-control','placeholder' => 'Enter PV Company Name', 'id'=> 'pv_company_name', 'readonly' => (isset($requirement)) ? true : false ]) !!}
+                {!! Form::text('pv_company_name', null, ['class' => 'form-control','placeholder' => 'Enter PV Company Name', 'id'=> 'pv_company_name', 'readonly' => (isset($requirement)) ? true : false]) !!}
                 @if ($errors->has('pv_company_name'))
                     <span class="text-danger">
                         <strong>{{ $errors->first('pv_company_name') }}</strong>
@@ -56,7 +56,7 @@
         <div class="col-md-6">
             <div class="form-group{{ $errors->has('poc_location') ? ' has-error' : '' }}">
                 <label class="control-label" for="poc_location">POC Location :<span class="text-red"></span></label>
-                {!! Form::text('poc_location', null, ['class' => 'form-control', 'placeholder' => 'Enter POC Location', 'id' => 'poc_location']) !!}
+                {!! Form::text('poc_location', null, ['class' => 'form-control', 'placeholder' => 'Enter POC Location', 'id' => 'poc_location', 'readonly' => (isset($requirement)) ? true : false]) !!}
                 @if ($errors->has('poc_location'))
                     <span class="text-danger">
                         <strong>{{ $errors->first('poc_location') }}</strong>
@@ -68,7 +68,7 @@
         <div class="col-md-6">
             <div class="form-group{{ $errors->has('pv_company_location') ? ' has-error' : '' }}">
                 <label class="control-label" for="pv_company_location">PV Company Location :<span class="text-red"></span></label>
-                {!! Form::text('pv_company_location', null, ['class' => 'form-control', 'placeholder' => 'Enter PV Company Location', 'id' => 'pv_company_location']) !!}
+                {!! Form::text('pv_company_location', null, ['class' => 'form-control', 'placeholder' => 'Enter PV Company Location', 'id' => 'pv_company_location', 'readonly' => (isset($requirement)) ? true : false]) !!}
                 @if ($errors->has('pv_company_location'))
                     <span class="text-danger">
                         <strong>{{ $errors->first('pv_company_location') }}</strong>

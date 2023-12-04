@@ -54,42 +54,42 @@ class BDMSubmissionCOntroller extends Controller
             $user = Auth::user();
             if($user->role == 'recruiter'){
                 if(!empty($filterStatus)){
-                    $data = Submission::where('user_id', $user->id)->whereIn('status',$filterStatus)->latest('updated_at')->get();
+                    $data = Submission::where('user_id', $user->id)->whereIn('status',$filterStatus)->orderBy('id', 'desc')->get();
                     if($showUnviewed){
-                        $data = Submission::where('user_id', $user->id)->whereIn('status',$filterStatus)->where('is_show','0')->latest('updated_at')->get();
+                        $data = Submission::where('user_id', $user->id)->whereIn('status',$filterStatus)->where('is_show','0')->orderBy('id', 'desc')->get();
                     }
                 } else {
                     if($showUnviewed){
-                        $data = Submission::where('user_id', $user->id)->where('is_show','0')->latest('updated_at')->get();
+                        $data = Submission::where('user_id', $user->id)->where('is_show','0')->orderBy('id', 'desc')->get();
                     } else {
-                        $data = Submission::where('user_id', $user->id)->latest('updated_at')->get();
+                        $data = Submission::where('user_id', $user->id)->orderBy('id', 'desc')->get();
                     }
                 }                
             }else if($user->role == 'bdm'){
                 $requirementIds = Requirement::where('user_id', $user->id)->pluck('id')->toArray();
                 if(!empty($filterStatus)){
-                    $data = Submission::whereIn('requirement_id', $requirementIds)->whereIn('status',$filterStatus)->latest('updated_at')->get();
+                    $data = Submission::whereIn('requirement_id', $requirementIds)->whereIn('status',$filterStatus)->orderBy('id', 'desc')->get();
                     if($showUnviewed){
-                        $data = Submission::whereIn('requirement_id', $requirementIds)->whereIn('status',$filterStatus)->where('is_show','0')->latest('updated_at')->get();
+                        $data = Submission::whereIn('requirement_id', $requirementIds)->whereIn('status',$filterStatus)->where('is_show','0')->orderBy('id', 'desc')->get();
                     }    
                 } else {
                     if($showUnviewed){
-                        $data = Submission::whereIn('requirement_id', $requirementIds)->where('is_show','0')->latest('updated_at')->get();
+                        $data = Submission::whereIn('requirement_id', $requirementIds)->where('is_show','0')->orderBy('id', 'desc')->get();
                     } else {
-                        $data = Submission::whereIn('requirement_id', $requirementIds)->latest('updated_at')->get();
+                        $data = Submission::whereIn('requirement_id', $requirementIds)->orderBy('id', 'desc')->get();
                     }
                 }
             }else{
                 if(!empty($filterStatus)){
-                    $data = Submission::whereIn('status',$filterStatus)->get();
+                    $data = Submission::whereIn('status',$filterStatus)->orderBy('id', 'desc')->get();
                     if($showUnviewed){
-                        $data = Submission::whereIn('status',$filterStatus)->where('is_show','0')->get();
+                        $data = Submission::whereIn('status',$filterStatus)->where('is_show','0')->orderBy('id', 'desc')->get();
                     }    
                 } else {
                     if($showUnviewed){
-                        $data = Submission::where('is_show','0')->get();
+                        $data = Submission::where('is_show','0')->orderBy('id', 'desc')->get();
                     } else {
-                        $data = Submission::get();
+                        $data = Submission::orderBy('id', 'desc')->get();
                     }
                 }
             }

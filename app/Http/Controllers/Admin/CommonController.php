@@ -53,8 +53,10 @@ class CommonController extends Controller
             $oldEducationDetailsHtml = $this->getLogDataByName($submission, 'education_details');
             $oldResumeExperienceHtml = $this->getLogDataByName($submission, 'resume_experience');
             $oldLinkedinIdHtml = $this->getLogDataByName($submission, 'linkedin_id');
-            $oldEmployerNameHtml = $this->getLogDataByName($submission, 'employer_name');
-            if(!$oldLocationHtml && !$oldPhoneHtml && !$oldWorkAuthorizationHtml && !$oldLast4ssnHtml && !$oldEducationDetailsHtml && !$oldResumeExperienceHtml && !$oldLinkedinIdHtml && !$oldEmployerNameHtml){
+            $oldEmployerNameHtml = '';//$this->getLogDataByName($submission, 'employer_name');
+            $oldEmployerDetailHtml = $this->getLogDataByName($submission, 'employer_detail');
+            $oldRelocationHtml = $this->getLogDataByName($submission, 'relocation');
+            if(!$oldLocationHtml && !$oldPhoneHtml && !$oldWorkAuthorizationHtml && !$oldLast4ssnHtml && !$oldEducationDetailsHtml && !$oldResumeExperienceHtml && !$oldLinkedinIdHtml && !$oldEmployerNameHtml && !$oldEmployerDetailHtml){
                 $showLogButton = 0;
             }
             $rData .= '<h3>Requirement</h3>
@@ -105,7 +107,7 @@ class CommonController extends Controller
                                 <strong>Phone:</strong> <span class="actual-data">'.$submission['phone'].'</span>'.((in_array('phone',$manageLogFileds) && $oldPhoneHtml) ? "<span class='badge badge-primary ml-2'>L</span>" : "").((in_array('phone',$manageLogFileds) && $oldPhoneHtml) ? $oldPhoneHtml : "").'
                             </div>
                             <div class="col-md-6">
-                                <strong>Employer Detail:</strong> '.$submission['employer_detail'].'
+                                <strong>Employer Detail:</strong> <span class="actual-data">'.$submission['employer_detail'].'</span>'.((in_array('employer_detail',$manageLogFileds) && $oldEmployerDetailHtml) ? "<span class='badge badge-primary ml-2'>L</span>" : "").((in_array('employer_detail',$manageLogFileds) && $oldEmployerDetailHtml) ? $oldEmployerDetailHtml : "").'
                             </div>
                         </div>
                         <div class="row mt-2">
@@ -130,6 +132,11 @@ class CommonController extends Controller
                             </div>
                             <div class="col-md-6">
                                 <strong>R Rate:</strong> '.$submission['recruiter_rate'].'
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-6">
+                                <strong>Relocation:</strong> <span class="actual-data">'.$submission['relocation'].'</span>'.((in_array('relocation',$manageLogFileds) && $oldRelocationHtml) ? "<span class='badge badge-primary ml-2'>L</span>" : "").((in_array('relocation',$manageLogFileds) && $oldRelocationHtml) ? $oldRelocationHtml : "").'
                             </div>
                         </div>';
                         if(Auth::user()->role == 'bdm'){

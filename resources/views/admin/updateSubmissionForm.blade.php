@@ -133,7 +133,7 @@
                 </div>
             </div>
 
-            <div class="col-md-6">
+            <!-- <div class="col-md-6">
                 <div class="form-group{{ $errors->has('vendor_rate') ? ' has-error' : '' }}">
                     <label class="control-label" for="vendor_rate">Vendor Rate :<span class="text-red">*</span></label>
                     {!! Form::text('vendor_rate', null, ['class' => 'form-control', 'placeholder' => 'Enter Vendor Rate', 'id' => 'vendor_rate']) !!}
@@ -143,12 +143,12 @@
                         </span>
                     @endif
                 </div>
-            </div>
+            </div> -->
 
             <div class="col-md-6">
                 <div class="form-group{{ $errors->has('recruiter_rate') ? ' has-error' : '' }}">
                     <label class="control-label" for="recruiter_rate">Recruiter Rate :<span class="text-red">*</span></label>
-                    {!! Form::text('recruiter_rate', null, ['class' => 'form-control', 'placeholder' => 'Enter Recruiter Rate', 'id' => 'recruiter_rate']) !!}
+                    {!! Form::text('recruiter_rate', null, ['class' => 'form-control', 'placeholder' => 'Enter Recruiter Rate', 'id' => 'recruiter_rate', 'readonly' => true]) !!}
                     @if ($errors->has('recruiter_rate'))
                         <span class="text-danger">
                             <strong>{{ $errors->first('recruiter_rate') }}</strong>

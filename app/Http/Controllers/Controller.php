@@ -553,28 +553,28 @@ class Controller extends BaseController
             return $this;
         }
         $submissionData = $submission->toArray();
-        unset($submissionData['id']);
-        unset($submissionData['requirement_id']);
-        unset($submissionData['user_id']);
-        unset($submissionData['email']);
-        unset($submissionData['common_skills']);
-        unset($submissionData['skills_match']);
-        unset($submissionData['reason']);
-        unset($submissionData['status']);
-        unset($submissionData['pv_status']);
-        unset($submissionData['pv_reason']);
-        unset($submissionData['is_show']);
-        unset($submissionData['deleted_at']);
-        unset($submissionData['created_at']);
-        unset($submissionData['updated_at']);
+        // unset($submissionData['id']);
+        // unset($submissionData['requirement_id']);
+        // unset($submissionData['user_id']);
+        // unset($submissionData['email']);
+        // unset($submissionData['common_skills']);
+        // unset($submissionData['skills_match']);
+        // unset($submissionData['reason']);
+        // unset($submissionData['status']);
+        // unset($submissionData['pv_status']);
+        // unset($submissionData['pv_reason']);
+        // unset($submissionData['is_show']);
+        // unset($submissionData['deleted_at']);
+        // unset($submissionData['created_at']);
+        // unset($submissionData['updated_at']);
         $candidateId = $submission->candidate_id;
         if($candidateId){
             $oldSubmissionRows = Submission::where('candidate_id',$candidateId)->where('id', '!=', $submission->id)->get();
             if(!empty($oldSubmissionRows) && $oldSubmissionRows->count()){
                 foreach($oldSubmissionRows as $oldSubmissionRow){
-                    Submission::where('id', $oldSubmissionRow->id)->update($submissionData);
-                    $newSubmission = Submission::where('id', $oldSubmissionRow->id)->first();
-                    $this->manageSubmissionLogs($newSubmission->toArray(),$oldSubmissionRow, $jobId);
+                    // Submission::where('id', $oldSubmissionRow->id)->update($submissionData);
+                    // $newSubmission = Submission::where('id', $oldSubmissionRow->id)->first();
+                    $this->manageSubmissionLogs($submissionData,$oldSubmissionRow, $jobId);
                 }
             }
         }
@@ -637,6 +637,6 @@ class Controller extends BaseController
             $shortString = substr($text, 0, $character);
             return '<p>' . $shortString . '<span class="custom-tooltip" data-toggle="tooltip" data-placement="bottom" title="'.$text.'">  <i class="fa fa-info-circle"></i></span>';
         }
-        $status .= '<span>'.$text.'</span>';
+        return '<span>'.$text.'</span>';
     }
 }

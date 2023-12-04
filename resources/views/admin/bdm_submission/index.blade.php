@@ -257,6 +257,9 @@
             processing: true,
             serverSide: true,
             responsive: true,
+            pageLength: 100,
+            lengthMenu: [ 100, 200, 300, 400, 500 ],
+            order: [[ 1, 'desc' ],],
             ajax: {
                 url: "{{ route('bdm_submission.index') }}",
                 data: function (d) {
