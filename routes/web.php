@@ -106,6 +106,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('get_submission', [CommonController::class,'getSubmissionData'])->name('get_submission');
     Route::get('requirement/repostReqirement/{id}', [RequirementController::class,'repostRequirement'])->name('requirement.repost');
     Route::post('requirement/saveRepostRequirement/{id}', [RequirementController::class,'saveRepostRequirement'])->name('requirement.saveRepostRequirement');
+    Route::post('requirement/checkPocEmailData',  [RequirementController::class, 'checkPocEmailData'])->name('requirement.checkPocEmailData');
 
     /* SUBMISSION MANAGEMENT */
     Route::get('submission/new/{id}', [SubmissionController::class,'submissionAdd'])->name('submission.newAdd');
@@ -116,6 +117,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('emp_name', [SubmissionController::class,'getEmpName'])->name('emp_name');
     Route::post('get_emp_details', [SubmissionController::class,'getEmpDetail'])->name('get_emp_details');
     Route::post('submission/checkPvCompany', [SubmissionController::class,'checkPvCompany'])->name('checkPvCompany');
+    Route::post('submission/checkEmpData',  [SubmissionController::class, 'checkEmpData'])->name('submission.checkEmpData');
 
     /* BDM SUBMISSION MANAGEMENT */
     Route::resource('bdm_submission', BDMSubmissionController::class);

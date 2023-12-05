@@ -348,7 +348,7 @@ class SubmissionController extends Controller
         $email        = $submission->employee_email;
         $phone        = $submission->employee_phone;
 
-        $oldemployeeData = Admin::where('name',$employerName)->where('employee_name',$employeeName)->first();
+        $oldemployeeData = Admin::where('email', $email)->where('added_by', Auth::user()->id)->where('role','employee')->first();
         
         if($oldemployeeData){
             return $this;
@@ -366,5 +366,37 @@ class SubmissionController extends Controller
         );
 
         return $this;
+    }
+
+    public function checkEmpData(Request $request){
+        if(empty($request->emp_email)){
+            $data['status'] = 0;
+            return $data;
+        }
+
+        $logggedInUserId = Auth::user()->id;
+        $currentUserPocEmail = Admin::where('email', $request->emp_email)->where('added_by', $logggedInUserId)->where('role','employee')->first();
+
+        if(!empty($currentUserPocEmail)){
+            $data['status'] = 1;
+            $data['is_current_user_email'] = 1;
+            $data['empdata'] = $currentUserPocEmail;
+            return $data;
+        }
+
+        $otherUserEmpEmail = Admin::where('email', $request->emp_email)->where('added_by','!=', $logggedInUserId)->where('role','employee')->first();
+
+        if(!empty($otherUserEmpEmail)){
+            $data['status'] = 1;
+            $data['empdata'] = $otherUserEmpEmail;
+            $data['emp_registered'] = 1;
+            $data['message'] = 'There are 0 Requirements posted from this PV in the past 14 days';
+            return $data;
+        }
+
+        $data['status'] = 1;
+        $data['new_emp_email'] = 1;
+
+        return $data;
     }
 }

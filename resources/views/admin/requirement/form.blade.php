@@ -421,6 +421,7 @@
         });
 
         $("#pv_company_name").focusout(function(){
+            return '';
             @if(!isset($requirement))
                 var pv_company_name = $(this).val();
                 $.ajax({
@@ -539,5 +540,71 @@
                 minLength: 4 
             });
         });
+
+        $('#search_by_poc_email').click(function(){
+            var pocEmail = $('#search_poc_email').val();
+            if(!pocEmail){
+                swal("Error", "Please Enter POC Email.", "error"); 
+                return;
+            }
+            var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+
+            if(!emailPattern.test(pocEmail)){
+                swal("Error", "Please Valid Email Address.", "error");
+                return;
+            }
+
+            $.ajax({
+                url: "{{route('requirement.checkPocEmailData')}}",
+                type: "POST",
+                data: {'poc_email' : pocEmail,_token: '{{csrf_token()}}' },
+                success: function(data){
+                    if(data.status == 1){
+                        if(data.is_current_user_email == 1){
+                            fillPvData(data.pvcompany);
+                        } else if(data.poc_registered == 1){
+                            swal({
+                                title: "Are you sure?",
+                                text: data.message,
+                                type: "warning",
+                                showCancelButton: true,
+                                confirmButtonColor: '#138496',
+                                confirmButtonText: 'Yes, Post requirement',
+                                cancelButtonText: "No, cancel",
+                                closeOnConfirm: false,
+                                closeOnCancel: false
+                            },
+                            function(isConfirm) {
+                                if (isConfirm) {
+                                    swal.close();
+                                    fillPvData(data.pvcompany);
+                                } else {
+                                    swal.close();
+                                }
+                            });
+                        } else if(data.new_poc_email == 1){
+                            $('#poc_email').attr("readonly",true).val(pocEmail);
+                            $('.add-new-form').show();
+                            $('.search-poc-email').hide();
+                        }
+                    } else {
+                        swal("Error", "Something is wrong!", "error");
+                    }
+                }
+            });
+
+        });
+
+        function fillPvData(data){
+            $('#pv_company_name').attr("readonly",true).val(data.name);
+            $('#poc_name').attr("readonly",true).val(data.poc_name);
+            $('#poc_email').attr("readonly",true).val(data.email);
+            $('#poc_phone_number').attr("readonly",true).val(data.phone);
+            $('#poc_location').attr("readonly",true).val(data.poc_location);
+            $('#pv_company_location').attr("readonly",true).val(data.pv_company_location);
+            $('#client_name').attr("readonly",true).val(data.client_name);
+            $('.add-new-form').show();
+            $('.search-poc-email').hide();
+        }
     </script>
 @endsection

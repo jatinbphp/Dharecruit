@@ -563,7 +563,7 @@ class RequirementController extends Controller
         $pvCompanyLocation = $requirement->pv_company_location;
         $clientName    = $requirement->client_name;
 
-        $oldPvCompanyData = PVCompany::where('name',$pvCompanyName)->where('poc_name',$pocName)->where('user_id',Auth::user()->id)->first();
+        $oldPvCompanyData = PVCompany::where('email',$requirement->poc_email)->where('user_id',Auth::user()->id)->first();
         
         if($oldPvCompanyData){
             return $this;
@@ -583,5 +583,43 @@ class RequirementController extends Controller
             ]
         );
         return $this;
+    }
+
+    public function checkPocEmailData(Request $request){
+        if(empty($request->poc_email)){
+            $data['status'] = 0;
+            return $data;
+        }
+
+        $logggedInUserId = Auth::user()->id;
+        $previousDate = \Carbon\Carbon::now()->subDays(14);
+        $currentUserPocEmail = PVCompany::where('email', $request->poc_email)->where('user_id', $logggedInUserId)->first();
+
+        if(!empty($currentUserPocEmail)){
+            $data['status'] = 1;
+            $data['is_current_user_email'] = 1;
+            $data['pvcompany'] = $currentUserPocEmail;
+            return $data;
+        }
+
+        $otherUserPocEmail = PVCompany::where('email', $request->poc_email)->where('user_id','!=', $logggedInUserId)->first();
+
+        if(!empty($otherUserPocEmail)){
+            $requirement = Requirement::where('poc_email', $request->poc_email)->where('created_at', '>=', $previousDate)->first();
+                $data['status'] = 1;
+                $data['pvcompany'] = $otherUserPocEmail;
+                $data['poc_registered'] = 1;
+            if($requirement){
+                $data['message'] = '1 or more Requirement are posted from this PV in the past 14 days.Use the PV Emails Filter to manually search for the same requirement from this PV.If same job is not posted Click Yes to Post requirement and register this PV';
+            } else {
+                $data['message'] = 'There are 0 Requirements posted from this PV in the past 14 days';
+            }
+            return $data;
+        }
+
+        $data['status'] = 1;
+        $data['new_poc_email'] = 1;
+
+        return $data;
     }
 }

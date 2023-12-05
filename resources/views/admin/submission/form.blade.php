@@ -193,62 +193,81 @@
 
 {{-- <div id="empDiv" @if(!isset($submission)) style="display: none;" @endif>
     <hr> --}}
-<div class="mt-3" style="border: 2px solid black; border-radius: 25px">
-    <div class="row row mt-3 pl-3 pr-3">
-        <div class="col-md-6">
-            <div class="form-group{{ $errors->has('employer_name') ? ' has-error' : '' }}">
-                <label class="control-label" for="employer_name">Employer Name :<span class="text-red">*</span></label>
-                {!! Form::text('employer_name', null, ['class' => 'form-control','placeholder' => 'Enter Employer Name', 'id'=>'employer_name', 'readonly' => (isset($submission)) ? true : false]) !!}
-                @if ($errors->has('employer_name'))
-                    <span class="text-danger">
-                        <strong>{{ $errors->first('employer_name') }}</strong>
-                    </span>
-                @endif
+<div class="search-employee-email" style='{{(isset($errors) && count($errors) != 0 ) ? "display:none" : ""}}'>
+    <div class="mt-3" style="border: 2px solid black; border-radius: 25px">
+    <div class="row mt-3 pl-3 pr-3">
+        <div class="col-md-6  mt-3">
+                <div class="form-group">
+                    <label class="control-label" for="search_emp_email">Employee Email : (Search Database)</label>
+                    {!! Form::text('search_emp_email', null, ['class' => 'form-control','placeholder' => 'Enter Employee Email :', 'id'=> 'search_emp_email']) !!}
+                </div>
             </div>
-        </div>
-
-        <div class="col-md-6" @if(Auth::user()->role == 'bdm') style="display: none;" @endif>
-            <div class="form-group{{ $errors->has('employee_name') ? ' has-error' : '' }}">
-                <label class="control-label" for="employee_name">Employee Name :<span class="text-red">*</span></label>
-                {!! Form::text('employee_name', null, ['class' => 'form-control', 'placeholder' => 'Enter Employee Name', 'id' => 'employee_name', 'readonly' => (isset($submission)) ? true : false]) !!}
-                @if ($errors->has('employee_name'))
-                    <span class="text-danger">
-                        <strong>{{ $errors->first('employee_name') }}</strong>
-                    </span>
-                @endif
+            <div class="col-md-6 float-left">
+                <div class="form-group mt-5">
+                    <button class="btn btn-info" id='search_by_emp_email' type="button">Search</button>
+                </div>
             </div>
         </div>
     </div>
+</div>
+<div class="employee-detail" style='{{ ((!isset($submission) && isset($errors) && count($errors) == 0) || (isset($errors) && count($errors)) == 0) ? "display:none" : ""}}'>
+    <div class="mt-3" style="border: 2px solid black; border-radius: 25px">
+        <div class="row mt-3 pl-3 pr-3">
+            <div class="col-md-6">
+                <div class="form-group{{ $errors->has('employer_name') ? ' has-error' : '' }}">
+                    <label class="control-label" for="employer_name">Employer Name :<span class="text-red">*</span></label>
+                    {!! Form::text('employer_name', null, ['class' => 'form-control','placeholder' => 'Enter Employer Name', 'id'=>'employer_name', 'readonly' => (isset($submission)) ? true : false]) !!}
+                    @if ($errors->has('employer_name'))
+                        <span class="text-danger">
+                            <strong>{{ $errors->first('employer_name') }}</strong>
+                        </span>
+                    @endif
+                </div>
+            </div>
 
-    <div class="row mt-3 pl-3 pr-3" @if(Auth::user()->role == 'bdm') style="display: none;" @endif>
-        <div class="col-md-6">
-            <div class="form-group{{ $errors->has('employee_email') ? ' has-error' : '' }}">
-                <label class="control-label" for="employee_email">Employee Email :<span class="text-red">*</span></label>
-                {!! Form::text('employee_email', null, ['class' => 'form-control', 'placeholder' => 'Enter Employee Email', 'id' => 'employee_email', 'readonly' => (isset($submission)) ? true : false]) !!}
-                @if ($errors->has('employee_email'))
-                    <span class="text-danger">
-                        <strong>{{ $errors->first('employee_email') }}</strong>
-                    </span>
-                @endif
+            <div class="col-md-6" @if(Auth::user()->role == 'bdm') style="display: none;" @endif>
+                <div class="form-group{{ $errors->has('employee_name') ? ' has-error' : '' }}">
+                    <label class="control-label" for="employee_name">Employee Name :<span class="text-red">*</span></label>
+                    {!! Form::text('employee_name', null, ['class' => 'form-control', 'placeholder' => 'Enter Employee Name', 'id' => 'employee_name', 'readonly' => (isset($submission)) ? true : false]) !!}
+                    @if ($errors->has('employee_name'))
+                        <span class="text-danger">
+                            <strong>{{ $errors->first('employee_name') }}</strong>
+                        </span>
+                    @endif
+                </div>
             </div>
         </div>
 
-        <div class="col-md-6">
-            <div class="form-group{{ $errors->has('employee_phone') ? ' has-error' : '' }}">
-                <label class="control-label" for="employee_phone">Employee Phone Number :<span class="text-red">*</span></label>
-                {!! Form::text('employee_phone', null, ['class' => 'form-control', 'placeholder' => 'Employee Phone Number', 'id' => 'employee_phone', 'readonly' => (isset($submission)) ? true : false]) !!}
-                @if ($errors->has('employee_phone'))
-                    <span class="text-danger">
-                        <strong>{{ $errors->first('employee_phone') }}</strong>
-                    </span>
-                @endif
+        <div class="row mt-3 pl-3 pr-3" @if(Auth::user()->role == 'bdm') style="display: none;" @endif>
+            <div class="col-md-6">
+                <div class="form-group{{ $errors->has('employee_email') ? ' has-error' : '' }}">
+                    <label class="control-label" for="employee_email">Employee Email :<span class="text-red">*</span></label>
+                    {!! Form::text('employee_email', null, ['class' => 'form-control', 'placeholder' => 'Enter Employee Email', 'id' => 'employee_email', 'readonly' => (isset($submission)) ? true : false]) !!}
+                    @if ($errors->has('employee_email'))
+                        <span class="text-danger">
+                            <strong>{{ $errors->first('employee_email') }}</strong>
+                        </span>
+                    @endif
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group{{ $errors->has('employee_phone') ? ' has-error' : '' }}">
+                    <label class="control-label" for="employee_phone">Employee Phone Number :<span class="text-red">*</span></label>
+                    {!! Form::text('employee_phone', null, ['class' => 'form-control', 'placeholder' => 'Employee Phone Number', 'id' => 'employee_phone', 'readonly' => (isset($submission)) ? true : false]) !!}
+                    @if ($errors->has('employee_phone'))
+                        <span class="text-danger">
+                            <strong>{{ $errors->first('employee_phone') }}</strong>
+                        </span>
+                    @endif
+                </div>
             </div>
         </div>
+
+        {{-- <div class="text-right mt-3 mb-3 pr-3">
+            <button class="btn btn-info" id="empSave">Save</button>
+        </div> --}}
     </div>
-
-    {{-- <div class="text-right mt-3 mb-3 pr-3">
-        <button class="btn btn-info" id="empSave">Save</button>
-    </div> --}}
 </div>
 <div class="modal fade" id="empModel" tabindex="-1" role="dialog" aria-labelledby="empModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -329,6 +348,7 @@
             });
         });
         $("#employer_name").focusout(function(){
+            return;
             var employer_name = $(this).val();
             $.ajax({
                 url : "{{ route('emp_name') }}",
@@ -438,5 +458,67 @@
                 }
             });
         });
+
+        $('#search_by_emp_email').click(function(){
+            var empEmail = $('#search_emp_email').val();
+            if(!empEmail){
+                swal("Error", "Please Enter POC Email.", "error"); 
+                return;
+            }
+            var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+
+            if(!emailPattern.test(empEmail)){
+                swal("Error", "Please Valid Email Address.", "error");
+                return;
+            }
+
+            $.ajax({
+                url: "{{route('submission.checkEmpData')}}",
+                type: "POST",
+                data: {'emp_email' : empEmail,_token: '{{csrf_token()}}' },
+                success: function(data){
+                    if(data.status == 1){
+                        if(data.is_current_user_email == 1){
+                            fillEmpData(data.empdata);
+                        } else if(data.emp_registered == 1){
+                            swal({
+                                title: "Are you sure?",
+                                text: "Click Yes to Add and Register.",
+                                type: "warning",
+                                showCancelButton: true,
+                                confirmButtonColor: '#138496',
+                                confirmButtonText: 'Yes, Post Submission',
+                                cancelButtonText: "No, cancel",
+                                closeOnConfirm: false,
+                                closeOnCancel: false
+                            },
+                            function(isConfirm) {
+                                if (isConfirm) {
+                                    swal.close();
+                                    fillEmpData(data.empdata);
+                                } else {
+                                    swal.close();
+                                }
+                            });
+                        } else if(data.new_emp_email == 1){
+                            $('#employee_email').attr("readonly",true).val(empEmail);
+                            $('.employee-detail').show();
+                            $('.search-employee-email').hide();
+                        }
+                    } else {
+                        swal("Error", "Something is wrong!", "error");
+                    }
+                }
+            });
+        });
+
+        function fillEmpData(data) {
+            $('#employer_name').attr("readonly",true).val(data.name);
+            $('#employee_name').attr("readonly",true).val(data.employee_name);
+            $('#employee_email').attr("readonly",true).val(data.email);
+            $('#employee_phone').attr("readonly",true).val(data.phone);
+            $('.employee-detail').show();
+            $('.search-employee-email').hide();
+        }
     </script>
 @endsection
