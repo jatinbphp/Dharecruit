@@ -467,7 +467,7 @@
             }
             var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
 
-            if(!emailPattern.test(empEmail)){
+            if(!emailPattern.test(empEmail.trim())){
                 swal("Error", "Please Valid Email Address.", "error");
                 return;
             }
