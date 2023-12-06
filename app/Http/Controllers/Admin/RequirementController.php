@@ -248,10 +248,10 @@ class RequirementController extends Controller
             }
         }
 
-        $data['linkPocEmail'] = ($linkPocEmail) ? "<div id='linkPocEmail'> $ulStartData  $linkPocEmail  $ulEndData </div>" : '';
-        $data['linkPocPhoneNumber'] = ($linkPocPhoneNumber) ? "<div id='linkPocPhoneNumber'> $ulStartData  $linkPocPhoneNumber  $ulEndData </div>" : '';
-        $data['linkPocLocation'] = ($linkPocLocation) ? "<div id='linkPocLocation'> $ulStartData  $linkPocLocation  $ulEndData </div>" : '';
-        $data['linkPvCompanyLocation'] = ($linkPvCompanyLocation) ? "<div id='linkPvCompanyLocation'> $ulStartData  $linkPvCompanyLocation  $ulEndData </div>" : '';
+        $data['linkPocEmail'] = "<div id='linkPocEmail'> $ulStartData  $linkPocEmail  $ulEndData </div>";
+        $data['linkPocPhoneNumber'] = "<div id='linkPocPhoneNumber'> $ulStartData  $linkPocPhoneNumber  $ulEndData </div>";
+        $data['linkPocLocation'] = "<div id='linkPocLocation'> $ulStartData  $linkPocLocation  $ulEndData </div>";
+        $data['linkPvCompanyLocation'] = "<div id='linkPvCompanyLocation'> $ulStartData  $linkPvCompanyLocation  $ulEndData </div>";
 
         return view('admin.requirement.edit',$data);
     }
