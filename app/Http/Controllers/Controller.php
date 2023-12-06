@@ -159,7 +159,7 @@ class Controller extends BaseController
                         } else if($interviewStatus == $interviewModel::STATUS_RE_SCHEDULED){
                             $divClass .= 'border-warning-10 rounded-pill';
                             $textColor = 'text-dark';
-                        } else if($interviewStatus == $interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND){
+                        } else if(in_array($interviewStatus, [$interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND,$interviewModel::STATUS_WAITING_FEEDBACK])){
                             $divClass .= 'bg-warning rounded-pill';
                             $textColor = 'text-dark';
                         } else if($interviewStatus == $interviewModel::STATUS_CONFIRMED_POSITION){
@@ -173,7 +173,7 @@ class Controller extends BaseController
                             $textColor = 'text-white';
                         }
                     } else if(!empty($submission->pv_status) && $submission->pv_status){
-                        if($submission->pv_status == $submissionModel::STATUS_NO_RESPONSE_FROM_PV){
+                        if(in_array($submission->pv_status, [$submissionModel::STATUS_NO_RESPONSE_FROM_PV, $submissionModel::STATUS_POSITION_CLOSED])){
                             $css = "border-bottom: solid;";
                             $textColor = 'text-secondary';
                         } else if($submission->pv_status == $submissionModel::STATUS_SUBMITTED_TO_END_CLIENT){
@@ -235,7 +235,7 @@ class Controller extends BaseController
                         return 'border border-warning rounded-pill';
                     } else if($interviewStatus == $interviewModel::STATUS_RE_SCHEDULED){
                         return 'border-warning-10 rounded-pill';
-                    } else if($interviewStatus == $interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND){
+                    } else if(in_array($interviewStatus, [$interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND, $interviewModel::STATUS_WAITING_FEEDBACK])){
                         return 'bg-warning rounded-pill';
                     } else if($interviewStatus == $interviewModel::STATUS_CONFIRMED_POSITION){
                         return 'bg-success';
@@ -244,7 +244,7 @@ class Controller extends BaseController
                     } else if($interviewStatus == $interviewModel::STATUS_BACKOUT){
                         return 'bg-dark';
                     }
-                } else if($submission->pv_status == $submissionModel::STATUS_NO_RESPONSE_FROM_PV){
+                } else if(in_array($submission->pv_status, [$submissionModel::STATUS_NO_RESPONSE_FROM_PV, $submissionModel::STATUS_POSITION_CLOSED])){
                     return "solid;";
                 } else if($submission->pv_status == $submissionModel::STATUS_SUBMITTED_TO_END_CLIENT){
                     return "solid;";
@@ -262,7 +262,7 @@ class Controller extends BaseController
         $interviewStatus = $this->getInterviewStatus($submission->id, $submission->Requirement->job_id);
         if(!$interviewStatus && $submission->is_show == 1 && !empty($submission->pv_status) && $submission->pv_status){
             $submissionModel = new Submission();
-            if($submission->pv_status == $submissionModel::STATUS_NO_RESPONSE_FROM_PV){
+            if(in_array($submission->pv_status, [$submissionModel::STATUS_NO_RESPONSE_FROM_PV, $submissionModel::STATUS_POSITION_CLOSED])){
                 return "border-bottom: solid;";
             } else if($submission->pv_status == $submissionModel::STATUS_SUBMITTED_TO_END_CLIENT){
                 return "border-bottom: solid;";
@@ -287,13 +287,13 @@ class Controller extends BaseController
             } else {
                 $interviewStatus = $this->getInterviewStatus($submission->id, $submission->Requirement->job_id);
                 if($interviewStatus){
-                    if(in_array($interviewStatus, [$interviewModel::STATUS_SCHEDULED, $interviewModel::STATUS_RE_SCHEDULED, $interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND, $interviewModel::STATUS_CONFIRMED_POSITION])){
+                    if(in_array($interviewStatus, [$interviewModel::STATUS_SCHEDULED, $interviewModel::STATUS_RE_SCHEDULED, $interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND,                    $interviewModel::STATUS_WAITING_FEEDBACK,                    $interviewModel::STATUS_CONFIRMED_POSITION])){
                         return 'text-dark';
                     } else if(in_array($interviewStatus, [$interviewModel::STATUS_REJECTED, $interviewModel::STATUS_BACKOUT])){
                         return 'text-white';
                     }
                 } else if(!empty($submission->pv_status) && $submission->pv_status){
-                    if($submission->pv_status == $submissionModel::STATUS_NO_RESPONSE_FROM_PV){
+                    if(in_array($submission->pv_status, [$submissionModel::STATUS_NO_RESPONSE_FROM_PV, $submissionModel::STATUS_POSITION_CLOSED])){
                         return 'text-secondary';
                     } else if($submission->pv_status == $submissionModel::STATUS_SUBMITTED_TO_END_CLIENT){
                         return 'text-success test';

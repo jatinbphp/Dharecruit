@@ -867,7 +867,6 @@
                     $('#other-reason').html(submission.reason);
                     $('#status').html(submission.status[0].toUpperCase() + submission.status.slice(1))
                     addSubmissionData(data.submission);
-                    console.log(data.submission.id);
                     $('#candidatesubmissionId').val(data.submission.id);
                     $('#candidateModal').modal('show');
                     if(data.is_show == 1){
@@ -893,6 +892,14 @@
             $('.other-candidate').hide();
         }else{
             $('.other-candidate').show();
+        }
+    });
+
+    $('#showFeedback').click(function(){
+        if($('#showFeedback').is(':checked')){
+            $('.feedback').show();    
+        } else {
+            $('.feedback').hide();
         }
     });
 

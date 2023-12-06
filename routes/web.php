@@ -107,6 +107,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::get('requirement/repostReqirement/{id}', [RequirementController::class,'repostRequirement'])->name('requirement.repost');
     Route::post('requirement/saveRepostRequirement/{id}', [RequirementController::class,'saveRepostRequirement'])->name('requirement.saveRepostRequirement');
     Route::post('requirement/checkPocEmailData',  [RequirementController::class, 'checkPocEmailData'])->name('requirement.checkPocEmailData');
+    Route::post('requirement/savePocLinkingData',  [RequirementController::class,'savePocLinkingData'])->name('requirement.savePocLinkingData');
 
     /* SUBMISSION MANAGEMENT */
     Route::get('submission/new/{id}', [SubmissionController::class,'submissionAdd'])->name('submission.newAdd');

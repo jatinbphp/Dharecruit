@@ -310,14 +310,6 @@
         }
     });
 
-    $('#showFeedback').click(function(){
-        if($('#showFeedback').is(':checked')){
-            $('.feedback').show();    
-        } else {
-            $('.feedback').hide();
-        }
-    });
-
     function showStatusOptions(id) {
         $('.show-pv-status-'+id).hide();
         $('.pv-status-'+id).show();

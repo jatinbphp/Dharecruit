@@ -189,7 +189,8 @@ class RequirementController extends Controller
     public function edit($id)
     {
         $data['menu'] = "Requirements";
-        $data['requirement'] = Requirement::where('id',$id)->first();
+        $requirement = Requirement::where('id',$id)->first();
+        $data['requirement'] = $requirement;
         $user = $this->getUser();
         if($user['role'] == 'admin'){
             //$data['category'] = Category::where('status','active')->pluck('name','id')->prepend('Please Select','');
@@ -216,6 +217,42 @@ class RequirementController extends Controller
         $data['selectedVisa'] = !empty($data['requirement']) && !empty($data['requirement']['visa']) ? explode(',',$data['requirement']['visa']) : [];
         $data['selectedMoi'] = !empty($data['requirement']) && !empty($data['requirement']['moi']) ? explode(',',$data['requirement']['moi']) : [];
         $data['pvCompanyName'] = $this->getPvCompanyName();
+
+        $linkPocEmail = '';
+        $linkPocPhoneNumber = '';
+        $linkPocLocation = '';
+        $linkPvCompanyLocation = '';
+
+        $ulStartData = '<ul class="list-group mt-3">';
+        $ulEndData = '</ul>';
+
+        $pvCompanyData = PVCompany::where('email',$requirement->poc_email)->first();
+
+        if($pvCompanyData && $pvCompanyData->linked_data){
+            $linkedData = json_decode($pvCompanyData->linked_data, 1);
+            foreach ($linkedData as $key => $linkValue) {
+                foreach($linkValue as $values){
+                    if($key == 'linking_email'){
+                        $linkPocEmail .= ' <li class="list-group-item p-1"><span class="text-primary">'.$values['value'].'</span> ( '.Admin::getUserNameBasedOnId($values['user_id']).' : '.date('m-d-y', strtotime($values['dateTime'])).' ) </li>';
+                    }
+                    if($key == 'linking_poc_phone'){
+                        $linkPocPhoneNumber .= ' <li class="list-group-item p-1"><span class="text-primary">'.$values['value'].'</span> ( '.Admin::getUserNameBasedOnId($values['user_id']).' : '.date('m-d-y', strtotime($values['dateTime'])).' ) </li>';
+                    }
+                    if($key == 'linking_location'){
+                        $linkPocLocation .= ' <li class="list-group-item p-1"><span class="text-primary">'.$values['value'].'</span> ( '.Admin::getUserNameBasedOnId($values['user_id']).' : '.date('m-d-y', strtotime($values['dateTime'])).' ) </li>';
+                    }
+                    if($key == 'linking_pv_location'){
+                        $linkPvCompanyLocation .= ' <li class="list-group-item p-1"><span class="text-primary">'.$values['value'].'</span> ( '.Admin::getUserNameBasedOnId($values['user_id']).' : '.date('m-d-y', strtotime($values['dateTime'])).' ) </li>';
+                    }
+                }
+            }
+        }
+
+        $data['linkPocEmail'] = ($linkPocEmail) ? "<div id='linkPocEmail'> $ulStartData  $linkPocEmail  $ulEndData </div>" : '';
+        $data['linkPocPhoneNumber'] = ($linkPocPhoneNumber) ? "<div id='linkPocPhoneNumber'> $ulStartData  $linkPocPhoneNumber  $ulEndData </div>" : '';
+        $data['linkPocLocation'] = ($linkPocLocation) ? "<div id='linkPocLocation'> $ulStartData  $linkPocLocation  $ulEndData </div>" : '';
+        $data['linkPvCompanyLocation'] = ($linkPvCompanyLocation) ? "<div id='linkPvCompanyLocation'> $ulStartData  $linkPvCompanyLocation  $ulEndData </div>" : '';
+
         return view('admin.requirement.edit',$data);
     }
 
@@ -620,6 +657,85 @@ class RequirementController extends Controller
         $data['status'] = 1;
         $data['new_poc_email'] = 1;
 
+        return $data;
+    }
+
+    public function savePocLinkingData(Request $request){
+        if(empty($request->email)){
+            $data['status'] = 0;
+            return $data;
+        }
+
+        $email = $request->email;
+        $type = $request->type;
+
+        $oldData = PVCompany::where('email', $email)->first();
+        
+        if(empty($oldData)){
+            $data['status'] = 0;
+            return $data;
+        }
+
+        $linkedData = ($oldData->linked_data) ? json_decode($oldData->linked_data, 1) : [];
+
+        $value = '';
+        $linkType = '';
+        $parentDiv = '';
+
+        if($type == 'linking_email'){
+            $value = $request->poc_email;
+            $linkType = 'POC Email';
+            $parentDiv = 'linkPocEmail';
+        } elseif($type == 'linking_poc_phone'){
+            $value = $request->poc_phone;
+            $linkType = 'POC Phone Number';
+            $parentDiv = 'linkPocPhoneNumber';
+        }elseif($type == 'linking_location'){
+            $value = $request->poc_location;
+            $linkType = 'POC Location';
+            $parentDiv = 'linkPocLocation';
+        }elseif($type == 'linking_pv_location'){
+            $value = $request->pc_company_location;
+            $linkType = 'PV Company Location';
+            $parentDiv = 'linkPvCompanyLocation';
+        }
+
+        $found = 0;
+
+        if($oldData && $oldData->linked_data){
+            $linkedData = json_decode($oldData->linked_data, 1);
+            foreach ($linkedData as $key => $linkValue) {
+                if($key != $type){
+                    continue;
+                }
+                foreach($linkValue as $values){
+                    $existingValue = $values['value'];
+                    if(strtolower($existingValue) == strtolower($value)){
+                        $found = 1;
+                    }
+                }
+            }
+        }
+
+        if($found){
+            $data['is_found'] = 1;
+            $data['message'] = "$linkType Already Exists In Linking...";
+            return $data;
+        }
+
+        $linkedValuesdata['value']    = $value;
+        $linkedValuesdata['user_id']  = Auth::user()->id;;
+        $linkedValuesdata['dateTime'] = \Carbon\Carbon::now();
+
+        $linkedData[$type][] = $linkedValuesdata;
+
+        PVCompany::where('email', $email)->update(['linked_data' => json_encode($linkedData)]);
+
+        $data['status'] = 1;
+        $data['user_name'] = Admin::getUserNameBasedOnId(Auth::user()->id);
+        $data['date']  = date('m-d-y', strtotime(\Carbon\Carbon::now()));
+        $data['value'] = $value;
+        $data['parent_div'] = $parentDiv;
         return $data;
     }
 }

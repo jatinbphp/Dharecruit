@@ -55,11 +55,11 @@
                                             {!! Form::checkbox('', 'show-time', null, ['id' => "showTime"]) !!} <span style="margin-right: 10px; color:#AC5BAD; font-weight:bold; ">Status Time</span>
                                         </label>
                                     </div>
-                                    @if ($errors->has('status'))
-                                        <span class="text-danger" id="statusError">
-                                            <strong>{{ $errors->first('status') }}</strong>
-                                        </span>
-                                    @endif
+                                    <div class="col-md-2">
+                                        <label>
+                                            {!! Form::checkbox('', 'show-feedback', null, ['id' => "showFeedback"]) !!} <span style="margin-right: 10px">Show FeedBack</span>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-2">

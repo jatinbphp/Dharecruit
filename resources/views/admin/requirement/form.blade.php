@@ -1,5 +1,6 @@
 {!! Form::hidden('redirects_to', URL::previous()) !!}
 <div style="border: 2px solid black; border-radius: 25px">
+    <label class="control-label mt-3 pl-3" style="{{(!isset($requirement) ? 'display:none' : '')}}">Click <span class="text-primary linking" style="cursor : pointer">Link</span> To Add Additional Email, Phone Number, POC Location, PV Company Location</label>
     <div class="row mt-3 pl-3 pr-3">
         <div class="col-md-6">
             <div class="form-group{{ $errors->has('pv_company_name') ? ' has-error' : '' }}">
@@ -29,8 +30,9 @@
     <div class="row pl-3 pr-3">
         <div class="col-md-6">
             <div class="form-group{{ $errors->has('poc_email') ? ' has-error' : '' }}">
-                <label class="control-label" for="poc_email">POC Email :<span class="text-red">*</span></label>
+                <label class="control-label" for="poc_email">POC Email :<span class="text-red">*</span><span class="ml-3 linking-filed btn btn-sm btn-info" data-type='linking_email' style="display:none" data-toggle="tooltip" title="Link POC Email" data-trigger="hover"><i class="fa fa-plus" aria-hidden="true"></i></span></label>
                 {!! Form::text('poc_email', null, ['class' => 'form-control', 'placeholder' => 'Enter POC Email', 'id' => 'poc_email', 'readonly' => (isset($requirement)) ? true : false]) !!}
+                {!! isset($linkPocEmail) && !empty($linkPocEmail) ? $linkPocEmail : '' !!}
                 @if ($errors->has('poc_email'))
                     <span class="text-danger">
                         <strong>{{ $errors->first('poc_email') }}</strong>
@@ -41,8 +43,9 @@
 
         <div class="col-md-6">
             <div class="form-group{{ $errors->has('poc_phone_number') ? ' has-error' : '' }}">
-                <label class="control-label" for="poc_phone_number">POC Phone Number :<span class="text-red">*</span></label>
+                <label class="control-label" for="poc_phone_number">POC Phone Number :<span class="text-red">*</span><span class="ml-3 linking-filed btn btn-sm btn-info"  data-type='linking_poc_phone' style="display:none" data-toggle="tooltip" title="Link POC Phone Number" data-trigger="hover"><i class="fa fa-plus" aria-hidden="true"></i></span></label>
                 {!! Form::text('poc_phone_number', null, ['class' => 'form-control', 'placeholder' => 'Enter POC Phone Number', 'id' => 'poc_phone_number', 'readonly' => (isset($requirement)) ? true : false]) !!}
+                {!! isset($linkPocPhoneNumber) && !empty($linkPocPhoneNumber) ? $linkPocPhoneNumber : '' !!}
                 @if ($errors->has('poc_phone_number'))
                     <span class="text-danger">
                         <strong>{{ $errors->first('poc_phone_number') }}</strong>
@@ -55,8 +58,9 @@
     <div class="row pl-3 pr-3">
         <div class="col-md-6">
             <div class="form-group{{ $errors->has('poc_location') ? ' has-error' : '' }}">
-                <label class="control-label" for="poc_location">POC Location :<span class="text-red"></span></label>
+                <label class="control-label" for="poc_location">POC Location :<span class="text-red"></span><span class="ml-3 linking-filed btn btn-sm btn-info"  data-type='linking_location' style="display:none" data-toggle="tooltip" title="Link POC Location" data-trigger="hover"><i class="fa fa-plus" aria-hidden="true"></i></span></label>
                 {!! Form::text('poc_location', null, ['class' => 'form-control', 'placeholder' => 'Enter POC Location', 'id' => 'poc_location', 'readonly' => (isset($requirement)) ? true : false]) !!}
+                {!! isset($linkPocLocation) && !empty($linkPocLocation) ? $linkPocLocation : '' !!}
                 @if ($errors->has('poc_location'))
                     <span class="text-danger">
                         <strong>{{ $errors->first('poc_location') }}</strong>
@@ -67,8 +71,9 @@
 
         <div class="col-md-6">
             <div class="form-group{{ $errors->has('pv_company_location') ? ' has-error' : '' }}">
-                <label class="control-label" for="pv_company_location">PV Company Location :<span class="text-red"></span></label>
+                <label class="control-label" for="pv_company_location">PV Company Location :<span class="text-red"></span><span class="ml-3 linking-filed btn btn-sm btn-info" style="display:none" data-type='linking_pv_location' data-toggle="tooltip" title="Link PV Company Location" data-trigger="hover"><i class="fa fa-plus" aria-hidden="true"></i></span></label>
                 {!! Form::text('pv_company_location', null, ['class' => 'form-control', 'placeholder' => 'Enter PV Company Location', 'id' => 'pv_company_location', 'readonly' => (isset($requirement)) ? true : false]) !!}
+                {!! isset($linkPvCompanyLocation) && !empty($linkPvCompanyLocation) ? $linkPvCompanyLocation :  '' !!}
                 @if ($errors->has('pv_company_location'))
                     <span class="text-danger">
                         <strong>{{ $errors->first('pv_company_location') }}</strong>
@@ -408,6 +413,7 @@
     <div class="text-right mb-3 pr-3">
         <button class="btn btn-info" id="pvSave">Save</button>
     </div> --}}
+    @include('admin.requirement.linking_pocModel')
 </div>
 
 @section('jquery')
@@ -542,7 +548,7 @@
         });
 
         $('#search_by_poc_email').click(function(){
-            var pocEmail = $('#search_poc_email').val();
+            var pocEmail = $('#search_poc_email').val().trim();
             if(!pocEmail){
                 swal("Error", "Please Enter POC Email.", "error"); 
                 return;
@@ -602,9 +608,73 @@
             $('#poc_phone_number').attr("readonly",true).val(data.phone);
             $('#poc_location').attr("readonly",true).val(data.poc_location);
             $('#pv_company_location').attr("readonly",true).val(data.pv_company_location);
-            $('#client_name').attr("readonly",true).val(data.client_name);
+            // $('#client_name').attr("readonly",true).val(data.client_name);
             $('.add-new-form').show();
             $('.search-poc-email').hide();
         }
+
+        $('.linking').click(function(){
+            $('.linking-filed').toggle();
+        })
+
+        $('.linking-filed').click(function(){
+            var type = $(this).attr('data-type');
+            $('#type').val(type);
+            $('#linking_email').val($('#poc_email').val());
+            $('.linking-pov-data').hide();
+            $("#"+type).show();
+            $("#linking_poc_data").modal('show');
+        });
+
+        $('#linkBtn').on('click', function(){
+            var email = $('#linking_email').val();
+            var type = $('#type').val();
+            
+            if(!type || !email){
+                swal("Error", "Something is wrong.", "error"); 
+                return;
+            }
+
+            var pocEmail = $('#linking_poc_email').val();
+            var pocPhone = $('#linking_poc_phone_number').val();
+            var pocLocation = $('#linking_poc_location').val();
+            var pvCompanyLocation = $('#linking_pv_company_location').val();
+
+            if(type == 'linking_email'){
+                var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+                if(!emailPattern.test(pocEmail.trim())){
+                    swal("Error", "Please Valid Email Address.", "error");
+                    return;
+                }
+            } else if(type == 'linking_poc_phone'){
+                var phoneno = /^\d{10}$/;
+                if(!phoneno.test(pocPhone.trim())){
+                    swal("Error", "Please Valid Phopne Number.", "error");
+                    return;
+                }
+            }
+
+            $.ajax({
+                url : "{{ route('requirement.savePocLinkingData') }}",
+                data : {'poc_email' : pocEmail, 'poc_phone' : pocPhone, 'poc_location' : pocLocation, 'pc_company_location': pvCompanyLocation, 'type': type,'email': email, "_token": "{{ csrf_token() }}",},
+                type : 'POST',
+                dataType : 'json',
+                success : function(data){
+                    if(data.is_found == 1) {
+                        $("#linking_poc_data").modal('hide');
+                        swal("Warning", data.message, "warning");
+                    }
+                    else if(data.status == 1){
+                        var li = '<li class="list-group-item p-1"><span class="text-primary">'+ data.value + '</span> ( '+ data.user_name +' : ' + data.date + ' ) </li>'
+                        $("#"+data.parent_div+" ul").append(li);
+                        $("#linking_poc_data").modal('hide');
+                        swal("Success", "Data Added SuccessFully.", "success");
+                    } else {
+                        $("#linking_poc_data").modal('hide');
+                    }
+                }
+            });
+        });
+
     </script>
 @endsection

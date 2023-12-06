@@ -301,6 +301,7 @@
                 'employee_email',
                 'employee_phone',
                 'requirement_id',
+                'recruiter_rate'
             ];
             $.ajax({
                 url : "{{ route('submission.alreadyAddedUserDetail') }}",
@@ -460,7 +461,7 @@
         });
 
         $('#search_by_emp_email').click(function(){
-            var empEmail = $('#search_emp_email').val();
+            var empEmail = $('#search_emp_email').val().trim();
             if(!empEmail){
                 swal("Error", "Please Enter POC Email.", "error"); 
                 return;

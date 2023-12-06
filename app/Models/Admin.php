@@ -41,4 +41,9 @@ class Admin extends Authenticatable
         self::STATUS_ACTIVE => 'Active',
         self::STATUS_INACTIVE => 'In Active',
     ];
+
+    public static function getUserNameBasedOnId($userId){
+        $user = Admin::where('id',$userId)->first();
+        return ($user && $user->name) ? $user->name : '';
+    }
 }

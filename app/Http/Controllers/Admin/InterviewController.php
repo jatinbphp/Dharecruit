@@ -47,7 +47,7 @@ class InterviewController extends Controller
                     }
                     $status .= '</select>';
                     $status .= getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_INTERVIEW_STATUS,$row->submission_id);
-                    $status .= '<span class="feedback">'.$row->feedback.'</span>';
+                    $status .= "<span class='feedback' style='display:none'>".$this->getTooltipHtml($row->feedback, 30)."</span>";
                     return $status;
                 })
                 ->addColumn('action', function($row){
@@ -328,7 +328,7 @@ class InterviewController extends Controller
         } else if($interviewStatus == $interviewModel::STATUS_RE_SCHEDULED){
             $divClass .= 'border-warning-10 rounded-pill';
             $textColor = 'text-dark';
-        } else if($interviewStatus == $interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND){
+        } else if(in_array($interviewStatus, [$interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND, $interviewModel::STATUS_WAITING_FEEDBACK])){
             $divClass .= 'bg-warning rounded-pill';
             $textColor = 'text-dark';
         } else if($interviewStatus == $interviewModel::STATUS_CONFIRMED_POSITION){
