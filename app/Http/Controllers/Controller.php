@@ -209,6 +209,7 @@ class Controller extends BaseController
 
             if($user->role == 'admin'){
                 $controllerObj = new Controller;
+                $linkData = '';
                 if($controllerObj->isLinkSubmission($submission->employee_email)){
                     $linkData .= '<div class="border text-center ml-5 text-light link-data" style="background-color:rgb(172, 91, 173); width: 40px; display:none">Link</div>';
                 }
