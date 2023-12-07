@@ -718,22 +718,24 @@
     }
 
     function showUpdateSubmissionModel(id){
-        $.ajax({
-            url: "{{route('get_update_submission_data')}}",
-            type: "POST",
-            data: {'id':id, _token: '{{csrf_token()}}' },
-            success: function(response){
-                if(response.status == 1){
-                    addSubmissionData(response.submissionData);
-                    $("#updateSubmissionCandidateModal").modal('show');
-                }else{
-                    swal("Error", "Something is wrong!", "error");
-                }
-            }
-        });
+        // $.ajax({
+        //     url: "{{route('get_update_submission_data')}}",
+        //     type: "POST",
+        //     data: {'id':id, _token: '{{csrf_token()}}' },
+        //     success: function(response){
+        //         if(response.status == 1){
+        //             addSubmissionData(response.submissionData);
+        //             $("#updateSubmissionCandidateModal").modal('show');
+        //         }else{
+        //             swal("Error", "Something is wrong!", "error");
+        //         }
+        //     }
+        // });
     };
 
-    function addSubmissionData(submissionData){
+    function addSubmissionData(data){
+        var submissionData = data.submission;
+        var linkingData = data.linking_data;
         $('#submissionsForm *').filter(':input').each(function () {
             var tagType = $(this).prop("tagName").toLowerCase();
             var elementId = this.id;
@@ -751,6 +753,25 @@
                     } else {
                         var id = "#" + elementId;
                         $(id).val(submissionData[elementId]);
+                        var employeeEmail = submissionData['employee_email'];
+                        if(elementId == 'employee_email'){
+                            $('#add_link_email_icon').attr("onclick", "showFiled('linking_email', '"+ employeeEmail +"')");
+                            var textBox = document.getElementById('employee_email');
+
+                            if(textBox){
+                                $('#linkEmployeeEmail').remove();
+                                textBox.insertAdjacentHTML('afterend', linkingData['linkEmployeeEmail']);
+                            }
+                        } else if(elementId == 'employee_phone'){
+                            var employeeEmail = submissionData['employee_email'];
+                            $('#add_phone_icon').attr("onclick", "showFiled('linking_phone', '"+ employeeEmail +"')");
+                            var textBox = document.getElementById('employee_phone');
+                 
+                            if(textBox){
+                                $('#linkEmployeePhoneNumber').remove();
+                                textBox.insertAdjacentHTML('afterend', linkingData['linkEmployeePhoneNumber']);
+                            }
+                        }
                     }
                 } else if(tagType == 'select'){
                     if($("#" +elementId).length > 0){
@@ -866,7 +887,7 @@
                     $('#skill-match').html(submission.skills_match);
                     $('#other-reason').html(submission.reason);
                     $('#status').html(submission.status[0].toUpperCase() + submission.status.slice(1))
-                    addSubmissionData(data.submission);
+                    addSubmissionData(data);
                     $('#candidatesubmissionId').val(data.submission.id);
                     $('#candidateModal').modal('show');
                     if(data.is_show == 1){
@@ -903,6 +924,67 @@
         }
     });
 
+    function toggleLink() {
+        $('.linking-filed').toggle();
+    }
+
+    function showFiled(type, email){
+        $('#type').val(type);
+        $('#link_emp_email').val(email);
+        $('.linking-emp-data').hide();
+        $("#"+type).show();
+        $("#linking_emp_data").modal('show');
+    }
+
+    function linkEmpButton(){
+        var email = $('#link_emp_email').val();
+        var type = $('#type').val();
+
+        if(!type || !email){
+            swal("Error", "Something is wrong.", "error"); 
+            return;
+        }
+
+        var empEmail = $('#linking_emp_email').val();
+        var empPhone = $('#linking_emp_phone_number').val();
+
+        if(type == 'linking_email'){
+            var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+            if(!emailPattern.test(empEmail.trim())){
+                swal("Error", "Please Enter Valid Email Address.", "error");
+                return;
+            }
+        } else if(type == 'linking_phone'){
+            var phoneno = /^\d{10}$/;
+            if(!phoneno.test(empPhone.trim())){
+                swal("Error", "Please Enter Valid Phopne Number.", "error");
+                return;
+            }
+        }
+
+        $.ajax({
+            url : "{{ route('submission.saveEmpLinkingData') }}",
+            data : {'emp_email' : empEmail, 'emp_phone' : empPhone, 'type': type,'email': email, "_token": "{{ csrf_token() }}",},
+            type : 'POST',
+            dataType : 'json',
+            success : function(data){
+                if(data.is_found == 1) {
+                    $("#linking_emp_data").modal('hide');
+                    swal("Error", data.message, "error");
+                }
+                else if(data.status == 1){
+                    var li = '<li class="list-group-item p-1"><span class="text-primary">'+ data.value + '</span> ( '+ data.user_name +' : ' + data.date + ' ) </li>'
+                    $("#"+data.parent_div+" ul").append(li);
+                    $("#linking_emp_data").modal('hide');
+                    swal("Success", "Data Added SuccessFully.", "success");
+                } else {
+                    $("#linking_emp_data").modal('hide');
+                }
+                $('#linking_emp_email').val('');
+                $('#linking_emp_phone_number').val('');
+            }
+        });
+    };
 </script>
 @yield('jquery')
 </body>

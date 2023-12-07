@@ -90,6 +90,7 @@
     @endif
     @include('admin.viewSubmissionModel')
     @include('admin.updateSubmissionModel')
+    @include('admin.submission.linking_empModel')
 @endsection
 
 @section('jquery')

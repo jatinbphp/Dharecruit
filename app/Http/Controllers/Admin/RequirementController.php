@@ -218,40 +218,7 @@ class RequirementController extends Controller
         $data['selectedMoi'] = !empty($data['requirement']) && !empty($data['requirement']['moi']) ? explode(',',$data['requirement']['moi']) : [];
         $data['pvCompanyName'] = $this->getPvCompanyName();
 
-        $linkPocEmail = '';
-        $linkPocPhoneNumber = '';
-        $linkPocLocation = '';
-        $linkPvCompanyLocation = '';
-
-        $ulStartData = '<ul class="list-group mt-3">';
-        $ulEndData = '</ul>';
-
-        $pvCompanyData = PVCompany::where('email',$requirement->poc_email)->first();
-
-        if($pvCompanyData && $pvCompanyData->linked_data){
-            $linkedData = json_decode($pvCompanyData->linked_data, 1);
-            foreach ($linkedData as $key => $linkValue) {
-                foreach($linkValue as $values){
-                    if($key == 'linking_email'){
-                        $linkPocEmail .= ' <li class="list-group-item p-1"><span class="text-primary">'.$values['value'].'</span> ( '.Admin::getUserNameBasedOnId($values['user_id']).' : '.date('m-d-y', strtotime($values['dateTime'])).' ) </li>';
-                    }
-                    if($key == 'linking_poc_phone'){
-                        $linkPocPhoneNumber .= ' <li class="list-group-item p-1"><span class="text-primary">'.$values['value'].'</span> ( '.Admin::getUserNameBasedOnId($values['user_id']).' : '.date('m-d-y', strtotime($values['dateTime'])).' ) </li>';
-                    }
-                    if($key == 'linking_location'){
-                        $linkPocLocation .= ' <li class="list-group-item p-1"><span class="text-primary">'.$values['value'].'</span> ( '.Admin::getUserNameBasedOnId($values['user_id']).' : '.date('m-d-y', strtotime($values['dateTime'])).' ) </li>';
-                    }
-                    if($key == 'linking_pv_location'){
-                        $linkPvCompanyLocation .= ' <li class="list-group-item p-1"><span class="text-primary">'.$values['value'].'</span> ( '.Admin::getUserNameBasedOnId($values['user_id']).' : '.date('m-d-y', strtotime($values['dateTime'])).' ) </li>';
-                    }
-                }
-            }
-        }
-
-        $data['linkPocEmail'] = "<div id='linkPocEmail'> $ulStartData  $linkPocEmail  $ulEndData </div>";
-        $data['linkPocPhoneNumber'] = "<div id='linkPocPhoneNumber'> $ulStartData  $linkPocPhoneNumber  $ulEndData </div>";
-        $data['linkPocLocation'] = "<div id='linkPocLocation'> $ulStartData  $linkPocLocation  $ulEndData </div>";
-        $data['linkPvCompanyLocation'] = "<div id='linkPvCompanyLocation'> $ulStartData  $linkPvCompanyLocation  $ulEndData </div>";
+        $data = $this->getLinkingPocDetail($data, $requirement->poc_email);
 
         return view('admin.requirement.edit',$data);
     }
@@ -475,7 +442,8 @@ class RequirementController extends Controller
 
     public function repostRequirement($id){
         $data['menu'] = "Requirements";
-        $data['requirement'] = Requirement::where('id',$id)->first();
+        $requirement = Requirement::where('id',$id)->first();
+        $data['requirement'] = $requirement;
         $user = $this->getUser();
         if($user['role'] == 'admin'){
             $data['pv_company'] = PVCompany::where('status','active')->pluck('name','id')->prepend('Please Select','');
@@ -491,6 +459,9 @@ class RequirementController extends Controller
         $data['selectedVisa'] = !empty($data['requirement']) && !empty($data['requirement']['visa']) ? explode(',',$data['requirement']['visa']) : [];
         $data['selectedMoi'] = !empty($data['requirement']) && !empty($data['requirement']['moi']) ? explode(',',$data['requirement']['moi']) : [];
         $data['pvCompanyName'] = $this->getPvCompanyName();
+
+        $data = $this->getLinkingPocDetail($data, $requirement->poc_email);
+
         return view('admin.requirement.repost',$data);
     }
 
@@ -630,21 +601,30 @@ class RequirementController extends Controller
 
         $logggedInUserId = Auth::user()->id;
         $previousDate = \Carbon\Carbon::now()->subDays(14);
-        $currentUserPocEmail = PVCompany::where('email', $request->poc_email)->where('user_id', $logggedInUserId)->first();
+        $pocEmail = $request->poc_email;
+        $currentUserPocEmail = PVCompany::where(function ($query) use ($pocEmail) {
+            $query->where('email', '=', $pocEmail)
+                  ->orWhere('linked_data', 'like', '%'.$pocEmail.'%');
+            })->where('user_id', $logggedInUserId)->first();
 
         if(!empty($currentUserPocEmail)){
             $data['status'] = 1;
             $data['is_current_user_email'] = 1;
             $data['pvcompany'] = $currentUserPocEmail;
+            $data['linking_data'] = $this->getLinkingPocDetail([], $currentUserPocEmail->email);
             return $data;
         }
 
-        $otherUserPocEmail = PVCompany::where('email', $request->poc_email)->where('user_id','!=', $logggedInUserId)->first();
+        $otherUserPocEmail = PVCompany::where(function ($query) use ($pocEmail) {
+            $query->where('email', '=', $pocEmail)
+                  ->orWhere('linked_data', 'like', '%'.$pocEmail.'%');
+            })->where('user_id','!=', $logggedInUserId)->first();
 
         if(!empty($otherUserPocEmail)){
-            $requirement = Requirement::where('poc_email', $request->poc_email)->where('created_at', '>=', $previousDate)->first();
+            $requirement = Requirement::where('poc_email', $otherUserPocEmail->email)->where('created_at', '>=', $previousDate)->first();
                 $data['status'] = 1;
                 $data['pvcompany'] = $otherUserPocEmail;
+                $data['linking_data'] = $this->getLinkingPocDetail([], $otherUserPocEmail->email);
                 $data['poc_registered'] = 1;
             if($requirement){
                 $data['message'] = '1 or more Requirement are posted from this PV in the past 14 days.Use the PV Emails Filter to manually search for the same requirement from this PV.If same job is not posted Click Yes to Post requirement and register this PV';
@@ -668,6 +648,14 @@ class RequirementController extends Controller
 
         $email = $request->email;
         $type = $request->type;
+
+        $existingRow = PvCompany::where('email', $request->poc_email)->first();
+
+        if(!empty($existingRow)){
+            $data['is_found'] = 1;
+            $data['message'] = "Contact admin to merge vendor contact,  Email already exist for another contact!";
+            return $data;
+        }
 
         $oldData = PVCompany::where('email', $email)->first();
         
@@ -719,7 +707,7 @@ class RequirementController extends Controller
 
         if($found){
             $data['is_found'] = 1;
-            $data['message'] = "$linkType Already Exists In Linking...";
+            $data['message'] = "Contact admin to merge vendor contact,  $linkType already exist for another contact!";
             return $data;
         }
 
@@ -736,6 +724,48 @@ class RequirementController extends Controller
         $data['date']  = date('m-d-y', strtotime(\Carbon\Carbon::now()));
         $data['value'] = $value;
         $data['parent_div'] = $parentDiv;
+        return $data;
+    }
+
+    public function getLinkingPocDetail($data, $pocEmail){
+        if(!$pocEmail){
+            return [];
+        }
+        $linkPocEmail = '';
+        $linkPocPhoneNumber = '';
+        $linkPocLocation = '';
+        $linkPvCompanyLocation = '';
+
+        $ulStartData = '<ul class="list-group mt-3">';
+        $ulEndData = '</ul>';
+
+        $pvCompanyData = PVCompany::where('email',$pocEmail)->first();
+
+        if($pvCompanyData && $pvCompanyData->linked_data){
+            $linkedData = json_decode($pvCompanyData->linked_data, 1);
+            foreach ($linkedData as $key => $linkValue) {
+                foreach($linkValue as $values){
+                    if($key == 'linking_email'){
+                        $linkPocEmail .= ' <li class="list-group-item p-1"><span class="text-primary">'.$values['value'].'</span> ( '.Admin::getUserNameBasedOnId($values['user_id']).' : '.date('m-d-y', strtotime($values['dateTime'])).' ) </li>';
+                    }
+                    if($key == 'linking_poc_phone'){
+                        $linkPocPhoneNumber .= ' <li class="list-group-item p-1"><span class="text-primary">'.$values['value'].'</span> ( '.Admin::getUserNameBasedOnId($values['user_id']).' : '.date('m-d-y', strtotime($values['dateTime'])).' ) </li>';
+                    }
+                    if($key == 'linking_location'){
+                        $linkPocLocation .= ' <li class="list-group-item p-1"><span class="text-primary">'.$values['value'].'</span> ( '.Admin::getUserNameBasedOnId($values['user_id']).' : '.date('m-d-y', strtotime($values['dateTime'])).' ) </li>';
+                    }
+                    if($key == 'linking_pv_location'){
+                        $linkPvCompanyLocation .= ' <li class="list-group-item p-1"><span class="text-primary">'.$values['value'].'</span> ( '.Admin::getUserNameBasedOnId($values['user_id']).' : '.date('m-d-y', strtotime($values['dateTime'])).' ) </li>';
+                    }
+                }
+            }
+        }
+
+        $data['linkPocEmail'] = "<div id='linkPocEmail'> $ulStartData  $linkPocEmail  $ulEndData </div>";
+        $data['linkPocPhoneNumber'] = "<div id='linkPocPhoneNumber'> $ulStartData  $linkPocPhoneNumber  $ulEndData </div>";
+        $data['linkPocLocation'] = "<div id='linkPocLocation'> $ulStartData  $linkPocLocation  $ulEndData </div>";
+        $data['linkPvCompanyLocation'] = "<div id='linkPvCompanyLocation'> $ulStartData  $linkPvCompanyLocation  $ulEndData </div>";
+
         return $data;
     }
 }

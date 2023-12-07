@@ -8,6 +8,7 @@ use App\Models\Requirement;
 use App\Models\RequirementDocuments;
 use App\Models\Interview;
 use App\Models\DataLog;
+use App\Models\Admin;
 use Illuminate\Http\Request;
 use App\Models\EntityHistory;
 use App\Http\Controllers\Controller;
@@ -247,6 +248,7 @@ class CommonController extends Controller
         $data['historyData'] = $historyData;
         $data['showLogButton'] = $showLogButton;
         $data['editData'] = $editData;
+        $data['linking_data'] = $this->getEmployeeLinkData([],$submission->employee_email);
         return $data;
     }
 

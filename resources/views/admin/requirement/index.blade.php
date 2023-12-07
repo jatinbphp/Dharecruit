@@ -25,10 +25,10 @@
                     <div class="card card-info card-outline">
                         <div class="card-header">
                             <div class="row">
-                                <div class="col-md-1">
+                                <div class="col-md-2">
                                     <button class="btn btn-info" type="button" id="filterBtn"><i class="fa fa-search pr-1"></i> Search</button>
                                 </div>
-                                <div class="col-md-7">
+                                <div class="col-md-6">
                                     <div class='row'>
                                         <div class="col-md-3 form-check mt-2">
                                             <input class="form-check-input" type="checkbox" value="" id="showDate">
@@ -38,6 +38,12 @@
                                             <div class="col-md-3 form-check mt-2">
                                                 <input class="form-check-input" type="checkbox" value="" id="showMerge">
                                                 <label class="form-check-label" for="showMerge">Show Merge</label>
+                                            </div>
+                                        @endif
+                                        @if(Auth::user()->role == 'admin')
+                                            <div class="col-md-3 form-check mt-2">
+                                                <input class="form-check-input" type="checkbox" value="" id="showLink">
+                                                <label class="form-check-label" for="showLink">Show Link</label>
                                             </div>
                                         @endif
                                     </div>
@@ -300,6 +306,14 @@
             $("#requirementTable").dataTable().fnDestroy();
             datatables();
         })
+
+        $('#showLink').click(function(){
+            if($('#showLink').is(':checked')){
+                $(".link-data").show();
+            }else{
+                $(".link-data").hide();
+            }
+        });
     });
   </script>
 @endsection

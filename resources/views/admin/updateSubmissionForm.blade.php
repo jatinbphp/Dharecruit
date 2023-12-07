@@ -186,6 +186,7 @@
         </div>
     </div>
     <div class="mt-3" style="border: 2px solid black; border-radius: 25px">
+    <label class="control-label mt-3 pl-3">Click <span class="text-primary linking" onClick="toggleLink()" style="cursor : pointer">Link</span> To Add Additional Email, Phone Number</label>
         <div class="row row mt-3 pl-3 pr-3">
             <div class="col-md-6">
                 <div class="form-group{{ $errors->has('employer_name') ? ' has-error' : '' }}">
@@ -215,7 +216,7 @@
         <div class="row mt-3 pl-3 pr-3" @if(Auth::user()->role == 'bdm') ? style="display:none" @endif>
             <div class="col-md-6">
                 <div class="form-group{{ $errors->has('employee_email') ? ' has-error' : '' }}">
-                    <label class="control-label" for="employee_email">Employee Email :<span class="text-red">*</span></label>
+                    <label class="control-label" for="employee_email">Employee Email :<span class="text-red">*</span><span class="ml-3 linking-filed btn btn-sm btn-info" style="display:none" data-toggle="tooltip" title="Link Employee Email" data-trigger="hover" id='add_link_email_icon'><i class="fa fa-plus" aria-hidden="true"></i></span></label>
                     {!! Form::text('employee_email', null, ['class' => 'form-control', 'placeholder' => 'Enter Employee Email', 'id' => 'employee_email', 'readonly' => true]) !!}
                     @if ($errors->has('employee_email'))
                         <span class="text-danger">
@@ -227,7 +228,7 @@
 
             <div class="col-md-6">
                 <div class="form-group{{ $errors->has('employee_phone') ? ' has-error' : '' }}">
-                    <label class="control-label" for="employee_phone">Employee Phone Number :<span class="text-red">*</span></label>
+                    <label class="control-label" for="employee_phone">Employee Phone Number :<span class="text-red">*</span><span class="ml-3 linking-filed btn btn-sm btn-info" style="display:none" data-toggle="tooltip" title="Link Employee Phone Number" data-trigger="hover" id='add_phone_icon'><i class="fa fa-plus" aria-hidden="true"></i></span></label></label>
                     {!! Form::text('employee_phone', null, ['class' => 'form-control', 'placeholder' => 'Employee Phone Number', 'id' => 'employee_phone', 'readonly' => true]) !!}
                     @if ($errors->has('employee_phone'))
                         <span class="text-danger">

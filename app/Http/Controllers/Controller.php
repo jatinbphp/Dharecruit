@@ -8,6 +8,8 @@ use App\Models\Interview;
 use App\Models\EntityHistory;
 use App\Models\Setting;
 use App\Models\DataLog;
+use App\Models\PVCompany;
+use App\Models\Admin;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -125,6 +127,7 @@ class Controller extends BaseController
     public function getCandidateHtml($submissions, $row, $page = 'requirement') {
         $user = Auth::user();
         $candidate = '';
+        $linkData = '';
         $submissionModel = new Submission();
         $interviewModel  = new Interview();
 
@@ -204,6 +207,13 @@ class Controller extends BaseController
             $latestJobIdOfMatchPvCompany = $this->getLatestJobIdOfMatchPvCompany($submission->email);
             $isCandidateHasLog  = $this->isCandidateHasLog($submission);
 
+            if($user->role == 'admin'){
+                $controllerObj = new Controller;
+                if($controllerObj->isLinkSubmission($submission->employee_email)){
+                    $linkData .= '<div class="border text-center ml-5 text-light link-data" style="background-color:rgb(172, 91, 173); width: 40px; display:none">Link</div>';
+                }
+            }
+
             if($user->id == $userId && $user->role == 'recruiter'){
                 $candidate .= "<div class='$otherCandidate'>".(($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "").'<div class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i>  ": "").$candidateFirstName.'-'.$submission->candidate_id.'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span></div><br>';
             } else {
@@ -212,7 +222,7 @@ class Controller extends BaseController
                 } else {
                     $class = '';
                 }
-                $candidate .= "<div class='$otherCandidate'>".(($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "").'<div class="'.$divClass.'" style="'.$divCss.'"><span class="'.$class.' '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i> " :"").$candidateFirstName.'-'.$submission->candidate_id.'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span></div><br>';
+                $candidate .= "<div class='$otherCandidate'>".(($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "").$linkData.'<div class="'.$divClass.'" style="'.$divCss.'"><span class="'.$class.' '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i> " :"").$candidateFirstName.'-'.$submission->candidate_id.'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span></div><br>';
             }
         }
         return $candidate;
@@ -638,5 +648,79 @@ class Controller extends BaseController
             return '<p>' . $shortString . '<span class="custom-tooltip" data-toggle="tooltip" data-placement="bottom" title="'.$text.'">  <i class="fa fa-info-circle"></i></span>';
         }
         return '<span>'.$text.'</span>';
+    }
+
+    public function getEmployeeLinkData($data, $employeeEmail){
+        if(!$employeeEmail){
+            return [];
+        }
+        $linkEmployeeEmail = '';
+        $linkEmployeePhoneNumber = '';
+        $linkPocLocation = '';
+        $linkPvCompanyLocation = '';
+
+        $ulStartData = '<ul class="list-group mt-3">';
+        $ulEndData = '</ul>';
+
+        $empCompanyData = Admin::where('email',$employeeEmail)->where('role', 'employee')->first();
+
+        if($empCompanyData && $empCompanyData->linked_data){
+            $linkedData = json_decode($empCompanyData->linked_data, 1);
+            foreach ($linkedData as $key => $linkValue) {
+                foreach($linkValue as $values){
+                    if($key == 'linking_email'){
+                        $linkEmployeeEmail .= ' <li class="list-group-item p-1"><span class="text-primary">'.$values['value'].'</span> ( '.Admin::getUserNameBasedOnId($values['user_id']).' : '.date('m-d-y', strtotime($values['dateTime'])).' ) </li>';
+                    }
+                    if($key == 'linking_phone'){
+                        $linkEmployeePhoneNumber .= ' <li class="list-group-item p-1"><span class="text-primary">'.$values['value'].'</span> ( '.Admin::getUserNameBasedOnId($values['user_id']).' : '.date('m-d-y', strtotime($values['dateTime'])).' ) </li>';
+                    }
+                }
+            }
+        }
+
+        $data['linkEmployeeEmail'] = "<div id='linkEmployeeEmail'> $ulStartData  $linkEmployeeEmail  $ulEndData </div>";
+        $data['linkEmployeePhoneNumber'] = "<div id='linkEmployeePhoneNumber'> $ulStartData  $linkEmployeePhoneNumber  $ulEndData </div>";
+
+        return $data;
+    }
+
+    public function isLinkRequirement($pocEmail)
+    {
+        if(!$pocEmail){
+            return 0;
+        }
+        $isFound = 0;
+        $pvComapny = PVCompany::where('email', $pocEmail)->first();
+
+        if($pvComapny && $pvComapny->linked_data){
+            $linkedData = json_decode($pvComapny->linked_data, 1);
+            foreach ($linkedData as $key => $linkValue) {
+                if($key == 'linking_email'){
+                    $isFound = 1;
+                    break;
+                }
+            }
+        }
+        return $isFound;
+    }
+
+    public function isLinkSubmission($empEmail)
+    {
+        if(!$empEmail){
+            return 0;
+        }
+        $isFound = 0;
+        $employee = Admin::where('email', $empEmail)->where('role','employee')->first();
+
+        if($employee && $employee->linked_data){
+            $linkedData = json_decode($employee->linked_data, 1);
+            foreach ($linkedData as $key => $linkValue) {
+                if($key == 'linking_email'){
+                    $isFound = 1;
+                    break;
+                }
+            }
+        }
+        return $isFound;
     }
 }

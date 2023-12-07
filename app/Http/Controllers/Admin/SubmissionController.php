@@ -375,22 +375,30 @@ class SubmissionController extends Controller
         }
 
         $logggedInUserId = Auth::user()->id;
-        $currentUserPocEmail = Admin::where('email', $request->emp_email)->where('added_by', $logggedInUserId)->where('role','employee')->first();
+        $empEmail = $request->emp_email;
+        $currentUserPocEmail = Admin::where(function ($query) use ($empEmail) {
+            $query->where('email', '=', $empEmail)
+                  ->orWhere('linked_data', 'like', '%'.$empEmail.'%');
+            })->where('added_by', $logggedInUserId)->where('role','employee')->first(); 
 
         if(!empty($currentUserPocEmail)){
             $data['status'] = 1;
             $data['is_current_user_email'] = 1;
             $data['empdata'] = $currentUserPocEmail;
+            $data['linking_data'] = $this->getEmployeeLinkData([], $currentUserPocEmail->email);
             return $data;
         }
 
-        $otherUserEmpEmail = Admin::where('email', $request->emp_email)->where('added_by','!=', $logggedInUserId)->where('role','employee')->first();
+        $otherUserEmpEmail = Admin::where(function ($query) use ($empEmail) {
+            $query->where('email', '=', $empEmail)
+                  ->orWhere('linked_data', 'like', '%'.$empEmail.'%');
+            })->where('added_by','!=', $logggedInUserId)->where('role','employee')->first();
 
         if(!empty($otherUserEmpEmail)){
             $data['status'] = 1;
             $data['empdata'] = $otherUserEmpEmail;
             $data['emp_registered'] = 1;
-            $data['message'] = 'There are 0 Requirements posted from this PV in the past 14 days';
+            $data['linking_data'] =  $this->getEmployeeLinkData([], $otherUserEmpEmail->email);
             return $data;
         }
 
@@ -399,4 +407,84 @@ class SubmissionController extends Controller
 
         return $data;
     }
+
+    public function saveEmpLinkingData(Request $request){
+        if(empty($request->email)){
+            $data['status'] = 0;
+            return $data;
+        }
+
+        $email = $request->email;
+        $type = $request->type;
+
+        $existingRow = Admin::where('email', $request->emp_email)->where('role', 'employee')->first();
+
+        if(!empty($existingRow)){
+            $data['is_found'] = 1;
+            $data['message'] = "Contact admin to merge vendor contact,  Email already exist for another contact!";
+            return $data;
+        }
+
+        $oldData = Admin::where('email', $email)->where('role', 'employee')->first();
+        
+        if(empty($oldData)){
+            $data['status'] = 0;
+            return $data;
+        }
+
+        $linkedData = ($oldData->linked_data) ? json_decode($oldData->linked_data, 1) : [];
+
+        $value = '';
+        $linkType = '';
+        $parentDiv = '';
+
+        if($type == 'linking_email'){
+            $value = $request->emp_email;
+            $linkType = 'Employee Email';
+            $parentDiv = 'linkEmployeeEmail';
+        } elseif($type == 'linking_phone'){
+            $value = $request->emp_phone;
+            $linkType = 'Employee Phone Number';
+            $parentDiv = 'linkEmployeePhoneNumber';
+        }
+
+        $found = 0;
+
+        if($oldData && $oldData->linked_data){
+            $linkedData = json_decode($oldData->linked_data, 1);
+            foreach ($linkedData as $key => $linkValue) {
+                if($key != $type){
+                    continue;
+                }
+                foreach($linkValue as $values){
+                    $existingValue = $values['value'];
+                    if(strtolower($existingValue) == strtolower($value)){
+                        $found = 1;
+                    }
+                }
+            }
+        }
+
+        if($found){
+            $data['is_found'] = 1;
+            $data['message'] = "Contact admin to merge vendor contact,  $linkType already exist for another contact!";
+            return $data;
+        }
+
+        $linkedValuesdata['value']    = $value;
+        $linkedValuesdata['user_id']  = Auth::user()->id;;
+        $linkedValuesdata['dateTime'] = \Carbon\Carbon::now();
+
+        $linkedData[$type][] = $linkedValuesdata;
+
+        Admin::where('email', $email)->update(['linked_data' => json_encode($linkedData)]);
+
+        $data['status'] = 1;
+        $data['user_name'] = Admin::getUserNameBasedOnId(Auth::user()->id);
+        $data['date']  = date('m-d-y', strtotime(\Carbon\Carbon::now()));
+        $data['value'] = $value;
+        $data['parent_div'] = $parentDiv;
+        return $data;
+    }
+
 }

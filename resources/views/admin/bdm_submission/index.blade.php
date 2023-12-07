@@ -152,6 +152,7 @@
         @include('admin.requirement.candidateModal',['hide'=>0, 'isSubmission'=>0,])
     @endif
     @include('admin.updateSubmissionModel')
+    @include('admin.submission.linking_empModel')
 @endsection
 
 @section('jquery')

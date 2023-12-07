@@ -567,7 +567,7 @@
                 success: function(data){
                     if(data.status == 1){
                         if(data.is_current_user_email == 1){
-                            fillPvData(data.pvcompany);
+                            fillPvData(data);
                         } else if(data.poc_registered == 1){
                             swal({
                                 title: "Are you sure?",
@@ -583,7 +583,7 @@
                             function(isConfirm) {
                                 if (isConfirm) {
                                     swal.close();
-                                    fillPvData(data.pvcompany);
+                                    fillPvData(data);
                                 } else {
                                     swal.close();
                                 }
@@ -602,13 +602,32 @@
         });
 
         function fillPvData(data){
-            $('#pv_company_name').attr("readonly",true).val(data.name);
-            $('#poc_name').attr("readonly",true).val(data.poc_name);
-            $('#poc_email').attr("readonly",true).val(data.email);
-            $('#poc_phone_number').attr("readonly",true).val(data.phone);
-            $('#poc_location').attr("readonly",true).val(data.poc_location);
-            $('#pv_company_location').attr("readonly",true).val(data.pv_company_location);
-            // $('#client_name').attr("readonly",true).val(data.client_name);
+            var pvData = data.pvcompany;
+            var textBox = '';
+            console.log(data);
+            for(var key in data.linking_data) {
+                if(key == 'linkPocEmail'){
+                    textBox = document.getElementById('poc_email');
+                }else if(key == 'linkPocPhoneNumber'){
+                    textBox = document.getElementById('poc_phone_number');
+                }else if(key == 'linkPocLocation'){
+                    textBox = document.getElementById('poc_location');
+                }else if(key == 'linkPvCompanyLocation'){
+                    textBox = document.getElementById('pv_company_location');
+                }
+
+                if(textBox){
+                    textBox.insertAdjacentHTML('afterend', data.linking_data[key]);
+                }
+            }
+
+            $('#pv_company_name').attr("readonly",true).val(pvData.name);
+            $('#poc_name').attr("readonly",true).val(pvData.poc_name);
+            $('#poc_email').attr("readonly",true).val(pvData.email);
+            $('#poc_phone_number').attr("readonly",true).val(pvData.phone);
+            $('#poc_location').attr("readonly",true).val(pvData.poc_location);
+            $('#pv_company_location').attr("readonly",true).val(pvData.pv_company_location);
+            // $('#client_name').attr("readonly",true).val(pvData.client_name);
             $('.add-new-form').show();
             $('.search-poc-email').hide();
         }
@@ -662,7 +681,7 @@
                 success : function(data){
                     if(data.is_found == 1) {
                         $("#linking_poc_data").modal('hide');
-                        swal("Warning", data.message, "warning");
+                        swal("Error", data.message, "error");
                     }
                     else if(data.status == 1){
                         var li = '<li class="list-group-item p-1"><span class="text-primary">'+ data.value + '</span> ( '+ data.user_name +' : ' + data.date + ' ) </li>'

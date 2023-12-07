@@ -119,6 +119,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('get_emp_details', [SubmissionController::class,'getEmpDetail'])->name('get_emp_details');
     Route::post('submission/checkPvCompany', [SubmissionController::class,'checkPvCompany'])->name('checkPvCompany');
     Route::post('submission/checkEmpData',  [SubmissionController::class, 'checkEmpData'])->name('submission.checkEmpData');
+    Route::post('submission/saveEmpLinkingData',  [SubmissionController::class,'saveEmpLinkingData'])->name('submission.saveEmpLinkingData');
 
     /* BDM SUBMISSION MANAGEMENT */
     Route::resource('bdm_submission', BDMSubmissionController::class);

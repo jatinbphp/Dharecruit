@@ -480,7 +480,7 @@
                 success: function(data){
                     if(data.status == 1){
                         if(data.is_current_user_email == 1){
-                            fillEmpData(data.empdata);
+                            fillEmpData(data);
                         } else if(data.emp_registered == 1){
                             swal({
                                 title: "Are you sure?",
@@ -496,7 +496,7 @@
                             function(isConfirm) {
                                 if (isConfirm) {
                                     swal.close();
-                                    fillEmpData(data.empdata);
+                                    fillEmpData(data);
                                 } else {
                                     swal.close();
                                 }
@@ -514,10 +514,27 @@
         });
 
         function fillEmpData(data) {
-            $('#employer_name').attr("readonly",true).val(data.name);
-            $('#employee_name').attr("readonly",true).val(data.employee_name);
-            $('#employee_email').attr("readonly",true).val(data.email);
-            $('#employee_phone').attr("readonly",true).val(data.phone);
+            var submissionData = data.empdata;
+            var textBox = '';
+            console.log(data.linking_data);
+            for(var key in data.linking_data) {
+                if(key == 'linkEmployeeEmail'){
+                    textBox = document.getElementById('employee_email');
+                }else if(key == 'linkEmployeePhoneNumber'){
+                    textBox = document.getElementById('employee_phone');
+                }
+
+                console.log(textBox);
+
+                if(textBox){
+                    textBox.insertAdjacentHTML('afterend', data.linking_data[key]);
+                }
+            }
+
+            $('#employer_name').attr("readonly",true).val(submissionData.name);
+            $('#employee_name').attr("readonly",true).val(submissionData.employee_name);
+            $('#employee_email').attr("readonly",true).val(submissionData.email);
+            $('#employee_phone').attr("readonly",true).val(submissionData.phone);
             $('.employee-detail').show();
             $('.search-employee-email').hide();
         }
