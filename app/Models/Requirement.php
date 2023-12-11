@@ -20,6 +20,8 @@ class Requirement extends Model
     const STATUS_INACTIVE = 'inactive';
     const STATUS_EXP_HOLD = 'exp_hold';
     const STATUS_EXP_NEED = 'exp_need';
+    const STATUS_HOLD     = 'hold';
+    const STATUS_UNHOLD   = 'unhold';
 
     public static $status = [
         self::STATUS_ACTIVE => 'Active',
@@ -31,6 +33,13 @@ class Requirement extends Model
         self::STATUS_EXP_NEED => 'Exp-Need',
     ];
 
+    public static $allStatus = [
+        ''                    => 'Please Select',
+        self::STATUS_HOLD     => 'Hold',
+        self::STATUS_UNHOLD   => 'Need',
+        self::STATUS_EXP_HOLD => 'Exp-Hold',
+        self::STATUS_EXP_NEED => 'Exp-Need',
+    ];
     const PRIORITY_0 = '';
     const PRIORITY_HIGH = 'high';
     const PRIORITY_MEDIUM = 'medium';

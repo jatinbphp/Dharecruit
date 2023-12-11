@@ -129,4 +129,36 @@ class Submission extends Model
         'relocation',
         // 'employer_name',
     ];
+
+    const STATUS_SERVED               = 'served';
+    const STATUS_UNSERVED             = 'un_served';
+    const STATUS_ALLOCATED            = 'allocated';
+    const STATUS_NOT_ALLOCATED        = 'not_allocated';
+    const STATUS_ALLOCATED_BUT_SERVED = 'allocated_but_not_served';
+
+    const STATUS_SERVED_TEXT               = 'Served';
+    const STATUS_UNSERVED_TEXT             = 'Un Served';
+    const STATUS_ALLOCATED_TEXT            = 'Allocated';
+    const STATUS_NOT_ALLOCATED_TEXT        = 'Not Allocated';
+    const STATUS_ALLOCATED_BUT_SERVED_TEXT = 'Allocated But NOT Served';
+
+    public static function getServedOptions() {
+        return [
+            ''                                => 'Please Select',
+            self::STATUS_SERVED               => self::STATUS_SERVED_TEXT,
+            self::STATUS_UNSERVED             => self::STATUS_UNSERVED_TEXT,
+            self::STATUS_ALLOCATED            => self::STATUS_ALLOCATED_TEXT,
+            self::STATUS_NOT_ALLOCATED        => self::STATUS_NOT_ALLOCATED_TEXT,
+            self::STATUS_ALLOCATED_BUT_SERVED => self::STATUS_ALLOCATED_BUT_SERVED_TEXT,
+        ];
+    }
+
+    public static function getBDMFilterOptions() {
+        return [
+            self::STATUS_ACCEPT   => 'Accepted',
+            self::STATUS_REJECTED => 'Rejected',
+            'no_viewed'           => 'Not Viewed',
+            'no_updates'          => 'No updates',
+        ];
+    }
 }

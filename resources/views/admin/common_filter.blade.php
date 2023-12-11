@@ -1,0 +1,132 @@
+<div class="row">
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="control-label" for="date">From Date</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">
+                        <i class="far fa-calendar-alt"></i>
+                    </span>
+                </div>
+                {!! Form::text('date', null, ['autocomplete' => 'off', 'class' => 'datepicker form-control float-right', 'placeholder' => 'Select From Date', 'id' => 'fromDate']) !!}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="control-label" for="date">To Date</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">
+                        <i class="far fa-calendar-alt"></i>
+                    </span>
+                </div>
+                {!! Form::text('date', null, ['autocomplete' => 'off', 'class' => 'datepicker form-control float-right', 'placeholder' => 'Select To Date', 'id' => 'toDate']) !!}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="control-label" for="job_title">Job Title</label>
+            {!! Form::text('job_title', null, ['class' => 'form-control', 'placeholder' => 'Enter Job Title', 'id' => 'job_title']) !!}
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="control-label" for="bdm">BDM</label>
+            {!! Form::select('bdm', \App\Models\Admin::getActiveBDM(), null, ['class' => 'form-control select2','id'=>'bdm'],['data-id' => '1']) !!}
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="control-label" for="job_id">Job Id</label>
+            {!! Form::text('job_id', null, ['autocomplete' => 'off', 'class' => 'form-control float-right', 'placeholder' => 'Enter Job Id', 'id' => 'job_id']) !!}
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="control-label" for="client">Client</label>
+            {!! Form::text('client', null, ['class' => 'form-control', 'placeholder' => 'Enter POC Email', 'id' => 'client']) !!}
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="control-label" for="job_location">Job Location</label>
+            {!! Form::text('job_location', null, ['class' => 'form-control', 'placeholder' => 'Enter Job Location', 'id' => 'job_location']) !!}
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="control-label" for="moi">MOI</label>
+            {!! Form::select('moi', \App\Models\Moi::getActiveMoies(), null, ['class' => 'form-control select2','id'=>'moi']) !!}
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="control-label" for="work_type">Work Type</label>
+            {!! Form::select('work_type', \App\Models\Requirement::$workType, null, ['class' => 'form-control select2','id'=>'work_type']) !!}
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="control-label" for="category">Category</label>
+            {!! Form::select('category', \App\Models\Category::getActiveCategories(), null, ['class' => 'form-control select2','id'=>'category']) !!}
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="control-label" for="served">Served</label>
+            {!! Form::select('served', \App\Models\Submission::getServedOptions(), null, ['class' => 'form-control select2','id'=>'served']) !!}
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="control-label" for="status">Status</label>
+            {!! Form::select('status', \App\Models\Requirement::$allStatus, null, ['class' => 'form-control select2','id'=>'status']) !!}
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="control-label" for="employer_name">Employer Name</label>
+            {!! Form::text('employer_name', null, ['class' => 'form-control', 'placeholder' => 'Enter Employer Name', 'id' => 'employer_name']) !!}
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="control-label" for="employee_name">Employee Name</label>
+            {!! Form::text('employee_name', null, ['class' => 'form-control', 'placeholder' => 'Enter Employee Name', 'id' => 'employee_name']) !!}
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="control-label" for="employee_phone_number">Employee Phone Number</label>
+            {!! Form::text('employee_phone_number', null, ['class' => 'form-control', 'placeholder' => 'Enter Employee Phone Number', 'id' => 'employee_phone_number']) !!}
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="control-label" for="employee_email">Employee Email</label>
+            {!! Form::text('employee_email', null, ['class' => 'form-control', 'placeholder' => 'Enter Employee Email', 'id' => 'employee_email']) !!}
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="control-label" for="bdm_feedback">BDM FeedBack</label>
+            {!! Form::select('bdm_feedback', \App\Models\Submission::getBDMFilterOptions(), null, ['class' => 'form-control select2','id'=>'bdm_feedback', 'multiple' => true, 'data-placeholder' => 'Please Select BDM Feedback']) !!}
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="control-label" for="pv_feedback">PV Feedback</label>
+            {!! Form::select('pv_feedback', \App\Models\Submission::$pvStatus, null, ['class' => 'form-control select2','id'=>'pv_feedback', 'multiple' => true, 'data-placeholder' => 'Please Select PV Feedback']) !!}
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="control-label" for="client_feedback">Client Feedback</label>
+            {!! Form::select('client_feedback', \App\Models\Interview::$interviewStatusOptions, null, ['class' => 'form-control select2','id'=>'client_feedback', 'data-placeholder' => 'Please Select Client Feedback']) !!}
+        </div>
+    </div>
+</div>
+<button class="btn btn-info float-right" onclick="showRequirementFilterData()">Search</button>
+<button class="btn btn-default float-right mr-2" onclick="clearRequirementData()">Clear</button>

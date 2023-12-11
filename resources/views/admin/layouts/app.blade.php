@@ -537,6 +537,120 @@
             checkboxClass: 'icheckbox_flat-green',
             radioClass   : 'iradio_flat-green'
         });
+
+        $('#bdm_feedback').select2({
+            templateResult: function(data) {
+                // Apply custom classes to the option
+                console.log(data);
+                if (data.id) {
+                    var colorClass = getBDMColorClass(data.id);
+                    return $('<span class="' + colorClass + '">' + data.text + '</span>');
+                }
+                return data.text;
+            }
+        });
+
+        function getBDMColorClass(value) {
+            switch (value) {
+                case 'accepted':
+                    return 'text-success';
+                case 'rejected':
+                    return 'text-danger';
+                case 'no_viewed':
+                    return 'text-primary';
+                default:
+                    return '';
+            }
+        }
+
+        $('#pv_feedback').select2({
+            templateResult: function(data) {
+                // Apply custom classes to the option
+                if (data.id) {
+                    var colorClass = getPVColorClass(data.id);
+                    var PVColorCss = getPVColorCss(data.id);
+                    return $('<span class="' + colorClass + '" style="' + PVColorCss + '">' + data.text + '</span>');
+                }
+                return data.text;
+            }
+        });
+
+        function getPVColorClass(value) {
+            switch (value) {
+                case 'rejected_by_pv':
+                case 'rejected_by_end_client':
+                    return 'text-danger';
+                case 'submitted_to_end_client':
+                    return 'text-success';
+                case 'no_response_from_pv':
+                case 'position_closed':
+                    return 'text-secondary';
+                default:
+                    return '';
+            }
+        }
+
+        function getPVColorCss(value) {
+            switch (value) {
+                case 'rejected_by_pv':
+                case 'no_response_from_pv':
+                case 'position_closed':
+                case 'submitted_to_end_client':
+                    return 'border-bottom :solid;';
+                case'rejected_by_end_client':
+                    return 'border-bottom :6px double;';
+                default:
+                    return '';
+            }
+        }
+
+        $('#client_feedback').select2({
+            templateResult: function(data) {
+                // Apply custom classes to the option
+                if (data.id) {
+                    var colorClass = getClientColorClass(data.id);
+                    var divClass = getClientDivClass(data.id);
+                    return $('<div class="' + divClass + ' text-center" style="width: fit-content;"><span class="' + colorClass + '">' + data.text + '</span>');
+                }
+                return data.text;
+            }
+        });
+
+        function getClientColorClass(value) {
+            switch (value) {
+                case 'scheduled':
+                case 're_scheduled':
+                case 'selected_for_next_round':
+                case 'confirmed_position':
+                case 'waiting_feedback':
+                    return 'text-dark';
+                case 'backout':
+                case 'rejected':
+                    return 'text-white';
+                default:
+                    return '';
+            }
+        }
+
+        function getClientDivClass(value) {
+            switch (value) {
+                case 'scheduled':
+                    return 'border border-warning rounded-pill  pt-2 pl-2 pb-2 pr-2';
+                case 're_scheduled':
+                    return 'border-warning-10 rounded-pill  pt-2 pl-2 pb-2 pr-2';
+                case 'selected_for_next_round':
+                case 'waiting_feedback':
+                    return 'bg-warning rounded-pill  pt-2 pl-2 pb-2 pr-2';
+                case 'confirmed_position':
+                    return 'bg-success  pt-2 pl-2 pb-2 pr-2';
+                case 'backout':
+                    return 'bg-dark  pt-2 pl-2 pb-2 pr-2';
+                case 'rejected':
+                    return 'bg-danger  pt-2 pl-2 pb-2 pr-2';
+                default:
+                    return '';
+            }
+        }
     });
 </script>
 

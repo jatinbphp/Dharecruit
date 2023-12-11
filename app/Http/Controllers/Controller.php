@@ -53,9 +53,10 @@ class Controller extends BaseController
             $query = Requirement::select();
         }
 
-        if(in_array(Auth::user()->role, ['bdm', 'recruiter']) && $page == 'all'){
-            $query->whereNotIn('status',$expStatus);
-        }
+        // Comment This As We Are Adding Filters On Page For All Status
+        // if(in_array(Auth::user()->role, ['bdm', 'recruiter']) && $page == 'all'){
+        //     $query->whereNotIn('status',$expStatus);
+        // }
 
         if(!empty($request->fromDate)){
             $fromDate = date('Y-m-d', strtotime($request->fromDate));
@@ -67,39 +68,82 @@ class Controller extends BaseController
             $query->where('created_at', '<=' ,$toDate." 23:59:59");
         }
 
-        if(!empty($request->requirement)){
-            $whereInfo[] = ['job_title', 'like', '%'.$request->requirement.'%'];
+        \Log::info($request);
+
+        if(!empty($request->job_title)){
+            $query->where('job_title', 'like', '%'.$request->job_title.'%');
         }
 
         if(!empty($request->bdm)){
-            $whereInfo[] = ['bdm', $request->bdm];
+            $query->where('user_id', $request->bdm);
         }
 
-        if(!empty($request->recruiter)){
-            $whereInfo[] = ['recruiter', 'like', '%,'.$request->recruiter.',%'];
+        if(!empty($request->job_id)){
+            $query->where('job_id', $request->job_id);
         }
 
-        if(!empty($request->poc_email)){
-            $whereInfo[] = ['poc_email', 'like', '%,'.$request->poc_email.',%'];
+        if(!empty($request->client)){
+            $query->where('client', 'like', '%'.$request->client_name.'%');
         }
 
-        if(!empty($request->pv_company)){
-            $whereInfo[] = ['pv_company_name', $request->pv_company];
+        if(!empty($request->job_location)){
+            $query->where('location', 'like', '%'.$request->job_location.'%');
         }
 
         if(!empty($request->moi)){
-            $whereInfo[] = ['moi', $request->moi];
+            $query->where('moi', 'like', '%,'.$request->moi.',%');
         }
 
         if(!empty($request->work_type)){
-            $whereInfo[] = ['work_type', $request->work_type];
+            $query->where('work_type', $request->work_type);
+        }
+
+        if(!empty($request->category)){
+            $query->where('category', $request->category);
+        }
+
+        if(!empty($request->served)){
+            $this->getRequirementIdBasedOnServedOptions(strtolower($request->served),$query);
+        }
+
+        if(!empty($request->status)){
+            $query->where('status', $request->status);
         }
 
         if(!empty($request->show_merge) && $request->show_merge == 1){
             return $query->where($whereInfo)->orderBy('parent_requirement_id', 'DESC')->orderBy('id', 'desc');
         }
 
+        // \Log::info($query->where($whereInfo)->orderBy('parent_requirement_id', 'DESC')->orderBy('id', 'desc')->toSql());
+
         return $query->where($whereInfo)->orderBy('id', 'desc');
+    }
+
+    public function getRequirementIdBasedOnServedOptions($served, $query){
+        if(!$served){
+            return $this;
+        }
+
+        $requirementId = [];
+        $requiremrntIdsHavingSubmission = Submission::pluck('requirement_id')->toArray();
+        $requiremrntIdsHavingSubmission = array_unique($requiremrntIdsHavingSubmission);
+
+        if($served == 'served'){
+            $query->whereNotNull('recruiter');
+            $query->whereIn('id', $requiremrntIdsHavingSubmission);
+        } else if($served == 'un_served') {
+            $query->whereNotNull('recruiter');
+            $query->whereNotIn('id', $requiremrntIdsHavingSubmission);
+        } else if($served == 'allocated') {
+            $query->whereNotNull('recruiter');
+        } else if($served == 'not_allocated'){
+            $query->whereNull('recruiter');
+        } else if($served == 'allocated_but_not_served'){
+            $query->whereNotNull('recruiter');
+            $query->whereNotIn('id', $requiremrntIdsHavingSubmission);
+        }
+
+        return $this;
     }
 
     public function submissionFilter($request,$id){

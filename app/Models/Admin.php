@@ -46,4 +46,12 @@ class Admin extends Authenticatable
         $user = Admin::where('id',$userId)->first();
         return ($user && $user->name) ? $user->name : '';
     }
+
+    public static function getActiveBDM(){
+        return Admin::where('role','bdm')->where('status','active')->pluck('name','id')->prepend('Please Select','');   
+    }
+
+    public static function getActiveRecruiter(){
+        return Admin::where('role','recruiter')->where('status','active')->pluck('name','id')->prepend('Please Select','');   
+    }
 }

@@ -19,4 +19,8 @@ class Moi extends Model
         self::STATUS_ACTIVE => 'Active',
         self::STATUS_INACTIVE => 'In Active',
     ];
+
+    public static function getActiveMoies(){
+        return Moi::where('status','active')->pluck('name','id')->prepend('Please Select',''); 
+    }
 }

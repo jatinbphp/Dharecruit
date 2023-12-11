@@ -31,6 +31,7 @@ class SubmissionController extends Controller
             return getListHtml($data, 'submission');
         }
         $data['type'] = 1;
+        $data['filterFile'] = 'requirement_filter';
         return view('admin.submission.index', $data);
     }
 
@@ -44,6 +45,7 @@ class SubmissionController extends Controller
             return getListHtml($data, 'submission');
         }
         $data['type'] = 2;
+        $data['filterFile'] = 'common_filter';
         return view('admin.submission.index', $data);
     }
 

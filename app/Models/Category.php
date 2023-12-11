@@ -19,4 +19,8 @@ class Category extends Model
         self::STATUS_ACTIVE => 'Active',
         self::STATUS_INACTIVE => 'In Active',
     ];
+
+    public static function getActiveCategories(){
+        return Category::where('status','active')->pluck('name','id')->prepend('Please Select','');
+    }
 }

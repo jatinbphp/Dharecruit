@@ -19,4 +19,8 @@ class PVCompany extends Model
         self::STATUS_ACTIVE => 'Active',
         self::STATUS_INACTIVE => 'In Active',
     ];
+
+    public static function getActivePVCompanyies(){
+        return PVCompany::where('status','active')->pluck('name','id')->prepend('Please Select','');   
+    }
 }
