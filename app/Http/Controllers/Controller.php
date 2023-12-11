@@ -68,8 +68,6 @@ class Controller extends BaseController
             $query->where('created_at', '<=' ,$toDate." 23:59:59");
         }
 
-        \Log::info($request);
-
         if(!empty($request->job_title)){
             $query->where('job_title', 'like', '%'.$request->job_title.'%');
         }
@@ -113,8 +111,6 @@ class Controller extends BaseController
         if(!empty($request->show_merge) && $request->show_merge == 1){
             return $query->where($whereInfo)->orderBy('parent_requirement_id', 'DESC')->orderBy('id', 'desc');
         }
-
-        // \Log::info($query->where($whereInfo)->orderBy('parent_requirement_id', 'DESC')->orderBy('id', 'desc')->toSql());
 
         return $query->where($whereInfo)->orderBy('id', 'desc');
     }
