@@ -33,9 +33,10 @@ class RequirementController extends Controller
 
         if ($request->ajax()) {
             $data = $this->Filter($request,'all');
-            return getListHtml($data, 'all_requirement');
+            return getListHtml($data, 'all_requirement', $request);
         }
         $data['type'] = 1;
+        $data['filterFile'] = 'requirement_filter';
         return view('admin.requirement.index', $data);
     }
 
@@ -46,9 +47,11 @@ class RequirementController extends Controller
         if ($request->ajax()) {
             $request['authId'] = Auth::user()->id;
             $data = $this->Filter($request);
-            return getListHtml($data);
+            return getListHtml($data,'', $request);
         }
         $data['type'] = 2;
+        $data['filterFile'] = 'common_filter';
+        $data['pvCompanyName'] = $this->getPvCompanyName();
         return view('admin.requirement.index', $data);
     }
 
@@ -437,7 +440,11 @@ class RequirementController extends Controller
     }
 
     public function getPvCompanyName() {
-        return PvCompany::whereNotNull('name')->groupBy('name')->pluck('name')->toArray();
+        $pvCompany = PvCompany::whereNotNull('name');
+        if(Auth::user()->role != 'admin'){
+            $pvCompany->where('user_id', Auth::user()->id);
+        }
+        return $pvCompany->groupBy('name')->pluck('name')->toArray();
     }
 
     public function repostRequirement($id){

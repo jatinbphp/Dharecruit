@@ -53,8 +53,8 @@
                                 </div>
                                 <div class="col-md-12 border mt-3 pb-3" id="filterDiv">
                                     {!! Form::open(['id' => 'filterForm', 'class' => 'form-horizontal','files'=>true,'onsubmit' => 'return false;']) !!}
-                                        @include('admin.filter')
-                                    {!! Form::close() !!}
+                                        @include('admin.'.$filterFile)
+                                        {!! Form::close() !!}
                                 </div>
                             </div>
                         </div>
@@ -107,13 +107,14 @@
         datatables();
     });
 
-    function showData(){
+    function showRequirementFilterData(){
         $("#requirementTable").dataTable().fnDestroy();
         datatables();
     }
 
-    function clearData(){
+    function clearRequirementData(){
         $('#filterForm')[0].reset();
+        $('select').trigger('change');
         $("#requirementTable").dataTable().fnDestroy();
         datatables();
     }
@@ -137,17 +138,21 @@
             ajax: {
                 url: "{{ $type == 1 ? route('requirement.index') : route('my_requirement') }}",
                 data: function (d) {
-                    d.fromDate = $('#fromDate').val();
-                    d.toDate = $('#toDate').val();
-                    d.requirement = $('#requirement').val();
-                    d.bdm = $('#bdm').val();
-                    d.recruiter = $('#recruiter').val();
-                    d.poc_email = $('#poc_email').val();
-                    d.pv_company = $('#pv_company').val();
-                    d.moi = $('#moi').val();
-                    d.work_type = $('#work_type').val();
-                    d.show_merge = isShowMerge;
-                    d._token = '{{ csrf_token() }}';
+                    var formDataArray = $('#filterForm').find(':input:not(select[multiple])').serializeArray();
+
+                    // Filter out non-multiple-select elements and create a single array
+                    var multipleSelectValues = $('#filterForm select[multiple]').map(function () {
+                        return { name: $(this).attr('name'), value: $(this).val() };
+                    }).get();
+
+                    formDataArray = formDataArray.concat(multipleSelectValues);
+
+                    var formData = {};
+                    $.each(formDataArray, function(i, field){
+                        formData[field.name] = field.value;
+                    });
+                    d = $.extend(d, formData);
+                    return d;
                 },
             },
             columns: [
@@ -315,5 +320,17 @@
             }
         });
     });
+
+    @if(isset($pvCompanyName) && $pvCompanyName)
+       var availablePvCompanyName = <?php echo json_encode($pvCompanyName);?>;
+        console.log('called');
+        console.log(availablePvCompanyName);
+        $(document).on('focusout keydown', '#pv_company', function (index, value) {
+            $("#pv_company").autocomplete({
+                source: availablePvCompanyName,
+                minLength: 4 
+            });
+        });
+    @endif
   </script>
 @endsection

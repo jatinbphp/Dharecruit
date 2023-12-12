@@ -41,8 +41,8 @@ class Controller extends BaseController
 
     public function Filter($request, $page=''){
         $whereInfo = [];
-
         $user = Auth::user();
+        $requirementIds = [];
 
         $expStatus = [Requirement::STATUS_EXP_HOLD , Requirement::STATUS_EXP_NEED];
         if($user['role'] == 'bdm' && isset($request->authId) && $request->authId > 0){
@@ -81,7 +81,7 @@ class Controller extends BaseController
         }
 
         if(!empty($request->client)){
-            $query->where('client', 'like', '%'.$request->client_name.'%');
+            $query->where('client_name', 'like', '%'.$request->client.'%');
         }
 
         if(!empty($request->job_location)){
@@ -108,6 +108,79 @@ class Controller extends BaseController
             $query->where('status', $request->status);
         }
 
+        if(!empty($request->pv_email)){
+            $query->where('poc_email', $request->pv_email);
+        }
+
+        if(!empty($request->pv_company)){
+            $query->where('pv_company_name', $request->pv_company);
+        }
+
+        if(!empty($request->pv_name)){
+            $query->where('poc_name', $request->pv_name);
+        }
+
+        if(!empty($request->pv_phone)){
+            $query->where('poc_phone_number', $request->pv_phone);
+        }
+
+        if(!empty($request->recruiter)){
+            $recruiterReqId = $this->getRequirementIdBasedOnData('recruiter', $request->recruiter, $request);
+            $requirementIds[] = $recruiterReqId;
+        }
+
+        if(!empty($request->filter_employer_name)){
+            $employerNameReqId = $this->getRequirementIdBasedOnData('employer_name',strtolower($request->filter_employer_name), $request);
+            $requirementIds[] = $employerNameReqId;
+        }
+
+        if(!empty($request->filter_employee_name)){
+            $employeeNameReqId = $this->getRequirementIdBasedOnData('employee_name',strtolower($request->filter_employee_name), $request);
+            $requirementIds[] = $employeeNameReqId;
+        }
+
+        if(!empty($request->filter_employee_phone_number)){
+            $employeePhoneReqId = $this->getRequirementIdBasedOnData('employee_phone',strtolower($request->filter_employee_phone_number), $request);
+            $requirementIds[] = $employeePhoneReqId;
+        }
+
+        if(!empty($request->filter_employee_email)){
+            $employeeEmailReqId = $this->getRequirementIdBasedOnData('employee_email',strtolower($request->filter_employee_email), $request);
+            $requirementIds[] = $employeeEmailReqId;
+        }
+
+        if(!empty($request->bdm_feedback)){
+            $bdmStatusReqId = $this->getRequirementIdBasedOnData('status',$request->bdm_feedback, $request);
+            $requirementIds[] = $bdmStatusReqId;
+        }
+
+        if(!empty($request->pv_feedback)){
+            $pvStatusReqId = $this->getRequirementIdBasedOnData('pv_status',$request->pv_feedback, $request);
+            $requirementIds[] = $pvStatusReqId;
+        }
+
+        if(!empty($request->client_feedback)){
+            $clientFeedbackReqId = $this->getRequirementIdBasedOnData('client_feedback',$request->client_feedback, $request);
+            $requirementIds[] = $clientFeedbackReqId;
+        }
+
+        \Log::info('check');
+        \Log::info($requirementIds);
+        \Log::info('check End');
+
+        if($requirementIds && count($requirementIds)){
+            $commonRequirementIds = call_user_func_array('array_intersect', $requirementIds);
+            
+            if($commonRequirementIds && count($commonRequirementIds)){
+                $query->whereIn('id', $commonRequirementIds);
+            } else {
+                $query->whereIn('id', []);
+            }
+        }
+
+        \Log::info('$query->toSql()');
+        \Log::info($query->toSql());
+
         if(!empty($request->show_merge) && $request->show_merge == 1){
             return $query->where($whereInfo)->orderBy('parent_requirement_id', 'DESC')->orderBy('id', 'desc');
         }
@@ -120,7 +193,6 @@ class Controller extends BaseController
             return $this;
         }
 
-        $requirementId = [];
         $requiremrntIdsHavingSubmission = Submission::pluck('requirement_id')->toArray();
         $requiremrntIdsHavingSubmission = array_unique($requiremrntIdsHavingSubmission);
 
@@ -140,6 +212,106 @@ class Controller extends BaseController
         }
 
         return $this;
+    }
+
+    public function getRequirementIdBasedOnData($columnName, $value, $request) {
+        if(!$columnName || !$value){
+            return $this;
+        }
+
+        $requiremrntIdsHavingSubmission = [];
+
+        if($columnName == 'recruiter'){
+            return Submission::where('user_id', $value)->pluck('requirement_id')->toArray();
+        }
+
+        if(in_array(strtolower($columnName), ['status', 'pv_status'])){   
+            $submissions = Submission::query();
+            if(strtolower($columnName) == 'status'){
+                $bdmFeedBack = $value;
+                $isOrWhere = 0;
+                $isWhere = 0;
+                $isStatus = 0;
+
+                if(in_array('no_updates', $bdmFeedBack)){
+                    $bdmFeedBack = array_flip($bdmFeedBack);
+                    unset($bdmFeedBack['no_updates']);
+                    $bdmFeedBack = array_flip($bdmFeedBack);
+                    $isWhere = 1;
+                }
+
+                if(in_array('no_viewed', $bdmFeedBack)){
+                    $bdmFeedBack = array_flip($bdmFeedBack);
+                    unset($bdmFeedBack['no_viewed']);
+                    $bdmFeedBack = array_flip($bdmFeedBack);
+
+                    if($bdmFeedBack && count($bdmFeedBack)){
+                        $isStatus = 1;
+                    } else {
+                        $isOrWhere = 1;
+                    }
+                }
+
+                $submissions->where(function ($submissions) use ($isWhere, $isStatus, $isOrWhere, $bdmFeedBack) {
+                    if($isWhere == 1){
+                        $submissions->whereNull('pv_status');
+                        $submissions->Where('is_show', 1);
+                        $submissions->Where('status', 'pending');
+                        if($isStatus == 0 && $bdmFeedBack && count($bdmFeedBack)){
+                            $submissions->orWhereIn('status', $bdmFeedBack);
+                        }
+                    }
+                    if($isOrWhere == 1){
+                        $submissions->orWhere('is_show', 0);
+                    }
+                    if($isStatus == 1){
+                        $submissions->orwhere(function ($submissions) use ($isWhere, $isStatus, $isOrWhere, $bdmFeedBack) {
+                            $submissions->whereIn('status', $bdmFeedBack);
+                            $submissions->orWhere('is_show', 0);
+                        });
+                    }
+                }); 
+                
+                if(!in_array('no_updates', $value) && !in_array('no_viewed', $value)){
+                    $submissions->whereIn('status', $value);
+                }
+            } else {
+                $submissions->whereIn($columnName, $value);
+            }
+
+            if(isset($request->authId) && $request->authId > 0){
+                $requiremrntIdsHavingSubmission = $submissions->where('user_id', $request->authId)->pluck('requirement_id')->toArray();
+            } else {
+                $requiremrntIdsHavingSubmission = $submission->pluck('requirement_id')->toArray();
+            }
+
+            $requiremrntIdsHavingSubmission = array_unique($requiremrntIdsHavingSubmission);           
+        } else if(strtolower($columnName) == 'client_feedback'){
+            $submissionId = Interview::whereIn('status', $value)->pluck('submission_id')->toArray();
+            if(!$submissionId && !count($submissionId)){
+                $requiremrntIdsHavingSubmission = [];
+            } else {
+                $submissions = Submission::whereIn('id', $submissionId);
+                if(isset($request->authId) && $request->authId > 0){
+                    \Log::info($submissions->where('user_id', $request->authId)->toSql());
+                    $requiremrntIdsHavingSubmission = $submissions->where('user_id', $request->authId)->pluck('requirement_id')->toArray();
+                    \Log::info($requiremrntIdsHavingSubmission);
+                } else {
+                    $requiremrntIdsHavingSubmission = $submissions->pluck('requirement_id')->toArray();
+                }
+            }
+        } else {
+            if(isset($request->authId) && $request->authId > 0){
+                \Log::info('called');
+                \Log::info(Submission::where($columnName, $value)->where('user_id', $request->authId)->toSql());
+                $requiremrntIdsHavingSubmission = Submission::where($columnName, $value)->where('user_id', $request->authId)->pluck('requirement_id')->toArray();
+            } else {
+                $requiremrntIdsHavingSubmission = Submission::where($columnName, $value)->pluck('requirement_id')->toArray();
+            }
+        }
+        \Log::info($requiremrntIdsHavingSubmission);
+
+        return $requiremrntIdsHavingSubmission;
     }
 
     public function submissionFilter($request,$id){

@@ -541,7 +541,6 @@
         $('#bdm_feedback').select2({
             templateResult: function(data) {
                 // Apply custom classes to the option
-                console.log(data);
                 if (data.id) {
                     var colorClass = getBDMColorClass(data.id);
                     return $('<span class="' + colorClass + '">' + data.text + '</span>');

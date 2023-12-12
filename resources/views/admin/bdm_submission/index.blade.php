@@ -26,10 +26,10 @@
             <div id="responce" class="alert alert-success" style="display: none">
             </div>
             <div class="col-md-3">
-                <div class="form-group">
+                <!-- <div class="form-group">
                     <label class="control-label" for="filter_status">Filter</label>
                     {!! Form::select('filter[]', $filterOptions, 'null', ['multiple' => true,'class' => 'form-control select2','id'=>'filter_status','data-placeholder'=>'Please Select Filetr']) !!}
-                </div>
+                </div> -->
             </div>
             <div class="row">
                 <div class="col-12">
@@ -38,6 +38,9 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="row">
+                                        <div class="col-md-2">
+                                            <button class="btn btn-info" type="button" id="filterBtn"><i class="fa fa-search pr-1"></i> Search</button>
+                                        </div>
                                         @foreach (\App\Models\Submission::$toggleOptions as $key => $value)
                                             @php
                                                 if($userType == 'bdm'){
@@ -65,6 +68,11 @@
                                             <label>
                                                 {!! Form::checkbox('', 'show-feedback', null, ['id' => "showFeedback"]) !!} <span style="margin-right: 10px">Show FeedBack</span>
                                             </label>
+                                        </div>
+                                        <div class="col-md-12 border mt-3 pb-3" id="filterDiv">
+                                            {!! Form::open(['id' => 'filterForm', 'class' => 'form-horizontal','files'=>true,'onsubmit' => 'return false;']) !!}
+                                            @include('admin.'.$filterFile)
+                                            {!! Form::close() !!}
                                         </div>
                                     </div>
                                 </div>
@@ -161,7 +169,7 @@
         if("{{session()->get('filter')}}"){
             $("#filter_status").select2("val", "{{session()->get('filter') }}");
         }
-        dataTable();
+        dataTables();
         $('#mySubmissionTable tbody').on('change', '.submissionStatus', function (event) {
             event.preventDefault();
             var submissionId = $(this).attr("data-id");
@@ -189,7 +197,7 @@
                             }else{
                                 swal("Error", "Something is wrong!", "error");
                             }
-                            dataTable();
+                            // dataTable();
                         }
                     });
                 } else {
@@ -249,10 +257,23 @@
             });
         });
     });
-    function dataTable(){
+
+    function showRequirementFilterData(){
+        $("#mySubmissionTable").dataTable().fnDestroy();
+        dataTables();
+    }
+
+    function clearRequirementData(){
+        $('#filterForm')[0].reset();
+        $('select').trigger('change');
+        $("#mySubmissionTable").dataTable().fnDestroy();
+        dataTables();
+    }
+
+    function dataTables(){
         $('#showTime').prop('checked', false);
         $("#mySubmissionTable").dataTable().fnDestroy();
-        var selectedFilter = $("#filter_status").val();
+        // var selectedFilter = $("#filter_status").val();
         
         var table = $('#mySubmissionTable').DataTable({
             processing: true,
@@ -264,8 +285,23 @@
             ajax: {
                 url: "{{ route('bdm_submission.index') }}",
                 data: function (d) {
-                    d.filter_status = selectedFilter;
-                    d._token = '{{ csrf_token() }}';
+                    // d.filter_status = selectedFilter;
+                    // d._token = '{{ csrf_token() }}';
+                    var formDataArray = $('#filterForm').find(':input:not(select[multiple])').serializeArray();
+
+                    // Filter out non-multiple-select elements and create a single array
+                    var multipleSelectValues = $('#filterForm select[multiple]').map(function () {
+                        return { name: $(this).attr('name'), value: $(this).val() };
+                    }).get();
+
+                    formDataArray = formDataArray.concat(multipleSelectValues);
+
+                    var formData = {};
+                    $.each(formDataArray, function(i, field){
+                        formData[field.name] = field.value;
+                    });
+                    d = $.extend(d, formData);
+                    return d;
                 }
             },
             columns: [
@@ -300,7 +336,7 @@
     }
 
     $('#filter_status').on('change', function(){
-        dataTable();
+        dataTables();
     });
 
     $('#showTime').click(function(){

@@ -23,75 +23,152 @@ class BDMSubmissionCOntroller extends Controller
     {
         $data['menu'] = "Manage Submission";
         if ($request->ajax()) {
-            $reqFilterStatus = $request->filter_status;
+            // $reqFilterStatus = $request->filter_status;
 
-            $filterStatus = [];
-            $showUnviewed = 0;
+            // $filterStatus = [];
+            // $showUnviewed = 0;
             
-            if(!empty($reqFilterStatus)){
-                if(in_array('both',$reqFilterStatus)){
-                    $filterStatus[] = 'accepted';
-                    $filterStatus[] = 'rejected';
-                }
+            // if(!empty($reqFilterStatus)){
+            //     if(in_array('both',$reqFilterStatus)){
+            //         $filterStatus[] = 'accepted';
+            //         $filterStatus[] = 'rejected';
+            //     }
     
-                if(in_array('accepted',$reqFilterStatus)){
-                    $filterStatus[] = 'accepted';
-                }
+            //     if(in_array('accepted',$reqFilterStatus)){
+            //         $filterStatus[] = 'accepted';
+            //     }
     
-                if(in_array('rejected',$reqFilterStatus)){
-                    $filterStatus[] = 'rejected';
-                }
+            //     if(in_array('rejected',$reqFilterStatus)){
+            //         $filterStatus[] = 'rejected';
+            //     }
     
-                if(in_array('pending',$reqFilterStatus)){
-                    $filterStatus[] = 'pending';
-                }
+            //     if(in_array('pending',$reqFilterStatus)){
+            //         $filterStatus[] = 'pending';
+            //     }
 
-                if(in_array('un_viewed',$reqFilterStatus)){
-                    $showUnviewed = 1;
+            //     if(in_array('un_viewed',$reqFilterStatus)){
+            //         $showUnviewed = 1;
+            //     }
+            // }
+
+            $user = Auth::user();
+            $requirementIds = [];
+
+            $submissions = Submission::Query();
+
+            if(!empty($request->fromDate)){
+                $fromDate = date('Y-m-d', strtotime($request->fromDate));
+                $submissions->where('created_at', '>=' ,$fromDate." 00:00:00");
+            }
+    
+            if(!empty($request->toDate)){
+                $toDate = date('Y-m-d', strtotime($request->toDate));
+                $submissions->where('created_at', '<=' ,$toDate." 23:59:59");
+            }
+
+            if(!empty($request->filter_employer_name)){
+                $submissions->where('employer_name', 'like', '%'.$request->filter_employer_name.'%');
+            }
+    
+            if(!empty($request->filter_employee_name)){
+                $submissions->where('employee_name', 'like', '%'.$request->filter_employee_name.'%');
+            }
+    
+            if(!empty($request->filter_employee_phone_number)){
+                $submissions->where('employee_phone', $request->filter_employee_phone_number);
+            }
+    
+            if(!empty($request->filter_employee_email)){
+                $submissions->where('employee_email', $request->filter_employee_email);
+            }
+    
+            if(!empty($request->bdm_feedback)){
+                $submissions->where('status',$request->bdm_feedback);
+            }
+    
+            if(!empty($request->pv_feedback)){
+                $submissions->where('pv_status',$request->pv_feedback);
+            }
+
+            if(!empty($request->job_title)){
+                $jobTitleReqIds = $this->getRequirementIdBasedOnData('job_title', $request->job_title, 'like');
+                $requirementIds[] = $jobTitleReqIds;
+            }
+    
+            if(!empty($request->bdm)){
+                $bdmReqIds = $this->getRequirementIdBasedOnData('user_id', $request->bdm);
+                $requirementIds[] = $bdmReqIds;
+            }
+    
+            if(!empty($request->job_id)){
+                $jobIdReqIds = $this->getRequirementIdBasedOnData('job_id', $request->job_id);
+                $requirementIds[] = $jobIdReqIds;
+            }
+    
+            if(!empty($request->client)){
+                $clientReqIds = $this->getRequirementIdBasedOnData('client_name', $request->client, 'like');
+                $requirementIds[] = $clientReqIds;
+            }
+    
+            if(!empty($request->job_location)){
+                $jobLocationReqIds = $this->getRequirementIdBasedOnData('location', $request->job_location, 'like');
+                $requirementIds[] = $jobLocationReqIds;
+            }
+
+            if($requirementIds && count($requirementIds)){
+                $commonRequirementIds = call_user_func_array('array_intersect', $requirementIds);
+                
+                if($commonRequirementIds && count($commonRequirementIds)){
+                    $submissions->whereIn('requirement_id', $commonRequirementIds);
+                } else {
+                    $submissions->whereIn('requirement_id', []);
                 }
             }
 
-            $user = Auth::user();
+
             if($user->role == 'recruiter'){
-                if(!empty($filterStatus)){
-                    $data = Submission::where('user_id', $user->id)->whereIn('status',$filterStatus)->orderBy('id', 'desc')->get();
-                    if($showUnviewed){
-                        $data = Submission::where('user_id', $user->id)->whereIn('status',$filterStatus)->where('is_show','0')->orderBy('id', 'desc')->get();
-                    }
-                } else {
-                    if($showUnviewed){
-                        $data = Submission::where('user_id', $user->id)->where('is_show','0')->orderBy('id', 'desc')->get();
-                    } else {
-                        $data = Submission::where('user_id', $user->id)->orderBy('id', 'desc')->get();
-                    }
-                }                
+                $data = $submissions->where('user_id', $user->id)->orderBy('id', 'desc')->get();
+                // if(!empty($filterStatus)){
+                //     $data = Submission::where('user_id', $user->id)->whereIn('status',$filterStatus)->orderBy('id', 'desc')->get();
+                //     if($showUnviewed){
+                //         $data = Submission::where('user_id', $user->id)->whereIn('status',$filterStatus)->where('is_show','0')->orderBy('id', 'desc')->get();
+                //     }
+                // } else {
+                //     if($showUnviewed){
+                //         $data = Submission::where('user_id', $user->id)->where('is_show','0')->orderBy('id', 'desc')->get();
+                //     } else {
+                //         $data = Submission::where('user_id', $user->id)->orderBy('id', 'desc')->get();
+                //     }
+                // }                
             }else if($user->role == 'bdm'){
                 $requirementIds = Requirement::where('user_id', $user->id)->pluck('id')->toArray();
-                if(!empty($filterStatus)){
-                    $data = Submission::whereIn('requirement_id', $requirementIds)->whereIn('status',$filterStatus)->orderBy('id', 'desc')->get();
-                    if($showUnviewed){
-                        $data = Submission::whereIn('requirement_id', $requirementIds)->whereIn('status',$filterStatus)->where('is_show','0')->orderBy('id', 'desc')->get();
-                    }    
-                } else {
-                    if($showUnviewed){
-                        $data = Submission::whereIn('requirement_id', $requirementIds)->where('is_show','0')->orderBy('id', 'desc')->get();
-                    } else {
-                        $data = Submission::whereIn('requirement_id', $requirementIds)->orderBy('id', 'desc')->get();
-                    }
-                }
+                $data = $submissions->whereIn('requirement_id', $requirementIds)->orderBy('id', 'desc')->get();
+                // if(!empty($filterStatus)){
+                //     $data = Submission::whereIn('requirement_id', $requirementIds)->whereIn('status',$filterStatus)->orderBy('id', 'desc')->get();
+                //     if($showUnviewed){
+                //         $data = Submission::whereIn('requirement_id', $requirementIds)->whereIn('status',$filterStatus)->where('is_show','0')->orderBy('id', 'desc')->get();
+                //     }    
+                // } else {
+                //     if($showUnviewed){
+                //         $data = Submission::whereIn('requirement_id', $requirementIds)->where('is_show','0')->orderBy('id', 'desc')->get();
+                //     } else {
+                //         $data = Submission::whereIn('requirement_id', $requirementIds)->orderBy('id', 'desc')->get();
+                //     }
+                // }
             }else{
-                if(!empty($filterStatus)){
-                    $data = Submission::whereIn('status',$filterStatus)->orderBy('id', 'desc')->get();
-                    if($showUnviewed){
-                        $data = Submission::whereIn('status',$filterStatus)->where('is_show','0')->orderBy('id', 'desc')->get();
-                    }    
-                } else {
-                    if($showUnviewed){
-                        $data = Submission::where('is_show','0')->orderBy('id', 'desc')->get();
-                    } else {
-                        $data = Submission::orderBy('id', 'desc')->get();
-                    }
-                }
+                $data = $submissions->whereIn('status',$filterStatus)->orderBy('id', 'desc')->get();
+                // if(!empty($filterStatus)){
+                //     $data = Submission::orderBy('id', 'desc')->get();
+                //     if($showUnviewed){
+                //         $data = Submission::whereIn('status',$filterStatus)->where('is_show','0')->orderBy('id', 'desc')->get();
+                //     }    
+                // } else {
+                //     if($showUnviewed){
+                //         $data = Submission::where('is_show','0')->orderBy('id', 'desc')->get();
+                //     } else {
+                //         $data = Submission::orderBy('id', 'desc')->get();
+                //     }
+                // }
             }
 
             return Datatables::of($data)
@@ -233,9 +310,51 @@ class BDMSubmissionCOntroller extends Controller
         $submissionStatusOptions['both'] = 'Show Both';
 
         $data['filterOptions'] = $submissionStatusOptions;
+        $data['filterFile'] = 'common_filter';
 
         return view('admin.bdm_submission.index',$data);
     }
+
+    public function getRequirementIdBasedOnData($column, $data, $operator = 'equal')
+    {
+        if(!$column || !$data){
+            return [];
+        }
+
+        if($operator == 'equal'){
+            return Requirement::where($column, $data)->pluck('id')->toArray();
+        } else if($operator == 'like'){
+            return Requirement::where($column, 'Like', '%'.$data.'%')->pluck('id')->toArray();
+        }
+
+        return [];
+    }
+
+    // public function getRequirementIdBasedOnServedOptions($served, $query){
+    //     if(!$served){
+    //         return $this;
+    //     }
+
+    //     $requiremrntIdsHavingSubmission = Submission::pluck('requirement_id')->toArray();
+    //     $requiremrntIdsHavingSubmission = array_unique($requiremrntIdsHavingSubmission);
+
+    //     if($served == 'served'){
+    //         $query->whereNotNull('recruiter');
+    //         $query->whereIn('id', $requiremrntIdsHavingSubmission);
+    //     } else if($served == 'un_served') {
+    //         $query->whereNotNull('recruiter');
+    //         $query->whereNotIn('id', $requiremrntIdsHavingSubmission);
+    //     } else if($served == 'allocated') {
+    //         $query->whereNotNull('recruiter');
+    //     } else if($served == 'not_allocated'){
+    //         $query->whereNull('recruiter');
+    //     } else if($served == 'allocated_but_not_served'){
+    //         $query->whereNotNull('recruiter');
+    //         $query->whereNotIn('id', $requiremrntIdsHavingSubmission);
+    //     }
+
+    //     return $this;
+    // }
 
     public function create()
     {

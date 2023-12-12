@@ -121,7 +121,15 @@
             ajax: {
                 url: "{{ $type == 1 ? route('submission.index') : route('my_submission') }}",
                 data: function (d) {
-                    var formDataArray = $('#filterForm').serializeArray();
+                    var formDataArray = $('#filterForm').find(':input:not(select[multiple])').serializeArray();
+
+                    // Filter out non-multiple-select elements and create a single array
+                    var multipleSelectValues = $('#filterForm select[multiple]').map(function () {
+                        return { name: $(this).attr('name'), value: $(this).val() };
+                    }).get();
+
+                    formDataArray = formDataArray.concat(multipleSelectValues);
+
                     var formData = {};
                     $.each(formDataArray, function(i, field){
                         formData[field.name] = field.value;

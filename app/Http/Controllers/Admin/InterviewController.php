@@ -25,15 +25,91 @@ class InterviewController extends Controller
 
         if ($request->ajax()) {
             $loggedinUser = Auth::user()->id;
+            $interviews = Interview::Query();
+            $submissionIds = [];
 
+            if(!empty($request->fromDate)){
+                $fromDate = date('Y-m-d', strtotime($request->fromDate));
+                $interviews->where('interviews.created_at', '>=' ,$fromDate." 00:00:00");
+            }
+    
+            if(!empty($request->toDate)){
+                $toDate = date('Y-m-d', strtotime($request->toDate));
+                $interviews->where('interviews.created_at', '<=' ,$toDate." 23:59:59");
+            }
+
+            if(!empty($request->client_feedback)){
+                $interviews->whereIn('interviews.status', $request->client_feedback);
+            }
+
+            if(!empty($request->filter_employer_name)){
+                $employerSubIds = $this->getSubmissionIdBasedOnData('employer_name', $request->filter_employer_name, 'like','submission');
+                $submissionIds[] = $employerSubIds;
+            }
+    
+            if(!empty($request->filter_employee_name)){
+                $employeeSubIds = $this->getSubmissionIdBasedOnData('employee_name', $request->filter_employee_name, 'like', 'submission');
+                $submissionIds[] = $employeeSubIds;
+            }
+    
+            if(!empty($request->filter_employee_phone_number)){
+                $employeePhoneSubIds = $this->getSubmissionIdBasedOnData('employee_phone', $request->filter_employee_phone_number, 'equal','submission');
+                $submissionIds[] = $employeePhoneSubIds;
+            }
+
+            \Log::info($request->filter_employee_email);
+    
+            if(!empty($request->filter_employee_email)){
+                $employeeEmailSubIds = $this->getSubmissionIdBasedOnData('employee_email', $request->filter_employee_email, 'equal', 'submission');
+                $submissionIds[] = $employeeEmailSubIds;
+                \Log::info($employeeEmailSubIds);
+            }
+
+            \Log::info($interviews->toSql());
+
+            if(!empty($request->job_title)){
+                $jobTitleSubIds = $this->getSubmissionIdBasedOnData('job_title', $request->job_title, 'like');
+                $submissionIds[] = $jobTitleSubIds;
+            }
+    
+            if(!empty($request->bdm)){
+                $bdmSubIds = $this->getSubmissionIdBasedOnData('user_id', $request->bdm);
+                $submissionIds[] = $bdmSubIds;
+            }
+    
+            if(!empty($request->job_id)){
+                $jobIdSubIds = $this->getSubmissionIdBasedOnData('job_id', $request->job_id);
+                $submissionIds[] = $jobIdSubIds;
+            }
+    
+            if(!empty($request->client)){
+                $clientSubIds = $this->getSubmissionIdBasedOnData('client_name', $request->client, 'like');
+                $submissionIds[] = $clientSubIds;
+            }
+    
+            if(!empty($request->job_location)){
+                $jobLocationSubIds = $this->getSubmissionIdBasedOnData('location', $request->job_location, 'like');
+                $submissionIds[] = $jobLocationSubIds;
+            }
+
+            if($submissionIds && count($submissionIds)){
+                $commonSubmissiontIds = call_user_func_array('array_intersect', $submissionIds);
+                
+                if($commonSubmissiontIds && count($commonSubmissiontIds)){
+                    $interviews->whereIn('interviews.submission_id', $commonSubmissiontIds);
+                } else {
+                    $interviews->whereIn('interviews.submission_id', []);
+                }
+            }
+            
             if(Auth::user()->role == 'admin'){
-                $data = Interview::get();
+                $data = $interviews->get();
             }elseif(Auth::user()->role == 'recruiter'){
-                $data = Interview::join('submissions', 'submissions.id', '=', 'interviews.submission_id')->where('submissions.user_id', $loggedinUser)->get(['interviews.*']);
+                $data = $interviews->join('submissions', 'submissions.id', '=', 'interviews.submission_id')->where('submissions.user_id', $loggedinUser)->get(['interviews.*']);
             }elseif(Auth::user()->role == 'bdm'){
-                $data = Interview::join('submissions', 'submissions.id', '=', 'interviews.submission_id')->join('requirements', 'requirements.id', '=', 'submissions.requirement_id')->where('requirements.user_id', $loggedinUser)->get(['interviews.*']);
+                $data = $interviews->join('submissions', 'submissions.id', '=', 'interviews.submission_id')->join('requirements', 'requirements.id', '=', 'submissions.requirement_id')->where('requirements.user_id', $loggedinUser)->get(['interviews.*']);
             }else{
-                $data = Interview::where('user_id', $loggedinUser)->get();
+                $data = $interviews->where('user_id', $loggedinUser)->get();
             }
             
             return Datatables::of($data)
@@ -116,7 +192,34 @@ class InterviewController extends Controller
                 ->make(true);
         }
 
+        $data['filterFile'] = 'common_filter';
+
         return view('admin.interview.index', $data);
+    }
+
+    public function getSubmissionIdBasedOnData($column, $data, $operator, $tableName = 'requirement')
+    {
+        if(!$column || !$data){
+            return [];
+        }
+
+        $requirementId = [];
+
+        if($operator == 'equal'){
+            if($tableName == 'submission'){
+                return Submission::where($column, $data)->pluck('id')->toArray();
+            } else {
+                $requirementId = Requirement::where($column, $data)->pluck('id')->toArray();
+            }
+        } else if($operator == 'like'){
+            if($tableName == 'submission'){
+                return Submission::where($column, 'Like', '%'.$data.'%')->pluck('id')->toArray();
+            } else {
+                $requirementId = Requirement::where($column, 'Like', '%'.$data.'%')->pluck('id')->toArray();
+            }
+        }
+
+        return Submission::whereIn('requirement_id', $requirementId)->pluck('id')->toArray();
     }
 
     public function create()

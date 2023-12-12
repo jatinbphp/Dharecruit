@@ -32,6 +32,9 @@
                         <div class="row">
                             <div class="col-md-10">
                                 <div class="row">
+                                    <div class="col-md-3">
+                                        <button class="btn btn-info" type="button" id="filterBtn"><i class="fa fa-search pr-1"></i> Search</button>
+                                    </div>
                                     @foreach (\App\Models\Interview::$toggleOptions as $key => $value)
                                         @php
                                             if($userType == 'bdm'){
@@ -62,6 +65,11 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-md-12 border mt-3 pb-3" id="filterDiv">
+                                        {!! Form::open(['id' => 'filterForm', 'class' => 'form-horizontal','files'=>true,'onsubmit' => 'return false;']) !!}
+                                        @include('admin.'.$filterFile)
+                                        {!! Form::close() !!}
+                                    </div>
                             <div class="col-md-2">
                                 <a href="{{ route('interview.create') }}"><button class="btn btn-info float-right" type="button"><i class="fa fa-plus pr-1"></i> Add New</button></a>
                             </div>
@@ -121,45 +129,9 @@
 @section('jquery')
 <script type="text/javascript">
     $(function () {
-        var table = $('#interviewTable').DataTable({
-            processing: true,
-            serverSide: true,
-            responsive: true,
-            ajax: "{{ route('interview.index') }}",
-            columns: [
-                {data: 'created_at', name: 'created_at'},
-                {data: 'DT_RowIndex', 'width': '2%', name: 'DT_RowIndex', orderable: false, searchable: false },
-                {data: 'job_id', name: 'job_id'},
-                {data: 'candidate_name', name: 'candidate_name'},
-                {data: 'candidate_phone_number', name: 'candidate_phone_number'},
-                {data: 'candidate_email', name: 'candidate_email'},
-                {data: 'client_location', name: 'client_location'},
-                {data: 'candidate_location', name: 'candidate_location'},
-                @if(in_array($userType,['admin','recruiter']))
-                    {data: 'bdm', name: 'bdm'},    
-                @endif
-                @if(in_array($userType,['admin','bdm']))
-                    {data: 'recruiter', name: 'recruiter'},
-                @endif
-                {data: 'br', name: 'br'},
-                {data: 'rr', name: 'rr'},
-                {data: 'employer_name', name: 'employer_name'},
-                @if(in_array($userType,['admin','recruiter']))
-                    {data: 'emp_poc', name: 'emp_poc'},
-                @endif
-                @if(in_array($userType,['admin','bdm']))
-                    {data: 'poc_name', name: 'poc_name'},
-                    {data: 'pv_name', name: 'pv_name'},
-                @endif
-                {data: 'hiring_manager', name: 'hiring_manager'},
-                {data: 'client', name: 'client'},
-                {data: 'interview_time', name: 'interview_time'},
-                {data: 'status', name: 'status'},
-                {data: 'action', name: 'action', orderable: false, searchable: false},
-            ]
-        });
+        dataTables();
 
-        $('#interviewTable tbody').on('change', '.interviewStatus', function (event) {
+        $('#interviewTable tbody').on('click', '.interviewStatus', function (event) {
             event.preventDefault();
             var interviewId = $(this).attr("data-id");
             var status = $(this).val();
@@ -207,5 +179,77 @@
             }
         });
     });
+
+    function dataTables(){
+        var table = $('#interviewTable').DataTable({
+            processing: true,
+            serverSide: true,
+            responsive: true,
+            ajax: {
+                url: "{{ route('interview.index') }}",
+                data: function (d) {
+                    var formDataArray = $('#filterForm').find(':input:not(select[multiple])').serializeArray();
+
+                    // Filter out non-multiple-select elements and create a single array
+                    var multipleSelectValues = $('#filterForm select[multiple]').map(function () {
+                        return { name: $(this).attr('name'), value: $(this).val() };
+                    }).get();
+
+                    formDataArray = formDataArray.concat(multipleSelectValues);
+
+                    var formData = {};
+                    $.each(formDataArray, function(i, field){
+                        formData[field.name] = field.value;
+                    });
+                    d = $.extend(d, formData);
+                    return d;
+                },
+            },
+            
+            columns: [
+                {data: 'created_at', name: 'created_at'},
+                {data: 'DT_RowIndex', 'width': '2%', name: 'DT_RowIndex', orderable: false, searchable: false },
+                {data: 'job_id', name: 'job_id'},
+                {data: 'candidate_name', name: 'candidate_name'},
+                {data: 'candidate_phone_number', name: 'candidate_phone_number'},
+                {data: 'candidate_email', name: 'candidate_email'},
+                {data: 'client_location', name: 'client_location'},
+                {data: 'candidate_location', name: 'candidate_location'},
+                @if(in_array($userType,['admin','recruiter']))
+                    {data: 'bdm', name: 'bdm'},    
+                @endif
+                @if(in_array($userType,['admin','bdm']))
+                    {data: 'recruiter', name: 'recruiter'},
+                @endif
+                {data: 'br', name: 'br'},
+                {data: 'rr', name: 'rr'},
+                {data: 'employer_name', name: 'employer_name'},
+                @if(in_array($userType,['admin','recruiter']))
+                    {data: 'emp_poc', name: 'emp_poc'},
+                @endif
+                @if(in_array($userType,['admin','bdm']))
+                    {data: 'poc_name', name: 'poc_name'},
+                    {data: 'pv_name', name: 'pv_name'},
+                @endif
+                {data: 'hiring_manager', name: 'hiring_manager'},
+                {data: 'client', name: 'client'},
+                {data: 'interview_time', name: 'interview_time'},
+                {data: 'status', name: 'status'},
+                {data: 'action', name: 'action', orderable: false, searchable: false},
+            ]
+        });
+    }
+
+    function showRequirementFilterData(){
+        $("#interviewTable").dataTable().fnDestroy();
+        dataTables();
+    }
+
+    function clearRequirementData(){
+        $('#filterForm')[0].reset();
+        $('select').trigger('change');
+        $("#interviewTable").dataTable().fnDestroy();
+        dataTables();
+    }
   </script>
 @endsection

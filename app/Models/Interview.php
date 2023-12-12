@@ -97,4 +97,14 @@ class Interview extends Model
         }
         return '';
     }
+
+    public static $interviewStatusFilterOptions = [
+        self::STATUS_SCHEDULED               => self::STATUS_SCHEDULED_TEXT,
+        self::STATUS_RE_SCHEDULED            => self::STATUS_RE_SCHEDULED_TEXT,
+        self::STATUS_SELECTED_FOR_NEXT_ROUND => self::STATUS_SELECTED_FOR_NEXT_ROUND_TEXT,
+        self::STATUS_CONFIRMED_POSITION      => self::STATUS_CONFIRMED_POSITION_TEXT,
+        self::STATUS_BACKOUT                 => self::STATUS_BACKOUT_TEXT,
+        self::STATUS_REJECTED                => self::STATUS_REJECTED_TEXT,
+        self::STATUS_WAITING_FEEDBACK        => self::STATUS_WAITING_FEEDBACK_TEXT,
+    ];
 }

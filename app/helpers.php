@@ -4,12 +4,13 @@ use App\Models\Admin;
 use App\Models\Submission;
 use App\Models\Requirement;
 use App\Models\EntityHistory;
+use App\Models\Interview;
 use App\Http\Controllers\Controller;
 use DataTables;
 use Illuminate\Support\Facades\Auth;
 
 if(!function_exists('getListHtml')){
-    function getListHtml($data, $page='requirement') {
+    function getListHtml($data, $page='requirement',$request) {
         return Datatables::of($data)
             ->addIndexColumn()
             ->addColumn('job_title', function($row){
@@ -21,14 +22,14 @@ if(!function_exists('getListHtml')){
             ->addColumn('category', function($row){
                 return $row->Category->name;
             })
-            ->addColumn('recruiter', function($row){
-                return getRecruiterHtml($row);
+            ->addColumn('recruiter', function($row) use (&$request){
+                return getRecruiterHtml($row, $request);
             })
             ->addColumn('status', function($row){
                 return getStatusHtml($row);
             })
-            ->addColumn('candidate', function ($row) use (&$page){
-                return getCandidateHtml($row, $page);
+            ->addColumn('candidate', function ($row) use (&$page, &$request){
+                return getCandidateHtml($row, $page, $request);
             })
             ->addColumn('action', function ($row) use (&$page){
                 return getActionHtml($row, $page);
@@ -71,8 +72,9 @@ if(!function_exists('getJonbTitleHtml')){
 }
 
 if(!function_exists('getRecruiterHtml')){
-    function getRecruiterHtml($row){
+    function getRecruiterHtml($row, $request){
         $recruiterIds = !empty($row->recruiter) ? explode(',',$row->recruiter) : [];
+        \Log::info($recruiterIds);
         if(!count($recruiterIds)){
             return '';
         }
@@ -93,6 +95,9 @@ if(!function_exists('getRecruiterHtml')){
             sort($recruiterIds);
         }
 
+        if(!empty($request->recruiter)){
+            $recruiterIds = [$request->recruiter];
+        }
 
         foreach ($recruiterIds as $recruiterId){
             $recruterUser = Admin::where('id',$recruiterId)->first();
@@ -154,21 +159,113 @@ if(!function_exists('getStatusHtml')){
 }
 
 if(!function_exists('getcandidateHtml')){
-
-    function getcandidateHtml($row, $page='requirement'){
-
+    function getcandidateHtml($row, $page='requirement', $request){
         if(Auth::user()->role == 'recruiter'){
-            $loggedInRecruterSubmission = Submission::where('user_id', Auth::user()->id)->where('requirement_id',$row->id)->where('status','!=','reject')->orderby('user_id','DESC')->get();
-            $notLoggedInRecruterSubmission = Submission::where('user_id', '!=',Auth::user()->id)->where('requirement_id',$row->id)->where('status','!=','reject')->orderby('user_id','ASC')->get();
-            $allSubmission = $loggedInRecruterSubmission->merge($notLoggedInRecruterSubmission);
+            $loggedInRecruterSubmission = Submission::query();
+            $notLoggedInRecruterSubmission = Submission::query();
+
+            if(!empty($request->filter_employer_name)){
+                $loggedInRecruterSubmission->where('employer_name', $request->filter_employer_name);
+            }
+    
+            if(!empty($request->filter_employee_name)){
+                $loggedInRecruterSubmission->where('employee_name', $request->filter_employee_name);
+            }
+    
+            if(!empty($request->filter_employee_phone_number)){
+                $loggedInRecruterSubmission->where('employee_phone_number', $request->filter_employee_phone_number);
+            }
+    
+            if(!empty($request->filter_employee_email)){
+                $loggedInRecruterSubmission->where('employee_email', $request->filter_employee_email);
+            }
+            
+            if(!empty($request->bdm_feedback)){
+                $bdmFeedBack = $request->bdm_feedback;
+                $isOrWhere = 0;
+                $isWhere = 0;
+                $isStatus = 0;
+                if(in_array('no_updates', $bdmFeedBack)){
+                    $bdmFeedBack = array_flip($bdmFeedBack);
+                    unset($bdmFeedBack['no_updates']);
+                    $bdmFeedBack = array_flip($bdmFeedBack);
+                    $isWhere = 1;
+                }
+
+                if(in_array('no_viewed', $bdmFeedBack)){
+                    $bdmFeedBack = array_flip($bdmFeedBack);
+                    unset($bdmFeedBack['no_viewed']);
+                    $bdmFeedBack = array_flip($bdmFeedBack);
+
+                    if($bdmFeedBack && count($bdmFeedBack)){
+                        $isStatus = 1;
+                    } else {
+                        $isOrWhere = 1;
+                    }
+                }
+
+                $loggedInRecruterSubmission->where(function ($loggedInRecruterSubmission) use ($isWhere, $isStatus, $isOrWhere, $bdmFeedBack) {
+                    if($isWhere == 1){
+                        $loggedInRecruterSubmission->whereNull('pv_status');
+                        $loggedInRecruterSubmission->Where('is_show', 1);
+                        $loggedInRecruterSubmission->Where('status', 'pending');
+                        if($isStatus == 0 && $bdmFeedBack && count($bdmFeedBack)){
+                            $loggedInRecruterSubmission->orWhereIn('status', $bdmFeedBack);
+                        }
+                    }
+                    if($isOrWhere == 1){
+                        $loggedInRecruterSubmission->orWhere('is_show', 0);
+                    }
+                    if($isStatus == 1){
+                        $loggedInRecruterSubmission->orwhere(function ($loggedInRecruterSubmission) use ($isWhere, $isStatus, $isOrWhere, $bdmFeedBack) {
+                            $loggedInRecruterSubmission->whereIn('status', $bdmFeedBack);
+                            $loggedInRecruterSubmission->orWhere('is_show', 0);
+                        });
+                    }
+                });
+
+                if(!in_array('no_updates', $request->bdm_feedback) && !in_array('no_viewed', $request->bdm_feedback)){
+                    $loggedInRecruterSubmission->whereIn('status', $request->bdm_feedback);
+                }
+            }
+
+            if(!empty($request->pv_feedback)){
+                $loggedInRecruterSubmission->whereIn('pv_status', $request->pv_feedback);
+            }
+
+            if(!empty($request->client_feedback)){
+                $submissionId = Interview::whereIn('status', $request->client_feedback)->pluck('submission_id')->toArray();
+                if($submissionId){
+                    $loggedInRecruterSubmission->whereIn('id', $submissionId);
+                } else {
+                    $loggedInRecruterSubmission->whereIn('id', []);
+                }
+            }
+
+            \Log::info($loggedInRecruterSubmission->where('user_id', Auth::user()->id)->where('requirement_id',$row->id)->orderby('user_id','DESC')->toSql());
+
+            $loggedInRecruiters = $loggedInRecruterSubmission->where('user_id', Auth::user()->id)->where('requirement_id',$row->id)->orderby('user_id','DESC')->get();
+
+            if(empty($request->filter_employer_name) && empty($request->filter_employee_name) && empty($request->filter_employee_phone_number) && empty($request->filter_employee_email) && empty($request->bdm_feedback) && empty($request->pv_feedback) && empty($request->client_feedback)){
+                $notLogeedInRecruiters = $notLoggedInRecruterSubmission->where('user_id', '!=',Auth::user()->id)->where('requirement_id',$row->id)->orderby('user_id','ASC')->get();
+                $allSubmission = $loggedInRecruiters->merge($notLogeedInRecruiters);
+            } else {
+                $allSubmission = $loggedInRecruiters;
+            }
+
         } else {
-            $allSubmission = Submission::where('requirement_id',$row->id)->where('status','!=','reject')->orderby('user_id','ASC')->get();
+            $allSubmission = Submission::where('requirement_id',$row->id)->orderby('user_id','ASC')->get();
+            if(Auth::user()->role == 'bdm'){
+                if(!empty($request->recruiter)){
+                    $allSubmission = Submission::where('requirement_id',$row->id)->where('user_id', $request->recruiter)->orderby('user_id','ASC')->get();
+                }
+            }
         }
 
         $candidate = '';
         $controllerObj = new Controller();
 
-        if(count($allSubmission) > 0){
+        if($allSubmission && count($allSubmission) > 0){
             $candidate .= $controllerObj->getCandidateHtml($allSubmission, $row, $page);
         } else {
             if(!empty($row->recruiter)){
