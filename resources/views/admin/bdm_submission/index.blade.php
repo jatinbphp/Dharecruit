@@ -69,7 +69,7 @@
                                                 {!! Form::checkbox('', 'show-feedback', null, ['id' => "showFeedback"]) !!} <span style="margin-right: 10px">Show FeedBack</span>
                                             </label>
                                         </div>
-                                        <div class="col-md-12 border mt-3 pb-3" id="filterDiv">
+                                        <div class="col-md-12 border mt-3 pb-3 pt-3 pl-3 pb-3 pr-3" id="filterDiv">
                                             {!! Form::open(['id' => 'filterForm', 'class' => 'form-horizontal','files'=>true,'onsubmit' => 'return false;']) !!}
                                             @include('admin.'.$filterFile)
                                             {!! Form::close() !!}
@@ -206,7 +206,7 @@
             });
         });
 
-        $('#mySubmissionTable tbody').on('change', '.submissionPvStatus', function (event) {
+        $('#mySubmissionTable tbody').on('click', '.submissionPvStatus', function (event) {
             event.preventDefault();
             var submissionId = $(this).attr("data-id");
             var status = $(this).val();
@@ -351,5 +351,15 @@
         $('.show-pv-status-'+id).hide();
         $('.pv-status-'+id).show();
     }
+
+    @if(isset($pvCompanyName) && $pvCompanyName)
+       var availablePvCompanyName = <?php echo json_encode($pvCompanyName);?>;
+        $(document).on('focusout keydown', '#pv_company', function (index, value) {
+            $("#pv_company").autocomplete({
+                source: availablePvCompanyName,
+                minLength: 4 
+            });
+        });
+    @endif
   </script>
 @endsection

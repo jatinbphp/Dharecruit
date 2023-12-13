@@ -107,4 +107,12 @@ class Requirement extends Model
         $moiNames = Moi::whereIn('id', $ids)->pluck('name')->toArray();
         return implode(', ',$moiNames);
     }
+
+    public static function getRequirementTypes(){
+        return [
+            '' => 'Please Select',
+            'repost' => "RePost",
+            'original' => "Original",
+        ];
+    }
 }

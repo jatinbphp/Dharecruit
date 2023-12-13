@@ -53,10 +53,12 @@ class Controller extends BaseController
             $query = Requirement::select();
         }
 
-        // Comment This As We Are Adding Filters On Page For All Status
-        // if(in_array(Auth::user()->role, ['bdm', 'recruiter']) && $page == 'all'){
-        //     $query->whereNotIn('status',$expStatus);
-        // }
+        // As Per Client Requirement Not Show Expired Req on all page for bdm and req but they can search it.
+        if(in_array(Auth::user()->role, ['bdm', 'recruiter']) && $page == 'all'){
+            if(!in_array($request->status, ['exp_hold','exp_need'])){
+                $query->whereNotIn('status',$expStatus);
+            }
+        }
 
         if(!empty($request->fromDate)){
             $fromDate = date('Y-m-d', strtotime($request->fromDate));
@@ -100,6 +102,10 @@ class Controller extends BaseController
             $query->where('category', $request->category);
         }
 
+        if(!empty($request->visa)){
+            $query->where('visa', 'like', '%,'.$request->visa.',%');
+        }
+
         if(!empty($request->served)){
             $this->getRequirementIdBasedOnServedOptions(strtolower($request->served),$query);
         }
@@ -124,62 +130,72 @@ class Controller extends BaseController
             $query->where('poc_phone_number', $request->pv_phone);
         }
 
+        if(!empty($request->requirement_type)){
+            if($request->requirement_type == 'repost'){
+                $query->where('id' ,'!=', \DB::raw('parent_requirement_id'))->where('parent_requirement_id', '!=', '0');
+            } elseif($request->requirement_type == 'original') {
+                $query->where('id' ,'=', \DB::raw('parent_requirement_id'))->where('parent_requirement_id', '!=', '0');
+            }
+        }
+
         if(!empty($request->recruiter)){
-            $recruiterReqId = $this->getRequirementIdBasedOnData('recruiter', $request->recruiter, $request);
+            $recruiterReqId = $this->getRequirementIdsBasedOnFilterData('recruiter', $request->recruiter, $request);
             $requirementIds[] = $recruiterReqId;
         }
 
         if(!empty($request->filter_employer_name)){
-            $employerNameReqId = $this->getRequirementIdBasedOnData('employer_name',strtolower($request->filter_employer_name), $request);
+            $employerNameReqId = $this->getRequirementIdsBasedOnFilterData('employer_name',strtolower($request->filter_employer_name), $request);
             $requirementIds[] = $employerNameReqId;
         }
 
         if(!empty($request->filter_employee_name)){
-            $employeeNameReqId = $this->getRequirementIdBasedOnData('employee_name',strtolower($request->filter_employee_name), $request);
+            $employeeNameReqId = $this->getRequirementIdsBasedOnFilterData('employee_name',strtolower($request->filter_employee_name), $request);
             $requirementIds[] = $employeeNameReqId;
         }
 
         if(!empty($request->filter_employee_phone_number)){
-            $employeePhoneReqId = $this->getRequirementIdBasedOnData('employee_phone',strtolower($request->filter_employee_phone_number), $request);
+            $employeePhoneReqId = $this->getRequirementIdsBasedOnFilterData('employee_phone',strtolower($request->filter_employee_phone_number), $request);
             $requirementIds[] = $employeePhoneReqId;
         }
 
         if(!empty($request->filter_employee_email)){
-            $employeeEmailReqId = $this->getRequirementIdBasedOnData('employee_email',strtolower($request->filter_employee_email), $request);
+            $employeeEmailReqId = $this->getRequirementIdsBasedOnFilterData('employee_email',strtolower($request->filter_employee_email), $request);
             $requirementIds[] = $employeeEmailReqId;
         }
 
         if(!empty($request->bdm_feedback)){
-            $bdmStatusReqId = $this->getRequirementIdBasedOnData('status',$request->bdm_feedback, $request);
+            $bdmStatusReqId = $this->getRequirementIdsBasedOnFilterData('status', $request->bdm_feedback, $request);
             $requirementIds[] = $bdmStatusReqId;
         }
 
         if(!empty($request->pv_feedback)){
-            $pvStatusReqId = $this->getRequirementIdBasedOnData('pv_status',$request->pv_feedback, $request);
+            $pvStatusReqId = $this->getRequirementIdsBasedOnFilterData('pv_status', $request->pv_feedback, $request);
             $requirementIds[] = $pvStatusReqId;
         }
 
         if(!empty($request->client_feedback)){
-            $clientFeedbackReqId = $this->getRequirementIdBasedOnData('client_feedback',$request->client_feedback, $request);
+            $clientFeedbackReqId = $this->getRequirementIdsBasedOnFilterData('client_feedback',$request->client_feedback, $request);
             $requirementIds[] = $clientFeedbackReqId;
         }
 
-        \Log::info('check');
-        \Log::info($requirementIds);
-        \Log::info('check End');
+        if(!empty($request->candidate_name)){
+            $clientNameReqId = $this->getRequirementIdsBasedOnFilterData('name', $request->candidate_name, $request, 'like');
+            $requirementIds[] = $clientNameReqId;
+        }
+
+        if(!empty($request->candidate_id)){
+            $clienteIdReqId = $this->getRequirementIdsBasedOnFilterData('candidate_id', $request->candidate_id, $request);
+            $requirementIds[] = $clienteIdReqId;
+        }
 
         if($requirementIds && count($requirementIds)){
             $commonRequirementIds = call_user_func_array('array_intersect', $requirementIds);
-            
             if($commonRequirementIds && count($commonRequirementIds)){
                 $query->whereIn('id', $commonRequirementIds);
             } else {
-                $query->whereIn('id', []);
+                $query->where('id', 0);
             }
         }
-
-        \Log::info('$query->toSql()');
-        \Log::info($query->toSql());
 
         if(!empty($request->show_merge) && $request->show_merge == 1){
             return $query->where($whereInfo)->orderBy('parent_requirement_id', 'DESC')->orderBy('id', 'desc');
@@ -214,7 +230,7 @@ class Controller extends BaseController
         return $this;
     }
 
-    public function getRequirementIdBasedOnData($columnName, $value, $request) {
+    public function getRequirementIdsBasedOnFilterData($columnName, $value, $request, $operator = '') {
         if(!$columnName || !$value){
             return $this;
         }
@@ -279,10 +295,24 @@ class Controller extends BaseController
                 $submissions->whereIn($columnName, $value);
             }
 
-            if(isset($request->authId) && $request->authId > 0){
-                $requiremrntIdsHavingSubmission = $submissions->where('user_id', $request->authId)->pluck('requirement_id')->toArray();
+            if(Auth::user()->role == 'recruiter'){
+                if(isset($request->authId) && $request->authId > 0){
+                    $requiremrntIdsHavingSubmission = $submissions->where('user_id', $request->authId)->pluck('requirement_id')->toArray();
+                } else {
+                    $requiremrntIdsHavingSubmission = $submission->pluck('requirement_id')->toArray();
+                }   
+            } else if(Auth::user()->role == 'bdm'){
+                $requirementIds = Requirement::where('user_id', Auth::user()->id)->pluck('id')->toArray();
+
+                if($requirementIds && count($requirementIds)){
+                    $submissions->whereIn('requirement_id', $requirementIds);
+                }else{
+                    $submissions->where('requirement_id', 0);
+                }
+
+                $requiremrntIdsHavingSubmission = $submissions->pluck('requirement_id')->toArray();
             } else {
-                $requiremrntIdsHavingSubmission = $submission->pluck('requirement_id')->toArray();
+                $requiremrntIdsHavingSubmission = $submissions->pluck('requirement_id')->toArray();
             }
 
             $requiremrntIdsHavingSubmission = array_unique($requiremrntIdsHavingSubmission);           
@@ -292,24 +322,41 @@ class Controller extends BaseController
                 $requiremrntIdsHavingSubmission = [];
             } else {
                 $submissions = Submission::whereIn('id', $submissionId);
-                if(isset($request->authId) && $request->authId > 0){
-                    \Log::info($submissions->where('user_id', $request->authId)->toSql());
-                    $requiremrntIdsHavingSubmission = $submissions->where('user_id', $request->authId)->pluck('requirement_id')->toArray();
-                    \Log::info($requiremrntIdsHavingSubmission);
-                } else {
+                if(Auth::user()->role == 'recruiter'){
+                    if(isset($request->authId) && $request->authId > 0){
+                        $requiremrntIdsHavingSubmission = $submissions->where('user_id', $request->authId)->pluck('requirement_id')->toArray();
+                    } else {
+                        $requiremrntIdsHavingSubmission = $submissions->pluck('requirement_id')->toArray();
+                    }
+                } else if(Auth::user()->role == 'bdm') {
+                    $requirementIds = Requirement::where('user_id', Auth::user()->id)->pluck('id')->toArray();
+
+                    if($requirementIds && count($requirementIds)){
+                        $submissions->whereIn('requirement_id', $requirementIds);
+                    }else{
+                        $submissions->where('requirement_id', 0);
+                    }
+
                     $requiremrntIdsHavingSubmission = $submissions->pluck('requirement_id')->toArray();
+                } else {
+                    $requiremrntIdsHavingSubmission = $submissions->pluck('requirement_id')->toArray();   
                 }
             }
         } else {
             if(isset($request->authId) && $request->authId > 0){
-                \Log::info('called');
-                \Log::info(Submission::where($columnName, $value)->where('user_id', $request->authId)->toSql());
-                $requiremrntIdsHavingSubmission = Submission::where($columnName, $value)->where('user_id', $request->authId)->pluck('requirement_id')->toArray();
+                if($operator == 'like'){
+                    $requiremrntIdsHavingSubmission = Submission::where($columnName, 'like', '%'.$value.'%')->where('user_id', $request->authId)->pluck('requirement_id')->toArray();
+                } else {
+                    $requiremrntIdsHavingSubmission = Submission::where($columnName, $value)->where('user_id', $request->authId)->pluck('requirement_id')->toArray();
+                }
             } else {
-                $requiremrntIdsHavingSubmission = Submission::where($columnName, $value)->pluck('requirement_id')->toArray();
+                if($operator == 'like'){
+                    $requiremrntIdsHavingSubmission = Submission::where($columnName, 'like', '%'.$value.'%')->pluck('requirement_id')->toArray();
+                } else {
+                    $requiremrntIdsHavingSubmission = Submission::where($columnName, $value)->pluck('requirement_id')->toArray();
+                }
             }
         }
-        \Log::info($requiremrntIdsHavingSubmission);
 
         return $requiremrntIdsHavingSubmission;
     }
@@ -935,5 +982,13 @@ class Controller extends BaseController
             }
         }
         return $isFound;
+    }
+
+    public function getPvCompanyName() {
+        $pvCompany = PvCompany::whereNotNull('name');
+        if(Auth::user()->role != 'admin'){
+            $pvCompany->where('user_id', Auth::user()->id);
+        }
+        return $pvCompany->groupBy('name')->pluck('name')->toArray();
     }
 }

@@ -57,15 +57,20 @@ class InterviewController extends Controller
                 $submissionIds[] = $employeePhoneSubIds;
             }
 
-            \Log::info($request->filter_employee_email);
-    
             if(!empty($request->filter_employee_email)){
                 $employeeEmailSubIds = $this->getSubmissionIdBasedOnData('employee_email', $request->filter_employee_email, 'equal', 'submission');
                 $submissionIds[] = $employeeEmailSubIds;
-                \Log::info($employeeEmailSubIds);
             }
 
-            \Log::info($interviews->toSql());
+            if(!empty($request->candidate_name)){
+                $candidateNameSubIds = $this->getSubmissionIdBasedOnData('name', $request->candidate_name, 'like', 'submission');
+                $submissionIds[] = $candidateNameSubIds;
+            }
+    
+            if(!empty($request->candidate_id)){
+                $candidateIdSubIds = $this->getSubmissionIdBasedOnData('candidate_id', $request->candidate_id, 'equal', 'submission');
+                $submissionIds[] = $candidateIdSubIds;
+            }
 
             if(!empty($request->job_title)){
                 $jobTitleSubIds = $this->getSubmissionIdBasedOnData('job_title', $request->job_title, 'like');
@@ -73,23 +78,47 @@ class InterviewController extends Controller
             }
     
             if(!empty($request->bdm)){
-                $bdmSubIds = $this->getSubmissionIdBasedOnData('user_id', $request->bdm);
+                $bdmSubIds = $this->getSubmissionIdBasedOnData('user_id', $request->bdm, 'equal');
+                $submissionIds[] = $bdmSubIds;
+            }
+
+            if(!empty($request->recruiter)){
+                $bdmSubIds = $this->getSubmissionIdBasedOnData('user_id', $request->recruiter, 'equal', 'submission');
                 $submissionIds[] = $bdmSubIds;
             }
     
             if(!empty($request->job_id)){
-                $jobIdSubIds = $this->getSubmissionIdBasedOnData('job_id', $request->job_id);
+                $jobIdSubIds = $this->getSubmissionIdBasedOnData('job_id', $request->job_id, 'equal');
                 $submissionIds[] = $jobIdSubIds;
             }
     
             if(!empty($request->client)){
-                $clientSubIds = $this->getSubmissionIdBasedOnData('client_name', $request->client, 'like');
-                $submissionIds[] = $clientSubIds;
+                $interviews->where('interviews.client', 'like', '%'.$request->client.'%');
             }
     
             if(!empty($request->job_location)){
                 $jobLocationSubIds = $this->getSubmissionIdBasedOnData('location', $request->job_location, 'like');
                 $submissionIds[] = $jobLocationSubIds;
+            }
+
+            if(!empty($request->pv_email)){
+                $pvEmailReqIds = $this->getSubmissionIdBasedOnData('poc_email', $request->pv_email, 'equal');
+                $submissionIds[] = $pvEmailReqIds;
+            }
+    
+            if(!empty($request->pv_company)){
+                $pvCompanyReqIds = $this->getSubmissionIdBasedOnData('pv_company_name', $request->pv_company, 'like');
+                $submissionIds[] = $pvCompanyReqIds;
+            }
+    
+            if(!empty($request->pv_name)){
+                $pvNameReqIds = $this->getSubmissionIdBasedOnData('poc_name', $request->pv_name, 'like');
+                $submissionIds[] = $pvNameReqIds;
+            }
+    
+            if(!empty($request->pv_phone)){
+                $pvPhoneReqIds = $this->getSubmissionIdBasedOnData('poc_phone_number', $request->pv_phone, 'equal');
+                $submissionIds[] = $pvPhoneReqIds;
             }
 
             if($submissionIds && count($submissionIds)){
@@ -197,7 +226,7 @@ class InterviewController extends Controller
         return view('admin.interview.index', $data);
     }
 
-    public function getSubmissionIdBasedOnData($column, $data, $operator, $tableName = 'requirement')
+    public function getSubmissionIdBasedOnData($column, $data, $operator = '', $tableName = 'requirement')
     {
         if(!$column || !$data){
             return [];

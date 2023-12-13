@@ -81,13 +81,90 @@ class BDMSubmissionCOntroller extends Controller
             if(!empty($request->filter_employee_email)){
                 $submissions->where('employee_email', $request->filter_employee_email);
             }
+
+            if(!empty($request->candidate_name)){
+                $submissions->where('name', 'like' , '%'.$request->candidate_name.'%');
+            }
+    
+            if(!empty($request->candidate_id)){
+                $submissions->where('candidate_id', $request->candidate_id);
+            }
     
             if(!empty($request->bdm_feedback)){
-                $submissions->where('status',$request->bdm_feedback);
+                $bdmFeedBack = $request->bdm_feedback;
+                $isOrWhere = 0;
+                $isWhere = 0;
+                $isStatus = 0;
+                if(in_array('no_updates', $bdmFeedBack)){
+                    $bdmFeedBack = array_flip($bdmFeedBack);
+                    unset($bdmFeedBack['no_updates']);
+                    $bdmFeedBack = array_flip($bdmFeedBack);
+                    $isWhere = 1;
+                }
+
+                if(in_array('no_viewed', $bdmFeedBack)){
+                    $bdmFeedBack = array_flip($bdmFeedBack);
+                    unset($bdmFeedBack['no_viewed']);
+                    $bdmFeedBack = array_flip($bdmFeedBack);
+
+                    if($bdmFeedBack && count($bdmFeedBack)){
+                        $isStatus = 1;
+                    } else {
+                        $isOrWhere = 1;
+                    }
+                }
+
+                $submissions->where(function ($submissions) use ($isWhere, $isStatus, $isOrWhere, $bdmFeedBack) {
+                    if($isWhere == 1){
+                        $submissions->whereNull('pv_status');
+                        $submissions->Where('is_show', 1);
+                        $submissions->Where('status', 'pending');
+                        if($isStatus == 0 && $bdmFeedBack && count($bdmFeedBack)){
+                            $submissions->orWhereIn('status', $bdmFeedBack);
+                        }
+                    }
+                    if($isOrWhere == 1){
+                        $submissions->orWhere('is_show', 0);
+                    }
+                    if($isStatus == 1){
+                        $submissions->orwhere(function ($submissions) use ($isWhere, $isStatus, $isOrWhere, $bdmFeedBack) {
+                            $submissions->whereIn('status', $bdmFeedBack);
+                            $submissions->orWhere('is_show', 0);
+                        });
+                    }
+                });
+
+                if(!in_array('no_updates', $request->bdm_feedback) && !in_array('no_viewed', $request->bdm_feedback)){
+                    $submissions->whereIn('status', $request->bdm_feedback);
+                }
             }
     
             if(!empty($request->pv_feedback)){
-                $submissions->where('pv_status',$request->pv_feedback);
+                $submissions->whereIn('pv_status', $request->pv_feedback);
+            }
+
+            if(!empty($request->recruiter)){
+                $submissions->where('user_id',$request->recruiter);
+            }
+
+            if(!empty($request->pv_email)){
+                $pvEmailReqIds = $this->getRequirementIdBasedOnData('poc_email', $request->pv_email);
+                $requirementIds[] = $pvEmailReqIds;
+            }
+    
+            if(!empty($request->pv_company)){
+                $pvCompanyReqIds = $this->getRequirementIdBasedOnData('pv_company_name', $request->pv_company, 'like');
+                $requirementIds[] = $pvCompanyReqIds;
+            }
+    
+            if(!empty($request->pv_name)){
+                $pvNameReqIds = $this->getRequirementIdBasedOnData('poc_name', $request->pv_name, 'like');
+                $requirementIds[] = $pvNameReqIds;
+            }
+    
+            if(!empty($request->pv_phone)){
+                $pvPhoneReqIds = $this->getRequirementIdBasedOnData('poc_phone_number', $request->pv_phone);
+                $requirementIds[] = $pvPhoneReqIds;
             }
 
             if(!empty($request->job_title)){
@@ -118,13 +195,14 @@ class BDMSubmissionCOntroller extends Controller
             if($requirementIds && count($requirementIds)){
                 $commonRequirementIds = call_user_func_array('array_intersect', $requirementIds);
                 
-                if($commonRequirementIds && count($commonRequirementIds)){
-                    $submissions->whereIn('requirement_id', $commonRequirementIds);
-                } else {
-                    $submissions->whereIn('requirement_id', []);
+                if(Auth::user()->role == 'recruiter'){
+                    if($commonRequirementIds && count($commonRequirementIds)){
+                        $submissions->whereIn('requirement_id', $commonRequirementIds);
+                    } else {
+                        $submissions->where('requirement_id', 0);
+                    }
                 }
             }
-
 
             if($user->role == 'recruiter'){
                 $data = $submissions->where('user_id', $user->id)->orderBy('id', 'desc')->get();
@@ -141,8 +219,17 @@ class BDMSubmissionCOntroller extends Controller
                 //     }
                 // }                
             }else if($user->role == 'bdm'){
-                $requirementIds = Requirement::where('user_id', $user->id)->pluck('id')->toArray();
-                $data = $submissions->whereIn('requirement_id', $requirementIds)->orderBy('id', 'desc')->get();
+                $loggedinBdmrequirementIds = Requirement::where('user_id', $user->id)->pluck('id')->toArray();
+                if($requirementIds && count($requirementIds)){
+                    if(isset($commonRequirementIds) && $commonRequirementIds && count($commonRequirementIds)){
+                        $allRequirementIds = array_intersect($loggedinBdmrequirementIds, $commonRequirementIds);
+                        $data = $submissions->whereIn('requirement_id', $allRequirementIds)->orderBy('id', 'desc')->get();
+                    } else {
+                        $data = $submissions->where('requirement_id', 0)->orderBy('id', 'desc')->get();
+                    }
+                } else {
+                    $data = $submissions->whereIn('requirement_id', $loggedinBdmrequirementIds)->orderBy('id', 'desc')->get();
+                }
                 // if(!empty($filterStatus)){
                 //     $data = Submission::whereIn('requirement_id', $requirementIds)->whereIn('status',$filterStatus)->orderBy('id', 'desc')->get();
                 //     if($showUnviewed){
@@ -156,7 +243,15 @@ class BDMSubmissionCOntroller extends Controller
                 //     }
                 // }
             }else{
-                $data = $submissions->whereIn('status',$filterStatus)->orderBy('id', 'desc')->get();
+                if($requirementIds && count($requirementIds)){
+                    if(isset($commonRequirementIds) && $commonRequirementIds && count($commonRequirementIds)){
+                        $data = $submissions->whereIn('requirement_id', $commonRequirementIds)->orderBy('id', 'desc')->get();
+                    } else {
+                        $data = $submissions->where('requirement_id', 0)->orderBy('id', 'desc')->get();
+                    }
+                } else {
+                    $data = $submissions->orderBy('id', 'desc')->get();
+                }
                 // if(!empty($filterStatus)){
                 //     $data = Submission::orderBy('id', 'desc')->get();
                 //     if($showUnviewed){
@@ -311,6 +406,7 @@ class BDMSubmissionCOntroller extends Controller
 
         $data['filterOptions'] = $submissionStatusOptions;
         $data['filterFile'] = 'common_filter';
+        $data['pvCompanyName'] = $this->getPvCompanyName();
 
         return view('admin.bdm_submission.index',$data);
     }

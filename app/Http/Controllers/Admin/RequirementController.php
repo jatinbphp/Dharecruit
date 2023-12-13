@@ -37,6 +37,7 @@ class RequirementController extends Controller
         }
         $data['type'] = 1;
         $data['filterFile'] = 'requirement_filter';
+        $data['pvCompanyName'] = $this->getPvCompanyName();
         return view('admin.requirement.index', $data);
     }
 
@@ -437,14 +438,6 @@ class RequirementController extends Controller
 
     public function getCommaSeperatedValues($data) {
         return ','.implode(',',$data).',';
-    }
-
-    public function getPvCompanyName() {
-        $pvCompany = PvCompany::whereNotNull('name');
-        if(Auth::user()->role != 'admin'){
-            $pvCompany->where('user_id', Auth::user()->id);
-        }
-        return $pvCompany->groupBy('name')->pluck('name')->toArray();
     }
 
     public function repostRequirement($id){

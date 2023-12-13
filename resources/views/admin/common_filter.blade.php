@@ -33,7 +33,7 @@
             </div>
         </div>
     @endif
-    @if(Auth::user()->role == 'recruiter')
+    @if(in_array(Auth::user()->role, ['admin', 'recruiter']))
         <div class="col-md-3">
             <div class="form-group">
                 <label class="control-label" for="bdm">BDM</label>
@@ -41,11 +41,25 @@
             </div>
         </div>
     @endif
-    @if(Auth::user()->role == 'bdm')
+    @if(in_array(Auth::user()->role, ['admin', 'bdm']))
         <div class="col-md-3">
             <div class="form-group">
                 <label class="control-label" for="recruiter">Recruiter</label>
                 {!! Form::select('recruiter', \App\Models\Admin::getActiveRecruiter(), null, ['class' => 'form-control select2','id'=>'recruiter']) !!}
+            </div>
+        </div>
+    @endif
+    @if(Auth::user()->role == 'admin')
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="control-label" for="candidate_name">Candidate Name</label>
+                {!! Form::text('candidate_name', null, ['class' => 'form-control', 'placeholder' => 'Enter Candidate Name', 'id' => 'candidate_name']) !!}
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="control-label" for="candidate_id">Candidate Id</label>
+                {!! Form::text('candidate_id', null, ['class' => 'form-control', 'placeholder' => 'Enter Candidate Id', 'id' => 'candidate_id']) !!}
             </div>
         </div>
     @endif
@@ -105,7 +119,7 @@
         </div>
     </div>
     @endif
-    @if(Auth::user()->role == 'recruiter')
+    @if(in_array(Auth::user()->role, ['admin', 'recruiter']))
         <div class="col-md-3">
             <div class="form-group">
                 <label class="control-label" for="filter_employer_name">Employer Name</label>
@@ -131,7 +145,7 @@
             </div>
         </div>
     @endif
-    @if(Auth::user()->role == 'bdm')
+    @if(in_array(Auth::user()->role, ['admin', 'bdm']))
         <div class="col-md-3">
             <div class="form-group">
                 <label class="control-label" for="pv_email">Pv Email</label>
@@ -154,6 +168,14 @@
             <div class="form-group">
                 <label class="control-label" for="pv_phone">Pv Phone Number</label>
                 {!! Form::text('pv_phone', null, ['class' => 'form-control', 'placeholder' => 'Enter Pv Phone Number', 'id' => 'pv_phone']) !!}
+            </div>
+        </div>
+    @endif
+    @if(Auth::user()->role == 'bdm' && $menu == 'My Requirements')
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="control-label" for="requirement_type">Requirement Type</label>
+                {!! Form::select('requirement_type', \App\Models\Requirement::getRequirementTypes(), null, ['class' => 'form-control select2','id'=>'requirement_type']) !!}
             </div>
         </div>
     @endif

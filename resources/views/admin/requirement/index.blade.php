@@ -51,7 +51,7 @@
                                 <div class="col-md-4">    
                                     <a href="{{ route('requirement.create') }}"><button class="btn btn-info float-right" type="button"><i class="fa fa-plus pr-1"></i> Add New</button></a>
                                 </div>
-                                <div class="col-md-12 border mt-3 pb-3" id="filterDiv">
+                                <div class="col-md-12 border mt-3 pb-3 pt-3 pl-3 pb-3 pr-3" id="filterDiv">
                                     {!! Form::open(['id' => 'filterForm', 'class' => 'form-horizontal','files'=>true,'onsubmit' => 'return false;']) !!}
                                         @include('admin.'.$filterFile)
                                         {!! Form::close() !!}
@@ -146,7 +146,7 @@
                     }).get();
 
                     formDataArray = formDataArray.concat(multipleSelectValues);
-
+                    console.log(formDataArray);
                     var formData = {};
                     $.each(formDataArray, function(i, field){
                         formData[field.name] = field.value;
@@ -323,8 +323,6 @@
 
     @if(isset($pvCompanyName) && $pvCompanyName)
        var availablePvCompanyName = <?php echo json_encode($pvCompanyName);?>;
-        console.log('called');
-        console.log(availablePvCompanyName);
         $(document).on('focusout keydown', '#pv_company', function (index, value) {
             $("#pv_company").autocomplete({
                 source: availablePvCompanyName,

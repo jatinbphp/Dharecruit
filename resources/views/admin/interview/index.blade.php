@@ -30,48 +30,54 @@
                 <div class="card card-info card-outline">
                     <div class="card-header">
                         <div class="row">
-                            <div class="col-md-10">
+                            <div class="col-md-12">
                                 <div class="row">
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <button class="btn btn-info" type="button" id="filterBtn"><i class="fa fa-search pr-1"></i> Search</button>
                                     </div>
-                                    @foreach (\App\Models\Interview::$toggleOptions as $key => $value)
-                                        @php
-                                            if($userType == 'bdm'){
-                                                if(in_array($key,\App\Models\Interview::$hideForBDA)){
-                                                    continue;
-                                                }
-                                            } elseif($userType == 'recruiter'){
-                                                if(in_array($key,\App\Models\Interview::$hideForReq)){
-                                                    continue;
-                                                }
-                                            }
-                                        @endphp
-                                        <div class="col-md-3">
-                                            <label>
-                                                {!! Form::checkbox('', $key, null, ['id' => "$key", 'onChange' => 'toggleOptions("'.$key.'")']) !!} <span style="margin-right: 10px">{{ $value }}</span>
-                                            </label>
+                                    <div class="col-md-8">
+                                        <div class='row'>
+                                            @foreach (\App\Models\Interview::$toggleOptions as $key => $value)
+                                                @php
+                                                    if($userType == 'bdm'){
+                                                        if(in_array($key,\App\Models\Interview::$hideForBDA)){
+                                                            continue;
+                                                        }
+                                                    } elseif($userType == 'recruiter'){
+                                                        if(in_array($key,\App\Models\Interview::$hideForReq)){
+                                                            continue;
+                                                        }
+                                                    }
+                                                @endphp
+                                                <div class="col-md-3">
+                                                    <label>
+                                                        {!! Form::checkbox('', $key, null, ['id' => "$key", 'onChange' => 'toggleOptions("'.$key.'")']) !!} <span style="margin-right: 10px">{{ $value }}</span>
+                                                    </label>
+                                                </div>
+                                            @endforeach
+                                            <div class="col-md-3">
+                                                <label>
+                                                    {!! Form::checkbox('', 'show-time', null, ['id' => "showTime"]) !!} <span style="margin-right: 10px; color:#AC5BAD; font-weight:bold; ">Status Time</span>
+                                                </label>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label>
+                                                    {!! Form::checkbox('', 'show-feedback', null, ['id' => "showFeedback"]) !!} <span style="margin-right: 10px">Show FeedBack</span>
+                                                </label>
+                                            </div>
                                         </div>
-                                    @endforeach
-                                    <div class="col-md-3">
-                                        <label>
-                                            {!! Form::checkbox('', 'show-time', null, ['id' => "showTime"]) !!} <span style="margin-right: 10px; color:#AC5BAD; font-weight:bold; ">Status Time</span>
-                                        </label>
                                     </div>
                                     <div class="col-md-2">
-                                        <label>
-                                            {!! Form::checkbox('', 'show-feedback', null, ['id' => "showFeedback"]) !!} <span style="margin-right: 10px">Show FeedBack</span>
-                                        </label>
+                                        <a href="{{ route('interview.create') }}"><button class="btn btn-info float-right" type="button"><i class="fa fa-plus pr-1"></i> Add New</button></a>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-12 border mt-3 pb-3" id="filterDiv">
-                                        {!! Form::open(['id' => 'filterForm', 'class' => 'form-horizontal','files'=>true,'onsubmit' => 'return false;']) !!}
-                                        @include('admin.'.$filterFile)
-                                        {!! Form::close() !!}
-                                    </div>
-                            <div class="col-md-2">
-                                <a href="{{ route('interview.create') }}"><button class="btn btn-info float-right" type="button"><i class="fa fa-plus pr-1"></i> Add New</button></a>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 border mt-3 pb-3 pt-3 pl-3 pb-3 pr-3" id="filterDiv">
+                                {!! Form::open(['id' => 'filterForm', 'class' => 'form-horizontal','files'=>true,'onsubmit' => 'return false;']) !!}
+                                @include('admin.'.$filterFile)
+                                {!! Form::close() !!}
                             </div>
                         </div>
                     </div>

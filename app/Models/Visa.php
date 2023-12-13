@@ -19,4 +19,8 @@ class Visa extends Model
         self::STATUS_INACTIVE => 'In Active',
     ];
 
+    public static function getActiveVisa(){
+        return Visa::where('status','active')->pluck('name','id')->prepend('Please Select','');   
+    }
+
 }

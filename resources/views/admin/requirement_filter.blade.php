@@ -31,11 +31,51 @@
             {!! Form::text('job_title', null, ['class' => 'form-control', 'placeholder' => 'Enter Job Title', 'id' => 'job_title']) !!}
         </div>
     </div>
-    @if(Auth::user()->role != 'bdm')
+    @if(in_array(Auth::user()->role, ['admin','recruiter']))
         <div class="col-md-3">
             <div class="form-group">
                 <label class="control-label" for="bdm">BDM</label>
-                {!! Form::select('bdm', \App\Models\Admin::getActiveBDM(), null, ['class' => 'form-control select2','id'=>'bdm'],['data-id' => '1']) !!}
+                {!! Form::select('bdm', \App\Models\Admin::getActiveBDM(), null, ['class' => 'form-control select2','id'=>'bdm']) !!}
+            </div>
+        </div>
+    @endif
+    @if(in_array(Auth::user()->role, ['admin','bdm']))
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="control-label" for="recruiter">Recruiter</label>
+                {!! Form::select('recruiter', \App\Models\Admin::getActiveRecruiter(), null, ['class' => 'form-control select2','id'=>'recruiter']) !!}
+            </div>
+        </div>
+        @if(Auth::user()->role == 'admin')
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label class="control-label" for="candidate_name">Candidate Name</label>
+                    {!! Form::text('candidate_name', null, ['class' => 'form-control', 'placeholder' => 'Enter Candidate Name', 'id' => 'candidate_name']) !!}
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label class="control-label" for="candidate_id">Candidate Id</label>
+                    {!! Form::text('candidate_id', null, ['class' => 'form-control', 'placeholder' => 'Enter Candidate Id', 'id' => 'candidate_id']) !!}
+                </div>
+            </div>
+        @endif
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="control-label" for="category">Category</label>
+                {!! Form::select('category', \App\Models\Category::getActiveCategories(), null, ['class' => 'form-control select2','id'=>'category']) !!}
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="control-label" for="visa">Visa</label>
+                {!! Form::select('visa', \App\Models\Visa::getActiveVisa(), null, ['class' => 'form-control select2','id'=>'visa']) !!}
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="control-label" for="requirement_type">Requirement Type</label>
+                {!! Form::select('requirement_type', \App\Models\Requirement::getRequirementTypes(), null, ['class' => 'form-control select2','id'=>'requirement_type']) !!}
             </div>
         </div>
     @endif
@@ -77,11 +117,55 @@
             {!! Form::select('category', \App\Models\Category::getActiveCategories(), null, ['class' => 'form-control select2','id'=>'category']) !!}
         </div>
     </div>
-    @if(Auth::user()->role == 'bdm')
+    @if(in_array(Auth::user()->role, ['admin','bdm']))
         <div class="col-md-3">
             <div class="form-group">
                 <label class="control-label" for="pv_email">Pv Email</label>
                 {!! Form::text('pv_email', null, ['class' => 'form-control', 'placeholder' => 'Enter Pv Email', 'id' => 'pv_email']) !!}
+            </div>
+        </div>
+    @endif
+    @if(Auth::user()->role == 'admin')
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="control-label" for="pv_company">Pv Company</label>
+                {!! Form::text('pv_company', null, ['class' => 'form-control', 'placeholder' => 'Enter Pv Company', 'id' => 'pv_company']) !!}
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="control-label" for="pv_name">Pv Name</label>
+                {!! Form::text('pv_name', null, ['class' => 'form-control', 'placeholder' => 'Enter Pv Name', 'id' => 'pv_name']) !!}
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="control-label" for="pv_phone">Pv Phone Number</label>
+                {!! Form::text('pv_phone', null, ['class' => 'form-control', 'placeholder' => 'Enter Pv Phone Number', 'id' => 'pv_phone']) !!}
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="control-label" for="filter_employer_name">Employer Name</label>
+                {!! Form::text('filter_employer_name', null, ['class' => 'form-control', 'placeholder' => 'Enter Employer Name', 'id' => 'filter_employer_name']) !!}
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="control-label" for="filter_employee_name">Employee Name</label>
+                {!! Form::text('filter_employee_name', null, ['class' => 'form-control', 'placeholder' => 'Enter Employee Name', 'id' => 'filter_employee_name']) !!}
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="control-label" for="filter_employee_phone_number">Employee Phone Number</label>
+                {!! Form::text('filter_employee_phone_number', null, ['class' => 'form-control', 'placeholder' => 'Enter Employee Phone Number', 'id' => 'filter_employee_phone_number']) !!}
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="control-label" for="filter_employee_email">Employee Email</label>
+                {!! Form::text('filter_employee_email', null, ['class' => 'form-control', 'placeholder' => 'Enter Employee Email', 'id' => 'filter_employee_email']) !!}
             </div>
         </div>
     @endif
@@ -97,6 +181,26 @@
             {!! Form::select('status', \App\Models\Requirement::$allStatus, null, ['class' => 'form-control select2','id'=>'filter_status']) !!}
         </div>
     </div>
+    @if(Auth::user()->role == 'admin')
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="control-label" for="bdm_feedback">BDM FeedBack</label>
+                {!! Form::select('bdm_feedback[]', \App\Models\Submission::getBDMFilterOptions(), null, ['class' => 'form-control select2','id'=>'bdm_feedback', 'multiple' => true, 'data-placeholder' => 'Please Select BDM Feedback']) !!}
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="control-label" for="pv_feedback">PV Feedback</label>
+                {!! Form::select('pv_feedback[]', \App\Models\Submission::$pvStatus, null, ['class' => 'form-control select2','id'=>'pv_feedback', 'multiple' => true, 'data-placeholder' => 'Please Select PV Feedback']) !!}
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="control-label" for="client_feedback">Client Feedback</label>
+                {!! Form::select('client_feedback[]', \App\Models\Interview::$interviewStatusFilterOptions, null, ['class' => 'form-control select2','id'=>'client_feedback', 'multiple' => true, 'data-placeholder' => 'Please Select Client Feedback']) !!}
+            </div>
+        </div>
+    @endif
 </div>
 <button class="btn btn-info float-right" onclick="showRequirementFilterData()">Search</button>
 <button class="btn btn-default float-right mr-2" onclick="clearRequirementData()">Clear</button>

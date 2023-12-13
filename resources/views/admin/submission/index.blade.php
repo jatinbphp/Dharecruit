@@ -44,7 +44,7 @@
                                         </div>
                                     </div>
                                 @endif
-                                <div class="col-md-12 border mt-3 pb-3" id="filterDiv">
+                                <div class="col-md-12 border mt-3 pb-3 pt-3 pl-3 pb-3 pr-3" id="filterDiv">
                                     {!! Form::open(['id' => 'filterForm', 'class' => 'form-horizontal','files'=>true,'onsubmit' => 'return false;']) !!}
                                     @include('admin.'.$filterFile)
                                     {!! Form::close() !!}
