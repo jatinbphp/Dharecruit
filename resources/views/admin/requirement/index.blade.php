@@ -114,6 +114,7 @@
                 var recruiter = $('#recruiter').val();
                 if(!recruiter){
                     swal("Warning", "Please Select Recruiter From Filter.", "warning");
+                    return;
                 }
             }
         @endif
