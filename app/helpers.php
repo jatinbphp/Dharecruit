@@ -97,7 +97,9 @@ if(!function_exists('getRecruiterHtml')){
 
         $filterRecIds = [];
         if(!empty($request->recruiter)){
-            $filterRecIds[] = [$request->recruiter];
+            if(empty($request->served)){
+                $filterRecIds[] = [$request->recruiter];
+            }
         }
 
         if(!empty($request->candidate_name)){
@@ -293,10 +295,15 @@ if(!function_exists('getcandidateHtml')){
             if(Auth::user()->role == 'recruiter'){
                 $loggedInRecruiters = $loggedInRecruterSubmission->where('user_id', Auth::user()->id)->where('requirement_id',$row->id)->orderby('user_id','DESC')->get();
             } else {
-                $loggedInRecruiters = $loggedInRecruterSubmission->where('requirement_id',$row->id)->orderby('user_id','DESC')->get();
+                if(!empty($request->recruiter)){
+                    $loggedInRecruiters = $loggedInRecruterSubmission->where('user_id', $request->recruiter)->where('requirement_id',$row->id)->orderby('user_id','DESC')->get();
+                } else {
+                    $loggedInRecruiters = $loggedInRecruterSubmission->where('requirement_id',$row->id)->orderby('user_id','DESC')->get();
+
+                }
             }
 
-            if(empty($request->filter_employer_name) && empty($request->filter_employee_name) && empty($request->filter_employee_phone_number) && empty($request->filter_employee_email) && empty($request->bdm_feedback) && empty($request->pv_feedback) && empty($request->client_feedback) && empty($request->candidate_name) && empty($request->candidate_id)){
+            if(empty($request->filter_employer_name) && empty($request->filter_employee_name) && empty($request->filter_employee_phone_number) && empty($request->filter_employee_email) && empty($request->bdm_feedback) && empty($request->pv_feedback) && empty($request->client_feedback) && empty($request->candidate_name) && empty($request->candidate_id) && empty($request->recruiter)){
                 $notLogeedInRecruiters = $notLoggedInRecruterSubmission->where('user_id', '!=',Auth::user()->id)->where('requirement_id',$row->id)->orderby('user_id','ASC')->get();
                 $allSubmission = $loggedInRecruiters->merge($notLogeedInRecruiters);
             } else {
@@ -314,7 +321,6 @@ if(!function_exists('getcandidateHtml')){
 
         $candidate = '';
         $controllerObj = new Controller();
-
         if($allSubmission && count($allSubmission) > 0){
             $candidate .= $controllerObj->getCandidateHtml($allSubmission, $row, $page);
         } else {

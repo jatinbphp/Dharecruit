@@ -108,6 +108,15 @@
     });
 
     function showRequirementFilterData(){
+        @if(Auth::user()->role == 'admin')
+            var servedJobStatus = $('#served').val();
+            if(servedJobStatus){
+                var recruiter = $('#recruiter').val();
+                if(!recruiter){
+                    swal("Warning", "Please Select Recruiter From Filter.", "warning");
+                }
+            }
+        @endif
         $("#requirementTable").dataTable().fnDestroy();
         datatables();
     }

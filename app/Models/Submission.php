@@ -20,6 +20,8 @@ class Submission extends Model
     const STATUS_ACCEPT = 'accepted';
     //const STATUS_INTERVIEW = 'interview';
     const STATUS_REJECTED = 'rejected';
+    const STATUS_NOT_VIEWED = 'no_viewed';
+    const STATUS_NO_UPDATES = 'no_updates';
 
     public static $status = [
         self::STATUS_PENDING => 'Pending',
@@ -130,35 +132,57 @@ class Submission extends Model
         // 'employer_name',
     ];
 
-    const STATUS_SERVED               = 'served';
-    const STATUS_UNSERVED             = 'un_served';
-    const STATUS_ALLOCATED            = 'allocated';
-    const STATUS_NOT_ALLOCATED        = 'not_allocated';
-    const STATUS_ALLOCATED_BUT_SERVED = 'allocated_but_not_served';
+    const STATUS_SERVED                   = 'served';
+    const STATUS_UNSERVED                 = 'un_served';
+    const STATUS_ALLOCATED                = 'allocated';
+    const STATUS_NOT_ALLOCATED            = 'not_allocated';
+    const STATUS_ALLOCATED_BUT_NOT_SERVED = 'allocated_but_not_served';
 
-    const STATUS_SERVED_TEXT               = 'Served';
-    const STATUS_UNSERVED_TEXT             = 'Un Served';
-    const STATUS_ALLOCATED_TEXT            = 'Allocated';
-    const STATUS_NOT_ALLOCATED_TEXT        = 'Not Allocated';
-    const STATUS_ALLOCATED_BUT_SERVED_TEXT = 'Allocated But NOT Served';
+    const STATUS_SERVED_BY_ME         = 'served_by_me';
+    const STATUS_ALLOCATED_BY_ME      = 'allocated_by_me';
+    const STATUS_ALLOCATED_BY_ME_BUT_NOT_SERVED_BY_ME = 'allocated_by_me_but_not_served_by_me';
+    const STATUS_ALLOCATED_BY_ME_BUT_NOT_SERVED_BY_ANYONE = 'allocated_by_me_but_not_served_by_anyone';
+
+
+    const STATUS_SERVED_TEXT                   = 'Served';
+    const STATUS_UNSERVED_TEXT                 = 'Un Served';
+    const STATUS_ALLOCATED_TEXT                = 'Allocated';
+    const STATUS_NOT_ALLOCATED_TEXT            = 'Not Allocated';
+    const STATUS_ALLOCATED_BUT_NOT_SERVED_TEXT = 'Allocated But NOT Served';
+
+    const STATUS_SERVED_BY_ME_TEXT         = 'Served By Me';
+    const STATUS_ALLOCATED_BY_ME_TEXT      = 'Allocated By Me';
+    const STATUS_ALLOCATED_BY_ME_BUT_NOT_SERVED_BY_ME_TEXT = 'Allocated By Me But Not Served By Me';
+    const STATUS_ALLOCATED_BY_ME_BUT_NOT_SERVED_BY_ANYONE_TEXT = 'Allocated By Me But Not Served By Anyone';
+
 
     public static function getServedOptions() {
-        return [
-            ''                                => 'Please Select',
-            self::STATUS_SERVED               => self::STATUS_SERVED_TEXT,
-            self::STATUS_UNSERVED             => self::STATUS_UNSERVED_TEXT,
-            self::STATUS_ALLOCATED            => self::STATUS_ALLOCATED_TEXT,
-            self::STATUS_NOT_ALLOCATED        => self::STATUS_NOT_ALLOCATED_TEXT,
-            self::STATUS_ALLOCATED_BUT_SERVED => self::STATUS_ALLOCATED_BUT_SERVED_TEXT,
-        ];
+        $servedOptions[''] = 'Please Select';
+        $userRole = \Auth::user()->role;
+        if($userRole == 'recruiter'){
+            $servedOptions[self::STATUS_SERVED_BY_ME] = self::STATUS_SERVED_BY_ME_TEXT;
+            $servedOptions[self::STATUS_ALLOCATED_BY_ME] = self::STATUS_ALLOCATED_BY_ME_TEXT;
+            $servedOptions[self::STATUS_ALLOCATED_BY_ME_BUT_NOT_SERVED_BY_ME] = self::STATUS_ALLOCATED_BY_ME_BUT_NOT_SERVED_BY_ME_TEXT;
+            $servedOptions[self::STATUS_ALLOCATED_BY_ME_BUT_NOT_SERVED_BY_ANYONE] = self::STATUS_ALLOCATED_BY_ME_BUT_NOT_SERVED_BY_ANYONE_TEXT;
+        }
+
+        if(in_array($userRole, ['admin', 'bdm'])){
+            $servedOptions[self::STATUS_SERVED] = self::STATUS_SERVED_TEXT;
+            $servedOptions[self::STATUS_UNSERVED] = self::STATUS_UNSERVED_TEXT;
+            $servedOptions[self::STATUS_ALLOCATED] = self::STATUS_ALLOCATED_TEXT;
+            $servedOptions[self::STATUS_NOT_ALLOCATED] = self::STATUS_NOT_ALLOCATED_TEXT;
+            $servedOptions[self::STATUS_ALLOCATED_BUT_NOT_SERVED] = self::STATUS_ALLOCATED_BUT_NOT_SERVED_TEXT;
+        }
+
+        return $servedOptions;
     }
 
     public static function getBDMFilterOptions() {
         return [
             self::STATUS_ACCEPT   => 'Accepted',
             self::STATUS_REJECTED => 'Rejected',
-            'no_viewed'           => 'Not Viewed',
-            'no_updates'          => 'No updates',
+            self::STATUS_NOT_VIEWED => 'Not Viewed',
+            self:: STATUS_NO_UPDATES => 'No updates',
         ];
     }
 }

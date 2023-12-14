@@ -62,12 +62,6 @@
         @endif
         <div class="col-md-3">
             <div class="form-group">
-                <label class="control-label" for="category">Category</label>
-                {!! Form::select('category', \App\Models\Category::getActiveCategories(), null, ['class' => 'form-control select2','id'=>'category']) !!}
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="form-group">
                 <label class="control-label" for="visa">Visa</label>
                 {!! Form::select('visa', \App\Models\Visa::getActiveVisa(), null, ['class' => 'form-control select2','id'=>'visa']) !!}
             </div>
@@ -169,7 +163,7 @@
             </div>
         </div>
     @endif
-    <div class="col-md-3" style='display:none'>
+    <div class="col-md-3">
         <div class="form-group">
             <label class="control-label" for="served">Served Job Status</label>
             {!! Form::select('served', \App\Models\Submission::getServedOptions(), null, ['class' => 'form-control select2','id'=>'served']) !!}

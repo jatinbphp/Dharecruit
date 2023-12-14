@@ -105,9 +105,20 @@ class Controller extends BaseController
         if(!empty($request->visa)){
             $query->where('visa', 'like', '%,'.$request->visa.',%');
         }
+        
+        // if(!empty($request->recruiter)){
+        //     // $query->where('recruiter', 'like', '%,'.$request->recruiter.',%');
+        //     // $recruiterReqId = $this->getRequirementIdsBasedOnFilterData('recruiter', $request->recruiter, $request);
+        //     // $requirementIds[] = $recruiterReqId;
+        // }
 
         if(!empty($request->served)){
-            $this->getRequirementIdBasedOnServedOptions(strtolower($request->served),$query);
+            $data = $this->getRequirementIdBasedOnServedOptions(strtolower($request->served),$query, $request);
+            if(isset($data['type']) && $data['type'] == 'where_in'){
+                if(isset($data['requirement_id'])){
+                    $requirementIds[] = $data['requirement_id'];
+                }
+            }
         }
 
         if(!empty($request->status)){
@@ -136,11 +147,6 @@ class Controller extends BaseController
             } elseif($request->requirement_type == 'original') {
                 $query->where('id' ,'=', \DB::raw('parent_requirement_id'))->where('parent_requirement_id', '!=', '0');
             }
-        }
-
-        if(!empty($request->recruiter)){
-            $recruiterReqId = $this->getRequirementIdsBasedOnFilterData('recruiter', $request->recruiter, $request);
-            $requirementIds[] = $recruiterReqId;
         }
 
         if(!empty($request->filter_employer_name)){
@@ -204,30 +210,172 @@ class Controller extends BaseController
         return $query->where($whereInfo)->orderBy('id', 'desc');
     }
 
-    public function getRequirementIdBasedOnServedOptions($served, $query){
-        if(!$served){
-            return $this;
+    public function getRequirementIdBasedOnServedOptions($served, $query, $request){
+        $submissionModel = new Submission();
+
+        if($served == $submissionModel::STATUS_SERVED_BY_ME){
+            $query->where('recruiter', 'like', '%,'.Auth::user()->id.',%');
+            $userId = Auth::user()->id;
+            $requirementIds =  Requirement::whereHas('submissions', function ($query) use ($userId) {
+                    $query->where('user_id', $userId);
+                })->pluck('id')->toArray();
+            
+            $data['type'] = 'where_in';
+            $data['requirement_id'] = array_unique($requirementIds);
+        
+            return $data;
+        }
+        if($served == $submissionModel::STATUS_ALLOCATED_BY_ME) {
+            $query->where('recruiter', 'like', '%,'.Auth::user()->id.',%');
+            
+            $data['type'] = 'not_consider';
+           
+            return $data;
+        }
+        if($served == $submissionModel::STATUS_ALLOCATED_BY_ME_BUT_NOT_SERVED_BY_ME){
+            $query->where('recruiter', 'like', '%,'.Auth::user()->id.',%');
+            $userId = Auth::user()->id;
+            $requirementForCurrentUsersIds =  Requirement::whereHas('submissions', function ($query) use ($userId) {
+                    $query->where('user_id', $userId);
+                })->pluck('id')->toArray();
+            $requirementIds =  Requirement::whereHas('submissions', function ($query) use ($userId) {
+                $query->where('user_id', '!=', $userId);
+            })->pluck('id')->toArray();
+            $requirementIdsNotHavingSubmissions = Requirement::doesntHave('submissions')->pluck('id')->toArray();
+            
+            $data['type'] = 'where_in';
+            $data['requirement_id'] = array_unique(array_merge(array_diff($requirementIds, $requirementForCurrentUsersIds), $requirementIdsNotHavingSubmissions));
+            
+            return $data;
+        }
+        if($served == $submissionModel::STATUS_ALLOCATED_BY_ME_BUT_NOT_SERVED_BY_ANYONE){
+            $query->where('recruiter', 'like', '%,'.Auth::user()->id.',%');
+
+            $data['type'] = 'where_in';
+            $data['requirement_id'] = array_unique(Requirement::doesntHave('submissions')->pluck('id')->toArray());
+            
+            return $data;
         }
 
-        $requiremrntIdsHavingSubmission = Submission::pluck('requirement_id')->toArray();
-        $requiremrntIdsHavingSubmission = array_unique($requiremrntIdsHavingSubmission);
 
-        if($served == 'served'){
-            $query->whereNotNull('recruiter');
-            $query->whereIn('id', $requiremrntIdsHavingSubmission);
-        } else if($served == 'un_served') {
-            $query->whereNotNull('recruiter');
-            $query->whereNotIn('id', $requiremrntIdsHavingSubmission);
-        } else if($served == 'allocated') {
-            $query->whereNotNull('recruiter');
-        } else if($served == 'not_allocated'){
-            $query->whereNull('recruiter');
-        } else if($served == 'allocated_but_not_served'){
-            $query->whereNotNull('recruiter');
-            $query->whereNotIn('id', $requiremrntIdsHavingSubmission);
+        if($served == $submissionModel::STATUS_SERVED){
+            $data = [];
+            if(Auth::user()->role == 'admin'){
+                $recruiter = !empty($request->recruiter) ? $request->recruiter : 0;
+                if($recruiter){
+                    $query->where('recruiter', 'like', '%,'.$recruiter.',%');
+                    $requirementIds =  Requirement::whereHas('submissions', function ($query) use ($recruiter) {
+                        $query->where('user_id', $recruiter);
+                    })->pluck('id')->toArray();
+                    
+                    $data['type'] = 'where_in';
+                    $data['requirement_id'] = array_unique($requirementIds);
+                }
+            } else {
+                $query->whereNotNull('recruiter');
+                $requirementIds =   Requirement::has('submissions')->pluck('id')->toArray();
+                
+                $data['type'] = 'where_in';
+                $data['requirement_id'] = array_unique($requirementIds);
+            }
+
+            return $data;
+        }
+        
+        if($served == $submissionModel::STATUS_UNSERVED) {
+            $data = [];
+            if(Auth::user()->role == 'admin'){
+                $recruiter = !empty($request->recruiter) ? $request->recruiter : 0;
+                if($recruiter){
+                    $requirementIds = Requirement::doesntHave('submissions')->pluck('id')->toArray();
+                    $data['type'] = 'where_in';
+                    $data['requirement_id'] = array_unique($requirementIds);
+                }
+            } else {
+                $requirementIds =   Requirement::doesntHave('submissions')->pluck('id')->toArray();
+            
+                $data['type'] = 'where_in';
+                $data['requirement_id'] = array_unique($requirementIds);
+            }
+            return $data;
+        }
+        
+        if($served == $submissionModel::STATUS_ALLOCATED) {
+            $data = [];
+            if(Auth::user()->role == 'admin'){
+                $recruiter = !empty($request->recruiter) ? $request->recruiter : 0;
+                if($recruiter){
+                    // $query->where('recruiter', 'like', '%,'.$recruiter.',%');
+                    $data['type'] = 'not_consider';
+                }
+                return $data;
+            } else {
+                $query->whereNotNull('recruiter');
+
+                $data['type'] = 'not_consider';
+            }
+            return $data;
+        }
+        
+        if($served == $submissionModel::STATUS_NOT_ALLOCATED) {
+            $data = [];
+            if(Auth::user()->role == 'admin'){
+                $recruiter = !empty($request->recruiter) ? $request->recruiter : 0;
+                if($recruiter){
+                    $conditionToRemove = ['type' => 'Basic', 'column' => 'recruiter', 'operator' => 'like', 'value' => '%,'.$recruiter.',%'];
+
+                    $query = tap($query, function ($query) use ($conditionToRemove) {
+                        $queryBuilder = $query->getQuery();
+                        $wheres = $queryBuilder->wheres;
+
+                        foreach ($wheres as $key => $where) {
+                            if ($where === $conditionToRemove) {
+                                unset($wheres[$key]);
+                                break;
+                            }
+                        }
+                        $queryBuilder->wheres = array_values($wheres);
+                    });
+
+                    $query->where('recruiter', 'not like', '%,'.$recruiter.',%');
+                    $data['type'] = 'not_consider';
+                }
+            } else {
+                $query->whereNull('recruiter');
+            
+                $data['type'] = 'not_consider';
+            }
+            return $data;
+        }
+        
+        if($served == $submissionModel::STATUS_ALLOCATED_BUT_NOT_SERVED) {
+            $data = [];
+            if(Auth::user()->role == 'admin') {
+                $recruiter = !empty($request->recruiter) ? $request->recruiter : 0;
+                if($recruiter){
+                    $query->where('recruiter', 'like', '%,'.$recruiter.',%');
+                    $requirementForCurrentUsersIds =  Requirement::whereHas('submissions', function ($query) use ($recruiter) {
+                        $query->where('user_id', $recruiter);
+                    })->pluck('id')->toArray();
+                    $requirementIds =  Requirement::whereHas('submissions', function ($query) use ($recruiter) {
+                        $query->where('user_id', '!=', $recruiter);
+                    })->pluck('id')->toArray();
+                    $requirementIdsNotHavingSubmissions = Requirement::doesntHave('submissions')->pluck('id')->toArray();
+                    
+                    $data['type'] = 'where_in';
+                    $data['requirement_id'] = array_unique(array_merge(array_diff($requirementIds, $requirementForCurrentUsersIds), $requirementIdsNotHavingSubmissions));
+                }
+            } else {
+                $query->whereNotNull('recruiter');
+                $requirementIds =   Requirement::doesntHave('submissions')->pluck('id')->toArray();
+                
+                $data['type'] = 'where_in';
+                $data['requirement_id'] = array_unique($requirementIds);                
+            }
+            return $data;
         }
 
-        return $this;
+        return [];
     }
 
     public function getRequirementIdsBasedOnFilterData($columnName, $value, $request, $operator = '') {
@@ -237,9 +385,9 @@ class Controller extends BaseController
 
         $requiremrntIdsHavingSubmission = [];
 
-        if($columnName == 'recruiter'){
-            return Submission::where('user_id', $value)->pluck('requirement_id')->toArray();
-        }
+        // if($columnName == 'recruiter'){
+        //     return Submission::where('user_id', $value)->pluck('requirement_id')->toArray();
+        // }
 
         if(in_array(strtolower($columnName), ['status', 'pv_status'])){   
             $submissions = Submission::query();

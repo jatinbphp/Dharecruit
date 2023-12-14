@@ -105,12 +105,14 @@
             </div>
         </div>
     @endif
-    <div class="col-md-3" style='display:none'>
-        <div class="form-group">
-            <label class="control-label" for="served">Served Job Status</label>
-            {!! Form::select('served', \App\Models\Submission::getServedOptions(), null, ['class' => 'form-control select2','id'=>'served']) !!}
+    @if($menu == 'My Requirements')
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="control-label" for="served">Served Job Status</label>
+                {!! Form::select('served', \App\Models\Submission::getServedOptions(), null, ['class' => 'form-control select2','id'=>'served']) !!}
+            </div>
         </div>
-    </div>
+    @endif
     @if($menu == 'My Requirements')
     <div class="col-md-3">
         <div class="form-group">

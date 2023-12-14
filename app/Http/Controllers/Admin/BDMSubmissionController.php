@@ -426,32 +426,6 @@ class BDMSubmissionCOntroller extends Controller
         return [];
     }
 
-    // public function getRequirementIdBasedOnServedOptions($served, $query){
-    //     if(!$served){
-    //         return $this;
-    //     }
-
-    //     $requiremrntIdsHavingSubmission = Submission::pluck('requirement_id')->toArray();
-    //     $requiremrntIdsHavingSubmission = array_unique($requiremrntIdsHavingSubmission);
-
-    //     if($served == 'served'){
-    //         $query->whereNotNull('recruiter');
-    //         $query->whereIn('id', $requiremrntIdsHavingSubmission);
-    //     } else if($served == 'un_served') {
-    //         $query->whereNotNull('recruiter');
-    //         $query->whereNotIn('id', $requiremrntIdsHavingSubmission);
-    //     } else if($served == 'allocated') {
-    //         $query->whereNotNull('recruiter');
-    //     } else if($served == 'not_allocated'){
-    //         $query->whereNull('recruiter');
-    //     } else if($served == 'allocated_but_not_served'){
-    //         $query->whereNotNull('recruiter');
-    //         $query->whereNotIn('id', $requiremrntIdsHavingSubmission);
-    //     }
-
-    //     return $this;
-    // }
-
     public function create()
     {
         //

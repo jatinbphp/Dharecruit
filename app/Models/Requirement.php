@@ -115,4 +115,8 @@ class Requirement extends Model
             'original' => "Original",
         ];
     }
+
+    public function submissions() {
+        return $this->hasMany('App\Models\Submission', 'requirement_id');
+    }
 }
