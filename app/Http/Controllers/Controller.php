@@ -106,11 +106,11 @@ class Controller extends BaseController
             $query->where('visa', 'like', '%,'.$request->visa.',%');
         }
         
-        // if(!empty($request->recruiter)){
-        //     // $query->where('recruiter', 'like', '%,'.$request->recruiter.',%');
-        //     // $recruiterReqId = $this->getRequirementIdsBasedOnFilterData('recruiter', $request->recruiter, $request);
-        //     // $requirementIds[] = $recruiterReqId;
-        // }
+        if(!empty($request->recruiter)){
+            $query->where('recruiter', 'like', '%,'.$request->recruiter.',%');
+            // $recruiterReqId = $this->getRequirementIdsBasedOnFilterData('recruiter', $request->recruiter, $request);
+            // $requirementIds[] = $recruiterReqId;
+        }
 
         if(!empty($request->served)){
             $data = $this->getRequirementIdBasedOnServedOptions(strtolower($request->served),$query, $request);
