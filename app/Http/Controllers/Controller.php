@@ -145,7 +145,10 @@ class Controller extends BaseController
             if($request->requirement_type == 'repost'){
                 $query->where('id' ,'!=', \DB::raw('parent_requirement_id'))->where('parent_requirement_id', '!=', '0');
             } elseif($request->requirement_type == 'original') {
-                $query->where('id' ,'=', \DB::raw('parent_requirement_id'))->where('parent_requirement_id', '!=', '0');
+                $query->where(function ($query) {
+                    $query->where('id' ,'=', \DB::raw('parent_requirement_id'));
+                    $query->orwhere('parent_requirement_id', '=', '0');
+                });
             }
         }
 
@@ -202,12 +205,12 @@ class Controller extends BaseController
                 $query->where('id', 0);
             }
         }
-
+        
         if(!empty($request->show_merge) && $request->show_merge == 1){
-            return $query->where($whereInfo)->orderBy('parent_requirement_id', 'DESC')->orderBy('id', 'desc');
+            return $query->orderBy('parent_requirement_id', 'DESC')->orderBy('id', 'desc');
         }
 
-        return $query->where($whereInfo)->orderBy('id', 'desc');
+        return $query->orderBy('id', 'desc');
     }
 
     public function getRequirementIdBasedOnServedOptions($served, $query, $request){
@@ -613,24 +616,24 @@ class Controller extends BaseController
             $candidateCount     = $this->getCandidateCountByEmail($submission->email);
             $latestJobIdOfMatchPvCompany = $this->getLatestJobIdOfMatchPvCompany($submission->email);
             $isCandidateHasLog  = $this->isCandidateHasLog($submission);
+            $isEmployerNameChanged = $this->isEmployerNameChanged($submission->candidate_id);
 
             if($user->role == 'admin'){
-                $controllerObj = new Controller;
                 $linkData = '';
-                if($controllerObj->isLinkSubmission($submission->employee_email)){
+                if($this->isLinkSubmission($submission->employee_email)){
                     $linkData .= '<div class="border text-center ml-5 text-light link-data" style="background-color:rgb(172, 91, 173); width: 40px; display:none">Link</div>';
                 }
             }
 
             if($user->id == $userId && $user->role == 'recruiter'){
-                $candidate .= "<div class='$otherCandidate'>".(($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "").'<div class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i>  ": "").$candidateFirstName.'-'.$submission->candidate_id.'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span></div><br>';
+                $candidate .= "<div class='$otherCandidate'>".(($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "").(($isEmployerNameChanged) ? "<span class='badge bg-red ml-5'>2 Emp</span>" : "").'<div class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i>  ": "").$candidateFirstName.'-'.$submission->candidate_id.'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span></div><br>';
             } else {
                 if(($user->id == $userId && $user->role == 'bdm') || $user->role == 'admin'){
                     $class = 'candidate';
                 } else {
                     $class = '';
                 }
-                $candidate .= "<div class='$otherCandidate'>".(($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "").$linkData.'<div class="'.$divClass.'" style="'.$divCss.'"><span class="'.$class.' '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i> " :"").$candidateFirstName.'-'.$submission->candidate_id.'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span></div><br>';
+                $candidate .= "<div class='$otherCandidate'>".(($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "").$linkData.(($isEmployerNameChanged) ? "<span class='badge bg-red ml-5'>2 Emp</span>" : "").'<div class="'.$divClass.'" style="'.$divCss.'"><span class="'.$class.' '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i> " :"").$candidateFirstName.'-'.$submission->candidate_id.'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span></div><br>';
             }
         }
         return $candidate;
@@ -1043,18 +1046,36 @@ class Controller extends BaseController
         return $this;
     }
 
-    public function getTooltipHtml($text, $character) {
+    public function getTooltipHtml($text, $character = 0) {
         if(!$text){
             return '';
         }
-        if(!$character || !is_numeric($character)){
+
+        $settingRow =  Setting::where('name', 'tooltip_after_no_of_words')->first();
+        $configurationNumberForTooltip = 0;
+
+        if(!empty($settingRow) || !$settingRow->value){
+            $configurationNumberForTooltip = $settingRow->value;
+        }
+
+        if(!$configurationNumberForTooltip && !$character){
             return $text;
         }
 
-        if(strlen($text) > $character){
-            $shortString = substr($text, 0, $character);
-            return '<p>' . $shortString . '<span class="custom-tooltip" data-toggle="tooltip" data-placement="bottom" title="'.$text.'">  <i class="fa fa-info-circle"></i></span>';
+        if($character){
+            if(strlen($text) > $character){
+                $shortString = substr($text, 0, $character);
+                return '<p>' . $shortString . '<span class="custom-tooltip" data-toggle="tooltip" data-placement="bottom" title="'.$text.'">  <i class="fa fa-info-circle"></i></span>';
+            }
         }
+
+        if($configurationNumberForTooltip){
+            if(strlen($text) > $configurationNumberForTooltip){
+                $shortString = substr($text, 0, $configurationNumberForTooltip);
+                return '<p>' . $shortString . '<span class="custom-tooltip" data-toggle="tooltip" data-placement="bottom" title="'.$text.'">  <i class="fa fa-info-circle"></i></span>';
+            }
+        }
+
         return '<span>'.$text.'</span>';
     }
 
@@ -1138,5 +1159,39 @@ class Controller extends BaseController
             $pvCompany->where('user_id', Auth::user()->id);
         }
         return $pvCompany->groupBy('name')->pluck('name')->toArray();
+    }
+
+    public function isEmployerNameChanged($candidateId){
+        if(!$candidateId){
+            return 0;
+        }
+
+        $latestCandudateData = Submission::where('candidate_id', $candidateId)->orderBy('id', 'desc')->first();
+
+        if(empty($latestCandudateData) || !$latestCandudateData->id || !$latestCandudateData->employer_name){
+            return 0;
+        }
+
+        $latestEmployerName = $latestCandudateData->employer_name;
+
+        $startDate = \Carbon\Carbon::now()->subDays(90);
+
+        $recentSubmissions = Submission::where('candidate_id', $candidateId)->where('created_at', '>=', $startDate)->latest()->get();
+
+        if(empty($recentSubmissions)){
+            return 0;
+        }
+
+        $isEmployeeUpdate = 0;
+
+        foreach ($recentSubmissions as $submission) {
+            $currentemployeeName = $submission->employer_name;
+            if($latestEmployerName != $currentemployeeName){
+                $isEmployeeUpdate = 1;
+                break;
+            }
+        }
+
+        return $isEmployeeUpdate;
     }
 }

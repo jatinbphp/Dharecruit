@@ -40,7 +40,12 @@ class CommonController extends Controller
         $status = 0;
         $showLogButton = 1;
         $manageLogFileds = Submission::$manageLogFileds;
+        $isInterviewCreated = 0;
         if(!empty($submission)){
+            $interviewRow = Interview::where('submission_id', $submission->id)->first();
+            if($interviewRow && $interviewRow->id){
+                $isInterviewCreated = 1;
+            }
             $status = 1;
             $candidateStatus = $submission['status'];
             $commSkills = $submission['common_skills'];
@@ -217,11 +222,11 @@ class CommonController extends Controller
                                                 <td>'.$candidateData->requirement->work_type.'</td>
                                                 <td>
                                                     <span>'.ucfirst($candidateData->status).'</span><br>
-                                                    <span>'.$this->getTooltipHtml($candidateData->reason,30).'</span>
+                                                    <span>'.$this->getTooltipHtml($candidateData->reason).'</span>
                                                 </td>
                                                 <td>
                                                     <span>'.$pvStatus.'</span><br>
-                                                    <span>'.$this->getTooltipHtml($candidateData->pv_reason,30).'</span>
+                                                    <span>'.$this->getTooltipHtml($candidateData->pv_reason).'</span>
                                                 </td>
                                                 <td>'.$candidateData->employer_name.'</td>
                                                 <td>
@@ -249,6 +254,7 @@ class CommonController extends Controller
         $data['showLogButton'] = $showLogButton;
         $data['editData'] = $editData;
         $data['linking_data'] = $this->getEmployeeLinkData([],$submission->employee_email);
+        $data['isInterviewCreated'] = $isInterviewCreated;
         return $data;
     }
 

@@ -40,13 +40,13 @@
         </div>
     @endif
     @if(in_array(Auth::user()->role, ['admin','bdm']))
-        <div class="col-md-3">
-            <div class="form-group">
-                <label class="control-label" for="recruiter">Recruiter</label>
-                {!! Form::select('recruiter', \App\Models\Admin::getActiveRecruiter(), null, ['class' => 'form-control select2','id'=>'recruiter']) !!}
-            </div>
-        </div>
         @if(Auth::user()->role == 'admin')
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label class="control-label" for="recruiter">Recruiter</label>
+                    {!! Form::select('recruiter', \App\Models\Admin::getActiveRecruiter(), null, ['class' => 'form-control select2','id'=>'recruiter']) !!}
+                </div>
+            </div>
             <div class="col-md-3">
                 <div class="form-group">
                     <label class="control-label" for="candidate_name">Candidate Name</label>
@@ -59,17 +59,17 @@
                     {!! Form::text('candidate_id', null, ['class' => 'form-control', 'placeholder' => 'Enter Candidate Id', 'id' => 'candidate_id']) !!}
                 </div>
             </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label class="control-label" for="requirement_type">Requirement Type</label>
+                    {!! Form::select('requirement_type', \App\Models\Requirement::getRequirementTypes(), null, ['class' => 'form-control select2','id'=>'requirement_type']) !!}
+                </div>
+            </div>
         @endif
         <div class="col-md-3">
             <div class="form-group">
                 <label class="control-label" for="visa">Visa</label>
                 {!! Form::select('visa', \App\Models\Visa::getActiveVisa(), null, ['class' => 'form-control select2','id'=>'visa']) !!}
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="form-group">
-                <label class="control-label" for="requirement_type">Requirement Type</label>
-                {!! Form::select('requirement_type', \App\Models\Requirement::getRequirementTypes(), null, ['class' => 'form-control select2','id'=>'requirement_type']) !!}
             </div>
         </div>
     @endif

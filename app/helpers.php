@@ -420,7 +420,7 @@ if(!function_exists('getJobIdHtml')){
                 return $jid.'<span class=" job-title" data-id="'.$row->id.'">'.$row->job_id.'</span>';
             }
         } else {
-            return '<span class="123 job-title" data-id="'.$row->id.'">'.$row->job_id.'</span>';
+            return '<span class=" job-title" data-id="'.$row->id.'">'.$row->job_id.'</span>';
         }
     }
 }

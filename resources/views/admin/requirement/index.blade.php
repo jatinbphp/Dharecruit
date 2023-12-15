@@ -156,12 +156,14 @@
                     }).get();
 
                     formDataArray = formDataArray.concat(multipleSelectValues);
-                    console.log(formDataArray);
                     var formData = {};
                     $.each(formDataArray, function(i, field){
                         formData[field.name] = field.value;
                     });
                     d = $.extend(d, formData);
+                    if($('#showMerge').is(':checked')){
+                        d.show_merge = '1';
+                    }
                     return d;
                 },
             },

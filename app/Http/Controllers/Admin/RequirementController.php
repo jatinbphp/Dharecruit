@@ -372,15 +372,30 @@ class RequirementController extends Controller
             return redirect()->route('requirement.index');
         }
         $input = $request->all();
-        $input['bdm_status_updated_at'] = \Carbon\Carbon::now();
+
+        if(isset($input['status']) && $input['status'] != $submission->status) {
+            $input['bdm_status_updated_at'] = \Carbon\Carbon::now();
+            
+            $inputData['submission_id']  = $submission->id;
+            $inputData['requirement_id'] = $submission->requirement_id;
+            $inputData['entity_type']    = EntityHistory::ENTITY_TYPE_BDM_STATUS;
+            $inputData['entity_value']   = $submission->status;
+
+            EntityHistory::create($inputData);
+        }
+
+        if(isset($input['pv_status']) && $input['pv_status'] != $submission->pv_status) {
+            $input['pv_status_updated_at'] = \Carbon\Carbon::now();
+            
+            $inputData['submission_id']  = $submission->id;
+            $inputData['requirement_id'] = $submission->requirement_id;
+            $inputData['entity_type']    = EntityHistory::ENTITY_TYPE_PV_STATUS;
+            $inputData['entity_value']   = $submission->status;
+
+            EntityHistory::create($inputData);
+        }
+
         $submission->update($input);
-
-        $inputData['submission_id']  = $submission->id;
-        $inputData['requirement_id'] = $submission->requirement_id;
-        $inputData['entity_type']    = EntityHistory::ENTITY_TYPE_BDM_STATUS;
-        $inputData['entity_value']   = $submission->status;
-
-        EntityHistory::create($inputData);
 
         \Session::flash('success', 'Candidate status has been updated successfully!');
         return redirect()->back();

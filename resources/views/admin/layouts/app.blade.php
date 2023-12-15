@@ -991,6 +991,16 @@
                     if ($("#skills_match").length > 0) {
                         $("#skills_match").select2("val", submission.skills_match);
                     }
+                    if ($("#candidatePvStatus").length > 0) {
+                        $("#candidatePvStatus").select2("val", submission.pv_status);
+                    }
+                    if(submission.status && submission.status != 'accepted'){
+                       $('.pv-status-select').hide();
+                    }else{
+                        if ($('#candidateStatus').is(':visible')) {
+                            $('.pv-status-select').show();
+                        }
+                    }
                     $("#reason").val(submission.reason);
                     $('#requirementData').html(data.requirementData);
                     $('#candidateData').html(data.candidateData);
@@ -1001,10 +1011,23 @@
                     $('#other-reason').html(submission.reason);
                     $('#status').html(submission.status[0].toUpperCase() + submission.status.slice(1))
                     addSubmissionData(data);
+                    if(submission.pv_status){
+                        $('#candidateStatus').prop('disabled', true);
+                        var pvStatus = submission.pv_status.replace(/_/g, ' ');
+                        $('#pv_status_data').html(pvStatus[0].toUpperCase() + pvStatus.slice(1));
+                    }else{
+                        $('#candidateStatus').prop('disabled', false);
+                    }
+                    addSubmissionData(data);
                     $('#candidatesubmissionId').val(data.submission.id);
                     $('#candidateModal').modal('show');
                     if(data.is_show == 1){
                         $('.candidate-'+cId).parent('div').removeClass('border');
+                    }
+                    if(data.isInterviewCreated == 1){
+                        $('#candidatePvStatus').prop('disabled', true);
+                    }else{
+                        $('#candidatePvStatus').prop('disabled', false);
                     }
                 }else{
                     swal("Cancelled", "Something is wrong. Please try again!", "error");
@@ -1018,6 +1041,29 @@
             $('.rejection').show();
         }else{
             $('.rejection').hide();
+        }
+        
+        if($(this).val() == 'accepted'){
+            if ($('#candidateStatus').is(':visible')) {
+                $('.pv-status-select').show();
+            }
+        }else{
+            if ($('#candidateStatus').is(':visible')) {
+                $('.pv-status-select').hide();
+                $('#candidatePvStatus').val(null).trigger('change');   
+            }
+        }
+    });
+
+    $('#candidatePvStatus').on('change', function(){
+        if($(this).val() == ''){
+            if ($('#candidateStatus').is(':visible')) {
+                $('#candidateStatus').prop('disabled', false);
+            }
+        }else{
+            if ($('#candidateStatus').is(':visible')) {
+                $('#candidateStatus').prop('disabled', true);
+            }
         }
     });
 

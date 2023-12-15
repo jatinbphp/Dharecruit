@@ -152,7 +152,7 @@ class InterviewController extends Controller
                     }
                     $status .= '</select>';
                     $status .= getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_INTERVIEW_STATUS,$row->submission_id);
-                    $status .= "<span class='feedback' style='display:none'>".$this->getTooltipHtml($row->feedback, 30)."</span>";
+                    $status .= "<span class='feedback' style='display:none'>".$this->getTooltipHtml($row->feedback)."</span>";
                     return $status;
                 })
                 ->addColumn('action', function($row){
@@ -479,8 +479,9 @@ class InterviewController extends Controller
         $candidateNames = explode(' ',$interview->Submission->name);
         $candidateName = isset($candidateNames[0]) ? $candidateNames[0] : '';
         $isCandidateHasLog  = $this->isCandidateHasLog($submission);
+        $isEmployerNameChanged = $this->isEmployerNameChanged($submission->candidate_id);
 
-        return ($candidateCount ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "").'<div class="candidate-'. $interview->id .'"><div class="'.$divClass.'  pt-2 pl-2 pb-2 pr-2" style="'.$divCss.'"><span class="candidate '.$textColor.'" data-cid='.$interview->submission_id.'>'.$candidateName.'-'.$interview->Submission->candidate_id.'</span></div></div>';
+        return ($candidateCount ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "").(($isEmployerNameChanged) ? "<span class='badge bg-red ml-5'>2 Emp</span>" : "").'<div class="candidate-'. $interview->id .'"><div class="'.$divClass.'  pt-2 pl-2 pb-2 pr-2" style="'.$divCss.'"><span class="candidate '.$textColor.'" data-cid='.$interview->submission_id.'>'.$candidateName.'-'.$interview->Submission->candidate_id.'</span></div></div>';
     }
 
     public function removeDocument($id) {

@@ -197,14 +197,12 @@
             </div>
         </div>
     @endif
-    @if(in_array($menu,['My Requirements', 'Manage Interview']))
-        <div class="col-md-3">
-            <div class="form-group">
-                <label class="control-label" for="client_feedback">Client Feedback</label>
-                {!! Form::select('client_feedback[]', \App\Models\Interview::$interviewStatusFilterOptions, null, ['class' => 'form-control select2','id'=>'client_feedback', 'multiple' => true, 'data-placeholder' => 'Please Select Client Feedback']) !!}
-            </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="control-label" for="client_feedback">Client Feedback</label>
+            {!! Form::select('client_feedback[]', \App\Models\Interview::$interviewStatusFilterOptions, null, ['class' => 'form-control select2','id'=>'client_feedback', 'multiple' => true, 'data-placeholder' => 'Please Select Client Feedback']) !!}
         </div>
-    @endif
+    </div>
 </div>
 <button class="btn btn-info float-right" onclick="showRequirementFilterData()">Search</button>
 <button class="btn btn-default float-right mr-2" onclick="clearRequirementData()">Clear</button>

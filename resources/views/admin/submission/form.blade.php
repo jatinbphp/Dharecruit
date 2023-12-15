@@ -516,16 +516,12 @@
         function fillEmpData(data) {
             var submissionData = data.empdata;
             var textBox = '';
-            console.log(data.linking_data);
             for(var key in data.linking_data) {
                 if(key == 'linkEmployeeEmail'){
                     textBox = document.getElementById('employee_email');
                 }else if(key == 'linkEmployeePhoneNumber'){
                     textBox = document.getElementById('employee_phone');
                 }
-
-                console.log(textBox);
-
                 if(textBox){
                     textBox.insertAdjacentHTML('afterend', data.linking_data[key]);
                 }

@@ -31,8 +31,17 @@
                             <div class="row">
                                 <div class="col-md-4" @if($isSubmission == 1) style="display: none;" @endif>
                                         <div class="form-group{{ $errors->has('status') ? ' has-error' : '' }}">
-                                            <label class="control-label col-md-12 pl-0" for="status">Status</label>
+                                            <label class="control-label col-md-12 pl-0" for="status">BDM Status</label>
                                             {!! Form::select('status', \App\Models\Submission::$status, null, ['class' => 'form-control select2','id'=>'candidateStatus', 'style'=>'width:100%']) !!}
+                                        </div>
+                                </div>
+                                <div class="col-md-4 pv-status-select" @if($isSubmission == 1) style="display: none;" @endif>
+                                        @php
+                                            $pvStatus = ['' => 'Please Select PV Status'] + \App\Models\Submission::$pvStatus;
+                                        @endphp
+                                        <div class="form-group{{ $errors->has('pv_status') ? ' has-error' : '' }}">
+                                            <label class="control-label col-md-12 pl-0" for="pv_status">Pv Status</label>
+                                            {!! Form::select('pv_status', $pvStatus, null, ['class' => 'form-control select2','id'=>'candidatePvStatus', 'style'=>'width:100%']) !!}
                                         </div>
                                 </div>
                                 <div class="col-md-4 rejection" @if($hide == 0) style="display: none;" @endif>
@@ -56,7 +65,10 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6 mt-2" @if($isSubmission != 1) style="display: none;" @endif>
-                                    <strong>Status: </strong> <span id='status'></span>
+                                    <strong>BDM Status: </strong> <span id='status'></span>
+                                </div>
+                                <div class="col-md-6 mt-2" @if($isSubmission != 1) style="display: none;" @endif>
+                                    <strong>PV Status: </strong> <span id='pv_status_data'></span>
                                 </div>
                                 <div class="col-md-6 mt-2 rejected-status" @if($isSubmission != 1) style="display: none;" @endif>
                                     <strong>Common Skills: </strong> <span id='common-skill'></span>

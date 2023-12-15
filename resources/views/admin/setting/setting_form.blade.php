@@ -49,7 +49,15 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>                            
+                            </div>    
+                            <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="control-label" for="tooltip_after_no_of_words">Tool Tip After No Of Words</label>
+                                        <div class="col-md-12">
+                                            {!! Form::number('tooltip_after_no_of_words', (isset($settingData['tooltip_after_no_of_words']) && $settingData['tooltip_after_no_of_words']) ? $settingData['tooltip_after_no_of_words'] : '', ['class' => 'form-control', 'placeholder' => 'Enter Nuber For Show Tool Tip', 'id' => 'tooltip_after_no_of_words']) !!}
+                                        </div>
+                                    </div>
+                                </div>                        
                         </div>
                         <div class="card-footer">
                             <a href="{{ route('setting.index') }}" ><button class="btn btn-default" type="button">Cancel</button></a>

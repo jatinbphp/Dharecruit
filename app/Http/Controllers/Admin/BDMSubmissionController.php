@@ -147,6 +147,34 @@ class BDMSubmissionCOntroller extends Controller
                 $submissions->where('user_id',$request->recruiter);
             }
 
+            if(!empty($request->client_feedback)){
+                $submissionId = Interview::whereIn('status', $request->client_feedback)->pluck('submission_id')->toArray();
+                $requiremrntIdsHavingSubmission = [];
+                if($submissionId && count($submissionId)) {
+                    $submissions = Submission::whereIn('id', $submissionId);
+                    if(Auth::user()->role == 'recruiter'){
+                        $requiremrntIdsHavingSubmission = $submissions->where('user_id', Auth::user()->id)->pluck('requirement_id')->toArray();
+                    } else if(Auth::user()->role == 'bdm') {
+                        $bdmRequirementIds = Requirement::where('user_id', Auth::user()->id)->pluck('id')->toArray();
+
+                        if($bdmRequirementIds && count($bdmRequirementIds)){
+                            $submissions->whereIn('requirement_id', $bdmRequirementIds);
+                        }else{
+                            $submissions->where('requirement_id', 0);
+                        }
+
+                        $requiremrntIdsHavingSubmission = $submissions->pluck('requirement_id')->toArray();
+                    } else {
+                        if(!empty($request->recruiter)){
+                            $requiremrntIdsHavingSubmission = $submissions->where('user_id', $request->recruiter)->pluck('requirement_id')->toArray();   
+                        } else {
+                            $requiremrntIdsHavingSubmission = $submissions->pluck('requirement_id')->toArray();   
+                        }
+                    }
+                }
+                $requirementIds[] = $requiremrntIdsHavingSubmission;
+            }
+
             if(!empty($request->pv_email)){
                 $pvEmailReqIds = $this->getRequirementIdBasedOnData('poc_email', $request->pv_email);
                 $requirementIds[] = $pvEmailReqIds;
@@ -268,7 +296,21 @@ class BDMSubmissionCOntroller extends Controller
 
             return Datatables::of($data)
                 ->addColumn('job_id', function($row){
-                    return '<span class=" job-title" data-id="'.$row->requirement_id.'">'.$row->Requirement->job_id.'</span>';
+                    $requirmentId        = $row->requirement_id;
+                    $jobId               = $row->Requirement->job_id;
+                    $parentRequirementId = $row->Requirement->parent_requirement_id;
+                    
+                    if(Auth::user()->role == 'admin' || (Auth::user()->role=='bdm' && Auth::user()->id == $row->user_id)){
+                        if($parentRequirementId &&  $parentRequirementId != $requirmentId && $parentRequirementId != 0){
+                            return '<span class="border-width-5 border-color-info job-title pt-1 pl-1 pl-1 pr-1" data-id="'.$requirmentId.'">'.$jobId.'</span>';
+                        } elseif($parentRequirementId == $requirmentId){
+                            return '<span class="border-width-5 border-color-warning job-title pt-1 pl-1 pl-1 pr-1" data-id="'.$requirmentId.'">'.$jobId.'</span>';
+                        } else {
+                            return '<span class=" job-title" data-id="'.$requirmentId.'">'.$jobId.'</span>';
+                        }
+                    } else {
+                        return '<span class=" job-title" data-id="'.$requirmentId.'">'.$jobId.'</span>';
+                    }
                 })
                 ->addColumn('job_title', function($row){
                     return '<span class="job-title" data-id="'.$row->requirement_id.'">'.$row->Requirement->job_title.'</span>';
@@ -296,7 +338,8 @@ class BDMSubmissionCOntroller extends Controller
                     $candidateName = isset($candidateNames[0]) ? $candidateNames[0] : '';
                     $candidateCount = $this->getCandidateCountByEmail($row->email);
                     $isCandidateHasLog  = $this->isCandidateHasLog($row);
-                    return ($candidateCount ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "").'<div  class="a-center pt-2 pl-2 pb-2 pr-2 '. $candidateCss.'" style="width: fit-content;"><span class="'.$candidateClass.' candidate candidate-'.$row->id.'" style="'.$candidateBorderCss.'" data-cid="'.$row->id.'">'. $candidateName. '-' .$row->candidate_id. '</span></div>';
+                    $isEmployerNameChanged = $this->isEmployerNameChanged($row->candidate_id);
+                    return ($candidateCount ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "").(($isEmployerNameChanged) ? "<span class='badge bg-red ml-5'>2 Emp</span>" : "").'<div  class="a-center pt-2 pl-2 pb-2 pr-2 '. $candidateCss.'" style="width: fit-content;"><span class="'.$candidateClass.' candidate candidate-'.$row->id.'" style="'.$candidateBorderCss.'" data-cid="'.$row->id.'">'. $candidateName. '-' .$row->candidate_id. '</span></div>';
                 })
                 ->addColumn('bdm_status', function($row){
                     $statusLastUpdatedAt = ($row->bdm_status_updated_at) ? strtotime($row->bdm_status_updated_at) : 0;
@@ -314,7 +357,7 @@ class BDMSubmissionCOntroller extends Controller
                     // }
                     if($row->status){
                         if($row->status == Submission::STATUS_REJECTED){
-                            $status .= "<span class='feedback' style='display:none'>".$this->getTooltipHtml($row->reason,30)."</span>";
+                            $status .= "<span class='feedback' style='display:none'>".$this->getTooltipHtml($row->reason)."</span>";
                         }
                         $status .= getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_BDM_STATUS,$row->id);
                     }
@@ -323,33 +366,43 @@ class BDMSubmissionCOntroller extends Controller
                 ->addColumn('pv_status', function($row){
                     $status = '';
                     $statusLastUpdatedAt = ($row->pv_status_updated_at) ? strtotime($row->pv_status_updated_at) : 0;
-                    if(in_array(Auth::user()->role,['admin','bdm'])){
-                        if($row->status == Submission::STATUS_ACCEPT){
-                            $isDisplay = 0;
-                            if(!empty($row->pv_status)){
-                                $isDisplay = 1;       
-                           } else {
-                                $status .= '<button class="btn btn-sm btn-default show-pv-status-'.$row->id.' mr-2" data-id="'.$row->id.'" onclick="showStatusOptions('.$row->id.')"><i class="fa fa-plus-square"></i></button>';
-                           }
-                           $status .= '<select data-order="'.$statusLastUpdatedAt.'" style=" '.(!$isDisplay ? "display:none;" : "").'" name="pvstatus" class="form-control select2 submissionPvStatus pv-status-'.$row->id.'" data-id="'.$row->id.'">';
-                            $submissionPvStatus = Submission::$pvStatus;
-                            $status .= '<option value="">Select Status</option>';
-                            foreach ($submissionPvStatus as $key => $val){
-                                $selected = $row->pv_status == $key ? 'selected' : '';
-                                $status .= '<option value="'.$key.'" '.$selected.'>'.$val.'</option>';
-                            }
-                            $status .= '</select>'; 
-                        }
-                    }else{
-                        if($row->status == Submission::STATUS_ACCEPT){
-                            $status .= isset(Submission::$pvStatus[$row->pv_status]) ? "<p data-order='$statusLastUpdatedAt'>".Submission::$pvStatus[$row->pv_status]."</p>" : '';
-                        }
+                    if($row->status == Submission::STATUS_ACCEPT){
+                        $status .= isset(Submission::$pvStatus[$row->pv_status]) ? "<p data-order='$statusLastUpdatedAt'>".Submission::$pvStatus[$row->pv_status]."</p>" : '';
                     }
-                    if($row->pv_status && $row->status == Submission::STATUS_ACCEPT){
-                        $status .= "<span class='feedback' style='display:none'>".$this->getTooltipHtml($row->pv_reason,30)."</span>";
+                    if($row->pv_status && $row->status == Submission::STATUS_ACCEPT || 1){
+                        $status .= "<span class='feedback' style='display:none'>".$this->getTooltipHtml($row->pv_reason)."</span>";
                         $status .= getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_PV_STATUS,$row->id);
                     }
+
                     return $status;
+                    
+                    // if(in_array(Auth::user()->role,['admin','bdm'])){
+                    //     if($row->status == Submission::STATUS_ACCEPT){
+                    //         $isDisplay = 0;
+                    //         if(!empty($row->pv_status)){
+                    //             $isDisplay = 1;       
+                    //        } else {
+                    //             $status .= '<button class="btn btn-sm btn-default show-pv-status-'.$row->id.' mr-2" data-id="'.$row->id.'" onclick="showStatusOptions('.$row->id.')"><i class="fa fa-plus-square"></i></button>';
+                    //        }
+                    //        $status .= '<select data-order="'.$statusLastUpdatedAt.'" style=" '.(!$isDisplay ? "display:none;" : "").'" name="pvstatus" class="form-control select2 submissionPvStatus pv-status-'.$row->id.'" data-id="'.$row->id.'">';
+                    //         $submissionPvStatus = Submission::$pvStatus;
+                    //         $status .= '<option value="">Select Status</option>';
+                    //         foreach ($submissionPvStatus as $key => $val){
+                    //             $selected = $row->pv_status == $key ? 'selected' : '';
+                    //             $status .= '<option value="'.$key.'" '.$selected.'>'.$val.'</option>';
+                    //         }
+                    //         $status .= '</select>'; 
+                    //     }
+                    // }else{
+                    //     if($row->status == Submission::STATUS_ACCEPT){
+                    //         $status .= isset(Submission::$pvStatus[$row->pv_status]) ? "<p data-order='$statusLastUpdatedAt'>".Submission::$pvStatus[$row->pv_status]."</p>" : '';
+                    //     }
+                    // }
+                    // if($row->pv_status && $row->status == Submission::STATUS_ACCEPT){
+                    //     $status .= "<span class='feedback' style='display:none'>".$this->getTooltipHtml($row->pv_reason)."</span>";
+                    //     $status .= getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_PV_STATUS,$row->id);
+                    // }
+                    // return $status;
                 })
                 ->addColumn('created_at', function($row){
                     return date('m/d/y', strtotime($row->created_at));
@@ -390,7 +443,7 @@ class BDMSubmissionCOntroller extends Controller
                     $statusLastUpdatedAt = ($row->interview_status_updated_at) ? strtotime($row->interview_status_updated_at) : 0;
                     $interviewFeedback = $interviewModel->getInterviewFeedbackBasedOnSubmissionIdAndJobId($row->id, $row->Requirement->job_id);
                     $status = "<p data-order='$statusLastUpdatedAt'>".$interviewModel->getInterviewStatusBasedOnSubmissionIdAndJobId($row->id, $row->Requirement->job_id)."</p>";
-                    $status .= "<span class='feedback' style='display:none'>".$this->getTooltipHtml($interviewFeedback,30)."</span>";
+                    $status .= "<span class='feedback' style='display:none'>".$this->getTooltipHtml($interviewFeedback)."</span>";
                     return $status;
                 })
                 ->rawColumns(['job_id','job_title','job_keyword','duration','client_name','poc','pv','employer_name','recruter_name','candidate_name','action','bdm_status','pv_status','emp_poc','created_at','client_status'])

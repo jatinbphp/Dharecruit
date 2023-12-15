@@ -604,7 +604,6 @@
         function fillPvData(data){
             var pvData = data.pvcompany;
             var textBox = '';
-            console.log(data);
             for(var key in data.linking_data) {
                 if(key == 'linkPocEmail'){
                     textBox = document.getElementById('poc_email');

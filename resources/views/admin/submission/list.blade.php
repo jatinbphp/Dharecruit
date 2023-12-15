@@ -128,6 +128,11 @@
                         $('#skill-match').html(submission.skills_match);
                         $('#other-reason').html(submission.reason);
                         $('#status').html(submission.status[0].toUpperCase() + submission.status.slice(1))
+                        if(submission.pv_status){
+                            var pvStatus = submission.pv_status.replace(/_/g, ' ');
+                            $('#pv_status_data').html(pvStatus[0].toUpperCase() + pvStatus.slice(1));
+                        }
+                        addSubmissionData(data);
                         $('#candidateModal').modal('show');
                     }else{
                         swal("Cancelled", "Something is wrong. Please try again!", "error");
