@@ -300,7 +300,7 @@ class BDMSubmissionCOntroller extends Controller
                     $jobId               = $row->Requirement->job_id;
                     $parentRequirementId = $row->Requirement->parent_requirement_id;
                     
-                    if(Auth::user()->role == 'admin' || (Auth::user()->role=='bdm' && Auth::user()->id == $row->user_id)){
+                    if(Auth::user()->role == 'admin' || (Auth::user()->role=='bdm')){
                         if($parentRequirementId &&  $parentRequirementId != $requirmentId && $parentRequirementId != 0){
                             return '<span class="border-width-5 border-color-info job-title pt-1 pl-1 pl-1 pr-1" data-id="'.$requirmentId.'">'.$jobId.'</span>';
                         } elseif($parentRequirementId == $requirmentId){
