@@ -43,11 +43,17 @@ if(!function_exists('getListHtml')){
             ->addColumn('job_id', function($row) {
                 return getJobIdHtml($row);
             })
+            ->addColumn('pv', function($row) {
+                return getPvHtml($row);
+            })
+            ->addColumn('poc', function($row) {
+                return getPocHtml($row);
+            })
             ->setRowClass(function ($row) {
                 return (($row->parent_requirement_id != 0 && $row->parent_requirement_id == $row->id) ? 'parent-row' : (($row->parent_requirement_id != 0) ? 'child-row' : ''));
                 ;
             })
-            ->rawColumns(['user_id','category','recruiter','status','candidate','action','client','job_title','job_keyword','job_id'])
+            ->rawColumns(['user_id','category','recruiter','status','candidate','action','client','job_title','job_keyword','job_id','pv','poc'])
             ->make(true);
     }
 }
@@ -463,3 +469,29 @@ if(!function_exists('getTimeInReadableFormate')){
         return $timeSpan;
     }
 }
+
+if(!function_exists('getPocHtml')){
+    function getPocHtml($row){
+        if(Auth::user()->role != 'admin'){
+            return $row->poc_name;
+        }
+        $pocName = $row->poc_name;
+        $pocHtml = $pocName;
+        return $pocHtml;
+    }
+}
+
+if(!function_exists('getPvHtml')){
+    function getPvHtml($row){
+        return $row->pv_company_name;
+        if(Auth::user()->role != 'admin'){
+            return $row->pv_company_name;
+        }
+        $pocHtml = $row->pv_company_name;
+        $controllerObj = new Controller();
+        $totalPvCount = $controllerObj->getAllPvCompanyCount($row->poc_email);
+        $pocHtml .= '<br><br><span class="border border-secondary pt-1 pl-1 pr-1 pb-1">'.$totalPvCount.'</span></span>';
+        return $pocHtml;
+    }
+}
+

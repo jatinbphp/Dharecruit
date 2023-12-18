@@ -79,12 +79,22 @@
                             </div>
                         </div>
                         <div class="card-body table-responsive">
+                        <div class="row">
+                                <div class="col-4" id="pageLendthSection"></div>
+                                <div class="col-5">
+                                    <div class='float-right mt-3'>
+                                        <label for="sort_data">Sort By Latest: </label>
+                                        {!! Form::select('status', \App\Models\Submission::getSortOptions(), null, ['class' => 'form-control-sm select2','id'=>'sort_data', 'style'=>'width:200px']) !!}
+                                    </div>
+                                </div>
+                                <div class="col-3" id="searchSection"></div>
+                            </div>
                             <table id="mySubmissionTable" class="table table-bordered table-striped">
                                 <thead>
                                     <tr>
                                         <th>Date</th>
-                                        <th>Sub Id</th>
-                                        <th>Job Id</th>
+                                        <th class='sub_id'>Sub Id</th>
+                                        <th class='job_id'>Job Id</th>
                                         <th>Job Title</th>
                                         <th>Location</th>
                                         <th>Candidate Location</th>
@@ -104,9 +114,9 @@
                                         <th>R Rate</th>
                                         <th>Candidate Name</th>
                                         <th>Emp Name</th>
-                                        <th>BDM Status</th>
-                                        <th>PV Status</th>
-                                        <th>Client Status</th>
+                                        <th class='bdm_status'>BDM Status</th>
+                                        <th class='pv_status'>PV Status</th>
+                                        <th class='client_status'>Client Status</th>
                                         {{-- <th>Action</th> --}}
                                     </tr>
                                 </thead>
@@ -165,6 +175,7 @@
 
 @section('jquery')
 <script type="text/javascript">
+    var table;
     $(function () {
         if("{{session()->get('filter')}}"){
             $("#filter_status").select2("val", "{{session()->get('filter') }}");
@@ -272,16 +283,24 @@
 
     function dataTables(){
         $('#showTime').prop('checked', false);
-        $("#mySubmissionTable").dataTable().fnDestroy();
+       // $("#mySubmissionTable").dataTable().fnDestroy();
         // var selectedFilter = $("#filter_status").val();
         
-        var table = $('#mySubmissionTable').DataTable({
+        table = $('#mySubmissionTable').DataTable({
             processing: true,
             serverSide: true,
             responsive: true,
             pageLength: 100,
             lengthMenu: [ 100, 200, 300, 400, 500 ],
             order: [[ 1, 'desc' ],],
+            drawCallback: function(settings) {
+
+                var headerClassName = $('#sort_data').val();
+                if(headerClassName){
+                    var columnIndex = $('.' + headerClassName).index();
+                    $('#mySubmissionTable tbody td:nth-child(' + (columnIndex + 1) + ')').addClass('color-group');
+                }
+            },
             ajax: {
                 url: "{{ route('bdm_submission.index') }}",
                 data: function (d) {
@@ -331,7 +350,17 @@
                 {data: 'pv_status', "width": "10%", name: 'pv_status', searchable: false},
                 {data: 'client_status', "width": "10%", name: 'client_status', searchable: false},
                 // {data: 'action', "width": "9%", name: 'action', orderable: false, searchable: false},
-            ]
+            ],
+            initComplete: function(settings, json) {
+                $("#mySubmissionTable_length").detach().appendTo("#pageLendthSection");
+                $("#mySubmissionTable_filter").addClass('float-right').detach().appendTo("#searchSection");
+                $('select[name="mySubmissionTable_length"]').css({
+                    'width': 'auto',
+                });
+                $('#mySubmissionTable_length').css({
+                    'display': 'flex',
+                }).addClass('mt-4');
+            },
         });
     }
 
@@ -351,6 +380,12 @@
         $('.show-pv-status-'+id).hide();
         $('.pv-status-'+id).show();
     }
+
+    $('#sort_data').on('change', function(){
+        var headerClassName = $('#sort_data').val();
+        var columnIndex = $('.' + headerClassName).index();
+        table.order([columnIndex, 'desc']).draw();
+    });
 
     @if(isset($pvCompanyName) && $pvCompanyName)
        var availablePvCompanyName = <?php echo json_encode($pvCompanyName);?>;

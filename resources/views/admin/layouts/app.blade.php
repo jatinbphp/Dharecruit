@@ -160,6 +160,10 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .hidden-element {
+            display: none;
+        }
     </style>
 </head>
 <body class="hold-transition sidebar-mini sidebar-collapse" id="bodyid">

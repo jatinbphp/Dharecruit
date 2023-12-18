@@ -185,4 +185,15 @@ class Submission extends Model
             self:: STATUS_NO_UPDATES => 'No updates',
         ];
     }
+
+    public static function getSortOptions(){
+        return [
+            ''              => 'Please Select',
+            'bdm_status'    => 'BDM Status',
+            'pv_status'     => 'PV Status',
+            'client_status' => 'Client Status',
+            'sub_id'        => 'Submission Id',
+            'job_id'        => 'Job Id',
+        ];
+    }
 }

@@ -302,14 +302,14 @@ class BDMSubmissionCOntroller extends Controller
                     
                     if(Auth::user()->role == 'admin' || (Auth::user()->role=='bdm')){
                         if($parentRequirementId &&  $parentRequirementId != $requirmentId && $parentRequirementId != 0){
-                            return '<span class="border-width-5 border-color-info job-title pt-1 pl-1 pl-1 pr-1" data-id="'.$requirmentId.'">'.$jobId.'</span>';
+                            return '<span data-order="'.$jobId.'" class="border-width-5 border-color-info job-title pt-1 pl-1 pl-1 pr-1" data-id="'.$requirmentId.'">'.$jobId.'</span>';
                         } elseif($parentRequirementId == $requirmentId){
-                            return '<span class="border-width-5 border-color-warning job-title pt-1 pl-1 pl-1 pr-1" data-id="'.$requirmentId.'">'.$jobId.'</span>';
+                            return '<span data-order="'.$jobId.'" class="border-width-5 border-color-warning job-title pt-1 pl-1 pl-1 pr-1" data-id="'.$requirmentId.'">'.$jobId.'</span>';
                         } else {
-                            return '<span class=" job-title" data-id="'.$requirmentId.'">'.$jobId.'</span>';
+                            return '<span data-order="'.$jobId.'" class=" job-title" data-id="'.$requirmentId.'">'.$jobId.'</span>';
                         }
                     } else {
-                        return '<span class=" job-title" data-id="'.$requirmentId.'">'.$jobId.'</span>';
+                        return '<span data-order="'.$jobId.'" class=" job-title" data-id="'.$requirmentId.'">'.$jobId.'</span>';
                     }
                 })
                 ->addColumn('job_title', function($row){
@@ -368,8 +368,10 @@ class BDMSubmissionCOntroller extends Controller
                     $statusLastUpdatedAt = ($row->pv_status_updated_at) ? strtotime($row->pv_status_updated_at) : 0;
                     if($row->status == Submission::STATUS_ACCEPT){
                         $status .= isset(Submission::$pvStatus[$row->pv_status]) ? "<p data-order='$statusLastUpdatedAt'>".Submission::$pvStatus[$row->pv_status]."</p>" : '';
+                    }else{
+                        $status .= "<p data-order='$statusLastUpdatedAt'></p>";
                     }
-                    if($row->pv_status && $row->status == Submission::STATUS_ACCEPT || 1){
+                    if($row->pv_status && $row->status == Submission::STATUS_ACCEPT){
                         $status .= "<span class='feedback' style='display:none'>".$this->getTooltipHtml($row->pv_reason)."</span>";
                         $status .= getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_PV_STATUS,$row->id);
                     }

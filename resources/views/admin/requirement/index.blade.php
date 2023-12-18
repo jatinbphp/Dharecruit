@@ -46,6 +46,11 @@
                                                 <label class="form-check-label" for="showLink">Show Link</label>
                                             </div>
                                         @endif
+                                        @if((Auth::user()->role == 'admin') || (Auth::user()->role == 'bdm' && $menu == 'My Requirements'))
+                                            <div class="col-md-3 form-check mt-2">
+                                            <button class="btn btn-sm btn-danger toggle-poc hide-poc" type="button" onclick="togglePoc()">Hide POC</button>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                                 <div class="col-md-4">    
@@ -68,15 +73,19 @@
                                         <th>Daily #</th>
                                         <th>J Id</th>
                                         <th>Job Title</th>
-                                        <th>BDM</th>
-                                        <th>Duration</th>
                                         <th>Location</th>
-                                        <th>Rate</th>
+                                        @if((Auth::user()->role == 'admin') || (Auth::user()->role == 'bdm' && $menu == 'My Requirements'))
+                                            <th class='toggle-pv-column'>PV</th>
+                                            <th class='toggle-poc-column'>POC</th>
+                                        @endif
                                         <th>Onsite</th>
-                                        <th>Category</th>
-                                        <!-- <th>Timer</th> -->
+                                        <th>Duration</th>
                                         <th>Job Keyword</th>
+                                        <th>Category</th>
+                                        <th>BDM</th>
+                                        <th>Rate</th>
                                         <th>client</th>
+                                        <!-- <th>Timer</th> -->
                                         <th>Recruiter</th>
                                         <th>Status</th>
                                         <!-- <th>Color</th> -->
@@ -127,6 +136,26 @@
         $('select').trigger('change');
         $("#requirementTable").dataTable().fnDestroy();
         datatables();
+    }
+
+    function togglePoc(){
+        if($('.toggle-poc').hasClass('hide-poc')){
+            $('.toggle-poc').removeClass('btn-danger hide-poc');
+            $('.toggle-poc').addClass('btn-primary show-poc');
+            $('.toggle-poc').html('Show Poc');
+        }else{
+            $('.toggle-poc').addClass('btn-danger hide-poc');
+            $('.toggle-poc').removeClass('btn-primary show-poc');
+            $('.toggle-poc').html('Hide Poc');
+        }
+
+        var columnIndex = $('th.toggle-pv-column').index();
+        $('td:nth-child(' + (columnIndex + 1) + ')').toggleClass('hidden-element');
+        $('th:nth-child(' + (columnIndex + 1) + ')').toggleClass('hidden-element');
+
+        var columnIndex = $('th.toggle-poc-column').index();
+        $('td:nth-child(' + (columnIndex + 1) + ')').toggleClass('hidden-element');
+        $('th:nth-child(' + (columnIndex + 1) + ')').toggleClass('hidden-element');
     }
 
     function datatables(){
@@ -180,17 +209,21 @@
                 }},
                 {data: 'job_id', 'width': '8%', name: 'job_id'},
                 {data: 'job_title', 'width': '30%', name: 'job_title'},
-                {data: 'user_id', 'width': '6%', name: 'user_id'},
-                {data: 'duration', name: 'duration'},
                 {data: 'location', name: 'location'},
-                {data: 'my_rate', name: 'my_rate'},
+                @if((Auth::user()->role == 'admin') || (Auth::user()->role == 'bdm' && $menu == 'My Requirements'))
+                    {data: 'pv', name: 'pv'},
+                    {data: 'poc', name: 'poc'},
+                @endif
                 {data: 'work_type', name: 'work_type'},
-                {data: 'category', name: 'category'},
-                // {data: 'created_at', 'width': '18%', name: 'created_at'},
+                {data: 'duration', name: 'duration'},
                 {data: 'job_keyword', 'width': '20%', name: 'job_keyword'},
+                {data: 'category', name: 'category'},
+                {data: 'user_id', 'width': '6%', name: 'user_id'},
+                {data: 'my_rate', name: 'my_rate'},
+                // {data: 'created_at', 'width': '18%', name: 'created_at'},
                 {data: 'client', name: 'client'},
                 {data: 'recruiter', name: 'recruiter'},
-                {data: 'status', 'width': '20%', name: 'status'},
+                {data: 'status', 'width': '10%', name: 'status'},
                 // {data: 'color', name: 'color'},
                 {data: 'candidate', name: 'candidate'},
                 {data: 'action', "width": "15%", name: 'action', orderable: false, searchable: false},
@@ -342,5 +375,6 @@
             });
         });
     @endif
+
   </script>
 @endsection

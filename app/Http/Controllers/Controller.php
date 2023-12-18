@@ -1194,4 +1194,17 @@ class Controller extends BaseController
 
         return $isEmployeeUpdate;
     }
+
+    public function getAllPvCompanyCount($pocEmail){
+        if(!$pocEmail){
+            return 0;
+        }
+
+        return Requirement::where('poc_email', $pocEmail)
+            ->where(function ($query) {
+                $query->where('id' ,\DB::raw('parent_requirement_id'));
+                $query->orwhere('parent_requirement_id', '=', '0');
+            })
+            ->count();
+    }
 }
