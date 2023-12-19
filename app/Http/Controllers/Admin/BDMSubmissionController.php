@@ -456,7 +456,7 @@ class BDMSubmissionCOntroller extends Controller
                     $empPocNameArray = explode(' ', $row->employee_name);
                     $empPocFirstName = isset($empPocNameArray[0]) ? $empPocNameArray[0] : '';
                     if(Auth::user()->role != 'admin'){
-                        return '<i class="fa fa-eye emp_poc-icon emp_poc-icon-'.$row->id.'" onclick="showData('.$row->id.',\'emp_poc-\')" aria-hidden="true"></i><span class="emp_poc emp_poc-'.$row->id.'" style="display:none">'.$row->employee_name.'</span>';
+                        return '<i class="fa fa-eye emp_poc-icon emp_poc-icon-'.$row->id.'" onclick="showData('.$row->id.',\'emp_poc-\')" aria-hidden="true"></i><span class="emp_poc emp_poc-'.$row->id.'" style="display:none">'.$empPocFirstName.'</span>';
 
                     }
                     $empPocCount = $this->getAllEmpDataCount('employee_name', $row->employee_name);

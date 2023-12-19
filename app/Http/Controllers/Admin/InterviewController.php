@@ -189,12 +189,24 @@ class InterviewController extends Controller
                     return $row->Submission->recruiter_rate;
                 })
                 ->addColumn('employer_name', function($row){
-                    return '<i class="fa fa-eye show_employer_name-icon show-employer-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'show-employer-name-\')" aria-hidden="true"></i><span class="show_employer_name show-employer-name-'.$row->id.'" style="display:none">'.$row->Submission->employer_name.'</span>';
+                    if(Auth::user()->role != 'admin'){
+                        return '<i class="fa fa-eye show_employer_name-icon employer-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'employer-name-\')" aria-hidden="true"></i><span class="show_employer_name employer-name-'.$row->id.'" style="display:none">'.$row->Submission->employer_name.'</span>';
+                    }
+                    $employerNameCount = $this->getAllEmpDataCount('employer_name', $row->Submission->employer_name);
+                    return '<i class="fa fa-eye show_employer_name-icon employer-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'employer-name-\')" aria-hidden="true"></i><div class="container"><span class="show_employer_name employer-name-'.$row->id.'" style="display:none">'.$row->Submission->employer_name.(($employerNameCount) ? "<span class='badge bg-indigo position-absolute top-0 end-0' style='margin-top: -6px'>$employerNameCount</span>" : "").'</span></div>';
+                    // return '<i class="fa fa-eye show_employer_name-icon show-employer-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'show-employer-name-\')" aria-hidden="true"></i><span class="show_employer_name show-employer-name-'.$row->id.'" style="display:none">'.$row->Submission->employer_name.'</span>';
                 })
                 ->addColumn('emp_poc', function($row){
                     $empPocNameArray = explode(' ', $row->Submission->employee_name);
                     $empPocFirstName = isset($empPocNameArray[0]) ? $empPocNameArray[0] : '';
-                    return '<i class="fa fa-eye emp_poc-icon emp-poc-icon-'.$row->id.'" onclick="showData('.$row->id.',\'emp-poc-\')" aria-hidden="true"></i><span class="emp_poc emp-poc-'.$row->id.'" style="display:none">'.$empPocFirstName.'</span>';
+                    
+                    if(Auth::user()->role != 'admin'){
+                        return '<i class="fa fa-eye emp_poc-icon emp_poc-icon-'.$row->id.'" onclick="showData('.$row->id.',\'emp_poc-\')" aria-hidden="true"></i><span class="emp_poc emp_poc-'.$row->id.'" style="display:none">'.$empPocFirstName.'</span>';
+
+                    }
+                    $empPocCount = $this->getAllEmpDataCount('employee_name', $row->Submission->employee_name);
+                    return '<i class="fa fa-eye emp_poc-icon emp_poc-icon-'.$row->id.'" onclick="showData('.$row->id.',\'emp_poc-\')" aria-hidden="true"></i><div><span class="emp_poc emp_poc-'.$row->id.'" style="display:none">'.$empPocFirstName.(($empPocCount) ? "<span class='badge bg-indigo position-absolute top-0 end-0' style='margin-top: -6px'>$empPocCount</span>" : "").'</span></div>';
+                    // return '<i class="fa fa-eye emp_poc-icon emp-poc-icon-'.$row->id.'" onclick="showData('.$row->id.',\'emp-poc-\')" aria-hidden="true"></i><span class="emp_poc emp-poc-'.$row->id.'" style="display:none">'.$empPocFirstName.'</span>';
                 })
                 ->addColumn('poc_name', function($row){
                     $pocNameArray = explode(' ', $row->Submission->Requirement->poc_name);
