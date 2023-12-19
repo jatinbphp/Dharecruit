@@ -33,7 +33,7 @@ class RequirementController extends Controller
 
         if ($request->ajax()) {
             $data = $this->Filter($request,'all');
-            return getListHtml($data, 'all_requirement', $request);
+            return $this->getListHtml($data, 'all_requirement', $request);
         }
         $data['type'] = 1;
         $data['filterFile'] = 'requirement_filter';
@@ -48,7 +48,7 @@ class RequirementController extends Controller
         if ($request->ajax()) {
             $request['authId'] = Auth::user()->id;
             $data = $this->Filter($request);
-            return getListHtml($data,'', $request);
+            return $this->getListHtml($data,'', $request);
         }
         $data['type'] = 2;
         $data['filterFile'] = 'common_filter';

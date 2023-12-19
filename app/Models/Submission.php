@@ -102,9 +102,9 @@ class Submission extends Model
     }
 
     public static $toggleOptions = [
-        'pv_name' => 'Show PV',
+        // 'pv_name' => 'Show PV',
         'client' => 'Show Client',
-        'poc_name' => 'Show Poc',
+        // 'poc_name' => 'Show Poc',
         'show_employer_name' => 'Show Employer',
         'emp_poc' => 'Show Emp POC',
     ];

@@ -199,10 +199,29 @@ class InterviewController extends Controller
                 ->addColumn('poc_name', function($row){
                     $pocNameArray = explode(' ', $row->Submission->Requirement->poc_name);
                     $pocFirstName = isset($pocNameArray[0]) ? $pocNameArray[0] : '';
-                    return '<i class="fa fa-eye poc_name-icon poc-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'poc-name-\')" aria-hidden="true"></i><span class="poc_name poc-name-'.$row->id.'" style="display:none">'.$pocFirstName.'</span>';
+
+                    if(Auth::user()->role != 'admin'){
+                        return $pocFirstName;
+                    }
+                    $isNewPoc           = $this->isNewAsPerConfiguration('poc_name', $row->Submission->Requirement->poc_name);
+                    $totalOrigReqInDays = $this->getTotalOrigReqBasedOnPocData($row->Submission->Requirement->poc_name);
+                    
+                    return '<div class="container"><p class="'.(($isNewPoc) ? "text-primary" : "").'">'.$row->Submission->Requirement->poc_name. (($totalOrigReqInDays) ? "<span class='badge bg-indigo position-absolute top-0 end-0' style='margin-top: -6px'>$totalOrigReqInDays</span>" : "").'</p></div>';
+
+                    // return '<i class="fa fa-eye poc_name-icon poc-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'poc-name-\')" aria-hidden="true"></i><span class="poc_name poc-name-'.$row->id.'" style="display:none">'.$pocFirstName.'</span>';
                 })
                 ->addColumn('pv_name', function($row){
-                    return '<i class="fa fa-eye pv_name-icon pv-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'pv-name-\')" aria-hidden="true"></i><span class="pv_name pv-name-'.$row->id.'" style="display:none">'.$row->Submission->Requirement->pv_company_name.'</span>';
+                    if(Auth::user()->role != 'admin'){
+                        return $row->Submission->Requirement->pv_company_name;
+                    }
+                    $totalPvCount  = $this->getAllPvCompanyCount($row->Submission->Requirement->pv_company_name);
+                    $isNewPoc      = $this->isNewAsPerConfiguration('pv_company_name', $row->Submission->Requirement->pv_company_name);
+
+                    $pocHtml = '<span class="font-weight-bold '.(($isNewPoc) ? "text-primary" : "").'">'.$row->Submission->Requirement->pv_company_name;
+                    $pocHtml .= '<br><br><span class="border pt-1 pl-1 pr-1 pb-1 '.(($isNewPoc) ? "border-primary" : "border-secondary").'">'.$totalPvCount.'</span></span>';
+                    return $pocHtml;
+                    
+                    //return '<i class="fa fa-eye pv_name-icon pv-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'pv-name-\')" aria-hidden="true"></i><span class="pv_name pv-name-'.$row->id.'" style="display:none">'.$row->Submission->Requirement->pv_company_name.'</span>';
                 })
                 ->addColumn('hiring_manager', function($row){
                     return '<i class="fa fa-eye hiring_manager-icon hiring-manager-icon-'.$row->id.'" onclick="showData('.$row->id.',\'hiring-manager-\')" aria-hidden="true"></i><span class="hiring_manager hiring-manager-'.$row->id.'" style="display:none">'.$row->hiring_manager.'</span>';

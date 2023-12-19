@@ -6,59 +6,9 @@ use App\Models\Requirement;
 use App\Models\EntityHistory;
 use App\Models\Interview;
 use App\Http\Controllers\Controller;
-use DataTables;
 use Illuminate\Support\Facades\Auth;
 
-if(!function_exists('getListHtml')){
-    function getListHtml($data, $page='requirement',$request) {
-        return Datatables::of($data)
-            ->addIndexColumn()
-            ->addColumn('job_title', function($row){
-                return getJobTitleHtml($row);
-            })
-            ->addColumn('user_id', function($row){
-                return $row->BDM->name;
-            })
-            ->addColumn('category', function($row){
-                return $row->Category->name;
-            })
-            ->addColumn('recruiter', function($row) use (&$request){
-                return getRecruiterHtml($row, $request);
-            })
-            ->addColumn('status', function($row){
-                return getStatusHtml($row);
-            })
-            ->addColumn('candidate', function ($row) use (&$page, &$request){
-                return getCandidateHtml($row, $page, $request);
-            })
-            ->addColumn('action', function ($row) use (&$page){
-                return getActionHtml($row, $page);
-            })
-            ->addColumn('client', function($row) {
-                return getClientHtml($row);
-            })
-            ->addColumn('job_keyword', function($row) {
-                return getJobKeywordHtml($row);
-            })
-            ->addColumn('job_id', function($row) {
-                return getJobIdHtml($row);
-            })
-            ->addColumn('pv', function($row) {
-                return getPvHtml($row);
-            })
-            ->addColumn('poc', function($row) {
-                return getPocHtml($row);
-            })
-            ->setRowClass(function ($row) {
-                return (($row->parent_requirement_id != 0 && $row->parent_requirement_id == $row->id) ? 'parent-row' : (($row->parent_requirement_id != 0) ? 'child-row' : ''));
-                ;
-            })
-            ->rawColumns(['user_id','category','recruiter','status','candidate','action','client','job_title','job_keyword','job_id','pv','poc'])
-            ->make(true);
-    }
-}
-
-if(!function_exists('getJonbTitleHtml')){
+if(!function_exists('getJobTitleHtml')){
     function getJobTitleHtml($row){
         $loggedinUser = Auth::user()->id;
         $isShowRecruiters = explode(',', $row->is_show_recruiter);
@@ -73,7 +23,9 @@ if(!function_exists('getJonbTitleHtml')){
                 }
             }
         }
-        return '<div class="'.$textStyle.' job-title job-title-'.$row->id.'" data-id="'.$row->id.'"><span class="font-weight-bold">'.$row->job_title.'</span></div>';
+        $controllerObj = new Controller();
+        $userWiseCount = $controllerObj->getUserWiseRequirementsCountAsPerPoc($row->poc_name, 1);
+        return '<div data-order="'.$row->job_title.'" class="'.$textStyle.' job-title job-title-'.$row->id.'" data-id="'.$row->id.'"><span class="font-weight-bold">'.$row->job_title.'</span></div>'.((Auth::user()->role == 'admin' && $userWiseCount) ? "<div class='container pl-0'><div class='bg-white p-1 border d-inline-block'>".$userWiseCount."</div></div>" : "");
     }
 }
 
@@ -400,11 +352,13 @@ if(!function_exists('getClientHtml')){
 if(!function_exists('getJobKeywordHtml')){
     function getJobKeywordHtml($row){
         $jobKeyword = strip_tags($row->job_keyword);
+        $controllerObj = new Controller();
+        $userWiseCount = $controllerObj->getUserWiseRequirementsCountAsPerPoc($row->poc_name);
         if(strlen($jobKeyword) > 60){
             $shortString = substr($jobKeyword, 0, 60);
-            return '<p>' . $shortString . '<span class=" job-title" data-id="'.$row->id.'"><span class="font-weight-bold"> More +</span></p>';
+            return '<p>' . $shortString . '<span class=" job-title" data-id="'.$row->id.'"><span class="font-weight-bold"> More +</span></p>'.((Auth::user()->role == 'admin' && $userWiseCount) ? "<div class='container pl-0'><div class='bg-white p-1 border d-inline-block'>".$userWiseCount."</div></div>" : "");
         }
-        return '<p>'.strip_tags($row->job_keyword).'</p>';
+        return '<p>'.strip_tags($row->job_keyword).'</p>'.((Auth::user()->role == 'admin' && $userWiseCount) ? "<div class='container pl-0'><div class='bg-white p-1 border d-inline-block'>".$userWiseCount."</div></div>" : "");
     }
 }
 
@@ -419,14 +373,14 @@ if(!function_exists('getJobIdHtml')){
         }
         if(Auth::user()->role == 'admin' || (Auth::user()->role=='bdm' && Auth::user()->id == $row->user_id)){
             if($row->parent_requirement_id != $row->id && $row->parent_requirement_id != 0){
-                return $jid .'<span class="border-width-5 border-color-info job-title pt-1 pl-1 pl-1 pr-1" data-id="'.$row->id.'">'.$row->job_id.'</span>';
+                return $jid .'<span data-order="'.$row->job_id.'" class="border-width-5 border-color-info job-title pt-1 pl-1 pl-1 pr-1" data-id="'.$row->id.'">'.$row->job_id.'</span>';
             } elseif($row->parent_requirement_id == $row->id){
-                return $jid.'<span class="border-width-5 border-color-warning job-title pt-1 pl-1 pl-1 pr-1" data-id="'.$row->id.'">'.$row->job_id.'</span>';
+                return $jid.'<span data-order="'.$row->job_id.'" class="border-width-5 border-color-warning job-title pt-1 pl-1 pl-1 pr-1" data-id="'.$row->id.'">'.$row->job_id.'</span>';
             } else {
-                return $jid.'<span class=" job-title" data-id="'.$row->id.'">'.$row->job_id.'</span>';
+                return $jid.'<span class=" job-title" data-id="'.$row->id.'" data-order="'.$row->job_id.'">'.$row->job_id.'</span>';
             }
         } else {
-            return '<span class=" job-title" data-id="'.$row->id.'">'.$row->job_id.'</span>';
+            return '<span class=" job-title" data-id="'.$row->id.'" data-order="'.$row->job_id.'">'.$row->job_id.'</span>';
         }
     }
 }
@@ -475,23 +429,47 @@ if(!function_exists('getPocHtml')){
         if(Auth::user()->role != 'admin'){
             return $row->poc_name;
         }
-        $pocName = $row->poc_name;
-        $pocHtml = $pocName;
-        return $pocHtml;
+        $controllerObj = new Controller();
+        $isNewPoc      = $controllerObj->isNewAsPerConfiguration('poc_name', $row->poc_name);
+        return '<p class="font-weight-bold '.(($isNewPoc) ? "text-primary" : "").'">'.$row->poc_name.'</p>';
     }
 }
 
 if(!function_exists('getPvHtml')){
     function getPvHtml($row){
-        return $row->pv_company_name;
         if(Auth::user()->role != 'admin'){
             return $row->pv_company_name;
         }
-        $pocHtml = $row->pv_company_name;
         $controllerObj = new Controller();
-        $totalPvCount = $controllerObj->getAllPvCompanyCount($row->poc_email);
-        $pocHtml .= '<br><br><span class="border border-secondary pt-1 pl-1 pr-1 pb-1">'.$totalPvCount.'</span></span>';
+        $totalPvCount  = $controllerObj->getAllPvCompanyCount($row->pv_company_name);
+        $isNewPoc      = $controllerObj->isNewAsPerConfiguration('pv_company_name', $row->pv_company_name);
+
+        $pocHtml = '<span class="font-weight-bold '.(($isNewPoc) ? "text-primary" : "").'">'.$row->pv_company_name;
+        $pocHtml .= '<br><br><span class="border pt-1 pl-1 pr-1 pb-1 '.(($isNewPoc) ? "border-primary" : "border-secondary").'">'.$totalPvCount.'</span></span>';
         return $pocHtml;
     }
 }
 
+if(!function_exists('getTotalOrigReq')){
+    function getTotalOrigReq($row){
+        if(Auth::user()->role != 'admin'){
+            return '';
+        }
+        $controllerObj = new Controller();
+
+        return $controllerObj->getTotalOrigReqBasedOnPocData($row->poc_name, 1);
+    }
+}
+
+if(!function_exists('getTotalOrigReqInDays')){
+    function getTotalOrigReqInDays($row){
+        if(Auth::user()->role != 'admin'){
+            return '';
+        }
+        $controllerObj = new Controller();
+        $totalPvCount = $controllerObj->getAllPvCompanyCount($row->poc_name);
+        $isNewPoc     = $controllerObj->isNewAsPerConfiguration('poc_name', $row->poc_name);
+
+        return $controllerObj->getTotalOrigReqBasedOnPocData($row->poc_name);
+    }
+}

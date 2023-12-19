@@ -19,6 +19,7 @@ use App\Models\OrderItems;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use DataTables;
 
 class Controller extends BaseController
 {
@@ -33,6 +34,59 @@ class Controller extends BaseController
         }
         $photo->move($root,$name);
         return 'uploads/'.$path."/".$name;
+    }
+
+    public function getListHtml($data, $page='requirement',$request) {
+        return Datatables::of($data)
+            ->addIndexColumn()
+            ->addColumn('job_title', function($row){
+                return getJobTitleHtml($row);
+            })
+            ->addColumn('user_id', function($row){
+                return $row->BDM->name;
+            })
+            ->addColumn('category', function($row){
+                return $row->Category->name;
+            })
+            ->addColumn('recruiter', function($row) use (&$request){
+                return getRecruiterHtml($row, $request);
+            })
+            ->addColumn('status', function($row){
+                return getStatusHtml($row);
+            })
+            ->addColumn('candidate', function ($row) use (&$page, &$request){
+                return getCandidateHtml($row, $page, $request);
+            })
+            ->addColumn('action', function ($row) use (&$page){
+                return getActionHtml($row, $page);
+            })
+            ->addColumn('client', function($row) {
+                return getClientHtml($row);
+            })
+            ->addColumn('job_keyword', function($row) {
+                return getJobKeywordHtml($row);
+            })
+            ->addColumn('job_id', function($row) {
+                return getJobIdHtml($row);
+            })
+            ->addColumn('pv', function($row) {
+                return getPvHtml($row);
+            })
+            ->addColumn('poc', function($row) {
+                return getPocHtml($row);
+            })
+            ->addColumn('total_orig_req', function($row) {
+                return getTotalOrigReq($row);
+            })
+            ->addColumn('total_orig_req_in_days', function($row) {
+                return getTotalOrigReqInDays($row);
+            })
+            ->setRowClass(function ($row) {
+                return (($row->parent_requirement_id != 0 && $row->parent_requirement_id == $row->id) ? 'parent-row' : (($row->parent_requirement_id != 0) ? 'child-row' : ''));
+                ;
+            })
+            ->rawColumns(['user_id','category','recruiter','status','candidate','action','client','job_title','job_keyword','job_id','pv','poc','total_orig_req','total_orig_req_in_days'])
+            ->make(true);
     }
 
     public function getUser(){
@@ -207,10 +261,10 @@ class Controller extends BaseController
         }
         
         if(!empty($request->show_merge) && $request->show_merge == 1){
-            return $query->orderBy('parent_requirement_id', 'DESC')->orderBy('id', 'desc');
+            return $query->orderBy('parent_requirement_id', 'DESC')->orderBy('id', 'desc')->get();
         }
 
-        return $query->orderBy('id', 'desc');
+        return $query->orderBy('id', 'desc')->get();
     }
 
     public function getRequirementIdBasedOnServedOptions($served, $query, $request){
@@ -1153,7 +1207,8 @@ class Controller extends BaseController
         return $isFound;
     }
 
-    public function getPvCompanyName() {
+    public function getPvCompanyName() 
+    {
         $pvCompany = PvCompany::whereNotNull('name');
         if(Auth::user()->role != 'admin'){
             $pvCompany->where('user_id', Auth::user()->id);
@@ -1161,7 +1216,8 @@ class Controller extends BaseController
         return $pvCompany->groupBy('name')->pluck('name')->toArray();
     }
 
-    public function isEmployerNameChanged($candidateId){
+    public function isEmployerNameChanged($candidateId)
+    {
         if(!$candidateId){
             return 0;
         }
@@ -1195,16 +1251,157 @@ class Controller extends BaseController
         return $isEmployeeUpdate;
     }
 
-    public function getAllPvCompanyCount($pocEmail){
-        if(!$pocEmail){
+    public function getAllPvCompanyCount($pvComapnyName)
+    {
+        if(!$pvComapnyName){
             return 0;
         }
 
-        return Requirement::where('poc_email', $pocEmail)
+        return Requirement::where('pv_company_name', $pvComapnyName)
             ->where(function ($query) {
                 $query->where('id' ,\DB::raw('parent_requirement_id'));
                 $query->orwhere('parent_requirement_id', '=', '0');
             })
             ->count();
+    }
+
+    public function isNewAsPerConfiguration($columnName, $value)
+    {
+        if(!$columnName || !$value){
+            return 0;
+        }
+        
+        $newPocCountConfiguration = 0;
+
+        $settingRow =  Setting::where('name', 'heighlight_new_poc_data_days')->first();
+
+        if(!empty($settingRow) || !$settingRow->value){
+            $newPocCountConfiguration = $settingRow->value;
+        }
+
+        if(!$newPocCountConfiguration){
+            return false;
+        }
+
+        $requirementRow = Requirement::where($columnName, $value)
+            ->where(function ($query) {
+                $query->where('id' ,\DB::raw('parent_requirement_id'));
+                $query->orwhere('parent_requirement_id', '=', '0');
+            })->first();
+        
+        if(empty($requirementRow) || !$requirementRow->created_at){
+            return false;
+        }
+
+        $createdAtDateAsPerConfiguration = \Carbon\Carbon::now()->subDays($newPocCountConfiguration);
+
+        if($requirementRow->created_at >= $createdAtDateAsPerConfiguration){
+            return true;
+        }
+
+        return false;
+    }
+
+    public function getTotalOrigReqBasedOnPocData($pocName, $isTotal = 0)
+    {
+        if(!$pocName){
+            return 0;
+        }
+
+        if($isTotal){
+            return Requirement::where('poc_name', $pocName)
+            ->where(function ($query) {
+                $query->where('id' ,\DB::raw('parent_requirement_id'));
+                $query->orwhere('parent_requirement_id', '=', '0');
+            })->count();
+        }
+        
+        $newPocCountConfiguration = 0;
+
+        $settingRow =  Setting::where('name', 'show_poc_count_days')->first();
+
+        if(!empty($settingRow) || !$settingRow->value){
+            $newPocCountConfiguration = $settingRow->value;
+        }
+
+        if(!$newPocCountConfiguration){
+            return 0;
+        }
+
+        $createdAtDateAsPerConfiguration = \Carbon\Carbon::now()->subDays($newPocCountConfiguration);
+
+        return Requirement::where('poc_name', $pocName)
+            ->where('created_at', '>=', $createdAtDateAsPerConfiguration)
+            ->where(function ($query) {
+                $query->where('id' ,\DB::raw('parent_requirement_id'));
+                $query->orwhere('parent_requirement_id', '=', '0');
+            })->count();
+    }
+
+    public function getUserWiseRequirementsCountAsPerPoc($pocName, $isTotal = 0)
+    {
+        if(!$pocName){
+            return '';
+        }
+
+        if($isTotal){
+            $userIdWiseRequirementCount = Requirement::where('poc_name', $pocName)
+            ->groupBy('user_id')
+            ->selectRaw('user_id, COUNT(*) as count')
+            ->where(function ($query) {
+                $query->where('id' ,\DB::raw('parent_requirement_id'));
+                $query->orwhere('parent_requirement_id', '=', '0');
+            })
+            ->pluck('count', 'user_id')
+            ->toArray();
+        } else {
+            $newPocCountConfiguration = 0;
+
+            $settingRow =  Setting::where('name', 'show_poc_count_days')->first();
+
+            if(!empty($settingRow) || !$settingRow->value){
+                $newPocCountConfiguration = $settingRow->value;
+            }
+
+            if(!$newPocCountConfiguration){
+                return 0;
+            }
+
+            $createdAtDateAsPerConfiguration = \Carbon\Carbon::now()->subDays($newPocCountConfiguration);
+
+            $userIdWiseRequirementCount = Requirement::where('poc_name', $pocName)
+                ->groupBy('user_id')
+                ->selectRaw('user_id, COUNT(*) as count')
+                ->where('created_at', '>=', $createdAtDateAsPerConfiguration)
+                ->where(function ($query) {
+                    $query->where('id' ,\DB::raw('parent_requirement_id'));
+                    $query->orwhere('parent_requirement_id', '=', '0');
+                })
+                ->pluck('count', 'user_id')
+                ->toArray();
+        }
+
+        if(empty($userIdWiseRequirementCount)){
+            return '';
+        }
+
+        arsort($userIdWiseRequirementCount);
+
+        $requirementCountWiseUserData = [];
+
+        foreach ($userIdWiseRequirementCount as $userId => $count) {
+            $requirementCountWiseUserData[] = Admin::getUserNameBasedOnId($userId)."($count)";
+        }
+
+        return implode(", ", $requirementCountWiseUserData);
+    }
+
+    public function getAllEmpDataCount($columnName, $value)
+    {
+        if(!$columnName || !$value){
+            return 0;
+        }
+
+        return Submission::where($columnName, $value)->count();
     }
 }

@@ -67,6 +67,13 @@
                             <div id="overlay">
                                 <div id="spinner"></div>
                             </div>
+                            @php
+                                $configurationDays = 0;
+                                $settingRow =  \App\Models\Setting::where('name', 'show_poc_count_days')->first();
+                                if(!empty($settingRow) && $settingRow->value){
+                                    $configurationDays = $settingRow->value;
+                                }
+                            @endphp
                             <table id="requirementTable" class="table table-bordered table-striped">
                                 <thead>
                                     <tr class="border  border-danger">
@@ -75,8 +82,12 @@
                                         <th>Job Title</th>
                                         <th>Location</th>
                                         @if((Auth::user()->role == 'admin') || (Auth::user()->role == 'bdm' && $menu == 'My Requirements'))
-                                            <th class='toggle-pv-column'>PV</th>
-                                            <th class='toggle-poc-column'>POC</th>
+                                            <th class='toggle-column'>PV</th>
+                                            <th class='toggle-column'>POC</th>
+                                        @endif
+                                        @if((Auth::user()->role == 'admin'))
+                                            <th class='toggle-column'>Orig Total</th>
+                                            <th class='toggle-column'>Orig Req {{ (isset($configurationDays) ? $configurationDays : 0) }} Days</th>
                                         @endif
                                         <th>Onsite</th>
                                         <th>Duration</th>
@@ -138,26 +149,6 @@
         datatables();
     }
 
-    function togglePoc(){
-        if($('.toggle-poc').hasClass('hide-poc')){
-            $('.toggle-poc').removeClass('btn-danger hide-poc');
-            $('.toggle-poc').addClass('btn-primary show-poc');
-            $('.toggle-poc').html('Show Poc');
-        }else{
-            $('.toggle-poc').addClass('btn-danger hide-poc');
-            $('.toggle-poc').removeClass('btn-primary show-poc');
-            $('.toggle-poc').html('Hide Poc');
-        }
-
-        var columnIndex = $('th.toggle-pv-column').index();
-        $('td:nth-child(' + (columnIndex + 1) + ')').toggleClass('hidden-element');
-        $('th:nth-child(' + (columnIndex + 1) + ')').toggleClass('hidden-element');
-
-        var columnIndex = $('th.toggle-poc-column').index();
-        $('td:nth-child(' + (columnIndex + 1) + ')').toggleClass('hidden-element');
-        $('th:nth-child(' + (columnIndex + 1) + ')').toggleClass('hidden-element');
-    }
-
     function datatables(){
         var isShowMerge = 0;
         var progressBar = $('#progress-bar');
@@ -208,11 +199,15 @@
                     return columnData;
                 }},
                 {data: 'job_id', 'width': '8%', name: 'job_id'},
-                {data: 'job_title', 'width': '30%', name: 'job_title'},
+                {data: 'job_title', 'width': '30%', name: 'job_title', sortable : true},
                 {data: 'location', name: 'location'},
                 @if((Auth::user()->role == 'admin') || (Auth::user()->role == 'bdm' && $menu == 'My Requirements'))
                     {data: 'pv', name: 'pv'},
                     {data: 'poc', name: 'poc'},
+                @endif
+                @if((Auth::user()->role == 'admin'))
+                    {data: 'total_orig_req', name: 'total_orig_req'},
+                    {data: 'total_orig_req_in_days', name: 'total_orig_req_in_days'},
                 @endif
                 {data: 'work_type', name: 'work_type'},
                 {data: 'duration', name: 'duration'},
@@ -227,40 +222,7 @@
                 // {data: 'color', name: 'color'},
                 {data: 'candidate', name: 'candidate'},
                 {data: 'action', "width": "15%", name: 'action', orderable: false, searchable: false},
-            ],
-            drawCallback: function() {
-                if($('#showMerge').is(':checked')){
-                    $('#requirementTable tbody tr').each(function(trIndex) {
-                        var currentTr = this;
-                        var rowType = '';
-                        if($(this).hasClass('parent-row')){
-                            rowType = 'parant-row';
-                        }
-                        if($(this).hasClass('child-row')){
-                            rowType = 'child-row';
-                        }
-                        if($.trim(rowType) != ''){
-                            $(this).find('td').each(function(tdIndex){
-                                $(this).addClass('color-group');
-                                if(rowType == 'parant-row'){
-                                    $(this).addClass('border-bottom');
-                                }
-                                if(rowType == 'child-row'){
-                                    if(trIndex == 0){
-                                        $(this).addClass('border-top');
-                                    }
-                                }
-                                if (tdIndex === 0) {
-                                    $(this).addClass('border-left');
-                                }
-                                if (tdIndex === $(this).siblings().length) {
-                                    $(this).addClass('border-right');
-                                }
-                            })
-                        }   
-                    });
-                }
-            },
+            ]
         });
 
         $('#requirementTable').on('preXhr.dt', function () {

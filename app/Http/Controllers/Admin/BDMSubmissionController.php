@@ -416,12 +416,28 @@ class BDMSubmissionCOntroller extends Controller
                     return $row->location;
                 })
                 ->addColumn('pv', function($row){
-                    return '<i class="fa fa-eye pv_name-icon pv-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'pv-name-\')" aria-hidden="true"></i><span class="pv_name pv-name-'.$row->id.'" style="display:none">'.$row->Requirement->pv_company_name.'</span>';
+                    if(Auth::user()->role != 'admin'){
+                        return $row->Requirement->pv_company_name;
+                    }
+                    $totalPvCount  = $this->getAllPvCompanyCount($row->Requirement->pv_company_name);
+                    $isNewPoc      = $this->isNewAsPerConfiguration('pv_company_name', $row->Requirement->pv_company_name);
+
+                    $pocHtml = '<span class="font-weight-bold '.(($isNewPoc) ? "text-primary" : "").'">'.$row->Requirement->pv_company_name;
+                    $pocHtml .= '<br><br><span class="border pt-1 pl-1 pr-1 pb-1 '.(($isNewPoc) ? "border-primary" : "border-secondary").'">'.$totalPvCount.'</span></span>';
+                    return $pocHtml;
+
+                    // return '<i class="fa fa-eye pv_name-icon pv-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'pv-name-\')" aria-hidden="true"></i><span class="pv_name pv-name-'.$row->id.'" style="display:none">'.$row->Requirement->pv_company_name.'</span>';
                 })
                 ->addColumn('poc', function($row){
                     $pocNameArray = explode(' ', $row->Requirement->poc_name);
                     $pocFirstName = isset($pocNameArray[0]) ? $pocNameArray[0] : '';
-                    return '<i class="fa fa-eye poc_name-icon poc-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'poc-name-\')" aria-hidden="true"></i><span class="poc_name poc-name-'.$row->id.'" style="display:none">'.$pocFirstName.'</span>';
+                    if(Auth::user()->role != 'admin'){
+                        return $pocFirstName;
+                    }
+                    $isNewPoc      = $this->isNewAsPerConfiguration('poc_name', $row->Requirement->poc_name);
+                    $totalOrigReqInDays = $this->getTotalOrigReqBasedOnPocData($row->Requirement->poc_name);
+                    
+                    return '<div class="container"><p class="'.(($isNewPoc) ? "text-primary" : "").'">'.$row->Requirement->poc_name. (($totalOrigReqInDays) ? "<span class='badge bg-indigo position-absolute top-0 end-0' style='margin-top: -6px'>$totalOrigReqInDays</span>" : "").'</p></div>';
                 })
                 ->addColumn('b_rate', function($row){
                     return $row->Requirement->my_rate;
@@ -430,12 +446,21 @@ class BDMSubmissionCOntroller extends Controller
                     return $row->recruiter_rate;
                 })
                 ->addColumn('employer_name', function($row){
-                    return '<i class="fa fa-eye show_employer_name-icon employer-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'employer-name-\')" aria-hidden="true"></i><span class="show_employer_name employer-name-'.$row->id.'" style="display:none">'.$row->employer_name.'</span>';
+                    if(Auth::user()->role != 'admin'){
+                        return '<i class="fa fa-eye show_employer_name-icon employer-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'employer-name-\')" aria-hidden="true"></i><span class="show_employer_name employer-name-'.$row->id.'" style="display:none">'.$row->employer_name.'</span>';
+                    }
+                    $employerNameCount = $this->getAllEmpDataCount('employer_name', $row->employer_name);
+                    return '<i class="fa fa-eye show_employer_name-icon employer-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'employer-name-\')" aria-hidden="true"></i><div class="container"><span class="show_employer_name employer-name-'.$row->id.'" style="display:none">'.$row->employer_name.(($employerNameCount) ? "<span class='badge bg-indigo position-absolute top-0 end-0' style='margin-top: -6px'>$employerNameCount</span>" : "").'</span></div>';
                 })
                 ->addColumn('emp_poc', function($row){
                     $empPocNameArray = explode(' ', $row->employee_name);
                     $empPocFirstName = isset($empPocNameArray[0]) ? $empPocNameArray[0] : '';
-                    return '<i class="fa fa-eye emp_poc-icon emp_poc-icon-'.$row->id.'" onclick="showData('.$row->id.',\'emp_poc-\')" aria-hidden="true"></i><span class="emp_poc emp_poc-'.$row->id.'" style="display:none">'.$empPocFirstName.'</span>';
+                    if(Auth::user()->role != 'admin'){
+                        return '<i class="fa fa-eye emp_poc-icon emp_poc-icon-'.$row->id.'" onclick="showData('.$row->id.',\'emp_poc-\')" aria-hidden="true"></i><span class="emp_poc emp_poc-'.$row->id.'" style="display:none">'.$row->employee_name.'</span>';
+
+                    }
+                    $empPocCount = $this->getAllEmpDataCount('employee_name', $row->employee_name);
+                    return '<i class="fa fa-eye emp_poc-icon emp_poc-icon-'.$row->id.'" onclick="showData('.$row->id.',\'emp_poc-\')" aria-hidden="true"></i><div><span class="emp_poc emp_poc-'.$row->id.'" style="display:none">'.$empPocFirstName.(($empPocCount) ? "<span class='badge bg-indigo position-absolute top-0 end-0' style='margin-top: -6px'>$empPocCount</span>" : "").'</span></div>';
                 })
                 // ->addColumn('action', function($row){
                 //     return '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/bdm_submission/'.$row->id.'/edit').'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Edit Interview" data-trigger="hover" type="submit" ><i class="fa fa-edit"></i></button></a></div>';

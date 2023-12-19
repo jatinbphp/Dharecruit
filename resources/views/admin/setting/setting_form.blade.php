@@ -56,6 +56,22 @@
                                             {!! Form::number('tooltip_after_no_of_words', (isset($settingData['tooltip_after_no_of_words']) && $settingData['tooltip_after_no_of_words']) ? $settingData['tooltip_after_no_of_words'] : '', ['class' => 'form-control', 'placeholder' => 'Enter Nuber For Show Tool Tip', 'id' => 'tooltip_after_no_of_words']) !!}
                                         </div>
                                     </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="control-label" for="heighlight_new_poc_data_days">Heighlight New Poc Data Days</label>
+                                        <div class="col-md-12">
+                                            {!! Form::number('heighlight_new_poc_data_days', (isset($settingData['heighlight_new_poc_data_days']) && $settingData['heighlight_new_poc_data_days']) ? $settingData['heighlight_new_poc_data_days'] : '', ['class' => 'form-control', 'placeholder' => 'Enter Heighlight New Poc Data Days', 'id' => 'heighlight_new_poc_data_days']) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="control-label" for="show_poc_count_days">Show POC Count Days</label>
+                                        <div class="col-md-12">
+                                            {!! Form::number('show_poc_count_days', (isset($settingData['show_poc_count_days']) && $settingData['show_poc_count_days']) ? $settingData['show_poc_count_days'] : '', ['class' => 'form-control', 'placeholder' => 'Enter Show POC Count Days', 'id' => 'show_poc_count_days']) !!}
+                                        </div>
+                                    </div>
                                 </div>  
                             </div>                          
                         </div>

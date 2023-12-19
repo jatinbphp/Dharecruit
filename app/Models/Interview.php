@@ -53,13 +53,13 @@ class Interview extends Model
     ];
 
     public static $toggleOptions = [
-        'poc_name' => 'Show Poc',
+        // 'poc_name' => 'Show Poc',
         'client' => 'Show Client',
         'show_employer_name' => 'Show Employer',
         'candidate_phone' => 'Show Candidate Phone',
         'candidate_email' => 'Show Candidate Email',
         'hiring_manager' => 'Show Hiring Manager',
-        'pv_name' => 'Show PV',
+        // 'pv_name' => 'Show PV',
         'emp_poc' => 'Show Emp POC',
     ];
 

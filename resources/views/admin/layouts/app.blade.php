@@ -1148,6 +1148,24 @@
             }
         });
     };
+
+    function togglePoc(){
+        if($('.toggle-poc').hasClass('hide-poc')){
+            $('.toggle-poc').removeClass('btn-danger hide-poc');
+            $('.toggle-poc').addClass('btn-primary show-poc');
+            $('.toggle-poc').html('Show Poc');
+        }else{
+            $('.toggle-poc').addClass('btn-danger hide-poc');
+            $('.toggle-poc').removeClass('btn-primary show-poc');
+            $('.toggle-poc').html('Hide Poc');
+        }
+
+        $('th.toggle-column').each(function() {
+            var columnIndex = $(this).index();
+            $('td:nth-child(' + (columnIndex + 1) + ')').toggleClass('hidden-element');
+            $(this).toggleClass('hidden-element');
+        });
+    }
 </script>
 @yield('jquery')
 </body>

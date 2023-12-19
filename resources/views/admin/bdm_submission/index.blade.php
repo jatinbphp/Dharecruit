@@ -69,6 +69,11 @@
                                                 {!! Form::checkbox('', 'show-feedback', null, ['id' => "showFeedback"]) !!} <span style="margin-right: 10px">Show FeedBack</span>
                                             </label>
                                         </div>
+                                        @if(in_array(Auth::user()->role, ['admin', 'bdm']))
+                                            <div class="col-md-2 form-check">
+                                                <button class="btn btn-sm btn-danger toggle-poc hide-poc" type="button" onclick="togglePoc()">Hide POC</button>
+                                            </div>
+                                        @endif
                                         <div class="col-md-12 border mt-3 pb-3 pt-3 pl-3 pb-3 pr-3" id="filterDiv">
                                             {!! Form::open(['id' => 'filterForm', 'class' => 'form-horizontal','files'=>true,'onsubmit' => 'return false;']) !!}
                                             @include('admin.'.$filterFile)
@@ -102,18 +107,20 @@
                                         <th>Duration</th> --}}
                                         <th>Client</th>
                                         @if(in_array($userType,['admin','recruiter']))
-                                            <th>EmpPOC</th>
                                             <th>BDM</th>
                                         @endif
                                         @if(in_array($userType,['admin','bdm']))
-                                            <th>PV</th>
-                                            <th>POC</th>
+                                            <th class='toggle-column'>PV</th>
+                                            <th class='toggle-column'>POC</th>
                                             <th>Recruiter</th>
                                         @endif
                                         <th>B Rate</th>
                                         <th>R Rate</th>
                                         <th>Candidate Name</th>
                                         <th>Emp Name</th>
+                                        @if(in_array($userType,['admin','recruiter']))
+                                            <th>EmpPOC</th>
+                                        @endif
                                         <th class='bdm_status'>BDM Status</th>
                                         <th class='pv_status'>PV Status</th>
                                         <th class='client_status'>Client Status</th>
@@ -334,7 +341,6 @@
                 // {data: 'duration',  name: 'duration'},
                 {data: 'client_name',  name: 'client_name'},
                 @if(in_array($userType,['admin','recruiter']))
-                    {data: 'emp_poc',  name: 'emp_poc'},
                     {data: 'bdm',  name: 'bdm'},
                 @endif
                 @if(in_array($userType,['admin','bdm']))
@@ -346,6 +352,9 @@
                 {data: 'r_rate',  name: 'r_rate'},
                 {data: 'candidate_name',  name: 'candidate_name'},
                 {data: 'employer_name',  name: 'employer_name'},
+                @if(in_array($userType,['admin','recruiter']))
+                    {data: 'emp_poc',  name: 'emp_poc'},
+                @endif
                 {data: 'bdm_status', "width": "9%", name: 'bdm_status', searchable: false},
                 {data: 'pv_status', "width": "10%", name: 'pv_status', searchable: false},
                 {data: 'client_status', "width": "10%", name: 'client_status', searchable: false},

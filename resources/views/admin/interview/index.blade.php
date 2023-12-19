@@ -60,11 +60,16 @@
                                                     {!! Form::checkbox('', 'show-time', null, ['id' => "showTime"]) !!} <span style="margin-right: 10px; color:#AC5BAD; font-weight:bold; ">Status Time</span>
                                                 </label>
                                             </div>
-                                            <div class="col-md-2">
+                                            <div class="col-md-3">
                                                 <label>
                                                     {!! Form::checkbox('', 'show-feedback', null, ['id' => "showFeedback"]) !!} <span style="margin-right: 10px">Show FeedBack</span>
                                                 </label>
                                             </div>
+                                            @if(in_array(Auth::user()->role, ['admin', 'bdm']))
+                                                <div class="col-md-3 form-check">
+                                                    <button class="btn btn-sm btn-danger toggle-poc hide-poc" type="button" onclick="togglePoc()">Hide POC</button>
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                     <div class="col-md-2">
@@ -97,6 +102,10 @@
                                         <th>BDM</th>
                                     @endif
                                     @if(in_array($userType,['admin','bdm']))
+                                        <th class='toggle-column'>PV</th>
+                                        <th class='toggle-column'>POC</th>
+                                    @endif
+                                    @if(in_array($userType,['admin','bdm']))
                                     <th>Recruiter</th>
                                     @endif
                                     <th>B Rate</th>
@@ -104,10 +113,6 @@
                                     <th>Employer</th>
                                     @if(in_array($userType,['admin','recruiter']))
                                         <th>EmpPOC</th>
-                                    @endif
-                                    @if(in_array($userType,['admin','bdm']))
-                                        <th>POC</th>
-                                        <th>PV</th>
                                     @endif
                                     <th>Hiring Manager</th>
                                     <th>Client</th>
@@ -225,6 +230,10 @@
                     {data: 'bdm', name: 'bdm'},    
                 @endif
                 @if(in_array($userType,['admin','bdm']))
+                    {data: 'pv_name', name: 'pv_name'},
+                    {data: 'poc_name', name: 'poc_name'},
+                @endif
+                @if(in_array($userType,['admin','bdm']))
                     {data: 'recruiter', name: 'recruiter'},
                 @endif
                 {data: 'br', name: 'br'},
@@ -232,10 +241,6 @@
                 {data: 'employer_name', name: 'employer_name'},
                 @if(in_array($userType,['admin','recruiter']))
                     {data: 'emp_poc', name: 'emp_poc'},
-                @endif
-                @if(in_array($userType,['admin','bdm']))
-                    {data: 'poc_name', name: 'poc_name'},
-                    {data: 'pv_name', name: 'pv_name'},
                 @endif
                 {data: 'hiring_manager', name: 'hiring_manager'},
                 {data: 'client', name: 'client'},
