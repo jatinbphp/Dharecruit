@@ -53,7 +53,7 @@
                                         @endif
                                     </div>
                                 </div>
-                                <div class="col-md-4">    
+                                <div class="col-md-4">
                                     <a href="{{ route('requirement.create') }}"><button class="btn btn-info float-right" type="button"><i class="fa fa-plus pr-1"></i> Add New</button></a>
                                 </div>
                                 <div class="col-md-12 border mt-3 pb-3 pt-3 pl-3 pb-3 pr-3" id="filterDiv">
@@ -222,7 +222,39 @@
                 // {data: 'color', name: 'color'},
                 {data: 'candidate', name: 'candidate'},
                 {data: 'action', "width": "15%", name: 'action', orderable: false, searchable: false},
-            ]
+            ],
+            drawCallback: function() {
+                if($('#showMerge').is(':checked')){
+                    $('#requirementTable tbody tr').each(function(trIndex) {var currentTr = this;
+                        var rowType = '';
+                        if($(this).hasClass('parent-row')){
+                            rowType = 'parant-row';
+                        }
+                        if($(this).hasClass('child-row')){
+                            rowType = 'child-row';
+                        }
+                        if($.trim(rowType) != ''){
+                            $(this).find('td').each(function(tdIndex){
+                                $(this).addClass('color-group');
+                                if(rowType == 'parant-row'){
+                                    $(this).addClass('border-bottom');
+                                }
+                                if(rowType == 'child-row'){
+                                    if(trIndex == 0){
+                                        $(this).addClass('border-top');
+                                    }
+                                }
+                                if (tdIndex === 0) {
+                                    $(this).addClass('border-left');
+                                }
+                                if (tdIndex === $(this).siblings().length) {
+                                    $(this).addClass('border-right');
+                                }
+                            })
+                        }
+                    });
+                }
+            },
         });
 
         $('#requirementTable').on('preXhr.dt', function () {
@@ -333,7 +365,7 @@
         $(document).on('focusout keydown', '#pv_company', function (index, value) {
             $("#pv_company").autocomplete({
                 source: availablePvCompanyName,
-                minLength: 4 
+                minLength: 4
             });
         });
     @endif
