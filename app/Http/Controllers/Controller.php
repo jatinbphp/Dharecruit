@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AssignToRecruiter;
 use App\Models\Requirement;
 use App\Models\Submission;
 use App\Models\Interview;
@@ -159,7 +160,7 @@ class Controller extends BaseController
         if(!empty($request->visa)){
             $query->where('visa', 'like', '%,'.$request->visa.',%');
         }
-        
+
         if(!empty($request->recruiter)){
             $query->where('recruiter', 'like', '%,'.$request->recruiter.',%');
             // $recruiterReqId = $this->getRequirementIdsBasedOnFilterData('recruiter', $request->recruiter, $request);
@@ -259,7 +260,7 @@ class Controller extends BaseController
                 $query->where('id', 0);
             }
         }
-        
+
         if(!empty($request->show_merge) && $request->show_merge == 1){
             return $query->orderBy('parent_requirement_id', 'DESC')->orderBy('id', 'desc')->get();
         }
@@ -276,17 +277,17 @@ class Controller extends BaseController
             $requirementIds =  Requirement::whereHas('submissions', function ($query) use ($userId) {
                     $query->where('user_id', $userId);
                 })->pluck('id')->toArray();
-            
+
             $data['type'] = 'where_in';
             $data['requirement_id'] = array_unique($requirementIds);
-        
+
             return $data;
         }
         if($served == $submissionModel::STATUS_ALLOCATED_BY_ME) {
             $query->where('recruiter', 'like', '%,'.Auth::user()->id.',%');
-            
+
             $data['type'] = 'not_consider';
-           
+
             return $data;
         }
         if($served == $submissionModel::STATUS_ALLOCATED_BY_ME_BUT_NOT_SERVED_BY_ME){
@@ -299,10 +300,10 @@ class Controller extends BaseController
                 $query->where('user_id', '!=', $userId);
             })->pluck('id')->toArray();
             $requirementIdsNotHavingSubmissions = Requirement::doesntHave('submissions')->pluck('id')->toArray();
-            
+
             $data['type'] = 'where_in';
             $data['requirement_id'] = array_unique(array_merge(array_diff($requirementIds, $requirementForCurrentUsersIds), $requirementIdsNotHavingSubmissions));
-            
+
             return $data;
         }
         if($served == $submissionModel::STATUS_ALLOCATED_BY_ME_BUT_NOT_SERVED_BY_ANYONE){
@@ -310,7 +311,7 @@ class Controller extends BaseController
 
             $data['type'] = 'where_in';
             $data['requirement_id'] = array_unique(Requirement::doesntHave('submissions')->pluck('id')->toArray());
-            
+
             return $data;
         }
 
@@ -324,21 +325,21 @@ class Controller extends BaseController
                     $requirementIds =  Requirement::whereHas('submissions', function ($query) use ($recruiter) {
                         $query->where('user_id', $recruiter);
                     })->pluck('id')->toArray();
-                    
+
                     $data['type'] = 'where_in';
                     $data['requirement_id'] = array_unique($requirementIds);
                 }
             } else {
                 $query->whereNotNull('recruiter');
                 $requirementIds =   Requirement::has('submissions')->pluck('id')->toArray();
-                
+
                 $data['type'] = 'where_in';
                 $data['requirement_id'] = array_unique($requirementIds);
             }
 
             return $data;
         }
-        
+
         if($served == $submissionModel::STATUS_UNSERVED) {
             $data = [];
             if(Auth::user()->role == 'admin'){
@@ -350,13 +351,13 @@ class Controller extends BaseController
                 }
             } else {
                 $requirementIds =   Requirement::doesntHave('submissions')->pluck('id')->toArray();
-            
+
                 $data['type'] = 'where_in';
                 $data['requirement_id'] = array_unique($requirementIds);
             }
             return $data;
         }
-        
+
         if($served == $submissionModel::STATUS_ALLOCATED) {
             $data = [];
             if(Auth::user()->role == 'admin'){
@@ -373,7 +374,7 @@ class Controller extends BaseController
             }
             return $data;
         }
-        
+
         if($served == $submissionModel::STATUS_NOT_ALLOCATED) {
             $data = [];
             if(Auth::user()->role == 'admin'){
@@ -399,12 +400,12 @@ class Controller extends BaseController
                 }
             } else {
                 $query->whereNull('recruiter');
-            
+
                 $data['type'] = 'not_consider';
             }
             return $data;
         }
-        
+
         if($served == $submissionModel::STATUS_ALLOCATED_BUT_NOT_SERVED) {
             $data = [];
             if(Auth::user()->role == 'admin') {
@@ -418,16 +419,16 @@ class Controller extends BaseController
                         $query->where('user_id', '!=', $recruiter);
                     })->pluck('id')->toArray();
                     $requirementIdsNotHavingSubmissions = Requirement::doesntHave('submissions')->pluck('id')->toArray();
-                    
+
                     $data['type'] = 'where_in';
                     $data['requirement_id'] = array_unique(array_merge(array_diff($requirementIds, $requirementForCurrentUsersIds), $requirementIdsNotHavingSubmissions));
                 }
             } else {
                 $query->whereNotNull('recruiter');
                 $requirementIds =   Requirement::doesntHave('submissions')->pluck('id')->toArray();
-                
+
                 $data['type'] = 'where_in';
-                $data['requirement_id'] = array_unique($requirementIds);                
+                $data['requirement_id'] = array_unique($requirementIds);
             }
             return $data;
         }
@@ -446,7 +447,7 @@ class Controller extends BaseController
         //     return Submission::where('user_id', $value)->pluck('requirement_id')->toArray();
         // }
 
-        if(in_array(strtolower($columnName), ['status', 'pv_status'])){   
+        if(in_array(strtolower($columnName), ['status', 'pv_status'])){
             $submissions = Submission::query();
             if(strtolower($columnName) == 'status'){
                 $bdmFeedBack = $value;
@@ -491,8 +492,8 @@ class Controller extends BaseController
                             $submissions->orWhere('is_show', 0);
                         });
                     }
-                }); 
-                
+                });
+
                 if(!in_array('no_updates', $value) && !in_array('no_viewed', $value)){
                     $submissions->whereIn('status', $value);
                 }
@@ -505,7 +506,7 @@ class Controller extends BaseController
                     $requiremrntIdsHavingSubmission = $submissions->where('user_id', $request->authId)->pluck('requirement_id')->toArray();
                 } else {
                     $requiremrntIdsHavingSubmission = $submission->pluck('requirement_id')->toArray();
-                }   
+                }
             } else if(Auth::user()->role == 'bdm'){
                 $requirementIds = Requirement::where('user_id', Auth::user()->id)->pluck('id')->toArray();
 
@@ -520,7 +521,7 @@ class Controller extends BaseController
                 $requiremrntIdsHavingSubmission = $submissions->pluck('requirement_id')->toArray();
             }
 
-            $requiremrntIdsHavingSubmission = array_unique($requiremrntIdsHavingSubmission);           
+            $requiremrntIdsHavingSubmission = array_unique($requiremrntIdsHavingSubmission);
         } else if(strtolower($columnName) == 'client_feedback'){
             $submissionId = Interview::whereIn('status', $value)->pluck('submission_id')->toArray();
             if(!$submissionId && !count($submissionId)){
@@ -544,7 +545,7 @@ class Controller extends BaseController
 
                     $requiremrntIdsHavingSubmission = $submissions->pluck('requirement_id')->toArray();
                 } else {
-                    $requiremrntIdsHavingSubmission = $submissions->pluck('requirement_id')->toArray();   
+                    $requiremrntIdsHavingSubmission = $submissions->pluck('requirement_id')->toArray();
                 }
             }
         } else {
@@ -608,7 +609,7 @@ class Controller extends BaseController
             if($page == 'my_submission'){
                 $userId = $submission->requirement->user_id;
             }
-            
+
             $isSamePvCandidate = $this->isSamePvCandidate($submission->email, $submission->requirement_id, $submission->id);
             $otherCandidate = 'other-candidate';
             if($user->id == $userId || $user->role == 'admin'){
@@ -666,7 +667,7 @@ class Controller extends BaseController
             }
             $nameArray          = explode(" ",$submission->name);
             $candidateFirstName = isset($nameArray[0]) ? $nameArray[0] : '';
-            $candidateLastDate  = ($this->getCandidateLastStatusUpdatedAt($submission)) ? date('m/d h:i A', strtotime($this->getCandidateLastStatusUpdatedAt($submission))) : ''; 
+            $candidateLastDate  = ($this->getCandidateLastStatusUpdatedAt($submission)) ? date('m/d h:i A', strtotime($this->getCandidateLastStatusUpdatedAt($submission))) : '';
             $candidateCount     = $this->getCandidateCountByEmail($submission->email);
             $latestJobIdOfMatchPvCompany = $this->getLatestJobIdOfMatchPvCompany($submission->email);
             $isCandidateHasLog  = $this->isCandidateHasLog($submission);
@@ -811,7 +812,7 @@ class Controller extends BaseController
             return '';
         }
 
-        $statuslastUpdatedAt =  EntityHistory::whereIn('entity_type',[EntityHistory::ENTITY_TYPE_PV_STATUS,EntityHistory::ENTITY_TYPE_BDM_STATUS])->where('submission_id',$submissionId)->orderBy('id','DESC')->first(['created_at']); 
+        $statuslastUpdatedAt =  EntityHistory::whereIn('entity_type',[EntityHistory::ENTITY_TYPE_PV_STATUS,EntityHistory::ENTITY_TYPE_BDM_STATUS])->where('submission_id',$submissionId)->orderBy('id','DESC')->first(['created_at']);
         if(empty($statuslastUpdatedAt) || !$statuslastUpdatedAt->created_at){
             return '';
         }
@@ -844,14 +845,14 @@ class Controller extends BaseController
         $currentRequirementPvCompany = $currentRequirement->pv_company_name;
 
         $samePvCompanyCandidate = Requirement::whereIn('id',$requirementIdsWithCurrentEmail)->where('pv_company_name',$currentRequirementPvCompany)->first();
-        
+
         if(empty($samePvCompanyCandidate)){
             return 0;
         }
-    
+
         return 1;
     }
-    
+
     public function getCandidateCountByEmail($email){
         if(!$email){
             return 0;
@@ -931,7 +932,7 @@ class Controller extends BaseController
         }
 
         $submission = Submission::where('email', $email)->orderBy('created_at','DESC')->first();
-        
+
         if(!empty($submission) && $submission->Requirement->job_id){
             return $submission->Requirement->job_id;
         }
@@ -948,11 +949,11 @@ class Controller extends BaseController
         if(empty($allLogData) || !count($allLogData)){
             return '';
         }
-        
-        $logData = 
+
+        $logData =
             '<br><table class="table table-striped log-data" style="display:none">
                 <thead>
-                
+
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">Latest First <br>Value</th>
@@ -969,7 +970,7 @@ class Controller extends BaseController
             if(isset($allData[$key]) && $allData[$key]){
                 $count++;
                 $isNoLogData = 0;
-                $logData .= 
+                $logData .=
                     '<tr>
                         <th scope="row">'.$count.'</th>
                         <td>'.$allData[$key].'</td>
@@ -988,7 +989,7 @@ class Controller extends BaseController
             return '';
         }
 
-        $logData .= 
+        $logData .=
                 '</tbody>
             </table>';
 
@@ -1070,7 +1071,7 @@ class Controller extends BaseController
             whereNotIn('status', [$requirementObj::STATUS_EXP_HOLD, $requirementObj::STATUS_EXP_NEED])
             ->whereRaw('TIMESTAMPDIFF(HOUR, created_at, NOW()) >= ?', [$expHours])
             ->get();
-        
+
         if(empty($requirementData)){
             return $this;
         }
@@ -1081,9 +1082,9 @@ class Controller extends BaseController
             $data = [];
 
             $data['status'] = ($requirement->status == 'unhold') ? $requirementObj::STATUS_EXP_NEED : $requirementObj::STATUS_EXP_HOLD;
-            
+
             $requirement->update($data);
-            
+
             $data['requirement_id'] = $requirement->id;
             $data['created_at'] = $requirement->created_at;
             $logData[$requirement->id] = $data;
@@ -1094,7 +1095,7 @@ class Controller extends BaseController
             $inputData['section']    = 'requirement';
             $inputData['data']       = json_encode($logData);
 
-            DataLog::create($inputData);   
+            DataLog::create($inputData);
         }
 
         return $this;
@@ -1207,7 +1208,7 @@ class Controller extends BaseController
         return $isFound;
     }
 
-    public function getPvCompanyName() 
+    public function getPvCompanyName()
     {
         $pvCompany = PvCompany::whereNotNull('name');
         if(Auth::user()->role != 'admin'){
@@ -1270,7 +1271,7 @@ class Controller extends BaseController
         if(!$columnName || !$value){
             return 0;
         }
-        
+
         $newPocCountConfiguration = 0;
 
         $settingRow =  Setting::where('name', 'heighlight_new_poc_data_days')->first();
@@ -1288,7 +1289,7 @@ class Controller extends BaseController
                 $query->where('id' ,\DB::raw('parent_requirement_id'));
                 $query->orwhere('parent_requirement_id', '=', '0');
             })->first();
-        
+
         if(empty($requirementRow) || !$requirementRow->created_at){
             return false;
         }
@@ -1315,7 +1316,7 @@ class Controller extends BaseController
                 $query->orwhere('parent_requirement_id', '=', '0');
             })->count();
         }
-        
+
         $newPocCountConfiguration = 0;
 
         $settingRow =  Setting::where('name', 'show_poc_count_days')->first();
@@ -1403,5 +1404,44 @@ class Controller extends BaseController
         }
 
         return Submission::where($columnName, $value)->count();
+    }
+
+    public function assignRecruiterToRequirement($requirementId, $recruiters)
+    {
+        if(!$requirementId || !$recruiters || !is_array($recruiters)){
+            return $this;
+        }
+
+        foreach ($recruiters as $recruiterId){
+            $assignRecruiterRow = AssignToRecruiter::Where('requirement_id', $requirementId)
+                ->where('recruiter_id', $recruiterId)->first();
+            if(empty($assignRecruiterRow)){
+                AssignToRecruiter::create(
+                    [
+                        'requirement_id' => $requirementId,
+                        'recruiter_id' => $recruiterId,
+                    ]
+                );
+            }
+        }
+
+        $allAssignedRecruiters = AssignToRecruiter::Where('requirement_id', $requirementId)
+            ->pluck('recruiter_id')
+            ->toArray();
+
+        if($allAssignedRecruiters && count($allAssignedRecruiters)){
+            $recruitersDiffrence = array_diff($allAssignedRecruiters, $recruiters);
+            if($recruitersDiffrence && count($recruitersDiffrence)){
+                foreach ($recruitersDiffrence as $recruiterId){
+                    $rowToRemove = AssignToRecruiter::Where('requirement_id', $requirementId)
+                        ->where('recruiter_id', $recruiterId)->first();
+
+                    if ($rowToRemove) {
+                        $rowToRemove->delete();
+                    }
+                }
+            }
+        }
+        return  $this;
     }
 }
