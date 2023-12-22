@@ -36,7 +36,7 @@ class SubmissionController extends Controller
     }
 
     public function myRequirement(Request $request){
-        
+
         $data['menu'] = "My Requirements";
         $data['search'] = $request['search'];
 
@@ -199,7 +199,7 @@ class SubmissionController extends Controller
         $data['submission'] = Submission::where('id',$id)->first();
         $data['sub_menu'] = "Submission";
         $data['settings'] = $this->getSettingData();
-       
+
         return view('admin.submission.edit',$data);
     }
 
@@ -256,6 +256,7 @@ class SubmissionController extends Controller
         if(!empty($requirement)){
             $input['recruiter'] = !empty($requirement['recruiter']) ? $requirement['recruiter'].Auth::user()->id.',' : ','.Auth::user()->id.',';
             $requirement->update($input);
+            $this->assignRecruiterToRequirement($requirement->id, [Auth::user()->id]);
             return 1;
         }else{
             return 0;
@@ -265,14 +266,14 @@ class SubmissionController extends Controller
     public function getAlreadyAddedUserDetail(Request $request){
         $status = 0;
         $responceData['status'] = $status;
-        
+
         if(!$request || (!$request->get('email') && !$request->get('id'))){
             return $responceData;
         }
 
         $submissionId = $request->get('id');
         $submissionEmail = $request->get('email');
-        
+
         $data = [];
 
         if (!empty($submissionEmail)){
@@ -334,7 +335,7 @@ class SubmissionController extends Controller
         if(empty($request) || empty($request->requirement_id) || empty($request->email)){
             return $data;
         }
-        
+
         $data['status']            = 1;
         $data['isSamePvCandidate'] = $this->isSamePvCandidate($request->email, $request->requirement_id);
 
@@ -352,7 +353,7 @@ class SubmissionController extends Controller
         $phone        = $submission->employee_phone;
 
         $oldemployeeData = Admin::where('email', $email)->where('added_by', Auth::user()->id)->where('role','employee')->first();
-        
+
         if($oldemployeeData){
             return $this;
         }
@@ -382,7 +383,7 @@ class SubmissionController extends Controller
         $currentUserPocEmail = Admin::where(function ($query) use ($empEmail) {
             $query->where('email', '=', $empEmail)
                   ->orWhere('linked_data', 'like', '%'.$empEmail.'%');
-            })->where('added_by', $logggedInUserId)->where('role','employee')->first(); 
+            })->where('added_by', $logggedInUserId)->where('role','employee')->first();
 
         if(!empty($currentUserPocEmail)){
             $data['status'] = 1;
@@ -429,7 +430,7 @@ class SubmissionController extends Controller
         }
 
         $oldData = Admin::where('email', $email)->where('role', 'employee')->first();
-        
+
         if(empty($oldData)){
             $data['status'] = 0;
             return $data;
