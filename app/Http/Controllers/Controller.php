@@ -1408,8 +1408,13 @@ class Controller extends BaseController
 
     public function assignRecruiterToRequirement($requirementId, $recruiters)
     {
-        if(!$requirementId || !$recruiters || !is_array($recruiters)){
+        if(!$requirementId){
             return $this;
+        }
+
+        if(!$recruiters || !count($recruiters)){
+            AssignToRecruiter::where('requirement_id', $requirementId)->delete();
+            return  $this;
         }
 
         foreach ($recruiters as $recruiterId){

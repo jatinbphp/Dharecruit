@@ -138,11 +138,10 @@ class RequirementController extends Controller
                 $recruiter['recruiter'] = $this->getCommaSeperatedValues($request['recruiter']);
                 $requirements->update($recruiter);
 
-                if(isset($request['recruiter']) && count($request['recruiter'])){
-                    if($requirements->id){
-                        $this->assignRecruiterToRequirement($requirements->id, $request['recruiter']);
-                    }
+                if($requirements->id){
+                    $this->assignRecruiterToRequirement($requirements->id, $request['recruiter']);
                 }
+
             }
 
             if(!empty($request['visa']) && $requirements){
@@ -306,10 +305,15 @@ class RequirementController extends Controller
                 $recruiter['recruiter'] = $this->getCommaSeperatedValues($request['recruiter']);
                 $requirement->update($recruiter);
 
-                if(isset($request['recruiter']) && count($request['recruiter'])){
-                    if($requirement->id){
-                        $this->assignRecruiterToRequirement($requirement->id, $request['recruiter']);
-                    }
+                if($requirement->id){
+                    $this->assignRecruiterToRequirement($requirement->id, $request['recruiter']);
+                }
+            } else {
+                $recruiter['recruiter'] = '';
+                $requirement->update($recruiter);
+
+                if($requirement->id){
+                    $this->assignRecruiterToRequirement($requirement->id, $request['recruiter']);
                 }
             }
 
@@ -568,6 +572,10 @@ class RequirementController extends Controller
             if(!empty($request['recruiter']) && $requirements){
                 $recruiter['recruiter'] = $this->getCommaSeperatedValues($request['recruiter']);
                 $requirements->update($recruiter);
+
+                if($requirements->id){
+                    $this->assignRecruiterToRequirement($requirements->id, $request['recruiter']);
+                }
             }
 
             if(!empty($request['visa']) && $requirements){
