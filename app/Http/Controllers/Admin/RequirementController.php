@@ -76,7 +76,7 @@ class RequirementController extends Controller
         $data['category'] = Category::where('status','active')->pluck('name','id')->prepend('Please Select','');
         $data['moi'] = Moi::where('status','active')->pluck('name','id');
         $data['visa'] = Visa::where('status','active')->pluck('name','id');
-        
+
         return view("admin.requirement.create",$data);
     }
 
@@ -137,6 +137,12 @@ class RequirementController extends Controller
             if(!empty($request['recruiter']) && $requirements){
                 $recruiter['recruiter'] = $this->getCommaSeperatedValues($request['recruiter']);
                 $requirements->update($recruiter);
+
+                if(isset($request['recruiter']) && count($request['recruiter'])){
+                    if($requirements->id){
+                        $this->assignRecruiterToRequirement($requirements->id, $request['recruiter']);
+                    }
+                }
             }
 
             if(!empty($request['visa']) && $requirements){
@@ -299,6 +305,12 @@ class RequirementController extends Controller
             if(!empty($request['recruiter'])){
                 $recruiter['recruiter'] = $this->getCommaSeperatedValues($request['recruiter']);
                 $requirement->update($recruiter);
+
+                if(isset($request['recruiter']) && count($request['recruiter'])){
+                    if($requirement->id){
+                        $this->assignRecruiterToRequirement($requirement->id, $request['recruiter']);
+                    }
+                }
             }
 
             if(!empty($request['visa'])){
@@ -375,7 +387,7 @@ class RequirementController extends Controller
 
         if(isset($input['status']) && $input['status'] != $submission->status) {
             $input['bdm_status_updated_at'] = \Carbon\Carbon::now();
-            
+
             $inputData['submission_id']  = $submission->id;
             $inputData['requirement_id'] = $submission->requirement_id;
             $inputData['entity_type']    = EntityHistory::ENTITY_TYPE_BDM_STATUS;
@@ -386,7 +398,7 @@ class RequirementController extends Controller
 
         if(isset($input['pv_status']) && $input['pv_status'] != $submission->pv_status) {
             $input['pv_status_updated_at'] = \Carbon\Carbon::now();
-            
+
             $inputData['submission_id']  = $submission->id;
             $inputData['requirement_id'] = $submission->requirement_id;
             $inputData['entity_type']    = EntityHistory::ENTITY_TYPE_PV_STATUS;
@@ -526,7 +538,7 @@ class RequirementController extends Controller
         }else{
             $input['parent_requirement_id'] = $requirementRow->parent_requirement_id;
         }
-        
+
         $input['user_id'] = Auth::user()->id;
         $input['job_id'] = 0;
         unset($input['recruiter']);
@@ -587,7 +599,7 @@ class RequirementController extends Controller
         $clientName    = $requirement->client_name;
 
         $oldPvCompanyData = PVCompany::where('email',$requirement->poc_email)->where('user_id',Auth::user()->id)->first();
-        
+
         if($oldPvCompanyData){
             return $this;
         }
@@ -673,7 +685,7 @@ class RequirementController extends Controller
         }
 
         $oldData = PVCompany::where('email', $email)->first();
-        
+
         if(empty($oldData)){
             $data['status'] = 0;
             return $data;
