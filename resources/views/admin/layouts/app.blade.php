@@ -164,6 +164,26 @@
         .hidden-element {
             display: none;
         }
+
+        caption {
+            caption-side: top;
+        }
+
+        .border-with-label {
+            position: relative;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .border-with-label::before {
+            content: attr(data-label);
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            padding: 0 5px;
+            font-size: 15px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body class="hold-transition sidebar-mini sidebar-collapse" id="bodyid">
@@ -363,7 +383,7 @@
                             </a>
                         </li>
                     @endif
-                    
+
                     @if($loginRole == 'admin' || $check15)
                         <li class="nav-item">
                             <a href="{{ route('employee.index') }}" class="nav-link @if($menu=='Employee') active @endif">
@@ -433,6 +453,23 @@
                                 <i class="nav-icon fa fa-cog"></i>
                                 <p>Manage Settings</p>
                             </a>
+                        </li>
+                    @endif
+                    @if($loginRole == 'admin')
+                        <li class="nav-item @if(in_array($menu, ['Efficiency Report'])) menu-open @endif">
+                            <a href="#" class="nav-link @if(in_array($menu, ['Efficiency Report'])) active @endif">
+                                <i class="nav-icon fas fa-tasks"></i>
+                                <p>Manage Reports <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ route('reports',['type' => 'efficiency']) }}" class="nav-link @if($menu=='Efficiency Report') active @endif">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Efficiency Report</p>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                     @endif
                 </ul>
@@ -802,7 +839,7 @@
             $('.'+type+'-icon').show();
         }
     }
-    
+
     $('#requirementTable, #mySubmissionTable tbody').on('click', '.view-submission', function (event) {
         var requirementId = $(this).attr('data-id');
         $.ajax({
@@ -824,7 +861,7 @@
 
     $('#showTime').click(function(){
         if($('#showTime').is(':checked')){
-            $('.status-time').show();    
+            $('.status-time').show();
         } else {
             $('.status-time').hide();
         }
@@ -883,7 +920,7 @@
                             var employeeEmail = submissionData['employee_email'];
                             $('#add_phone_icon').attr("onclick", "showFiled('linking_phone', '"+ employeeEmail +"')");
                             var textBox = document.getElementById('employee_phone');
-                 
+
                             if(textBox){
                                 $('#linkEmployeePhoneNumber').remove();
                                 textBox.insertAdjacentHTML('afterend', linkingData['linkEmployeePhoneNumber']);
@@ -1046,7 +1083,7 @@
         }else{
             $('.rejection').hide();
         }
-        
+
         if($(this).val() == 'accepted'){
             if ($('#candidateStatus').is(':visible')) {
                 $('.pv-status-select').show();
@@ -1054,7 +1091,7 @@
         }else{
             if ($('#candidateStatus').is(':visible')) {
                 $('.pv-status-select').hide();
-                $('#candidatePvStatus').val(null).trigger('change');   
+                $('#candidatePvStatus').val(null).trigger('change');
             }
         }
     });
@@ -1081,7 +1118,7 @@
 
     $('#showFeedback').click(function(){
         if($('#showFeedback').is(':checked')){
-            $('.feedback').show();    
+            $('.feedback').show();
         } else {
             $('.feedback').hide();
         }
@@ -1104,7 +1141,7 @@
         var type = $('#type').val();
 
         if(!type || !email){
-            swal("Error", "Something is wrong.", "error"); 
+            swal("Error", "Something is wrong.", "error");
             return;
         }
 

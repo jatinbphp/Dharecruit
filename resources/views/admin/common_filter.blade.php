@@ -37,7 +37,7 @@
         <div class="col-md-3">
             <div class="form-group">
                 <label class="control-label" for="bdm">BDM</label>
-                {!! Form::select('bdm', \App\Models\Admin::getActiveBDM(), null, ['class' => 'form-control select2','id'=>'bdm']) !!}
+                {!! Form::select('bdm', \App\Models\Admin::getActiveBDM(true), null, ['class' => 'form-control select2','id'=>'bdm']) !!}
             </div>
         </div>
     @endif
@@ -45,7 +45,7 @@
         <div class="col-md-3">
             <div class="form-group">
                 <label class="control-label" for="recruiter">Recruiter</label>
-                {!! Form::select('recruiter', \App\Models\Admin::getActiveRecruiter(), null, ['class' => 'form-control select2','id'=>'recruiter']) !!}
+                {!! Form::select('recruiter', \App\Models\Admin::getActiveRecruiter(true), null, ['class' => 'form-control select2','id'=>'recruiter']) !!}
             </div>
         </div>
     @endif

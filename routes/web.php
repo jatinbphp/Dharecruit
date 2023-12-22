@@ -1,30 +1,30 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\ImageController;
-use App\Http\Controllers\Admin\ProfileUpdateController;
-use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\BDMSubmissionController;
 use App\Http\Controllers\Admin\BDMUserController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CommonController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\EmployeeController;
+use App\Http\Controllers\Admin\ImageController;
+use App\Http\Controllers\Admin\InterviewController;
+use App\Http\Controllers\Admin\MoiController;
+use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\ProfileUpdateController;
+use App\Http\Controllers\Admin\PVCompanyController;
 use App\Http\Controllers\Admin\RecruiterUserController;
+use App\Http\Controllers\Admin\ReportsController;
+use App\Http\Controllers\Admin\RequirementController;
+use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\SubmissionController;
 use App\Http\Controllers\Admin\TlBdmUserController;
 use App\Http\Controllers\Admin\TlRecruiterUserController;
-use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\MoiController;
-use App\Http\Controllers\Admin\RequirementController;
-use App\Http\Controllers\Admin\PermissionController;
-use App\Http\Controllers\Admin\PVCompanyController;
-use App\Http\Controllers\Admin\SubmissionController;
-use App\Http\Controllers\Admin\BDMSubmissionController;
-use App\Http\Controllers\Admin\CommonController;
-use App\Http\Controllers\Admin\InterviewController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VisaController;
-use App\Http\Controllers\Admin\SettingController;
-use App\Http\Controllers\Admin\EmployeeController;
-use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\LoginController;
+use Illuminate\Support\Facades\Route;
+
+;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -147,6 +147,9 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('user/assign', [EmployeeController::class,'assign'])->name('employee.assign');
     Route::post('user/unassign', [EmployeeController::class,'unassign'])->name('employee.unassign');
     Route::resource('employee', EmployeeController::class);
+
+    /* REPORTS MANAGEMENT */
+    Route::get('reports/{type}', [ReportsController::class, 'index'])->name('reports');
 
     Auth::routes();
 });
