@@ -79,7 +79,11 @@
                                     </div>
                                 @endif
                             </div>
-                            <div class="row mt-3" id="reportContent">
+                            <div class="card-body table-responsive">
+                                <div id="overlay" style="display: none">
+                                    <div id="spinner"></div>
+                                </div>
+                                <div class="row mt-3" id="reportContent"></div>
                             </div>
                         </div>
                     </div>
@@ -112,6 +116,7 @@
                     return;
                 }
             @endif
+                $('#overlay').show();
             $.ajax({
                 url: "{{route('reports',[$type, $subType])}}",
                 type: "get",
@@ -120,6 +125,7 @@
                     if(responce.content){
                         $('#reportContent').html(responce.content);
                     }
+                    $('#overlay').hide();
                 }
             });
         }
