@@ -184,6 +184,10 @@
             font-size: 15px;
             font-weight: bold;
         }
+
+        .element-border {
+            border: 1px solid black !important;
+        }
     </style>
 </head>
 <body class="hold-transition sidebar-mini sidebar-collapse" id="bodyid">
@@ -464,9 +468,17 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ route('reports',['type' => 'efficiency']) }}" class="nav-link @if($menu=='Efficiency Report') active @endif">
+                                    <a href="{{ route('reports',['type' => 'efficiency', 'subType' => 'sub_received']) }}" class="nav-link @if(isset($subType) && $subType=='sub_received') active @endif">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Efficiency Report</p>
+                                        <p>Sub Received(BDM)</p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ route('reports',['type' => 'efficiency', 'subType' => 'sub_sent']) }}" class="nav-link @if(isset($subType) && $subType=='sub_sent') active @endif">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Sub Sent(Recruiter)</p>
                                     </a>
                                 </li>
                             </ul>

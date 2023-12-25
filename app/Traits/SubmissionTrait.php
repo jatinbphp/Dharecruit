@@ -1,6 +1,8 @@
 <?php
 namespace App\Traits;
 
+use App\Models\Admin;
+use App\Models\AssignToRecruiter;
 use App\Models\Interview;
 use App\Models\Requirement;
 use App\Models\Submission;
@@ -9,43 +11,73 @@ trait SubmissionTrait{
 
     use CommonTrait;
 
-    protected $_userIdWiseAllotadRequirementCount = [];
-    protected $_userIdWiseServedRequirementCount = [];
-    protected $_userIdWiseUnServedRequirementCount = [];
-    protected $_userIdWiseStatusCount = [];
-    protected $_userIdWiseClientStatusCount = [];
+    protected $_userIdWiseRecruiterAllotadRequirementCount = [];
+    protected $_userIdWiseRecruiterServedRequirementCount = [];
+    protected $_userIdWiseRecruiterUnServedRequirementCount = [];
+
+    protected $_userIdWiseRecruiterSubmissionSentCount = [];
+    protected $_userIdWiseRecruiterStatusCount = [];
+    protected $_userIdWiseRecruiterClientStatusCount = [];
     protected $_userIdWisetotalReceivedSubmissionCount = [];
     public function getRecruiterUserHeadingData(): array
     {
         return [
-            'Recruiter',
-            'Allotad',
-            'Served',
-            'Unserved',
-            'Servable%',
-            'Sub Sent',
-            'Uniq Sub',
-            'Accept',
-            'Rejected',
-            'Pending',
-            'Unviewed',
-            'Vendor No Res.',
-            'Vendor Rejected',
-            'Client Rejected',
-            'Sub To End Client',
-            'position Closed',
-            'Re Scheduled',
-            'Another Round',
-            'Waiting FeedBack',
-            'Conformed',
-            'Rejected By Client',
-            'Backout',
+            'heading_recruiter'          =>'Recruiter',
+            'heading_alloted'            =>'Allotad',
+            'heading_served'             =>'Served',
+            'heading_unserved'           =>'Unserved',
+            'heading_servable_per'       =>'Servable%',
+            'heading_sub_sent'           =>'Sub Sent',
+            'heading_uniq_sub'           =>'Uniq Sub',
+            'heading_accept'             => 'Accept',
+            'heading_rejected'           => 'Rejected',
+            'heading_pending'            => 'Pending',
+            'heading_un_viewed'          => 'Unviewed',
+            'heading_vendor_no_responce' => 'Vendor No Res.',
+            'heading_vendor_rejected'    => 'Vendor Rejected',
+            'heading_client_rejected'    => 'Client Rejected',
+            'heading_sub_to_end_client'  => 'Sub To End Client',
+            'heading_position_closed'    => 'position Closed',
+            'heading_re_scheduled'       => 'Re Scheduled',
+            'heading_another_round'      => 'Another Round',
+            'heading_waiting_feedback'   => 'Waiting FeedBack',
+            'heading_confirmed'          => 'Conformed',
+            'heading_rejected_by_client' => 'Rejected By Client',
+            'heading_backout'            => 'Backout',
         ];
     }
 
-    public function getDateWiseRecruiterData($type, $userId, $recruiters, $request): array
+    public function getRecruiterTimeFrameHeadingData()
     {
-        $headingType = $this->formatString($type);
+        return [
+            'heading_time_frame'         => "Time Frame",
+            'heading_alloted'            =>'Allotad',
+            'heading_served'             =>'Served',
+            'heading_unserved'           =>'Unserved',
+            'heading_servable_per'       =>'Servable%',
+            'heading_sub_sent'           =>'Sub Sent',
+            'heading_uniq_sub'           =>'Uniq Sub',
+            'heading_accept'             => 'Accept',
+            'heading_rejected'           => 'Rejected',
+            'heading_pending'            => 'Pending',
+            'heading_un_viewed'          => 'Unviewed',
+            'heading_vendor_no_responce' => 'Vendor No Res.',
+            'heading_vendor_rejected'    => 'Vendor Rejected',
+            'heading_client_rejected'    => 'Client Rejected',
+            'heading_sub_to_end_client'  => 'Sub To End Client',
+            'heading_position_closed'    => 'position Closed',
+            'heading_re_scheduled'       => 'Re Scheduled',
+            'heading_another_round'      => 'Another Round',
+            'heading_waiting_feedback'   => 'Waiting FeedBack',
+            'heading_confirmed'          => 'Conformed',
+            'heading_rejected_by_client' => 'Rejected By Client',
+            'heading_backout'            => 'Backout',
+        ];
+    }
+
+    public function getDateWiseRecruiterData($type, $userId, $recruiters, $request, $isCompare = 0): array
+    {
+        $headingType = ($isCompare) ? Admin::getUserNameBasedOnId($userId) : $this->formatString($type);
         $date = $this->getDate($type, $request);
         if(!$date || !count($date) || !isset($date['from']) || !isset($date['to'])){
             return  [];
@@ -54,73 +86,177 @@ trait SubmissionTrait{
         $submissionModel = new Submission();
         $interviewModel  = new Interview();
 
-        $totalRequirements  = $this->getTotalRecruiterRequirementCount($date, $userId, $recruiters, $type);
-        $servedRequirements = $this->getTotalRecruiterServedRequirementCount($date, $userId, $recruiters, $type);
-        $servablPer         = $this->getPercentage($servedRequirements, $totalRequirements);
+        $totalAllotedRequirements  = $this->getTotalRecruiterAllotedRequirementCount($date, $userId, $recruiters, $type);
+        $servedRequirements        = $this->getTotalRecruiterServedRequirementCount($date, $userId, $recruiters, $type);
+        $servablPer                = $this->getPercentage($servedRequirements, $totalAllotedRequirements);
 
         return [
             'heading_type'                   => $headingType,
-            'allocated'                      => $totalRequirements,
+            'alloted'                        => $totalAllotedRequirements,
             'served'                         => $servedRequirements,
-            'unserved'                       => 0,
+            'unserved'                       => $this->getTotalRecruiterUnServedRequirementCount($date, $userId, $recruiters, $type),
             'servable_per'                   => $servablPer,
-            'submission_received'            => 0,
-            'bdm_accept'                     => 0,
-            'bdm_rejected'                   => 0,
-            'bdm_unviewed'                   => 0,
-            'bdm_pending'                    => 0,
-            'vendor_no_responce'             => 0,
-            'vendor_rejected_by_pv'          => 0,
-            'vendor_rejected_by_client'      => 0,
-            'vendor_submitted_to_end_client' => 0,
-            'vendor_position_closed'         => 0,
-            'client_rescheduled'             => 0,
-            'client_selected_for_next_round' => 0,
-            'client_waiting_feedback'        => 0,
-            'client_confirmed_position'      => 0,
-            'client_rejected'                => 0,
-            'client_backout'                 => 0,
+            'submission_sent'                => $this->getTotalRecruiterSubmissionSentCount($date, $userId, $recruiters, $type),
+            'unique_submission_sent'         => $this->getTotalRecruiterSubmissionSentCount($date, $userId, $recruiters, $type, 1   ),
+            'bdm_accept'                     => $this->getTotalRecruiterStatusCount('status', $submissionModel::STATUS_ACCEPT, $date, $userId, $recruiters, $type),
+            'bdm_rejected'                   => $this->getTotalRecruiterStatusCount('status', $submissionModel::STATUS_REJECTED, $date, $userId, $recruiters, $type),
+            'bdm_unviewed'                   => $this->getTotalRecruiterStatusCount('status', $submissionModel::STATUS_NOT_VIEWED, $date, $userId, $recruiters, $type),
+            'bdm_pending'                    => $this->getTotalRecruiterStatusCount('status', $submissionModel::STATUS_PENDING, $date, $userId, $recruiters, $type),
+            'vendor_no_responce'             => $this->getTotalRecruiterStatusCount('pv_status', $submissionModel::STATUS_NO_RESPONSE_FROM_PV, $date, $userId, $recruiters, $type),
+            'vendor_rejected_by_pv'          => $this->getTotalRecruiterStatusCount('pv_status', $submissionModel::STATUS_REJECTED_BY_PV, $date, $userId, $recruiters, $type),
+            'vendor_rejected_by_client'      => $this->getTotalRecruiterStatusCount('pv_status', $submissionModel::STATUS_REJECTED_BY_END_CLIENT, $date, $userId, $recruiters, $type),
+            'vendor_submitted_to_end_client' => $this->getTotalRecruiterStatusCount('pv_status', $submissionModel::STATUS_SUBMITTED_TO_END_CLIENT, $date, $userId, $recruiters, $type),
+            'vendor_position_closed'         => $this->getTotalRecruiterStatusCount('pv_status', $submissionModel::STATUS_POSITION_CLOSED, $date, $userId, $recruiters, $type),
+            'client_rescheduled'             => $this->getTotalRecruiterClientStatusCount($interviewModel::STATUS_RE_SCHEDULED, $date, $userId, $recruiters, $type),
+            'client_selected_for_next_round' => $this->getTotalRecruiterClientStatusCount($interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND, $date, $userId, $recruiters, $type),
+            'client_waiting_feedback'        => $this->getTotalRecruiterClientStatusCount($interviewModel::STATUS_WAITING_FEEDBACK, $date, $userId, $recruiters, $type),
+            'client_confirmed_position'      => $this->getTotalRecruiterClientStatusCount($interviewModel::STATUS_CONFIRMED_POSITION, $date, $userId, $recruiters, $type),
+            'client_rejected'                => $this->getTotalRecruiterClientStatusCount($interviewModel::STATUS_REJECTED, $date, $userId, $recruiters, $type),
+            'client_backout'                 => $this->getTotalRecruiterClientStatusCount($interviewModel::STATUS_BACKOUT, $date, $userId, $recruiters, $type),
         ];
     }
 
-    public function getTotalRecruiterRequirementCount($date, $recruiters, $userId, $type)
+    public function getTotalRecruiterAllotedRequirementCount($date, $userId, $recruiters, $type)
     {
-        if(!$this->_userIdWiseAllotadRequirementCount || !isset($this->_userIdWiseAllotadRequirementCount[$type])){
-            
+
+        if(!$this->_userIdWiseRecruiterAllotadRequirementCount || !isset($this->_userIdWiseRecruiterAllotadRequirementCount[$type])){
+            $this->_userIdWiseRecruiterAllotadRequirementCount[$type] = AssignToRecruiter::whereIn('recruiter_id', $recruiters)
+                ->whereBetween('created_at', $date)
+                ->groupBy('recruiter_id')
+                ->selectRaw('recruiter_id, COUNT(id) as count')
+                ->pluck('count', 'recruiter_id')
+                ->toArray();
         }
 
-//        if(!$this->_userIdWiseAllotadRequirementCount || !isset($this->_userIdWiseAllotadRequirementCount[$type])){
-//            $this->_userIdWiseAllotadRequirementCount[$type] = Requirement::leftJoin('submissions', 'requirements.id', '=', 'submissions.requirement_id')
-//                ->whereBetween('submissions.created_at', $date)
-//                ->whereIn('submissions.user_id', $recruiters)
-//                ->groupBy('submissions.user_id')
-//                ->selectRaw('submissions.user_id, COUNT(requirements.id) as count')
-//                ->pluck('count', 'user_id')
-//                ->toArray();
-//        }
-//
-//        if(isset($this->_userIdWiseAllotadRequirementCount[$type][$userId])){
-//            return $this->_userIdWiseAllotadRequirementCount[$type][$userId];
-//        }
+        if(isset($this->_userIdWiseRecruiterAllotadRequirementCount[$type][$userId])){
+            return $this->_userIdWiseRecruiterAllotadRequirementCount[$type][$userId];
+        }
 
         return 0;
     }
 
-    public function getTotalRecruiterServedRequirementCount($date, $recruiters, $userId, $type)
+    public function getTotalRecruiterServedRequirementCount($date, $userId, $recruiters, $type)
     {
-        if(!$this->_userIdWiseServedRequirementCount || !isset($this->_userIdWiseServedRequirementCount[$type])){
-            $this->_userIdWiseServedRequirementCount[$type] = Requirement::whereHas('submissions',
-                function ($query) use ($recruiters, $date) {
-                    $query->whereIn('user_id', $recruiters)
-                        ->whereBetween('created_at', $date);
-                })
-                ->pluck('id')->toArray();
+        if(!$this->_userIdWiseRecruiterServedRequirementCount || !isset($this->_userIdWiseRecruiterServedRequirementCount[$type])){
+            $this->_userIdWiseRecruiterServedRequirementCount[$type] = Submission::select('user_id', \DB::raw('COUNT(DISTINCT requirement_id) as count'))
+                ->whereIn('user_id', $recruiters)
+                ->whereBetween('created_at', $date)
+                ->groupBy('user_id')
+                ->pluck('count', 'user_id')
+                ->toArray();
         }
 
-        if(isset($this->_userIdWiseServedRequirementCount[$type][$userId])){
-            return $this->_userIdWiseServedRequirementCount[$type][$userId];
+        if(isset($this->_userIdWiseRecruiterServedRequirementCount[$type][$userId])){
+            return $this->_userIdWiseRecruiterServedRequirementCount[$type][$userId];
         }
 
         return 0;
+    }
+
+    public function getTotalRecruiterUnServedRequirementCount($date, $userId, $recruiters, $type)
+    {
+        if(!$this->_userIdWiseRecruiterUnServedRequirementCount || !isset($this->_userIdWiseRecruiterUnServedRequirementCount[$type])){
+            $this->_userIdWiseRecruiterUnServedRequirementCount[$type] = AssignToRecruiter::select('recruiter_id')
+                ->selectRaw('COUNT(DISTINCT requirement_id) as count')
+                ->whereNotIn('requirement_id', function ($query) {
+                    $query->select('requirement_id')
+                        ->from('submissions')
+                        ->whereRaw('submissions.user_id = assign_to_recruiters.recruiter_id');
+                })
+                ->whereIn('recruiter_id', $recruiters)
+                ->whereBetween('assign_to_recruiters.created_at', $date)
+                ->groupBy('assign_to_recruiters.recruiter_id')
+                ->pluck('count', 'assign_to_recruiters.recruiter_id')
+                ->toArray();
+        }
+
+        if(isset($this->_userIdWiseRecruiterUnServedRequirementCount[$type][$userId])){
+            return $this->_userIdWiseRecruiterUnServedRequirementCount[$type][$userId];
+        }
+
+        return 0;
+    }
+
+    public function getTotalRecruiterSubmissionSentCount($date, $userId, $recruiters, $type, $isUnique = 0)
+    {
+        if(!$this->_userIdWiseRecruiterSubmissionSentCount || !isset($this->_userIdWiseRecruiterSubmissionSentCount[$type]) || !isset($this->_userIdWiseRecruiterSubmissionSentCount[$type][$isUnique])){
+            $collection = Submission::select('user_id')
+                ->whereIn('user_id', $recruiters)
+                ->whereBetween('created_at', $date);
+                if($isUnique){
+                    $collection->selectRaw(\DB::raw('COUNT(DISTINCT email) as count'));
+                }else{
+                    $collection->selectRaw(\DB::raw('COUNT(id) as count'));
+                }
+                $collection->groupBy('user_id');
+
+            $this->_userIdWiseRecruiterSubmissionSentCount[$type][$isUnique] = $collection->pluck('count', 'user_id')->toArray();
+        }
+
+        if(isset($this->_userIdWiseRecruiterSubmissionSentCount[$type][$isUnique][$userId])){
+            return $this->_userIdWiseRecruiterSubmissionSentCount[$type][$isUnique][$userId];
+        }
+
+        return 0;
+    }
+
+    public function getTotalRecruiterStatusCount($filedName, $status, $date, $userId, $recruiters, $type)
+    {
+        if(!$this->_userIdWiseRecruiterStatusCount || !isset($this->_userIdWiseRecruiterStatusCount[$type]) || !isset($this->_userIdWiseRecruiterStatusCount[$type][$status])){
+            $collection = Submission::select('user_id')
+                ->where($filedName, $status)
+                ->whereIn('user_id', $recruiters)
+                ->whereBetween('updated_at', $date)
+                ->selectRaw(\DB::raw('COUNT(id) as count'))
+                ->groupBy('user_id');
+
+            $this->_userIdWiseRecruiterStatusCount[$type][$status] = $collection->pluck('count', 'user_id')->toArray();
+        }
+
+        if(isset($this->_userIdWiseRecruiterStatusCount[$type][$status][$userId])){
+            return  $this->_userIdWiseRecruiterStatusCount[$type][$status][$userId];
+        }
+
+        return 0;
+    }
+
+    public function getTotalRecruiterClientStatusCount($status, $date, $userId, $recruiters, $type)
+    {
+        if(!$this->_userIdWiseRecruiterClientStatusCount || !isset($this->_userIdWiseRecruiterClientStatusCount[$type]) || !isset($this->_userIdWiseRecruiterClientStatusCount[$type][$status])){
+            $this->_userIdWiseRecruiterClientStatusCount[$type][$status] = Submission::leftJoin('interviews', 'submissions.id', '=', 'interviews.submission_id')
+                ->where('interviews.status', $status)
+                ->whereBetween('interviews.updated_at', $date)
+                ->whereIn('submissions.user_id', $recruiters)
+                ->groupBy('submissions.user_id')
+                ->selectRaw('submissions.user_id, COUNT(interviews.id) as count')
+                ->pluck('count', 'user_id')
+                ->toArray();
+        }
+
+        if(isset($this->_userIdWiseRecruiterClientStatusCount[$type][$status][$userId])){
+            return $this->_userIdWiseRecruiterClientStatusCount[$type][$status][$userId];
+        }
+
+        return 0;
+    }
+
+    public function getRecruiterTimeFrameData($request)
+    {
+        $fromDate   = $request->fromDate;
+        $toDate     = $request->toDate;
+        $recruiters = $request->recruiter;
+
+        if(!$fromDate || !$toDate || empty($recruiters) || !count($recruiters)){
+            return [];
+        }
+
+        $recruiterUser['user_data']['heading']  = $this->getRecruiterTimeFrameHeadingData();
+
+        foreach ($recruiters as $recruiter){
+            $recruiterUser['user_data'][$recruiter] = $this->getDateWiseRecruiterData('time_frame', $recruiter, $recruiters, $request, 1);
+        }
+        $recruiterUser['class_data'] = $this->getKeyWiseClass();
+
+        return $recruiterUser;
     }
 }

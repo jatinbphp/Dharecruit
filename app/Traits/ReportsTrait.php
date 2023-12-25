@@ -47,12 +47,12 @@ trait ReportsTrait {
         foreach ($recruiters as $recruiter){
             $userData = [];
             $userData['heading']    = $this->getRecruiterUserHeadingData();
-            $userData['today']      = $this->getDateWiseRecruiterData('today', $recruiters, $recruiter, $request);
-            $userData['this_week']  = $this->getDateWiseRecruiterData('this_week', $recruiters, $recruiter, $request);
-            $userData['last_week']  = $this->getDateWiseRecruiterData('last_week', $recruiters, $recruiter, $request);
-            $userData['this_month'] = $this->getDateWiseRecruiterData('this_month', $recruiters, $recruiter, $request);
-            $userData['last_month'] = $this->getDateWiseRecruiterData('last_month', $recruiters, $recruiter, $request);
-            $userData['time_frame'] = $this->getDateWiseRecruiterData('time_frame', $recruiters, $recruiter, $request);
+            $userData['today']      = $this->getDateWiseRecruiterData('today', $recruiter, $recruiters, $request);
+            $userData['this_week']  = $this->getDateWiseRecruiterData('this_week', $recruiter, $recruiters, $request);
+            $userData['last_week']  = $this->getDateWiseRecruiterData('last_week', $recruiter, $recruiters, $request);
+            $userData['this_month'] = $this->getDateWiseRecruiterData('this_month', $recruiter, $recruiters, $request);
+            $userData['last_month'] = $this->getDateWiseRecruiterData('last_month', $recruiter, $recruiters, $request);
+            $userData['time_frame'] = $this->getDateWiseRecruiterData('time_frame', $recruiter, $recruiters, $request);
 
             $recruiterUserData['user_data'][$recruiter] = $userData;
         }
@@ -61,5 +61,23 @@ trait ReportsTrait {
         return $recruiterUserData;
     }
 
+    public function getBdmTimeFrameData($request)
+    {
+        $fromDate   = $request->fromDate;
+        $toDate     = $request->toDate;
+        $bdms       = $request->bdm;
 
+        if(!$fromDate || !$toDate || empty($bdms) || !count($bdms)){
+            return [];
+        }
+
+        $bdmUserData['user_data']['heading']    = $this->getBdmTimeFrameHeadingData();
+
+        foreach ($bdms as $bdm){
+            $bdmUserData['user_data'][$bdm] = $this->getDateWiseBdmData('time_frame', $bdm, $bdms, $request, 1);
+        }
+        $bdmUserData['class_data'] = $this->getKeyWiseClass();
+
+        return $bdmUserData;
+    }
 }

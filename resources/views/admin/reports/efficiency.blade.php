@@ -5,12 +5,12 @@
             <div class="container-fluid">
                 <div class="row mb-2">
                     <div class="col-sm-6">
-                        <h1>{{$menu}}</h1>
+                        <h1>{{$menu ." Of ". ucwords(str_replace('_', ' ', $subType))}}</h1>
                     </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
                             <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Home</a></li>
-                            <li class="breadcrumb-item active">{{$menu}}</li>
+                            <li class="breadcrumb-item active">{{$menu ." Of ". ucwords(str_replace('_', ' ', $subType))}}</li>
                         </ol>
                     </div>
                 </div>
@@ -30,7 +30,7 @@
                                     <div class="col-md-12 border mt-3 p-3" id="reportsFilterDiv">
                                         {!! Form::open(['id' => 'filterRepoetForm', 'class' => 'form-horizontal','files'=>true,'onsubmit' => 'return false;']) !!}
                                         <div class="row">
-                                            <div class="col-md-3">
+                                            <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label class="control-label" for="date">From Date</label>
                                                     <div class="input-group">
@@ -43,7 +43,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-3">
+                                            <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label class="control-label" for="date">To Date</label>
                                                     <div class="input-group">
@@ -56,18 +56,22 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-3">
-                                                <div class="form-group">
-                                                    <label class="control-label" for="bdm">BDM</label>
-                                                    {!! Form::select('bdm[]', \App\Models\Admin::getActiveBDM(), null, ['class' => 'form-control select2', 'id'=>'bdm', 'multiple' => true, 'data-placeholder' => 'Select BDM Users']) !!}
+                                            @if(isset($subType) && $subType == 'sub_received')
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label" for="bdm">BDM</label>
+                                                        {!! Form::select('bdm[]', \App\Models\Admin::getActiveBDM(), null, ['class' => 'form-control select2', 'id'=>'bdm', 'multiple' => true, 'data-placeholder' => 'Select BDM Users']) !!}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <div class="form-group">
-                                                    <label class="control-label" for="recruiter">Recruiter</label>
-                                                    {!! Form::select('recruiter[]', \App\Models\Admin::getActiveRecruiter(), null, ['class' => 'form-control select2', 'id'=>'recruiter', 'multiple' => true, 'data-placeholder' => 'Select Recruiter Users']) !!}
+                                            @endif
+                                            @if(isset($subType) && $subType == 'sub_sent')
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label" for="recruiter">Recruiter</label>
+                                                        {!! Form::select('recruiter[]', \App\Models\Admin::getActiveRecruiter(), null, ['class' => 'form-control select2', 'id'=>'recruiter', 'multiple' => true, 'data-placeholder' => 'Select Recruiter Users']) !!}
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            @endif
                                         </div>
                                         <button class="btn btn-info float-right" onclick="searchReportData()">Search</button>
                                         <button class="btn btn-default float-right mr-2" onclick="clearRepoetData()">Clear</button>
@@ -96,12 +100,23 @@
 
         function searchReportData()
         {
+            @if(isset($subType) && $subType == 'sub_received')
+                if(!$('#bdm option:selected').length > 0) {
+                    swal("Cancelled", "Please Select BDM", "error");
+                    return;
+                }
+            @endif
+            @if(isset($subType) && $subType == 'sub_sent')
+                if(!$('#recruiter option:selected').length > 0) {
+                    swal("Cancelled", "Please Select Recruiter", "error");
+                    return;
+                }
+            @endif
             $.ajax({
-                url: "{{url('admin/reports/')}}/efficiency",
+                url: "{{route('reports',[$type, $subType])}}",
                 type: "get",
                 data: $("#filterRepoetForm").serialize(),
                 success: function(responce){
-                    console.log(responce);
                     if(responce.content){
                         $('#reportContent').html(responce.content);
                     }

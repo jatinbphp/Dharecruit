@@ -1,6 +1,7 @@
 <?php
 namespace App\Traits;
 
+use App\Models\Admin;
 use App\Models\Interview;
 use App\Models\Requirement;
 use App\Models\Submission;
@@ -8,6 +9,7 @@ use App\Models\Submission;
 trait RequirementTrait
 {
     use CommonTrait;
+
     protected $_userIdWiseTotalRequirementCount = [];
     protected $_userIdWiseServedRequirementCount = [];
     protected $_userIdWiseUnServedRequirementCount = [];
@@ -18,34 +20,62 @@ trait RequirementTrait
     public function getBdmUserHeadingData(): array
     {
         return [
-            'BDM',
-            'Total',
-            'Unique',
-            'Served',
-            'Unserved',
-            'Servable%',
-            'Sub Rec',
-            'Accept',
-            'Rejected',
-            'Pending',
-            'Unviewed',
-            'Vendor No Res.',
-            'Vendor Rejected',
-            'Client Rejected',
-            'Sub To End Client',
-            'position Closed',
-            'Re Scheduled',
-            'Another Round',
-            'Waiting FeedBack',
-            'Conformed',
-            'Rejected By Client',
-            'Backout',
+            'heading_bdm'                => 'BDM',
+            'heading_total'              => 'Total',
+            'heading_unique'             => 'Unique',
+            'heading_served'             => 'Served',
+            'heading_unserved'           => 'Unserved',
+            'heading_servable_per'       => 'Servable%',
+            'heading_sub_rec'            => 'Sub Rec',
+            'heading_accept'             => 'Accept',
+            'heading_rejected'           => 'Rejected',
+            'heading_pending'            => 'Pending',
+            'heading_un_viewed'          => 'Unviewed',
+            'heading_vendor_no_responce' => 'Vendor No Res.',
+            'heading_vendor_rejected'    => 'Vendor Rejected',
+            'heading_client_rejected'    => 'Client Rejected',
+            'heading_sub_to_end_client'  => 'Sub To End Client',
+            'heading_position_closed'    => 'position Closed',
+            'heading_re_scheduled'       => 'Re Scheduled',
+            'heading_another_round'      => 'Another Round',
+            'heading_waiting_feedback'   => 'Waiting FeedBack',
+            'heading_confirmed'          => 'Conformed',
+            'heading_rejected_by_client' => 'Rejected By Client',
+            'heading_backout'            => 'Backout',
         ];
     }
 
-    public function getDateWiseBdmData($type, $userId, $bdms, $request): array
+    public function getBdmTimeFrameHeadingData(): array
     {
-        $headingType = $this->formatString($type);
+        return [
+            'heading_time_frame'         => "Time Frame",
+            'heading_total'              => 'Total',
+            'heading_unique'             => 'Unique',
+            'heading_served'             => 'Served',
+            'heading_unserved'           => 'Unserved',
+            'heading_servable_per'       => 'Servable%',
+            'heading_sub_rec'            => 'Sub Rec',
+            'heading_accept'             => 'Accept',
+            'heading_rejected'           => 'Rejected',
+            'heading_pending'            => 'Pending',
+            'heading_un_viewed'          => 'Unviewed',
+            'heading_vendor_no_responce' => 'Vendor No Res.',
+            'heading_vendor_rejected'    => 'Vendor Rejected',
+            'heading_client_rejected'    => 'Client Rejected',
+            'heading_sub_to_end_client'  => 'Sub To End Client',
+            'heading_position_closed'    => 'position Closed',
+            'heading_re_scheduled'       => 'Re Scheduled',
+            'heading_another_round'      => 'Another Round',
+            'heading_waiting_feedback'   => 'Waiting FeedBack',
+            'heading_confirmed'          => 'Conformed',
+            'heading_rejected_by_client' => 'Rejected By Client',
+            'heading_backout'            => 'Backout',
+        ];
+    }
+
+    public function getDateWiseBdmData($type, $userId, $bdms, $request, $isCompare = 0): array
+    {
+        $headingType = ($isCompare) ? Admin::getUserNameBasedOnId($userId) : $this->formatString($type);
         $date = $this->getDate($type, $request);
         if(!$date || !count($date) || !isset($date['from']) || !isset($date['to'])){
             return  [];

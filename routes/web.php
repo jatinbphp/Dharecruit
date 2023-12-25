@@ -149,7 +149,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::resource('employee', EmployeeController::class);
 
     /* REPORTS MANAGEMENT */
-    Route::get('reports/{type}', [ReportsController::class, 'index'])->name('reports');
+    Route::get('reports/{type}/{subType}', [ReportsController::class, 'index'])->name('reports');
 
     Auth::routes();
 });
