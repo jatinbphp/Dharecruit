@@ -35,8 +35,8 @@ trait CommonTrait {
                 $date['to']   = \Carbon\Carbon::now()->endOfMonth()->addDay()->format('Y-m-d');
                 break;
             case 'last_month':
-                $date['from'] = \Carbon\Carbon::now()->subMonth()->subMonth()->startOfMonth()->format('Y-m-d');
-                $date['to']   = \Carbon\Carbon::now()->subMonth()->subMonth()->endOfMonth()->addDay()->format('Y-m-d');
+                $date['from'] = \Carbon\Carbon::now()->subMonth()->startOfMonth()->format('Y-m-d');
+                $date['to']   = \Carbon\Carbon::now()->subMonth()->endOfMonth()->addDay()->format('Y-m-d');
                 break;
             case 'time_frame':
                 if($request->fromDate && $request->toDate){
