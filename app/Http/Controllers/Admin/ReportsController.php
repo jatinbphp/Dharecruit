@@ -18,8 +18,15 @@ class ReportsController extends Controller
 
         switch ($type) {
             case "efficiency":
+                $data['menu'] = 'Efficiency Report';
                 if(!empty($request->all())){
                     return $this->getEfficiencyData($request, $subType);
+                }
+                break;
+            case "p_v_report":
+                $data['menu'] = 'PV Company Report';
+                if(!empty($request->all())){
+                    return $this->getPvCompanyData($request);
                 }
                 break;
             default:
@@ -28,7 +35,7 @@ class ReportsController extends Controller
         return view('admin.reports.'.$type, $data);
     }
 
-    public function getEfficiencyData ($request, $subType)
+    public function getEfficiencyData ($request, $subType): array
     {
         if($subType == 'sub_sent'){
             $efficiencyData['recruitersData'] = $this->getAllRecruitersData($request);
@@ -38,9 +45,15 @@ class ReportsController extends Controller
             $efficiencyData['bdmTimeFrame'] = $this->getBdmTimeFrameData($request);
         }
 
-        $view = view('admin.reports.efficiency_data', $efficiencyData)->render();
+        $data['content'] = view('admin.reports.efficiency_data', $efficiencyData)->render();
+        return $data;
+    }
 
-        $data['content'] = $view;
+    public function getPvCompanyData($request): array
+    {
+        $pvData['pvFilterData'] = $this->getPvFilterData($request);
+        $data['content']        = view('admin.reports.p_v_report_data', $pvData)->render();
+
         return $data;
     }
 }

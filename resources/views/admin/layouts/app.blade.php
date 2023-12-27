@@ -460,7 +460,7 @@
                         </li>
                     @endif
                     @if($loginRole == 'admin')
-                        <li class="nav-item @if(in_array($menu, ['Efficiency Report'])) menu-open @endif">
+                        <li class="nav-item @if(in_array($menu, ['Efficiency Report', 'PV Company Report'])) menu-open @endif">
                             <a href="#" class="nav-link @if(in_array($menu, ['Efficiency Report'])) active @endif">
                                 <i class="nav-icon fas fa-tasks"></i>
                                 <p>Manage Reports <i class="right fas fa-angle-left"></i>
@@ -479,6 +479,14 @@
                                     <a href="{{ route('reports',['type' => 'efficiency', 'subType' => 'sub_sent']) }}" class="nav-link @if(isset($subType) && $subType=='sub_sent') active @endif">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Sub Sent(Recruiter)</p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ route('reports',['type' => 'p_v_report']) }}" class="nav-link @if(isset($subType) && $subType=='sub_sent') active @endif">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Prime Vendor Report</p>
                                     </a>
                                 </li>
                             </ul>
@@ -1214,6 +1222,11 @@
             $('td:nth-child(' + (columnIndex + 1) + ')').toggleClass('hidden-element');
             $(this).toggleClass('hidden-element');
         });
+    }
+
+    function submitForm(){
+        $("#candidateStatus").prop("disabled", false);
+        $("#candidateForm").submit();
     }
 </script>
 @yield('jquery')

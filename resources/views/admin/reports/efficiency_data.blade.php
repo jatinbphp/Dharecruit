@@ -32,7 +32,7 @@
                                             $data = ($data) ? $data : '-';
                                             $topBorder = ($key == 'heading') ? 'border-top' : '';
                                             $bottomBorder = (in_array($key,['time_frame', 'heading']) || (isset($bdmData['time_frame']) && !count($bdmData['time_frame']) && $key == 'last_month')) ? 'border-bottom' : '';
-                                            $bottomRight = (in_array($heading, ['heading_bdm', 'heading_type', 'heading_servable_per', 'servable_per', 'heading_sub_rec', 'heading_submission_received', 'submission_received', 'heading_un_viewed', 'bdm_pending', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout'])) ? 'border-right' : '';
+                                            $bottomRight = (in_array($heading, ['heading_bdm', 'heading_type', 'heading_servable_per', 'servable_per', 'heading_sub_rec', 'heading_submission_received', 'submission_received', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout'])) ? 'border-right' : '';
                                             $borderLeft = (in_array($heading, ['heading_type', 'heading_bdm'])) ? 'border-left' : '';
                                         @endphp
                                         @if(strtolower($key) == 'heading')
@@ -86,7 +86,7 @@
                                             $data = ($data) ? $data : '-';
                                             $topBorder = ($key == 'heading') ? 'border-top' : '';
                                             $bottomBorder = (in_array($key,['time_frame', 'heading']) || (isset($recruitersData['time_frame']) && !count($recruitersData['time_frame']) && $key == 'last_month')) ? 'border-bottom' : '';
-                                            $bottomRight = (in_array($heading, ['heading_recruiter', 'heading_type','heading_servable_per', 'servable_per', 'heading_uniq_sub', 'unique_submission_sent','heading_submission_received', 'heading_un_viewed', 'bdm_pending', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout'])) ? 'border-right' : '';
+                                            $bottomRight = (in_array($heading, ['heading_recruiter', 'heading_type','heading_servable_per', 'servable_per', 'heading_uniq_sub', 'unique_submission_sent','heading_submission_received', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout'])) ? 'border-right' : '';
                                             $borderLeft = (in_array($heading, ['heading_type', 'heading_recruiter'])) ? 'border-left' : '';
                                             @endphp
                                         @if(strtolower($key) == 'heading')
@@ -141,7 +141,7 @@
                                                 $data = ($data) ? $data : '-';
                                                 $topBorder = ($key == 'heading') ? 'border-top' : '';
                                                 $bottomBorder = ($key == 'heading' || $i == $totalCount) ? 'border-bottom' : '';
-                                                $bottomRight = (in_array($heading, ['heading_time_frame', 'heading_type', 'heading_servable_per', 'servable_per', 'heading_sub_rec', 'heading_submission_received', 'submission_received', 'heading_un_viewed', 'bdm_pending', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout'])) ? 'border-right' : '';
+                                                $bottomRight = (in_array($heading, ['heading_time_frame', 'heading_type', 'heading_servable_per', 'servable_per', 'heading_sub_rec', 'heading_submission_received', 'submission_received', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout'])) ? 'border-right' : '';
                                                 $borderLeft = (in_array($heading, ['heading_type', 'heading_time_frame'])) ? 'border-left' : '';
                                                 @endphp
                                             @if(strtolower($key) == 'heading')
@@ -194,7 +194,7 @@
                                     $data = ($data) ? $data : '-';
                                     $topBorder = ($key == 'heading') ? 'border-top' : '';
                                     $bottomBorder = ($key == 'heading' || $i == $totalCount) ? 'border-bottom' : '';
-                                    $bottomRight = (in_array($heading, ['heading_recruiter', 'heading_type','heading_servable_per', 'servable_per', 'heading_uniq_sub', 'unique_submission_sent','heading_submission_received', 'heading_un_viewed', 'bdm_pending', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout'])) ? 'border-right' : '';
+                                    $bottomRight = (in_array($heading, ['heading_recruiter', 'heading_type','heading_servable_per', 'servable_per', 'heading_uniq_sub', 'unique_submission_sent','heading_submission_received', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout'])) ? 'border-right' : '';
                                     $borderLeft = (in_array($heading, ['heading_type', 'heading_time_frame'])) ? 'border-left' : '';
                                 @endphp
                                 @if(strtolower($key) == 'heading')

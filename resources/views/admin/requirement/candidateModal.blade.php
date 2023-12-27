@@ -87,7 +87,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary model-close" data-dismiss="modal">Close</button>
                     @if($isSubmission == 0)
-                        <button type="submit" id="status_submit" class="btn btn-primary">Submit</button>
+                        <button type="submit" id="status_submit" onclick="submitForm()" class="btn btn-primary">Submit</button>
                     @endif
                 </div>
                 {!! Form::close() !!}

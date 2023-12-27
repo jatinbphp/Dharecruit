@@ -21,6 +21,6 @@ class PVCompany extends Model
     ];
 
     public static function getActivePVCompanyies(){
-        return PVCompany::where('status','active')->pluck('name','id')->prepend('Please Select','');   
+        return PVCompany::where('status','active')->pluck('name','id');
     }
 }

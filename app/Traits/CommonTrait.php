@@ -6,7 +6,7 @@ trait CommonTrait {
         return ucwords(str_replace('_', ' ', $input));
     }
 
-    public function getPercentage($value, $total)
+    public function getPercentage($value, $total): float
     {
         if(!$total){
             return 0;
@@ -51,7 +51,7 @@ trait CommonTrait {
         return  $date;
     }
 
-    public function getKeyWiseClass()
+    public function getKeyWiseClass(): array
     {
         return [
             'heading_type'                   => 'font-weight-bold',

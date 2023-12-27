@@ -98,8 +98,8 @@ trait RequirementTrait
             'submission_received'            => $this->getTotalReceivedSubmissionCount($date, $bdms, $userId, $type),
             'bdm_accept'                     => $this->getTotalStatusCount('status', $submissionModel::STATUS_ACCEPT, $date, $bdms, $userId, $type),
             'bdm_rejected'                   => $this->getTotalStatusCount('status', $submissionModel::STATUS_REJECTED, $date, $bdms, $userId, $type),
-            'bdm_unviewed'                   => $this->getTotalStatusCount('status', $submissionModel::STATUS_NOT_VIEWED, $date, $bdms, $userId, $type),
             'bdm_pending'                    => $this->getTotalStatusCount('status', $submissionModel::STATUS_PENDING, $date, $bdms, $userId, $type),
+            'bdm_unviewed'                   => $this->getTotalStatusCount('status', $submissionModel::STATUS_NOT_VIEWED, $date, $bdms, $userId, $type),
             'vendor_no_responce'             => $this->getTotalStatusCount('pv_status', $submissionModel::STATUS_NO_RESPONSE_FROM_PV, $date, $bdms, $userId, $type),
             'vendor_rejected_by_pv'          => $this->getTotalStatusCount('pv_status', $submissionModel::STATUS_REJECTED_BY_PV, $date, $bdms, $userId, $type),
             'vendor_rejected_by_client'      => $this->getTotalStatusCount('pv_status', $submissionModel::STATUS_REJECTED_BY_END_CLIENT, $date, $bdms, $userId, $type),
@@ -114,7 +114,7 @@ trait RequirementTrait
         ];
     }
 
-    public function getTotalRequirementCount($date, $bdms, $userId, $type, $isUnique = 0)
+    public function getTotalRequirementCount($date, $bdms, $userId, $type, $isUnique = 0): int
     {
         if(!$this->_userIdWiseTotalRequirementCount || !isset($this->_userIdWiseTotalRequirementCount[$isUnique]) || !isset($this->_userIdWiseTotalRequirementCount[$isUnique][$type])){
             $collection = Requirement::select('user_id', \DB::raw('count(id) as count'))
@@ -139,7 +139,7 @@ trait RequirementTrait
         return 0;
     }
 
-    public function getTotalServedRequirementsCount($date, $bdms, $userId, $type)
+    public function getTotalServedRequirementsCount($date, $bdms, $userId, $type): int
     {
         if(!$this->_userIdWiseServedRequirementCount || !isset($this->_userIdWiseServedRequirementCount[$type])){
             $this->_userIdWiseServedRequirementCount[$type] =  Requirement::has('submissions')
@@ -158,7 +158,7 @@ trait RequirementTrait
         return 0;
     }
 
-    public function getTotalUnServedRequirementsCount($date, $bdms, $userId, $type)
+    public function getTotalUnServedRequirementsCount($date, $bdms, $userId, $type): int
     {
         if(!$this->_userIdWiseUnServedRequirementCount || !isset($this->_userIdWiseUnServedRequirementCount[$type])){
             $this->_userIdWiseUnServedRequirementCount[$type] =  Requirement::doesntHave('submissions')
@@ -177,7 +177,7 @@ trait RequirementTrait
         return 0;
     }
 
-    public function getTotalReceivedSubmissionCount($date, $bdms, $userId, $type)
+    public function getTotalReceivedSubmissionCount($date, $bdms, $userId, $type): int
     {
         if(!$this->_userIdWisetotalReceivedSubmissionCount || !isset($this->_userIdWisetotalReceivedSubmissionCount[$type])){
             $this->_userIdWisetotalReceivedSubmissionCount[$type] = Requirement::leftJoin('submissions', 'requirements.id', '=', 'submissions.requirement_id')
@@ -196,20 +196,17 @@ trait RequirementTrait
         return 0;
     }
 
-    public function getTotalStatusCount($filedName, $status, $date, $bdms, $userId, $type)
+    public function getTotalStatusCount($filedName, $status, $date, $bdms, $userId, $type): int
     {
         if(!$this->_userIdWiseStatusCount || !isset($this->_userIdWiseStatusCount[$type]) || !isset($this->_userIdWiseStatusCount[$type][$status])){
             $collection =  Requirement::leftJoin('submissions', 'requirements.id', '=', 'submissions.requirement_id');
             if($status == Submission::STATUS_NOT_VIEWED){
-                $collection->where('submissions.is_show', '0')
-                    ->whereBetween('submissions.created_at', $date);
+                $collection->where('submissions.is_show', '0');
             } elseif ($status == Submission::STATUS_PENDING) {
                 $collection->where('submissions.is_show', '1')
-                    ->where("submissions.$filedName", $status)
-                    ->whereBetween('submissions.created_at', $date);
+                    ->where("submissions.$filedName", $status);
             } else {
-                $collection->where("submissions.$filedName", $status)
-                    ->whereBetween('submissions.updated_at', $date);
+                $collection->where("submissions.$filedName", $status);
             }
             $collection->whereBetween('submissions.updated_at', $date)
                 ->whereIn('requirements.user_id', $bdms)
@@ -226,7 +223,7 @@ trait RequirementTrait
         return 0;
     }
 
-    public function getTotalClientStatusCount($status, $date, $bdms, $userId, $type)
+    public function getTotalClientStatusCount($status, $date, $bdms, $userId, $type): int
     {
         if(!$this->_userIdWiseClientStatusCount || !isset($this->_userIdWiseClientStatusCount[$type]) || !isset($this->_userIdWiseClientStatusCount[$type][$status])){
             $this->_userIdWiseClientStatusCount[$type][$status] =  Requirement::leftJoin('submissions', 'requirements.id', '=', 'submissions.requirement_id')

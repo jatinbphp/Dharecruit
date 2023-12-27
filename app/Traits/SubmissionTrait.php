@@ -19,6 +19,7 @@ trait SubmissionTrait{
     protected $_userIdWiseRecruiterStatusCount = [];
     protected $_userIdWiseRecruiterClientStatusCount = [];
     protected $_userIdWisetotalReceivedSubmissionCount = [];
+    
     public function getRecruiterUserHeadingData(): array
     {
         return [
@@ -47,7 +48,7 @@ trait SubmissionTrait{
         ];
     }
 
-    public function getRecruiterTimeFrameHeadingData()
+    public function getRecruiterTimeFrameHeadingData(): array
     {
         return [
             'heading_time_frame'         => "Time Frame",
@@ -100,8 +101,8 @@ trait SubmissionTrait{
             'unique_submission_sent'         => $this->getTotalRecruiterSubmissionSentCount($date, $userId, $recruiters, $type, 1   ),
             'bdm_accept'                     => $this->getTotalRecruiterStatusCount('status', $submissionModel::STATUS_ACCEPT, $date, $userId, $recruiters, $type),
             'bdm_rejected'                   => $this->getTotalRecruiterStatusCount('status', $submissionModel::STATUS_REJECTED, $date, $userId, $recruiters, $type),
-            'bdm_unviewed'                   => $this->getTotalRecruiterStatusCount('status', $submissionModel::STATUS_NOT_VIEWED, $date, $userId, $recruiters, $type),
             'bdm_pending'                    => $this->getTotalRecruiterStatusCount('status', $submissionModel::STATUS_PENDING, $date, $userId, $recruiters, $type),
+            'bdm_unviewed'                   => $this->getTotalRecruiterStatusCount('status', $submissionModel::STATUS_NOT_VIEWED, $date, $userId, $recruiters, $type),
             'vendor_no_responce'             => $this->getTotalRecruiterStatusCount('pv_status', $submissionModel::STATUS_NO_RESPONSE_FROM_PV, $date, $userId, $recruiters, $type),
             'vendor_rejected_by_pv'          => $this->getTotalRecruiterStatusCount('pv_status', $submissionModel::STATUS_REJECTED_BY_PV, $date, $userId, $recruiters, $type),
             'vendor_rejected_by_client'      => $this->getTotalRecruiterStatusCount('pv_status', $submissionModel::STATUS_REJECTED_BY_END_CLIENT, $date, $userId, $recruiters, $type),
@@ -116,7 +117,7 @@ trait SubmissionTrait{
         ];
     }
 
-    public function getTotalRecruiterAllotedRequirementCount($date, $userId, $recruiters, $type)
+    public function getTotalRecruiterAllotedRequirementCount($date, $userId, $recruiters, $type): int
     {
 
         if(!$this->_userIdWiseRecruiterAllotadRequirementCount || !isset($this->_userIdWiseRecruiterAllotadRequirementCount[$type])){
@@ -135,7 +136,7 @@ trait SubmissionTrait{
         return 0;
     }
 
-    public function getTotalRecruiterServedRequirementCount($date, $userId, $recruiters, $type)
+    public function getTotalRecruiterServedRequirementCount($date, $userId, $recruiters, $type): int
     {
         if(!$this->_userIdWiseRecruiterServedRequirementCount || !isset($this->_userIdWiseRecruiterServedRequirementCount[$type])){
             $this->_userIdWiseRecruiterServedRequirementCount[$type] = Submission::select('user_id', \DB::raw('COUNT(DISTINCT requirement_id) as count'))
@@ -153,7 +154,7 @@ trait SubmissionTrait{
         return 0;
     }
 
-    public function getTotalRecruiterUnServedRequirementCount($date, $userId, $recruiters, $type)
+    public function getTotalRecruiterUnServedRequirementCount($date, $userId, $recruiters, $type): int
     {
         if(!$this->_userIdWiseRecruiterUnServedRequirementCount || !isset($this->_userIdWiseRecruiterUnServedRequirementCount[$type])){
             $this->_userIdWiseRecruiterUnServedRequirementCount[$type] = AssignToRecruiter::select('recruiter_id')
@@ -177,7 +178,7 @@ trait SubmissionTrait{
         return 0;
     }
 
-    public function getTotalRecruiterSubmissionSentCount($date, $userId, $recruiters, $type, $isUnique = 0)
+    public function getTotalRecruiterSubmissionSentCount($date, $userId, $recruiters, $type, $isUnique = 0): int
     {
         if(!$this->_userIdWiseRecruiterSubmissionSentCount || !isset($this->_userIdWiseRecruiterSubmissionSentCount[$type]) || !isset($this->_userIdWiseRecruiterSubmissionSentCount[$type][$isUnique])){
             $collection = Submission::select('user_id')
@@ -200,7 +201,7 @@ trait SubmissionTrait{
         return 0;
     }
 
-    public function getTotalRecruiterStatusCount($filedName, $status, $date, $userId, $recruiters, $type)
+    public function getTotalRecruiterStatusCount($filedName, $status, $date, $userId, $recruiters, $type): int
     {
         if(!$this->_userIdWiseRecruiterStatusCount || !isset($this->_userIdWiseRecruiterStatusCount[$type]) || !isset($this->_userIdWiseRecruiterStatusCount[$type][$status])){
             $collection = Submission::select('user_id')
@@ -220,7 +221,7 @@ trait SubmissionTrait{
         return 0;
     }
 
-    public function getTotalRecruiterClientStatusCount($status, $date, $userId, $recruiters, $type)
+    public function getTotalRecruiterClientStatusCount($status, $date, $userId, $recruiters, $type): int
     {
         if(!$this->_userIdWiseRecruiterClientStatusCount || !isset($this->_userIdWiseRecruiterClientStatusCount[$type]) || !isset($this->_userIdWiseRecruiterClientStatusCount[$type][$status])){
             $this->_userIdWiseRecruiterClientStatusCount[$type][$status] = Submission::leftJoin('interviews', 'submissions.id', '=', 'interviews.submission_id')
@@ -238,25 +239,5 @@ trait SubmissionTrait{
         }
 
         return 0;
-    }
-
-    public function getRecruiterTimeFrameData($request)
-    {
-        $fromDate   = $request->fromDate;
-        $toDate     = $request->toDate;
-        $recruiters = $request->recruiter;
-
-        if(!$fromDate || !$toDate || empty($recruiters) || !count($recruiters)){
-            return [];
-        }
-
-        $recruiterUser['user_data']['heading']  = $this->getRecruiterTimeFrameHeadingData();
-
-        foreach ($recruiters as $recruiter){
-            $recruiterUser['user_data'][$recruiter] = $this->getDateWiseRecruiterData('time_frame', $recruiter, $recruiters, $request, 1);
-        }
-        $recruiterUser['class_data'] = $this->getKeyWiseClass();
-
-        return $recruiterUser;
     }
 }

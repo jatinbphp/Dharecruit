@@ -7,6 +7,7 @@ use App\Models\Submission;
 trait ReportsTrait {
     use RequirementTrait;
     use SubmissionTrait;
+    use PVCompanyTrait;
     public function getAllBdmsData($request): array
     {
         $bdms = $request->bdm;
@@ -61,7 +62,7 @@ trait ReportsTrait {
         return $recruiterUserData;
     }
 
-    public function getBdmTimeFrameData($request)
+    public function getBdmTimeFrameData($request): array
     {
         $fromDate   = $request->fromDate;
         $toDate     = $request->toDate;
@@ -79,5 +80,46 @@ trait ReportsTrait {
         $bdmUserData['class_data'] = $this->getKeyWiseClass();
 
         return $bdmUserData;
+    }
+
+    public function getRecruiterTimeFrameData($request): array
+    {
+        $fromDate   = $request->fromDate;
+        $toDate     = $request->toDate;
+        $recruiters = $request->recruiter;
+
+        if(!$fromDate || !$toDate || empty($recruiters) || !count($recruiters)){
+            return [];
+        }
+
+        $recruiterUser['user_data']['heading']  = $this->getRecruiterTimeFrameHeadingData();
+
+        foreach ($recruiters as $recruiter){
+            $recruiterUser['user_data'][$recruiter] = $this->getDateWiseRecruiterData('time_frame', $recruiter, $recruiters, $request, 1);
+        }
+        $recruiterUser['class_data'] = $this->getKeyWiseClass();
+
+        return $recruiterUser;
+    }
+
+    public function getPvFilterData($request): array
+    {
+        if(!$request){
+            return [];
+        }
+
+        $pvCompanyIds = $request->p_v_company;
+
+        if(!$pvCompanyIds || !count($pvCompanyIds)){
+            return  [];
+        }
+
+        $pvData['user_data']['heading'] = $this->getPvHeadingData();
+        foreach ($pvCompanyIds as $companyId){
+            $pvData['user_data'][$companyId] = $this->getCompanyWisePVCompanyData($companyId, $pvCompanyIds, $request);
+        }
+        $pvData['class_data'] = $this->getPVCompanyClass();
+
+        return  $pvData;
     }
 }
