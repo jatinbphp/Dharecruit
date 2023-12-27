@@ -38,8 +38,8 @@
                                 @else
                                     @if(is_array($data))
                                         <td class="{{"$topBorder $bottomBorder $borderLeft $bottomRight"}}">
-                                        @foreach($data as $data)
-                                            <div class="{{$class}}">{{$data}}</div>
+                                        @foreach($data as $rowData)
+                                            <div class="{{$class}}">{{$rowData}}</div>
                                         @endforeach
                                         </td>
                                     @else
