@@ -16,6 +16,7 @@ trait PVCompanyTrait {
     protected $_companyWiseTotalSubmissionCounts = [];
     protected $_companyWiseTotalStatusCounts = [];
     protected $_companyWiseTotalClientStatusCounts = [];
+    protected $_companyWiseHighestUniqueRequirementByPoc = [];
     protected $_companyWiseTotalPocCount = [];
     protected $_companyWiseTotalBDMCount = [];
     protected $_companyWiseCategories = [];
@@ -97,7 +98,7 @@ trait PVCompanyTrait {
             'client_status_total'               => $this->getCompanyWiseTotalClientStatusCount('all', $companyId, $allCompanyIds, $date),
             'poc_count'                         => $totalPoc,
             'avg'                               => $avg,
-            'req_h'                             => 0,
+            'highest_uni_req_by_poc'            => $this->getCompanyWiseHighestUniqueRequirementByPoc($companyId, $allCompanyIds, $date),
             'bdm_count'                         => $this->getCompanyWiseTotalBDMCount($companyId, $allCompanyIds, $date),
             'category_wise_count'               => $this->getCompanyWiseCategories($companyId, $allCompanyIds, $date),
             'bdm_wise_count'                    => $this->getCompanyWiseBDM($companyId, $allCompanyIds, $date),
@@ -324,6 +325,39 @@ trait PVCompanyTrait {
         return 0;
     }
 
+    public function getCompanyWiseHighestUniqueRequirementByPoc($companyId, $allCompanyIds): int
+    {
+        if(!$this->_companyWiseHighestUniqueRequirementByPoc){
+            if(!$this->_companyIdWisePvCompanyName){
+                $this->prepareCompanyIdWisePvCompanyData($allCompanyIds);
+            }
+
+            $this->_companyWiseHighestUniqueRequirementByPoc = Requirement::select('pv_company_name', 'poc_name', \DB::raw('COUNT(*) as poc_count'))
+                ->whereIn('pv_company_name', $this->_companyIdWisePvCompanyName)
+                ->where(function ($query) {
+                        $query->where('id' ,\DB::raw('parent_requirement_id'));
+                        $query->orwhere('parent_requirement_id', '=', '0');
+                })
+                ->groupBy(['pv_company_name', 'poc_name'])
+                ->get()
+                ->groupBy('pv_company_name')
+                ->map(function ($group) {
+                    return $group->max('poc_count');
+                })
+                ->toArray();
+        }
+
+        if($this->_companyIdWisePvCompanyName && isset($this->_companyIdWisePvCompanyName[$companyId])) {
+            $pvCompanyName = $this->_companyIdWisePvCompanyName[$companyId];
+            if (isset($this->_companyWiseHighestUniqueRequirementByPoc[$pvCompanyName])) {
+                return $this->_companyWiseHighestUniqueRequirementByPoc[$pvCompanyName];
+            }
+        }
+
+        return 0;
+
+    }
+
     public function getCompanyWiseTotalBDMCount($companyId, $allCompanyIds, $date): int
     {
         if(!$this->_companyWiseTotalBDMCount){
@@ -476,7 +510,7 @@ trait PVCompanyTrait {
             'client_status_total'               => 'font-weight-bold border border-success p-2',
             'poc_count'                         => 'font-weight-bold',
             'avg'                               => 'font-weight-bold',
-            'req_h'                             => 'font-weight-bold',
+            'highest_uni_req_by_poc'            => 'font-weight-bold',
             'bdm_count'                         => 'font-weight-bold',
             'category_wise_count'               => 'font-weight-bold',
             'bdm_wise_count'                    => 'font-weight-bold',
