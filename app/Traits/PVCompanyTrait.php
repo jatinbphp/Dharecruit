@@ -350,7 +350,7 @@ trait PVCompanyTrait {
         return 0;
     }
 
-    public function getCompanyWiseCategories($companyId, $allCompanyIds, $date): string
+    public function getCompanyWiseCategories($companyId, $allCompanyIds, $date): array
     {
         if(!$this->_companyWiseCategories){
             if(!$this->_companyIdWisePvCompanyName){
@@ -384,7 +384,7 @@ trait PVCompanyTrait {
                         $categoryString[] = $category .' ('. (isset($categoryCount[$category]) ? $categoryCount[$category] : 0) . ')';
                     }
 
-                    $this->_companyWiseCategories[$pvCompanyName] = implode(', ', $categoryString);
+                    $this->_companyWiseCategories[$pvCompanyName] = $categoryString;
                 }
             }
         }
@@ -396,10 +396,10 @@ trait PVCompanyTrait {
             }
         }
 
-        return '';
+        return [];
     }
 
-    public function getCompanyWiseBDM($companyId, $allCompanyIds, $date): string
+    public function getCompanyWiseBDM($companyId, $allCompanyIds, $date): array
     {
         if(!$this->_companyWiseBDMs){
             if(!$this->_companyIdWisePvCompanyName){
@@ -433,7 +433,7 @@ trait PVCompanyTrait {
                         $bdmNameString[] = $bdmName .' ('. (isset($bdmCount[$bdmName]) ? $bdmCount[$bdmName] : 0) . ')';
                     }
 
-                    $this->_companyWiseBDMs[$pvCompanyName] = implode(', ', $bdmNameString);
+                    $this->_companyWiseBDMs[$pvCompanyName] = $bdmNameString;
                 }
             }
         }
@@ -445,7 +445,7 @@ trait PVCompanyTrait {
             }
         }
 
-        return '';
+        return [];
     }
 
     public function getPVCompanyClass(): array

@@ -36,7 +36,15 @@
                                 @if(strtolower($key) == 'heading')
                                     <th class="{{"$topBorder $bottomBorder $borderLeft $bottomRight"}}"><span>{{$data}}</span></th>
                                 @else
-                                    <td class="{{"$topBorder $bottomBorder $borderLeft $bottomRight"}}"><span class="{{$class}}">{{$data}}</span></td>
+                                    @if(is_array($data))
+                                        <td class="{{"$topBorder $bottomBorder $borderLeft $bottomRight"}}">
+                                        @foreach($data as $data)
+                                            <div class="{{$class}}">{{$data}}</div>
+                                        @endforeach
+                                        </td>
+                                    @else
+                                        <td class="{{"$topBorder $bottomBorder $borderLeft $bottomRight"}}"><span class="{{$class}}">{{$data}}</span></td>
+                                    @endif
                                 @endif
                             @endforeach
                         @endif
