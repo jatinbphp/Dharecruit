@@ -539,18 +539,18 @@
         });
 
         var availablePvCompanyName = <?php echo json_encode($pvCompanyName);?>;
- 
+
         $(document).on('focusout keydown', '#pv_company_name', function (index, value) {
             $("#pv_company_name").autocomplete({
                 source: availablePvCompanyName,
-                minLength: 4 
+                minLength: 4
             });
         });
 
         $('#search_by_poc_email').click(function(){
             var pocEmail = $('#search_poc_email').val().trim();
             if(!pocEmail){
-                swal("Error", "Please Enter POC Email.", "error"); 
+                swal("Error", "Please Enter POC Email.", "error");
                 return;
             }
             var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
@@ -629,6 +629,7 @@
             // $('#client_name').attr("readonly",true).val(pvData.client_name);
             $('.add-new-form').show();
             $('.search-poc-email').hide();
+            $('.select2').select2();
         }
 
         $('.linking').click(function(){
@@ -647,9 +648,9 @@
         $('#linkBtn').on('click', function(){
             var email = $('#linking_email').val();
             var type = $('#type').val();
-            
+
             if(!type || !email){
-                swal("Error", "Something is wrong.", "error"); 
+                swal("Error", "Something is wrong.", "error");
                 return;
             }
 
