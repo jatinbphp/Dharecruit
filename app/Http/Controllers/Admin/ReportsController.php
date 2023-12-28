@@ -25,6 +25,7 @@ class ReportsController extends Controller
                 break;
             case "p_v_report":
                 $data['menu'] = 'PV Company Report';
+                $data['subType'] = '';
                 if(!empty($request->all())){
                     return $this->getPvCompanyData($request);
                 }

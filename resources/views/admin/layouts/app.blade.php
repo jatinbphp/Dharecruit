@@ -484,7 +484,7 @@
                             </ul>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ route('reports',['type' => 'p_v_report']) }}" class="nav-link @if(isset($subType) && $subType=='sub_sent') active @endif">
+                                    <a href="{{ route('reports',['type' => 'p_v_report']) }}" class="nav-link @if($menu == 'PV Company Report') active @endif">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Prime Vendor Report</p>
                                     </a>
@@ -1227,6 +1227,10 @@
     function submitForm(){
         $("#candidateStatus").prop("disabled", false);
         $("#candidateForm").submit();
+    }
+
+    function toggleButton(el){
+        $(el).find("i").toggleClass("fa-plus fa-minus");
     }
 </script>
 @yield('jquery')
