@@ -1230,6 +1230,19 @@
     }
 
     function toggleButton(el){
+        const companyId = $(el).attr('data-company-id');
+        const className = 'pv-company-group-' + companyId;
+        const mainTrClass = 'pv-company-' + companyId;
+        if($(el).hasClass('hide-rows')){
+            $(el).removeClass('hide-rows').addClass('show-rows');
+            $('.'+className).removeClass('border-bottom border-top');
+            const tr = $('tr:has(td.' + className + ')');
+            tr.first().find('td.' + className + ':first-child').addClass('border-top');
+            tr.last().find('td.' + className).addClass('border-bottom');
+        } else {
+            $(el).addClass('hide-rows').removeClass('show-rows');
+            $('tr.' + mainTrClass).find('td').addClass('border-top border-bottom');
+        }
         $(el).find("i").toggleClass("fa-plus fa-minus");
     }
 </script>

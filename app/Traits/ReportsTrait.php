@@ -114,9 +114,10 @@ trait ReportsTrait {
             return  [];
         }
 
-        $pvData['user_data']['heading'] = $this->getPvHeadingData();
+        $pvData['pv_company_data']['heading'] = $this->getPvHeadingData();
         foreach ($pvCompanyIds as $companyId){
-            $pvData['user_data'][$companyId] = $this->getCompanyWisePVCompanyData($companyId, $pvCompanyIds, $request);
+            $pvData['pv_company_data'][$companyId] = $this->getCompanyWisePVCompanyData($companyId, $pvCompanyIds, $request);
+            $pvData['poc_data'][$companyId]        = $this->getCompanyWisePocData($companyId, $pvCompanyIds, $request);
         }
         $pvData['class_data'] = $this->getPVCompanyClass();
 
