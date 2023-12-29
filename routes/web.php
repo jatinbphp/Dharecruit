@@ -150,6 +150,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
 
     /* REPORTS MANAGEMENT */
     Route::get('reports/{type}/{subType?}', [ReportsController::class, 'index'])->name('reports');
+    Route::post('reports/getPocNames', [ReportsController::class, 'getPocNames'])->name('reports.getPocNames');
 
     Auth::routes();
 });

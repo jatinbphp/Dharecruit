@@ -49,15 +49,15 @@ class Admin extends Authenticatable
 
     public static function getActiveBDM($defaltOption = false){
         if($defaltOption){
-            return Admin::where('role','bdm')->where('status','active')->pluck('name','id')->prepend('Please Select','');
+            return Admin::where('role','bdm')->where('status','active')->orderBy('name')->pluck('name','id')->prepend('Please Select','');
         }
-        return Admin::where('role','bdm')->where('status','active')->pluck('name','id');
+        return Admin::where('role','bdm')->where('status','active')->orderBy('name')->pluck('name','id');
     }
 
     public static function getActiveRecruiter($defaltOption = false){
         if($defaltOption){
-            return Admin::where('role','recruiter')->where('status','active')->pluck('name','id')->prepend('Please Select','');
+            return Admin::where('role','recruiter')->where('status','active')->orderBy('name')->pluck('name','id')->prepend('Please Select','');
         }
-        return Admin::where('role','recruiter')->where('status','active')->pluck('name','id');
+        return Admin::where('role','recruiter')->where('status','active')->orderBy('name')->pluck('name','id');
     }
 }

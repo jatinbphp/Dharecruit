@@ -104,13 +104,13 @@
         {
             @if(isset($subType) && $subType == 'sub_received')
                 if(!$('#bdm option:selected').length > 0) {
-                    swal("Cancelled", "Please Select BDM", "error");
+                    swal("Warning", "Please Select BDM", "warning");
                     return;
                 }
             @endif
             @if(isset($subType) && $subType == 'sub_sent')
                 if(!$('#recruiter option:selected').length > 0) {
-                    swal("Cancelled", "Please Select Recruiter", "error");
+                    swal("Warning", "Please Select Recruiter", "warning");
                     return;
                 }
             @endif

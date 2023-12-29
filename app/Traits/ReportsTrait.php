@@ -8,6 +8,7 @@ trait ReportsTrait {
     use RequirementTrait;
     use SubmissionTrait;
     use PVCompanyTrait;
+    use POCTrait;
     public function getAllBdmsData($request): array
     {
         $bdms = $request->bdm;
@@ -108,18 +109,42 @@ trait ReportsTrait {
             return [];
         }
 
-        $pvCompanyIds = $request->p_v_company;
+        $pvCompanies = $request->p_v_company;
 
-        if(!$pvCompanyIds || !count($pvCompanyIds)){
+        if(!$pvCompanies || !count($pvCompanies)){
             return  [];
         }
 
         $pvData['pv_company_data']['heading'] = $this->getPvHeadingData();
-        foreach ($pvCompanyIds as $companyId){
-            $pvData['pv_company_data'][$companyId] = $this->getCompanyWisePVCompanyData($companyId, $pvCompanyIds, $request);
-            $pvData['poc_data'][$companyId]        = $this->getCompanyWisePocData($companyId, $pvCompanyIds, $request);
+        foreach ($pvCompanies as $pvCompany){
+            $pvCompanyKey = $this->getKey($pvCompany);
+            $pvData['pv_company_data'][$pvCompanyKey] = $this->getCompanyWisePVCompanyData($pvCompany, $pvCompanies, $request);
+            $pvData['poc_data'][$pvCompanyKey]        = $this->getCompanyWisePocData($pvCompany, $request);
         }
-        $pvData['class_data'] = $this->getPVCompanyClass();
+        $pvData['class_data'] = $this->getPVClass();
+
+        return  $pvData;
+    }
+
+    public function getPOCFilterData($request)
+    {
+        if(!$request){
+            return [];
+        }
+
+        $pvCompanies = $request->p_v_company;
+        $pocNames = $request->poc_name;
+
+        if(!$pvCompanies || !count($pvCompanies) || !$pocNames || !count($pocNames)){
+            return  [];
+        }
+
+        $pvData['heading'] = $this->getPOCHeadingData();
+        foreach ($pvCompanies as $pvCompany){
+            $pvCompanyKey = $this->getKey($pvCompany);
+            $pvData['poc_data'][$pvCompanyKey] = $this->getPocWiseData($pvCompany, $pocNames, $request);
+        }
+        $pvData['class_data'] = $this->getPVClass();
 
         return  $pvData;
     }

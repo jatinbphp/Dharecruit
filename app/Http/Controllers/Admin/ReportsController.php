@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\PVCompany;
+use App\Traits\POCTrait;
 use App\Traits\ReportsTrait;
 use Illuminate\Http\Request;
 
@@ -28,6 +30,13 @@ class ReportsController extends Controller
                 $data['subType'] = '';
                 if(!empty($request->all())){
                     return $this->getPvCompanyData($request);
+                }
+                break;
+            case "poc_report":
+                $data['menu'] = 'POC Report';
+                $data['subType'] = '';
+                if(!empty($request->all())){
+                    return $this->getPOCData($request);
                 }
                 break;
             default:
@@ -56,5 +65,23 @@ class ReportsController extends Controller
         $data['content']        = view('admin.reports.p_v_report_data', $pvData)->render();
 
         return $data;
+    }
+
+    public function getPOCData($request): array
+    {
+        $pvData['pocFilterData'] = $this->getPOCFilterData($request);
+        $data['content']        = view('admin.reports.poc_report_data', $pvData)->render();
+
+        return $data;
+    }
+
+    public function getPocNames(Request $request)
+    {
+        $companyName = $request->input('companyName');
+        $pocNames = [];
+        if($companyName){
+            $pocNames = PVCompany::whereIn('name', $companyName)->distinct()->orderBY('name')->pluck('poc_name', 'poc_name');
+        }
+        return response()->json($pocNames);
     }
 }

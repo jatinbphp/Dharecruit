@@ -22,6 +22,9 @@
                     $i = 1;
                 @endphp
                 @foreach($pvFilterData['pv_company_data'] as $key => $pvCompanyData)
+                    @php
+                        $key = strtolower(str_replace([' ', '.'], ['_', ''], $key));
+                    @endphp
                     <tr class="pv-company-{{$key}}">
                         @if($pvCompanyData && count($pvCompanyData))
                             @foreach($pvCompanyData as $heading => $data)
