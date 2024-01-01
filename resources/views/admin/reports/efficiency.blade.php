@@ -93,16 +93,45 @@
 
 @section('jquery')
     <script type="text/javascript">
+        $( document ).ready(function(){
+            searchReportData();
+        });
+
+        function sortRow(table){
+            console.log(table)
+            var $table = $(table).closest('table');
+            console.log($table);
+            var columnIndex = $(table).index();
+
+            // Get all the rows in the tbody and convert to array for sorting
+            var rows = $table.find('tbody tr').get();
+
+            // Sort the rows based on the values in the clicked column
+            rows.sort(function (a, b) {
+                var aValue = $(a).find('td').eq(columnIndex).text();
+                var bValue = $(b).find('td').eq(columnIndex).text();
+                console.log(aValue);
+                console.log(bValue);
+                return aValue.localeCompare(bValue, undefined, {numeric: true, sensitivity: 'base'});
+            });
+
+            // Clear the tbody and append the sorted rows
+            $.each(rows, function (index, row) {
+                $table.find('tbody').append(row);
+            });
+        }
+
         function clearRepoetData()
         {
             $('#filterRepoetForm')[0].reset();
             $('select').trigger('change');
             $('#reportContent').html("");
+            searchReportData();
         }
 
         function searchReportData()
         {
-            @if(isset($subType) && $subType == 'sub_received')
+            {{--@if(isset($subType) && $subType == 'sub_received')
                 if(!$('#bdm option:selected').length > 0) {
                     swal("Warning", "Please Select BDM", "warning");
                     return;
@@ -113,8 +142,8 @@
                     swal("Warning", "Please Select Recruiter", "warning");
                     return;
                 }
-            @endif
-                $('#overlay').show();
+            @endif--}}
+            $('#overlay').show();
             $.ajax({
                 url: "{{route('reports',[$type, $subType])}}",
                 type: "get",
@@ -122,6 +151,20 @@
                 success: function(responce){
                     if(responce.content){
                         $('#reportContent').html(responce.content);
+
+                        $(".efficiency-report-table").each(function () {
+                            const tableID = $(this).attr("id");
+                            $('#'+tableID).DataTable({
+                                "order": [],
+                                "bPaginate": false,
+                                "bFilter": false,
+                                "bInfo": false,
+                                drawCallback: function (settings) {
+                                    $(settings.nTable).find('tbody').find('td').removeClass('border-bottom');
+                                    $(settings.nTable).find('tbody tr:last').find('td').addClass('border-bottom');
+                                }
+                            });
+                        });
                     }
                     $('#overlay').hide();
                 }

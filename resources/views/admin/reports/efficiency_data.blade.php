@@ -1,48 +1,57 @@
 @if(isset($bdmsData) && $bdmsData && count($bdmsData) && $bdmsData['user_data'] && count($bdmsData['user_data']))
     @php
         $classData = isset($bdmsData['class_data']) ? $bdmsData['class_data'] : [];
+        $headings  = isset($bdmsData['heading']) ? $bdmsData['heading'] : [];
         $i=0;
     @endphp
     <div class="col-md-12 mt-3 p-3 border border-with-label" data-label="">
         @foreach($bdmsData['user_data'] as $userId => $bdmData)
             <div class="table-responsive m-lg-n2">
-                <table class="table table-bordered table-striped @if($i!=0) mt-3 @endif">
+                <table class="table table-bordered table-striped efficiency-report-table @if($i!=0) mt-3 @endif" id="table-{{$userId}}">
                     <caption class="text-bold py-0">
                         <span
                             class="badge badge-info my-2 p-2">BDM: {{\App\Models\Admin::getUserNameBasedOnId($userId)}}</span>
                     </caption>
                     <thead>
-                    <tr>
-                        <th scope="col" class="text-center element-border">BDM</th>
-                        <th scope="col" colspan="5" class="text-center element-border">Requirement</th>
-                        <th scope="col" class="text-center element-border">Submission</th>
-                        <th scope="col" colspan="4" class="text-center element-border">BDM Status</th>
-                        <th scope="col" colspan="5" class="text-center element-border">Vendor Status</th>
-                        <th scope="col" colspan="6" class="text-center element-border">Client Status</th>
-                    </tr>
-                    </thead>
+                        <tr>
+                            <th scope="col" class="text-center element-border">BDM</th>
+                            <th scope="col" colspan="5" class="text-center element-border">POC Data</th>
+                            <th scope="col" colspan="5" class="text-center element-border">Requirement</th>
+                            <th scope="col" class="text-center element-border">Submission</th>
+                            <th scope="col" colspan="4" class="text-center element-border">BDM Status</th>
+                            <th scope="col" colspan="5" class="text-center element-border">Vendor Status</th>
+                            <th scope="col" colspan="6" class="text-center element-border">Client Status</th>
+                        </tr>
+                        @if($headings && count($headings))
+                            <tr>
+                                @foreach($headings as $key => $data)
+                                    @php
+                                       $bottomRight = (in_array($key, ['heading_bdm', 'heading_type', 'heading_servable_per', 'servable_per', 'heading_sub_rec', 'heading_submission_received', 'submission_received', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout', 'heading_new_req_poc'])) ? 'border-right' : '';
+                                       $borderLeft = (in_array($key, ['heading_type', 'heading_bdm'])) ? 'border-left' : '';
+                                    @endphp
+                                        <th class="border-bottom {{"$borderLeft $bottomRight"}}">{{$data}}</th>
+                                @endforeach
+                            </tr>
+                        @endif
+                        </thead>
                     <tbody>
                     @if($bdmData && count($bdmData))
                         @foreach($bdmData as $key => $rowData)
-                            <tr>
                                 @if($rowData && count($rowData))
-                                    @foreach($rowData as $heading => $data)
-                                        @php
-                                            $class = (isset($classData[$heading]) && $data) ? $classData[$heading] : '';
-                                            $data = ($data) ? $data : '-';
-                                            $topBorder = ($key == 'heading') ? 'border-top' : '';
-                                            $bottomBorder = (in_array($key,['time_frame', 'heading']) || (isset($bdmData['time_frame']) && !count($bdmData['time_frame']) && $key == 'last_month')) ? 'border-bottom' : '';
-                                            $bottomRight = (in_array($heading, ['heading_bdm', 'heading_type', 'heading_servable_per', 'servable_per', 'heading_sub_rec', 'heading_submission_received', 'submission_received', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout'])) ? 'border-right' : '';
-                                            $borderLeft = (in_array($heading, ['heading_type', 'heading_bdm'])) ? 'border-left' : '';
-                                        @endphp
-                                        @if(strtolower($key) == 'heading')
-                                            <th class="{{"$class $topBorder $bottomBorder $borderLeft $bottomRight"}}">{{$data}}</th>
-                                        @else
+                                    <tr>
+                                        @foreach($rowData as $heading => $data)
+                                            @php
+                                                $class = (isset($classData[$heading]) && $data) ? $classData[$heading] : '';
+                                                $data = ($data) ? $data : '-';
+                                                $topBorder = ($key == 'heading') ? 'border-top' : '';
+                                                $bottomBorder = (in_array($key,['time_frame', 'heading']) || (isset($bdmData['time_frame']) && !count($bdmData['time_frame']) && $key == 'last_month')) ? 'border-bottom' : '';
+                                                $bottomRight = (in_array($heading, ['heading_bdm', 'heading_type', 'heading_servable_per', 'servable_per', 'heading_sub_rec', 'heading_submission_received', 'submission_received', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout', 'new_req_poc'])) ? 'border-right' : '';
+                                                $borderLeft = (in_array($heading, ['heading_type', 'heading_bdm'])) ? 'border-left' : '';
+                                            @endphp
                                             <td class="{{"$class $topBorder $bottomBorder $borderLeft $bottomRight"}}">{{$data}}</td>
-                                        @endif
-                                    @endforeach
+                                        @endforeach
+                                    </tr>
                                 @endif
-                            </tr>
                         @endforeach
                     @endif
                     </tbody>
@@ -55,12 +64,13 @@
 @if(isset($recruitersData) && $recruitersData && count($recruitersData) && isset($recruitersData['user_data']) && count($recruitersData['user_data']))
     @php
         $classData = isset($recruitersData['class_data']) ? $recruitersData['class_data'] :  [];
+        $headings  = isset($recruitersData['heading']) ? $recruitersData['heading'] : [];
         $i=0;
     @endphp
     <div class="col-md-12 mt-3 p-3 border border-with-label" data-label="">
         @foreach($recruitersData['user_data'] as $userId => $recruitersData)
             <div class="table-responsive m-lg-n2">
-                <table class="table table-bordered table-striped @if($i!=0) mt-3 @endif">
+                <table class="table table-bordered table-striped efficiency-report-table @if($i!=0) mt-3 @endif" id="table-{{$userId}}">
                     <caption class="text-bold py-0">
                         <span
                             class="badge badge-info my-2 p-2">Recruiter: {{\App\Models\Admin::getUserNameBasedOnId($userId)}}</span>
@@ -68,35 +78,43 @@
                     <thead>
                     <tr>
                         <th scope="col" class="text-center element-border">Recruiter</th>
+                        <th scope="col" colspan="5" class="text-center element-border">Employee Data</th>
                         <th scope="col" colspan="4" class="text-center element-border">Requirement</th>
                         <th scope="col" colspan="2" class="text-center element-border">Submission</th>
                         <th scope="col" colspan="4" class="text-center element-border">BDM Status</th>
                         <th scope="col" colspan="5" class="text-center element-border">Vendor Status</th>
                         <th scope="col" colspan="6" class="text-center element-border">Client Status</th>
                     </tr>
+                    @if($headings && count($headings))
+                        <tr>
+                            @foreach($headings as $key => $data)
+                                @php
+                                    $bottomRight = (in_array($key, ['heading_recruiter', 'heading_type','heading_servable_per', 'heading_uniq_sub', 'heading_submission_received', 'heading_un_viewed', 'heading_position_closed', 'heading_client_backout', 'heading_backout', 'heading_new_employee_uni_submission'])) ? 'border-right' : '';
+                                    $borderLeft = (in_array($key, ['heading_type', 'heading_recruiter'])) ? 'border-left' : '';
+                                @endphp
+                                <th class="border-bottom {{"$borderLeft $bottomRight"}}">{{$data}}</th>
+                            @endforeach
+                        </tr>
+                    @endif
                     </thead>
                     <tbody>
                     @if($recruitersData && count($recruitersData))
                         @foreach($recruitersData as $key => $rowData)
-                            <tr>
-                                @if($rowData && count($rowData))
+                            @if($rowData && count($rowData))
+                                <tr>
                                     @foreach($rowData as $heading => $data)
                                         @php
                                             $class = (isset($classData[$heading]) && $data) ? $classData[$heading] : '';
                                             $data = ($data) ? $data : '-';
                                             $topBorder = ($key == 'heading') ? 'border-top' : '';
                                             $bottomBorder = (in_array($key,['time_frame', 'heading']) || (isset($recruitersData['time_frame']) && !count($recruitersData['time_frame']) && $key == 'last_month')) ? 'border-bottom' : '';
-                                            $bottomRight = (in_array($heading, ['heading_recruiter', 'heading_type','heading_servable_per', 'servable_per', 'heading_uniq_sub', 'unique_submission_sent','heading_submission_received', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout'])) ? 'border-right' : '';
+                                            $bottomRight = (in_array($heading, ['heading_recruiter', 'heading_type','heading_servable_per', 'servable_per', 'heading_uniq_sub', 'unique_submission_sent','heading_submission_received', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout', 'heading_new_employee_uni_submission'])) ? 'border-right' : '';
                                             $borderLeft = (in_array($heading, ['heading_type', 'heading_recruiter'])) ? 'border-left' : '';
-                                            @endphp
-                                        @if(strtolower($key) == 'heading')
-                                            <th class="{{"$class $topBorder $bottomBorder $borderLeft $bottomRight"}}">{{$data}}</th>
-                                        @else
-                                            <td class="{{"$class $topBorder $bottomBorder $borderLeft $bottomRight"}}">{{$data}}</td>
-                                        @endif
+                                        @endphp
+                                        <td class="{{"$class $topBorder $bottomBorder $borderLeft $bottomRight"}}">{{$data}}</td>
                                     @endforeach
-                                @endif
-                            </tr>
+                                </tr>
+                            @endif
                         @endforeach
                     @endif
                     </tbody>
@@ -110,22 +128,35 @@
     @if(isset($bdmTimeFrame['user_data']) && count($bdmTimeFrame['user_data']))
         @php
             $classData = isset($bdmTimeFrame['class_data']) ? $bdmTimeFrame['class_data'] : [];
+            $headings  = isset($bdmTimeFrame['heading']) ? $bdmTimeFrame['heading'] : [];
         @endphp
             <div class="col-md-12 mt-3 p-3 border border-with-label" data-label="">
                 <div class="table-responsive m-lg-n2">
-                    <table class="table table-bordered table-striped">
+                    <table class="table table-bordered table-striped efficiency-report-table" id="bdm_time_frame">
                         <caption class="text-bold py-0">
                             <span class="badge badge-info my-2 p-2">BDM: Time Frame</span>
                         </caption>
                         <thead>
                         <tr>
                             <th scope="col" class="text-center element-border">BDM</th>
+                            <th scope="col" colspan="5" class="text-center element-border">POC Data</th>
                             <th scope="col" colspan="5" class="text-center element-border">Requirement</th>
                             <th scope="col" class="text-center element-border">Submission</th>
                             <th scope="col" colspan="4" class="text-center element-border">BDM Status</th>
                             <th scope="col" colspan="5" class="text-center element-border">Vendor Status</th>
                             <th scope="col" colspan="6" class="text-center element-border">Client Status</th>
                         </tr>
+                        @if($headings && count($headings))
+                            <tr>
+                                @foreach($headings as $key => $data)
+                                    @php
+                                        $bottomRight = (in_array($key, ['heading_time_frame', 'heading_type', 'heading_servable_per', 'heading_sub_rec', 'heading_submission_received', 'heading_un_viewed', 'heading_position_closed', 'heading_client_backout', 'heading_backout', 'heading_new_req_poc'])) ? 'border-right' : '';
+                                        $borderLeft = (in_array($key, ['heading_type', 'heading_time_frame'])) ? 'border-left' : '';
+                                    @endphp
+                                    <th class="border-bottom {{"$borderLeft $bottomRight"}}">{{$data}}</th>
+                                @endforeach
+                            </tr>
+                        @endif
                         </thead>
                         <tbody>
                         @php
@@ -133,25 +164,21 @@
                             $i = 1;
                         @endphp
                             @foreach($bdmTimeFrame['user_data'] as $key => $bdmData)
-                                <tr>
-                                    @if($bdmData && count($bdmData))
+                                @if($bdmData && count($bdmData))
+                                    <tr>
                                         @foreach($bdmData as $heading => $data)
                                             @php
                                                 $class = (isset($classData[$heading]) && $data) ? $classData[$heading] : '';
                                                 $data = ($data) ? $data : '-';
                                                 $topBorder = ($key == 'heading') ? 'border-top' : '';
                                                 $bottomBorder = ($key == 'heading' || $i == $totalCount) ? 'border-bottom' : '';
-                                                $bottomRight = (in_array($heading, ['heading_time_frame', 'heading_type', 'heading_servable_per', 'servable_per', 'heading_sub_rec', 'heading_submission_received', 'submission_received', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout'])) ? 'border-right' : '';
+                                                $bottomRight = (in_array($heading, ['heading_time_frame', 'heading_type', 'heading_servable_per', 'servable_per', 'heading_sub_rec', 'heading_submission_received', 'submission_received', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout','new_req_poc'])) ? 'border-right' : '';
                                                 $borderLeft = (in_array($heading, ['heading_type', 'heading_time_frame'])) ? 'border-left' : '';
-                                                @endphp
-                                            @if(strtolower($key) == 'heading')
-                                                <th class="{{"$class $topBorder $bottomBorder $borderLeft $bottomRight"}}">{{$data}}</th>
-                                            @else
-                                                <td class="{{"$class $topBorder $bottomBorder $borderLeft $bottomRight"}}">{{$data}}</td>
-                                            @endif
+                                            @endphp
+                                            <td class="{{"$class $topBorder $bottomBorder $borderLeft $bottomRight"}}">{{$data}}</td>
                                         @endforeach
-                                    @endif
-                                </tr>
+                                    </tr>
+                                @endif
                                 @php $i++; @endphp
                             @endforeach
                         </tbody>
@@ -163,10 +190,11 @@
 @if(isset($recruiterTimeFrame) && $recruiterTimeFrame && count($recruiterTimeFrame) && isset($recruiterTimeFrame['user_data']) && count($recruiterTimeFrame['user_data']))
     @php
         $classData = isset($recruiterTimeFrame['class_data']) ? $recruiterTimeFrame['class_data'] : [];
+        $headings  = isset($recruiterTimeFrame['heading']) ? $recruiterTimeFrame['heading'] : [];
     @endphp
     <div class="col-md-12 mt-3 p-3 border border-with-label" data-label="">
         <div class="table-responsive m-lg-n2">
-            <table class="table table-bordered table-striped">
+            <table class="table table-bordered table-striped efficiency-report-table" id="rec_time_frame">
                 <caption class="text-bold py-0">
                     <span class="badge badge-info my-2 p-2">Recruiter: Time Frame</span>
                 </caption>
@@ -179,6 +207,17 @@
                     <th scope="col" colspan="5" class="text-center element-border">Vendor Status</th>
                     <th scope="col" colspan="6" class="text-center element-border">Client Status</th>
                 </tr>
+                @if($headings && count($headings))
+                    <tr>
+                        @foreach($headings as $key => $data)
+                            @php
+                                $bottomRight = (in_array($key, ['heading_recruiter','heading_time_frame' ,'heading_type','heading_servable_per', 'heading_uniq_sub','heading_submission_received', 'heading_un_viewed', 'heading_position_closed', 'heading_client_backout', 'heading_backout'])) ? 'border-right' : '';
+                                $borderLeft = (in_array($key, ['heading_type', 'heading_time_frame'])) ? 'border-left' : '';
+                            @endphp
+                            <th class="border-bottom {{"$borderLeft $bottomRight"}}">{{$data}}</th>
+                        @endforeach
+                    </tr>
+                @endif
                 </thead>
                 <tbody>
                 @php
@@ -186,25 +225,21 @@
                     $i = 1;
                 @endphp
                 @foreach($recruiterTimeFrame['user_data'] as $key => $recruiterData)
-                    <tr>
-                        @if($recruiterData && count($recruiterData))
+                    @if($recruiterData && count($recruiterData))
+                        <tr>
                             @foreach($recruiterData as $heading => $data)
                                 @php
                                     $class = (isset($classData[$heading]) && $data) ? $classData[$heading] : '';
                                     $data = ($data) ? $data : '-';
                                     $topBorder = ($key == 'heading') ? 'border-top' : '';
                                     $bottomBorder = ($key == 'heading' || $i == $totalCount) ? 'border-bottom' : '';
-                                    $bottomRight = (in_array($heading, ['heading_recruiter', 'heading_type','heading_servable_per', 'servable_per', 'heading_uniq_sub', 'unique_submission_sent','heading_submission_received', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout'])) ? 'border-right' : '';
+                                    $bottomRight = (in_array($heading, ['heading_recruiter','heading_time_frame' ,'heading_type','heading_servable_per', 'servable_per', 'heading_uniq_sub', 'unique_submission_sent','heading_submission_received', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout'])) ? 'border-right' : '';
                                     $borderLeft = (in_array($heading, ['heading_type', 'heading_time_frame'])) ? 'border-left' : '';
                                 @endphp
-                                @if(strtolower($key) == 'heading')
-                                    <th class="{{"$class $topBorder $bottomBorder $borderLeft $bottomRight"}}">{{$data}}</th>
-                                @else
-                                    <td class="{{"$class $topBorder $bottomBorder $borderLeft $bottomRight"}}">{{$data}}</td>
-                                @endif
+                                <td class="{{"$class $topBorder $bottomBorder $borderLeft $bottomRight"}}">{{$data}}</td>
                             @endforeach
-                        @endif
-                    </tr>
+                        </tr>
+                    @endif
                     @php $i++ @endphp
                 @endforeach
                 </tbody>

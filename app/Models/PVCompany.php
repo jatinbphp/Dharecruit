@@ -23,4 +23,8 @@ class PVCompany extends Model
     public static function getActivePVCompanyies(){
         return PVCompany::where('status','active')->orderBy('name')->distinct()->pluck('name','name');
     }
+
+    public static function getActivePOCNames(){
+        return PVCompany::where('status','active')->orderBy('poc_name')->distinct()->pluck('poc_name','poc_name');
+    }
 }

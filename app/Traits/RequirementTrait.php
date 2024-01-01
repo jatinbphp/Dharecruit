@@ -16,11 +16,18 @@ trait RequirementTrait
     protected $_userIdWiseStatusCount = [];
     protected $_userIdWiseClientStatusCount = [];
     protected $_userIdWisetotalReceivedSubmissionCount = [];
+    protected $_userIdWiseTotalPv = [];
+    protected $_userIdWiseTotalPOC = [];
 
     public function getBdmUserHeadingData(): array
     {
         return [
             'heading_bdm'                => 'BDM',
+            'heading_total_pv'           => 'Total PV',
+            'heading_new_pv'             => 'New PV',
+            'heading_total_poc'          => 'Total POC',
+            'heading_new_poc'            => 'New POC',
+            'heading_new_req_poc'        => 'New Req POC',
             'heading_total'              => 'Total',
             'heading_unique'             => 'Unique',
             'heading_served'             => 'Served',
@@ -49,6 +56,11 @@ trait RequirementTrait
     {
         return [
             'heading_time_frame'         => "Time Frame",
+            'heading_total_pv'           => 'Total PV',
+            'heading_new_pv'             => 'New PV',
+            'heading_total_poc'          => 'Total POC',
+            'heading_new_poc'            => 'New POC',
+            'heading_new_req_poc'        => 'New Req POC',
             'heading_total'              => 'Total',
             'heading_unique'             => 'Unique',
             'heading_served'             => 'Served',
@@ -90,6 +102,11 @@ trait RequirementTrait
 
         return [
             'heading_type'                   => $headingType,
+            'total_pv'                       => $this->getTotalPv($date, $bdms, $userId, $type),
+            'new_pv'                         => '-',
+            'total_poc'                      => $this->getTotalPOC($date, $bdms, $userId, $type),
+            'new_poc'                        => '-',
+            'new_req_poc'                    => '-',
             'total_req'                      => $totalRequirements,
             'total_uni_req'                  => $this->getTotalRequirementCount($date, $bdms, $userId, $type, 1),
             'served'                         => $servedRequirements,
@@ -239,6 +256,40 @@ trait RequirementTrait
 
         if(isset($this->_userIdWiseClientStatusCount[$type][$status][$userId])){
             return $this->_userIdWiseClientStatusCount[$type][$status][$userId];
+        }
+
+        return 0;
+    }
+
+    public function getTotalPv($date, $bdms, $userId, $type)
+    {
+        if(!$this->_userIdWiseTotalPv  || !isset($this->_userIdWiseTotalPv[$type])){
+            $collection = Requirement::select('user_id', \DB::raw('COUNT(DISTINCT LOWER(pv_company_name)) as count'))
+                ->whereIn('user_id', $bdms)
+                ->whereBetween('created_at', $date)
+                ->groupBy('user_id');
+            $this->_userIdWiseTotalPv[$type] = $collection->pluck('count', 'user_id')->toArray();
+        }
+
+        if(isset($this->_userIdWiseTotalPv[$type][$userId])){
+            return $this->_userIdWiseTotalPv[$type][$userId];
+        }
+
+        return 0;
+    }
+
+    public function getTotalPOC($date, $bdms, $userId, $type)
+    {
+        if(!$this->_userIdWiseTotalPOC  || !isset($this->_userIdWiseTotalPOC[$type])){
+            $collection = Requirement::select('user_id', \DB::raw('COUNT(DISTINCT LOWER(poc_name)) as count'))
+                ->whereIn('user_id', $bdms)
+                ->whereBetween('created_at', $date)
+                ->groupBy('user_id');
+            $this->_userIdWiseTotalPOC[$type] = $collection->pluck('count', 'user_id')->toArray();
+        }
+
+        if(isset($this->_userIdWiseTotalPOC[$type][$userId])){
+            return $this->_userIdWiseTotalPOC[$type][$userId];
         }
 
         return 0;

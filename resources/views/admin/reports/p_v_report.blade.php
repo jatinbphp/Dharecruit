@@ -81,19 +81,24 @@
 
 @section('jquery')
     <script type="text/javascript">
+        $(document).ready(function (){
+            searchReportData();
+        });
+
         function clearRepoetData()
         {
             $('#filterRepoetForm')[0].reset();
             $('select').trigger('change');
             $('#reportContent').html("");
+            searchReportData();
         }
 
         function searchReportData()
         {
-            if(!$('#p_v_company option:selected').length > 0) {
+            /*if(!$('#p_v_company option:selected').length > 0) {
                 swal("Warning", "Please Select PV Company", "warning");
                 return;
-            }
+            }*/
             $('#overlay').show();
             $.ajax({
                 url: "{{route('reports',['type' => $type, 'subType' => null])}}",
@@ -102,6 +107,16 @@
                 success: function(responce){
                     if(responce.content){
                         $('#reportContent').html(responce.content);
+                        // $('#pv_company_report2').DataTable({
+                        //     "order": [],
+                        //     "bPaginate": false,
+                        //     "bFilter": false,
+                        //     "bInfo": false,
+                        //     drawCallback: function (settings) {
+                        //         $(settings.nTable).find('tbody').find('td').removeClass('border-bottom');
+                        //         $(settings.nTable).find('tbody tr:last').find('td').addClass('border-bottom');
+                        //     }
+                        // });
                     }
                     $('#overlay').hide();
                 }

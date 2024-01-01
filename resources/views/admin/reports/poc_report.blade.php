@@ -87,6 +87,10 @@
 
 @section('jquery')
     <script type="text/javascript">
+        $(document).ready(function (){
+            searchReportData();
+        });
+
         function clearRepoetData()
         {
             $('#filterRepoetForm')[0].reset();
@@ -96,14 +100,14 @@
 
         function searchReportData()
         {
-            if(!$('#p_v_company option:selected').length > 0) {
-                swal("Warning", "Please Select PV Company", "warning");
-                return;
-            }
-            if(!$('#poc_name option:selected').length > 0) {
-                swal("Warning", "Please Select Atleast One POC", "warning");
-                return;
-            }
+            // if(!$('#p_v_company option:selected').length > 0) {
+            //     swal("Warning", "Please Select PV Company", "warning");
+            //     return;
+            // }
+            // if(!$('#poc_name option:selected').length > 0) {
+            //     swal("Warning", "Please Select Atleast One POC", "warning");
+            //     return;
+            // }
             $('#overlay').show();
             $.ajax({
                 url: "{{route('reports',['type' => $type, 'subType' => null])}}",

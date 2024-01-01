@@ -177,7 +177,7 @@ trait PVCompanyTrait {
     public function getLastRequestDateBasedOnId($pvCompanyName, $allPVCompanies, $date): string
     {
         if(!$this->_companyWiseCompanyLastReqDate){
-            $collection = Requirement::select('pv_company_name', \DB::raw("DATE_FORMAT(MAX(created_at), '%m-%d-%y') as latest_created_at"))
+            $collection = Requirement::select(\DB::raw('LOWER(pv_company_name) as pv_company_name'), \DB::raw("DATE_FORMAT(MAX(created_at), '%m-%d-%y') as latest_created_at"))
                 ->whereIn('pv_company_name', $allPVCompanies);
                 if($date && isset($date['from']) && $date['to']){
                     $collection->whereBetween('created_at', $date);
@@ -186,6 +186,7 @@ trait PVCompanyTrait {
             $this->_companyWiseCompanyLastReqDate = $collection->pluck('latest_created_at', 'pv_company_name')->toArray();
         }
 
+        $pvCompanyName = strtolower($pvCompanyName);
         if(isset($this->_companyWiseCompanyLastReqDate[$pvCompanyName])){
             return $this->_companyWiseCompanyLastReqDate[$pvCompanyName];
         }
@@ -196,7 +197,7 @@ trait PVCompanyTrait {
     public function getRequirementCounts($pvCompanyName, $allPVCompanies, $date, $isUnique = 0): int
     {
         if(!$this->_companyWiseRequirementCounts || !isset($this->_companyWiseRequirementCounts[$isUnique])){
-            $collection = Requirement::select('pv_company_name', \DB::raw("count(id) as count"))
+            $collection = Requirement::select(\DB::raw('LOWER(pv_company_name) as pv_company_name'), \DB::raw("count(id) as count"))
             ->whereIn('pv_company_name', $allPVCompanies);
             if($isUnique){
                 $collection->where(function ($query) {
@@ -211,6 +212,7 @@ trait PVCompanyTrait {
             $this->_companyWiseRequirementCounts[$isUnique] = $collection->pluck('count', 'pv_company_name')->toArray();
         }
 
+        $pvCompanyName = strtolower($pvCompanyName);
         if(isset($this->_companyWiseRequirementCounts[$isUnique][$pvCompanyName])){
             return $this->_companyWiseRequirementCounts[$isUnique][$pvCompanyName];
         }
@@ -227,11 +229,12 @@ trait PVCompanyTrait {
                     $collection->whereBetween('submissions.created_at', $date);
                 }
                 $collection->groupBy('requirements.pv_company_name')
-                ->selectRaw('requirements.pv_company_name, COUNT(submissions.id) as count');
+                ->selectRaw('LOWER(requirements.pv_company_name) as pv_company_name, COUNT(submissions.id) as count');
 
-            $this->_companyWiseTotalSubmissionCounts = $collection->pluck('count', 'requirements.pv_company_name')->toArray();
+            $this->_companyWiseTotalSubmissionCounts = $collection->pluck('count', 'pv_company_name')->toArray();
         }
 
+        $pvCompanyName = strtolower($pvCompanyName);
         if(isset($this->_companyWiseTotalSubmissionCounts[$pvCompanyName])){
             return $this->_companyWiseTotalSubmissionCounts[$pvCompanyName];
         }
@@ -245,11 +248,12 @@ trait PVCompanyTrait {
             $collection = $this->getJoin($status, $filedName, $date);
             $collection->whereIn('requirements.pv_company_name', $allPVCompanies)
                 ->groupBy('requirements.pv_company_name')
-                ->selectRaw('requirements.pv_company_name, COUNT(submissions.id) as count');
+                ->selectRaw('LOWER(requirements.pv_company_name) as pv_company_name, COUNT(submissions.id) as count');
 
-            $this->_companyWiseTotalStatusCounts[$status] = $collection->pluck('count', 'requirements.pv_company_name')->toArray();
+            $this->_companyWiseTotalStatusCounts[$status] = $collection->pluck('count', 'pv_company_name')->toArray();
         }
 
+        $pvCompanyName = strtolower($pvCompanyName);
         if(isset($this->_companyWiseTotalStatusCounts[$status][$pvCompanyName])){
             return $this->_companyWiseTotalStatusCounts[$status][$pvCompanyName];
         }
@@ -271,10 +275,12 @@ trait PVCompanyTrait {
                 }
             $collection->whereIn('requirements.pv_company_name', $allPVCompanies)
                 ->groupBy('requirements.pv_company_name')
-                ->selectRaw('requirements.pv_company_name, COUNT(interviews.id) as count');
+                ->selectRaw('LOWER(requirements.pv_company_name) as pv_company_name, COUNT(interviews.id) as count');
 
-            $this->_companyWiseTotalClientStatusCounts[$status] = $collection->pluck('count', 'requirements.pv_company_name')->toArray();
+            $this->_companyWiseTotalClientStatusCounts[$status] = $collection->pluck('count', 'pv_company_name')->toArray();
         }
+
+        $pvCompanyName = strtolower($pvCompanyName);
         if (isset($this->_companyWiseTotalClientStatusCounts[$status][$pvCompanyName])) {
             return $this->_companyWiseTotalClientStatusCounts[$status][$pvCompanyName];
         }
@@ -285,15 +291,17 @@ trait PVCompanyTrait {
     public function getCompanyWiseTotalPocCount($pvCompanyName, $allPVCompanies, $date): int
     {
         if(!$this->_companyWiseTotalPocCount){
-            $collection = Requirement::select('pv_company_name', \DB::raw("COUNT(DISTINCT poc_name) as count"))
+            $collection = Requirement::select(\DB::raw('LOWER(requirements.pv_company_name) as pv_company_name'), \DB::raw("COUNT(DISTINCT poc_name) as count"))
                 ->whereIn('pv_company_name', $allPVCompanies);
             if($date && isset($date['from']) && $date['to']){
                 $collection->whereBetween('created_at', $date);
             }
             $collection->groupBy('pv_company_name');
 
-            $this->_companyWiseTotalPocCount = $collection->pluck('count', 'requirements.pv_company_name')->toArray();
+            $this->_companyWiseTotalPocCount = $collection->pluck('count', 'pv_company_name')->toArray();
         }
+
+        $pvCompanyName = strtolower($pvCompanyName);
         if (isset($this->_companyWiseTotalPocCount[$pvCompanyName])) {
             return $this->_companyWiseTotalPocCount[$pvCompanyName];
         }
@@ -304,7 +312,7 @@ trait PVCompanyTrait {
     public function getCompanyWiseHighestUniqueRequirementByPoc($pvCompanyName, $allPVCompanies): int
     {
         if(!$this->_companyWiseHighestUniqueRequirementByPoc){
-            $this->_companyWiseHighestUniqueRequirementByPoc = Requirement::select('pv_company_name', 'poc_name', \DB::raw('COUNT(*) as poc_count'))
+            $this->_companyWiseHighestUniqueRequirementByPoc = Requirement::select(\DB::raw('LOWER(requirements.pv_company_name) as pv_company_name'), 'poc_name', \DB::raw('COUNT(*) as poc_count'))
                 ->whereIn('pv_company_name', $allPVCompanies)
                 ->where(function ($query) {
                         $query->where('id' ,\DB::raw('parent_requirement_id'));
@@ -319,6 +327,7 @@ trait PVCompanyTrait {
                 ->toArray();
         }
 
+        $pvCompanyName = strtolower($pvCompanyName);
         if (isset($this->_companyWiseHighestUniqueRequirementByPoc[$pvCompanyName])) {
             return $this->_companyWiseHighestUniqueRequirementByPoc[$pvCompanyName];
         }
@@ -329,15 +338,17 @@ trait PVCompanyTrait {
     public function getCompanyWiseTotalBDMCount($pvCompanyName, $allPVCompanies, $date): int
     {
         if(!$this->_companyWiseTotalBDMCount){
-            $collection = Requirement::select('pv_company_name', \DB::raw("COUNT(DISTINCT user_id) as count"))
+            $collection = Requirement::select(\DB::raw('LOWER(requirements.pv_company_name) as pv_company_name'), \DB::raw("COUNT(DISTINCT user_id) as count"))
                 ->whereIn('pv_company_name', $allPVCompanies);
             if($date && isset($date['from']) && $date['to']){
                 $collection->whereBetween('created_at', $date);
             }
             $collection->groupBy('pv_company_name');
 
-            $this->_companyWiseTotalBDMCount = $collection->pluck('count', 'requirements.pv_company_name')->toArray();
+            $this->_companyWiseTotalBDMCount = $collection->pluck('count', 'pv_company_name')->toArray();
         }
+
+        $pvCompanyName = strtolower($pvCompanyName);
         if (isset($this->_companyWiseTotalBDMCount[$pvCompanyName])) {
             return $this->_companyWiseTotalBDMCount[$pvCompanyName];
         }
@@ -349,7 +360,7 @@ trait PVCompanyTrait {
     {
         if(!$this->_companyWiseCategories){
             $collection = Requirement::select(
-                    'requirements.pv_company_name',
+                    \DB::raw('LOWER(requirements.pv_company_name) as pv_company_name'),
                     \DB::raw('GROUP_CONCAT(categories.name) as category_names'),
                 )
                 ->whereIn('pv_company_name', $allPVCompanies)
@@ -380,6 +391,7 @@ trait PVCompanyTrait {
             }
         }
 
+        $pvCompanyName = strtolower($pvCompanyName);
         if (isset($this->_companyWiseCategories[$pvCompanyName])) {
             return $this->_companyWiseCategories[$pvCompanyName];
         }
@@ -391,7 +403,7 @@ trait PVCompanyTrait {
     {
         if(!$this->_companyWiseBDMs){
             $collection = Requirement::select(
-                    'requirements.pv_company_name',
+                    \DB::raw('LOWER(requirements.pv_company_name) as pv_company_name'),
                     \DB::raw('GROUP_CONCAT(admins.name) as admin'),
                 )
                 ->whereIn('pv_company_name', $allPVCompanies);
@@ -422,6 +434,7 @@ trait PVCompanyTrait {
             }
         }
 
+       $pvCompanyName = strtolower($pvCompanyName);
        if (isset($this->_companyWiseBDMs[$pvCompanyName])) {
            return $this->_companyWiseBDMs[$pvCompanyName];
        }
