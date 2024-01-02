@@ -27,7 +27,7 @@
                         <div class="card-header">
                             <div class="row">
                                 <div class="col-md-12 border mt-3 p-3" id="reportsFilterDiv">
-                                    {!! Form::open(['id' => 'filterRepoetForm', 'class' => 'form-horizontal','files'=>true,'onsubmit' => 'return false;']) !!}
+                                    {!! Form::open(['id' => 'filterReportForm', 'class' => 'form-horizontal','files'=>true,'onsubmit' => 'return false;']) !!}
                                     <div class="row">
                                         <div class="col-md-4">
                                             <div class="form-group">
@@ -62,8 +62,16 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="control-label" for="data_toggle">Show Only Row With Data</label><br>
+                                                {!! Form::checkbox('', '', null, ['id' => 'data_toggle', 'class' => 'toggle-checkbox', 'checked' => true, 'data-toggle' => 'toggl', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                            </div>
+                                        </div>
+                                    </div>
                                     <button class="btn btn-info float-right" onclick="searchReportData()">Search</button>
-                                    <button class="btn btn-default float-right mr-2" onclick="clearRepoetData()">Clear</button>
+                                    <button class="btn btn-default float-right mr-2" onclick="clearReportData()">Clear</button>
                                     {!! Form::close() !!}
                                 </div>
                             </div>
@@ -85,12 +93,13 @@
             searchReportData();
         });
 
-        function clearRepoetData()
+        function clearReportData()
         {
-            $('#filterRepoetForm')[0].reset();
+            $('#filterReportForm')[0].reset();
             $('select').trigger('change');
             $('#reportContent').html("");
             searchReportData();
+            $('#data_toggle').trigger('change');
         }
 
         function searchReportData()
@@ -103,10 +112,11 @@
             $.ajax({
                 url: "{{route('reports',['type' => $type, 'subType' => null])}}",
                 type: "get",
-                data: $("#filterRepoetForm").serialize(),
+                data: $("#filterReportForm").serialize(),
                 success: function(responce){
                     if(responce.content){
                         $('#reportContent').html(responce.content);
+                        $('#data_toggle').trigger('change');
                         // $('#pv_company_report2').DataTable({
                         //     "order": [],
                         //     "bPaginate": false,

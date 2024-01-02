@@ -121,7 +121,6 @@ trait ReportsTrait {
             $pvCompanies = array_keys(PVCompany::getActivePVCompanyies()->toArray());
         }
 
-        $pvData['heading'] = $this->getPvHeadingData();
         foreach ($pvCompanies as $pvCompany){
             $pvCompanyKey = $this->getKey($pvCompany);
             $pvData['pv_company_data'][$pvCompanyKey] = $this->getCompanyWisePVCompanyData($pvCompany, $pvCompanies, $request);
@@ -129,6 +128,8 @@ trait ReportsTrait {
         }
         $pvData['heading']    = $this->getPvHeadingData();
         $pvData['class_data'] = $this->getPVClass();
+        $pvData['empty_pv_rows'] = $this->getEmptyPVRows();
+        $pvData['empty_poc_rows'] = $this->getEmptyPOCRows();
 
         return  $pvData;
     }
@@ -149,13 +150,15 @@ trait ReportsTrait {
 //            return  [];
 //        }
 
-        $pvData['heading'] = $this->getPOCHeadingData();
+        $pocData['heading'] = $this->getPOCHeadingData();
         foreach ($pvCompanies as $pvCompany){
             $pvCompanyKey = $this->getKey($pvCompany);
-            $pvData['poc_data'][$pvCompanyKey] = $this->getPocWiseData($pvCompany, $pocNames, $request);
+            $pocData['poc_data'][$pvCompanyKey] = $this->getPocWiseData($pvCompany, $pocNames, $request);
         }
-        $pvData['class_data'] = $this->getPVClass();
+        $pocData['class_data']     = $this->getPVClass();
+        $pocData['empty_poc_rows'] = $this->getEmptyPOCRows();
+        $pocData['hide_columns']   = $this->getPocHideColumns();
 
-        return  $pvData;
+        return  $pocData;
     }
 }

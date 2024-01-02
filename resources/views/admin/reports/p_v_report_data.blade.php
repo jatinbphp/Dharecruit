@@ -2,6 +2,8 @@
     @php
         $classData = isset($pvFilterData['class_data']) ? $pvFilterData['class_data'] : [];
         $headings  = isset($pvFilterData['heading']) ? $pvFilterData['heading'] : [];
+        $emptyPVRows = isset($pvFilterData['empty_pv_rows']) ? $pvFilterData['empty_pv_rows'] : [];
+        $emptyPOCRows = isset($pvFilterData['empty_poc_rows']) ? $pvFilterData['empty_poc_rows'] : [];
     @endphp
     <div class="col-md-12 p-3 border border-with-label" data-label="">
         <div class="table-responsive m-lg-n2">
@@ -9,12 +11,12 @@
                 <thead>
                 <tr>
                     <th scope="col" class="text-center element-border">Company Name</th>
-                    <th scope="col" colspan="4" class="text-center element-border">Requirement</th>
-                    <th scope="col" colspan="5" class="text-center element-border">BDM Status</th>
-                    <th scope="col" colspan="5" class="text-center element-border">Vendor Status</th>
-                    <th scope="col" colspan="8" class="text-center element-border">Client Status</th>
-                    <th scope="col" colspan="4" class="text-center element-border">POC</th>
-                    <th scope="col" colspan="2" class="text-center element-border">BDM / Category</th>
+                    <th scope="col" colspan="4" class="text-center element-border rm-left-border">Requirement</th>
+                    <th scope="col" colspan="5" class="text-center element-border rm-left-border">BDM Status</th>
+                    <th scope="col" colspan="5" class="text-center element-border rm-left-border">Vendor Status</th>
+                    <th scope="col" colspan="8" class="text-center element-border rm-left-border">Client Status</th>
+                    <th scope="col" colspan="4" class="text-center element-border rm-left-border">POC</th>
+                    <th scope="col" colspan="2" class="text-center element-border rm-left-border">BDM / Category</th>
                 </tr>
                 @if($headings && count($headings))
                     <tr>
@@ -37,7 +39,7 @@
                     @php
                         $key = strtolower(str_replace([' ', '.'], ['_', ''], $key));
                     @endphp
-                    <tr class="pv-company-{{$key}}">
+                    <tr class="pv-company-{{$key}} @if(in_array($key, $emptyPVRows)) empty-row @endif">
                         @if($pvCompanyData && count($pvCompanyData))
                             @foreach($pvCompanyData as $heading => $data)
                                 @php
@@ -74,8 +76,8 @@
                         @endif
                     </tr>
                     @if(isset($pvFilterData['poc_data'][$key]) && $pvFilterData['poc_data'][$key])
-                        @foreach($pvFilterData['poc_data'][$key] as $pocData)
-                            <tr class="collapse collapse-{{$key}}">
+                        @foreach($pvFilterData['poc_data'][$key] as $pocName => $pocData)
+                            <tr class="collapse collapse-{{$key}} @if(in_array($pocName, $emptyPOCRows)) empty-row @endif">
                                 @if($pocData && count($pocData))
                                     @foreach($pocData as $heading => $data)
                                         @php

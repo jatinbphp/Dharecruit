@@ -106,10 +106,10 @@ trait SubmissionTrait{
         return [
             'heading_type'                   => $headingType,
             'total_employer'                 => $this->getUserIdWiseTotalEmployer($date, $userId, $recruiters, $type),
-            'heading_new_employer'           => "-",
-            'heading_total_employee'         => $this->getUserIdWiseTotalEmployer($date, $userId, $recruiters, $type),
-            'heading_new_employee'           => "-",
-            'heading_new_employee_uni_submission' => "-",
+            'new_employer'                   => "-",
+            'total_employee'                 => $this->getUserIdWiseTotalEmployer($date, $userId, $recruiters, $type),
+            'new_employee'                   => "-",
+            'new_employee_uni_submission'    => "-",
             'alloted'                        => $totalAllotedRequirements,
             'served'                         => $servedRequirements,
             'unserved'                       => $this->getTotalRecruiterUnServedRequirementCount($date, $userId, $recruiters, $type),
@@ -201,12 +201,11 @@ trait SubmissionTrait{
             $collection = Submission::select('user_id')
                 ->whereIn('user_id', $recruiters)
                 ->whereBetween('created_at', $date);
-                if($isUnique){
-                    $collection->selectRaw(\DB::raw('COUNT(DISTINCT email) as count'));
-                }else{
-                    $collection->selectRaw(\DB::raw('COUNT(id) as count'));
-                }
-                $collection->groupBy('user_id');
+            if($isUnique){
+                $collection->where('id' ,\DB::raw('candidate_id'));
+            }
+            $collection->selectRaw(\DB::raw('COUNT(id) as count'))
+                ->groupBy('user_id');
 
             $this->_userIdWiseRecruiterSubmissionSentCount[$type][$isUnique] = $collection->pluck('count', 'user_id')->toArray();
         }

@@ -18,6 +18,30 @@ trait PVCompanyTrait {
     protected $_companyWiseTotalBDMCount = [];
     protected $_companyWiseCategories = [];
     protected $_companyWiseBDMs = [];
+    protected $_isEmptyPVRow = 0;
+    protected $_emptyPVRows = [];
+
+    public function setIsEmptyPVRow($value)
+    {
+        $this->_isEmptyPVRow = $value;
+        return $this;
+    }
+
+    public function getIsEmptyPVRow()
+    {
+        return $this->_isEmptyPVRow;
+    }
+
+    public function setEmptyPVRows($key)
+    {
+        $this->_emptyPVRows[$key] = $key;
+        return $this;
+    }
+
+    public function getEmptyPVRows()
+    {
+        return $this->_emptyPVRows;
+    }
 
     public function getPvHeadingData(): array
     {
@@ -25,8 +49,8 @@ trait PVCompanyTrait {
             'company_name'                      => 'Name',
             'added_date'                        => 'Date Added',
             'last_req_date'                     => 'Last Req.',
-            'original_req_count'                => 'Org Req. #',
-            'unique_req_count'                  => 'Uni Req. #',
+            'original_req_count'                => 'Total Req. #',
+            'unique_req_count'                  => 'Org Req. #',
             'submission_count'                  => 'Sub #',
             'status_accepted'                   => 'Accpt',
             'status_rejected'                   => 'Rejected',
@@ -68,7 +92,8 @@ trait PVCompanyTrait {
             $avg = round($totalUniqueRequirement / $totalPoc, 2);
         }
 
-        return [
+        $this->setIsEmptyPVRow(1);
+        $pvCompanyData = [
             'company_name'                      => $pvCompany,
             'added_date'                        => $this->getCompanyAddedDateBasedOnId($pvCompany, $pvCompanies, $date),
             'last_req_date'                     => $this->getLastRequestDateBasedOnId($pvCompany, $pvCompanies, $date),
@@ -99,6 +124,13 @@ trait PVCompanyTrait {
             'category_wise_count'               => $this->getCompanyWiseCategories($pvCompany, $pvCompanies, $date),
             'bdm_wise_count'                    => $this->getCompanyWiseBDM($pvCompany, $pvCompanies, $date),
         ];
+
+        if($this->getIsEmptyPVRow()){
+            $pvCompanyKey = $this->getKey($pvCompany);
+            $this->setEmptyPVRows($pvCompanyKey);
+        }
+
+        return  $pvCompanyData;
     }
 
     public function getCompanyWisePocData($pvCompany, $request): array
@@ -120,7 +152,9 @@ trait PVCompanyTrait {
         foreach ($pocNames as $pocName) {
             $totalUniqueRequirement = $this->getPVCompanyWisePocRequirementCounts($pvCompany, $pocName, $pocNames, $date, 1);
 
-            $pocNameWiseData[$pocName] = [
+            $this->setIsEmptyPOCRow(1);
+
+            $pocData = [
                 'company_name'                      => $pocName,
                 'added_date'                        => $this->getPVCompanyWisePocAddedDate($pvCompany, $pocName, $pocNames, $date),
                 'last_req_date'                     => $this->getPVCompanyWisePocLastRequestDate($pvCompany, $pocName, $pocNames, $date),
@@ -151,6 +185,12 @@ trait PVCompanyTrait {
                 'category_wise_count'               => $this->getPVCompanyWisePocCategories($pvCompany, $pocName, $pocNames, $date),
                 'bdm_wise_count'                    => $this->getPVCompanyWisePocBDM($pvCompany, $pocName, $pocNames, $date),
             ];
+
+            if($this->getIsEmptyPOCRow()){
+                $this->setEmptyPOCRows($pocName);
+            }
+
+            $pocNameWiseData[$pocName] = $pocData;
         }
 
         return $pocNameWiseData;
@@ -168,6 +208,7 @@ trait PVCompanyTrait {
         }
 
         if(isset($this->_companyIdWiseCompanyAddedDate[$pvCompanyName])){
+            $this->setIsEmptyPVRow(0);
             return $this->_companyIdWiseCompanyAddedDate[$pvCompanyName];
         }
 
@@ -188,6 +229,7 @@ trait PVCompanyTrait {
 
         $pvCompanyName = strtolower($pvCompanyName);
         if(isset($this->_companyWiseCompanyLastReqDate[$pvCompanyName])){
+            $this->setIsEmptyPVRow(0);
             return $this->_companyWiseCompanyLastReqDate[$pvCompanyName];
         }
 
@@ -214,6 +256,7 @@ trait PVCompanyTrait {
 
         $pvCompanyName = strtolower($pvCompanyName);
         if(isset($this->_companyWiseRequirementCounts[$isUnique][$pvCompanyName])){
+            $this->setIsEmptyPVRow(0);
             return $this->_companyWiseRequirementCounts[$isUnique][$pvCompanyName];
         }
 
@@ -236,6 +279,7 @@ trait PVCompanyTrait {
 
         $pvCompanyName = strtolower($pvCompanyName);
         if(isset($this->_companyWiseTotalSubmissionCounts[$pvCompanyName])){
+            $this->setIsEmptyPVRow(0);
             return $this->_companyWiseTotalSubmissionCounts[$pvCompanyName];
         }
 
@@ -255,6 +299,7 @@ trait PVCompanyTrait {
 
         $pvCompanyName = strtolower($pvCompanyName);
         if(isset($this->_companyWiseTotalStatusCounts[$status][$pvCompanyName])){
+            $this->setIsEmptyPVRow(0);
             return $this->_companyWiseTotalStatusCounts[$status][$pvCompanyName];
         }
 
@@ -282,6 +327,7 @@ trait PVCompanyTrait {
 
         $pvCompanyName = strtolower($pvCompanyName);
         if (isset($this->_companyWiseTotalClientStatusCounts[$status][$pvCompanyName])) {
+            $this->setIsEmptyPVRow(0);
             return $this->_companyWiseTotalClientStatusCounts[$status][$pvCompanyName];
         }
 
@@ -303,23 +349,28 @@ trait PVCompanyTrait {
 
         $pvCompanyName = strtolower($pvCompanyName);
         if (isset($this->_companyWiseTotalPocCount[$pvCompanyName])) {
+            $this->setIsEmptyPVRow(0);
             return $this->_companyWiseTotalPocCount[$pvCompanyName];
         }
 
         return 0;
     }
 
-    public function getCompanyWiseHighestUniqueRequirementByPoc($pvCompanyName, $allPVCompanies): int
+    public function getCompanyWiseHighestUniqueRequirementByPoc($pvCompanyName, $allPVCompanies, $date): int
     {
         if(!$this->_companyWiseHighestUniqueRequirementByPoc){
-            $this->_companyWiseHighestUniqueRequirementByPoc = Requirement::select(\DB::raw('LOWER(requirements.pv_company_name) as pv_company_name'), 'poc_name', \DB::raw('COUNT(*) as poc_count'))
+            $collection = Requirement::select(\DB::raw('LOWER(requirements.pv_company_name) as pv_company_name'), 'poc_name', \DB::raw('COUNT(*) as poc_count'))
                 ->whereIn('pv_company_name', $allPVCompanies)
                 ->where(function ($query) {
                         $query->where('id' ,\DB::raw('parent_requirement_id'));
                         $query->orwhere('parent_requirement_id', '=', '0');
-                })
-                ->groupBy(['pv_company_name', 'poc_name'])
-                ->get()
+                });
+                if($date && isset($date['from']) && $date['to']){
+                    $collection->whereBetween('created_at', $date);
+                }
+                $collection->groupBy(['pv_company_name', 'poc_name']);
+
+            $this->_companyWiseHighestUniqueRequirementByPoc = $collection->get()
                 ->groupBy('pv_company_name')
                 ->map(function ($group) {
                     return $group->max('poc_count');
@@ -329,6 +380,7 @@ trait PVCompanyTrait {
 
         $pvCompanyName = strtolower($pvCompanyName);
         if (isset($this->_companyWiseHighestUniqueRequirementByPoc[$pvCompanyName])) {
+            $this->setIsEmptyPVRow(0);
             return $this->_companyWiseHighestUniqueRequirementByPoc[$pvCompanyName];
         }
 
@@ -350,6 +402,7 @@ trait PVCompanyTrait {
 
         $pvCompanyName = strtolower($pvCompanyName);
         if (isset($this->_companyWiseTotalBDMCount[$pvCompanyName])) {
+            $this->setIsEmptyPVRow(0);
             return $this->_companyWiseTotalBDMCount[$pvCompanyName];
         }
 
@@ -393,6 +446,7 @@ trait PVCompanyTrait {
 
         $pvCompanyName = strtolower($pvCompanyName);
         if (isset($this->_companyWiseCategories[$pvCompanyName])) {
+            $this->setIsEmptyPVRow(0);
             return $this->_companyWiseCategories[$pvCompanyName];
         }
 
@@ -436,6 +490,7 @@ trait PVCompanyTrait {
 
        $pvCompanyName = strtolower($pvCompanyName);
        if (isset($this->_companyWiseBDMs[$pvCompanyName])) {
+           $this->setIsEmptyPVRow(0);
            return $this->_companyWiseBDMs[$pvCompanyName];
        }
 

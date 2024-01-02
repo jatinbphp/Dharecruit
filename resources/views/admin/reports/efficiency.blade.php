@@ -28,7 +28,7 @@
                             <div class="row">
                                 @if($menu == 'Efficiency Report')
                                     <div class="col-md-12 border mt-3 p-3" id="reportsFilterDiv">
-                                        {!! Form::open(['id' => 'filterRepoetForm', 'class' => 'form-horizontal','files'=>true,'onsubmit' => 'return false;']) !!}
+                                        {!! Form::open(['id' => 'filterReportForm', 'class' => 'form-horizontal','files'=>true,'onsubmit' => 'return false;']) !!}
                                         <div class="row">
                                             <div class="col-md-4">
                                                 <div class="form-group">
@@ -74,7 +74,7 @@
                                             @endif
                                         </div>
                                         <button class="btn btn-info float-right" onclick="searchReportData()">Search</button>
-                                        <button class="btn btn-default float-right mr-2" onclick="clearRepoetData()">Clear</button>
+                                        <button class="btn btn-default float-right mr-2" onclick="clearReportData()">Clear</button>
                                         {!! Form::close() !!}
                                     </div>
                                 @endif
@@ -97,33 +97,9 @@
             searchReportData();
         });
 
-        function sortRow(table){
-            console.log(table)
-            var $table = $(table).closest('table');
-            console.log($table);
-            var columnIndex = $(table).index();
-
-            // Get all the rows in the tbody and convert to array for sorting
-            var rows = $table.find('tbody tr').get();
-
-            // Sort the rows based on the values in the clicked column
-            rows.sort(function (a, b) {
-                var aValue = $(a).find('td').eq(columnIndex).text();
-                var bValue = $(b).find('td').eq(columnIndex).text();
-                console.log(aValue);
-                console.log(bValue);
-                return aValue.localeCompare(bValue, undefined, {numeric: true, sensitivity: 'base'});
-            });
-
-            // Clear the tbody and append the sorted rows
-            $.each(rows, function (index, row) {
-                $table.find('tbody').append(row);
-            });
-        }
-
-        function clearRepoetData()
+        function clearReportData()
         {
-            $('#filterRepoetForm')[0].reset();
+            $('#filterReportForm')[0].reset();
             $('select').trigger('change');
             $('#reportContent').html("");
             searchReportData();
@@ -147,7 +123,7 @@
             $.ajax({
                 url: "{{route('reports',[$type, $subType])}}",
                 type: "get",
-                data: $("#filterRepoetForm").serialize(),
+                data: $("#filterReportForm").serialize(),
                 success: function(responce){
                     if(responce.content){
                         $('#reportContent').html(responce.content);

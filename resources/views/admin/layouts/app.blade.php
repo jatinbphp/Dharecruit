@@ -40,6 +40,7 @@
     <link rel="stylesheet" href="{{ URL::asset('assets/dist/css/custom.css') }}">
     <link rel="stylesheet" href="{{ URL::asset('assets/plugins/ladda/ladda-themeless.min.css')}}">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
     <style>
         .candidate, .job-title {cursor: pointer}
         a.disabled {
@@ -187,6 +188,10 @@
 
         .element-border {
             border: 1px solid black !important;
+        }
+
+        .rm-left-border {
+            border-left: none !important;
         }
     </style>
 </head>
@@ -546,6 +551,7 @@
 <script src="{{ URL('assets/dist/js/jquery.validate.js')}}"></script>
 <script src="{{ URL::asset('assets/plugins/jSignature/libs/jSignature.min.js')}}"></script>
 <script src="{{ URL::asset('assets/plugins/jSignature/libs/modernizr.js')}}"></script>
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 
 <script>Ladda.bind( 'input[type=submit]' );</script>
 <script>
@@ -719,6 +725,20 @@
                     return '';
             }
         }
+
+        $('input[class="toggle-checkbox"]').bootstrapToggle();
+
+        $('#data_toggle').change(function (){
+            console.log('new');
+            console.log($(this).val());
+            if($(this).is(':checked')){
+                console.log('in');
+                $('.empty-row').hide();
+            }else{
+                console.log('else');
+                $('.empty-row').show();
+            }
+        });
     });
 </script>
 

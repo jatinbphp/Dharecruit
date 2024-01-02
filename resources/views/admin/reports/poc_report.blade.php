@@ -27,7 +27,7 @@
                         <div class="card-header">
                             <div class="row">
                                 <div class="col-md-12 border mt-3 p-3" id="reportsFilterDiv">
-                                    {!! Form::open(['id' => 'filterRepoetForm', 'class' => 'form-horizontal','files'=>true,'onsubmit' => 'return false;']) !!}
+                                    {!! Form::open(['id' => 'filterReportForm', 'class' => 'form-horizontal','files'=>true,'onsubmit' => 'return false;']) !!}
                                     <div class="row">
                                         <div class="col-md-3">
                                             <div class="form-group">
@@ -67,9 +67,45 @@
                                                 {!! Form::select('poc_name[]', [], null, ['class' => 'form-control select2', 'id'=>'poc_name', 'multiple' => true, 'data-placeholder' => 'Select POC Name']) !!}
                                             </div>
                                         </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label" for="registered_to">Registered To</label>
+                                                {!! Form::select('registered_to[]', \App\Models\Admin::getActiveBDM(), null, ['class' => 'form-control select2', 'id'=>'registered_to', 'multiple' => true, 'data-placeholder' => 'Select BDM Users']) !!}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label" for="vendor_email">Vendor Email</label>
+                                                {!! Form::text('vendor_email', null, ['autocomplete' => 'off', 'class' => 'form-control', 'placeholder' => 'Enter Vendor Email', 'id' => 'vendor_email']) !!}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label" for="vendor_phone">Vendor Phone</label>
+                                                {!! Form::text('vendor_phone', null, ['autocomplete' => 'off', 'class' => 'form-control', 'placeholder' => 'Enter Vendor Phone ', 'id' => 'vendor_phone']) !!}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label" for="bdm_count">BDM Name</label>
+                                                {!! Form::select('bdm_count[]', \App\Models\Admin::getActiveBDM(), null, ['class' => 'form-control select2', 'id'=>'bdm_count', 'multiple' => true, 'data-placeholder' => 'Select BDM Users']) !!}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label" for="data_toggle">Show Only Row With Data</label><br>
+                                                {!! Form::checkbox('', '', null, ['id' => 'data_toggle', 'class' => 'toggle-checkbox', 'checked' => true, 'data-toggle' => 'toggl', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label" for="toggle_columns">Show Email And Phone</label><br>
+                                                {!! Form::checkbox('', '', null, ['id' => 'toggle_columns', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggl', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                            </div>
+                                        </div>
                                     </div>
                                     <button class="btn btn-info float-right" onclick="searchReportData()">Search</button>
-                                    <button class="btn btn-default float-right mr-2" onclick="clearRepoetData()">Clear</button>
+                                    <button class="btn btn-default float-right mr-2" onclick="clearReportData()">Clear</button>
                                     {!! Form::close() !!}
                                 </div>
                             </div>
@@ -91,11 +127,14 @@
             searchReportData();
         });
 
-        function clearRepoetData()
+        function clearReportData()
         {
-            $('#filterRepoetForm')[0].reset();
+            $('#filterReportForm')[0].reset();
             $('select').trigger('change');
             $('#reportContent').html("");
+            searchReportData();
+            $('#data_toggle').trigger('change');
+            $('#toggle_columns').trigger('change');
         }
 
         function searchReportData()
@@ -112,10 +151,18 @@
             $.ajax({
                 url: "{{route('reports',['type' => $type, 'subType' => null])}}",
                 type: "get",
-                data: $("#filterRepoetForm").serialize(),
+                data: $("#filterReportForm").serialize(),
                 success: function(responce){
                     if(responce.content){
                         $('#reportContent').html(responce.content);
+                        $('#data_toggle').trigger('change');
+                        $('#toggle_columns').trigger('change');
+                        $('#poc_report').DataTable({
+                            "order": [],
+                            "bPaginate": false,
+                            "bFilter": false,
+                            "bInfo": false,
+                        });
                     }
                     $('#overlay').hide();
                 }
@@ -145,6 +192,41 @@
                         console.error(error);
                     }
                 });
+            }
+        });
+
+        $('#toggle_columns').change(function (){
+            var toggleClasses = [];
+            var totalColmns = [];
+
+            @if(isset($hideColumns) && $hideColumns)
+                toggleClasses = <?php echo json_encode($hideColumns);?>;
+            @endif
+                @if(isset($totalShowCompanyColumn) && $totalShowCompanyColumn)
+                totalColmns = <?php echo json_encode($totalShowCompanyColumn);?>;
+            @endif
+            var totalColumnsLength = parseInt(totalColmns.length);
+            var toggleDataLength = parseInt(toggleClasses.length);
+            if($(this).is(':checked')){
+                $.each(toggleClasses, function(index, currentClass) {
+                    $('.' + currentClass).show();
+                });
+                totalColspanValue = totalColumnsLength + toggleDataLength;
+                if(totalColspanValue){
+                    $('.company-name').attr('colspan', totalColspanValue);
+                    $('tr td:nth-child(' + totalColumnsLength + ')').removeClass('border-right');
+                    $('tr td:nth-child(' + totalColspanValue + ')').addClass('border-right');
+                }
+            }else{
+                $.each(toggleClasses, function(index, currentClass) {
+                    $('.' + currentClass).hide();
+                });
+                if(totalColumnsLength){
+                    totalColspanValue = totalColumnsLength + toggleDataLength;
+                    $('.company-name').attr('colspan', totalColumnsLength);
+                    $('tr td:nth-child(' + totalColspanValue + ')').removeClass('border-right');
+                    $('tr td:nth-child(' + totalColumnsLength + ')').addClass('border-right');
+                }
             }
         });
     </script>

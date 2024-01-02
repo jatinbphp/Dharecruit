@@ -35,6 +35,8 @@ class ReportsController extends Controller
             case "poc_report":
                 $data['menu'] = 'POC Report';
                 $data['subType'] = '';
+                $data['hideColumns'] = $this->getPocHideColumns();
+                $data['totalShowCompanyColumn'] = $this->getTotalShowCompanyColumns();
                 if(!empty($request->all())){
                     return $this->getPOCData($request);
                 }

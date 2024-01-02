@@ -11,12 +11,16 @@ trait POCTrait {
     public function getPOCHeadingData(): array
     {
         return [
+            'who_added'                         => 'Who Added',
+            'reg_to'                            => 'Reg. To',
             'vendor_company_name'               => 'Vendor Company',
             'poc_name'                          => 'POC Name',
+            'poc_email'                         => 'POC Email',
+            'poc_phone'                         => 'POC Phone',
             'added_date'                        => 'Date Added',
             'last_req_date'                     => 'Last Req.',
-            'original_req_count'                => 'Org Req. #',
-            'unique_req_count'                  => 'Uni Req. #',
+            'original_req_count'                => 'Total Req. #',
+            'unique_req_count'                  => 'Org Req. #',
             'submission_count'                  => 'Sub #',
             'status_accepted'                   => 'Accpt',
             'status_rejected'                   => 'Rejected',
@@ -60,11 +64,16 @@ trait POCTrait {
         $pocNameWiseData = [];
 
         foreach ($pocNames as $pocName) {
+            $this->setIsEmptyPOCRow(1);
             $totalUniqueRequirement = $this->getPVCompanyWisePocRequirementCounts($pvCompany, $pocName, $pocNames, $date, 1);
 
-            $pocNameWiseData[$pocName] = [
+            $pocData = [
+                'who_added'                         => '-',
+                'reg_to'                            => '-',
                 'vendor_company_name'               => $pvCompany,
                 'poc_name'                          => $pocName,
+                'poc_email'                         => $this->getPVCompanyWisePocEmail($pvCompany, $pocName, $pocNames, $date),
+                'poc_phone'                         => $this->getPVCompanyWisePocPhone($pvCompany, $pocName, $pocNames, $date),
                 'added_date'                        => $this->getPVCompanyWisePocAddedDate($pvCompany, $pocName, $pocNames, $date),
                 'last_req_date'                     => $this->getPVCompanyWisePocLastRequestDate($pvCompany, $pocName, $pocNames, $date),
                 'original_req_count'                => $this->getPVCompanyWisePocRequirementCounts($pvCompany, $pocName, $pocNames, $date),
@@ -90,8 +99,31 @@ trait POCTrait {
                 'category_wise_count'               => $this->getPVCompanyWisePocCategories($pvCompany, $pocName, $pocNames, $date),
                 'bdm_wise_count'                    => $this->getPVCompanyWisePocBDM($pvCompany, $pocName, $pocNames, $date),
             ];
+
+            if($this->getIsEmptyPOCRow()){
+                $this->setEmptyPOCRows($pocName);
+            }
+
+            $pocNameWiseData[$pocName] = $pocData;
         }
         return $pocNameWiseData;
     }
 
+    public function getPocHideColumns(): array
+    {
+        return [
+            'poc_email',
+            'poc_phone'
+        ];
+    }
+
+    public function getTotalShowCompanyColumns(): array
+    {
+        return [
+            'who_added',
+            'reg_to',
+            'vendor_company_name',
+            'poc_name'
+        ];
+    }
 }

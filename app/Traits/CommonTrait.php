@@ -14,6 +14,33 @@ trait CommonTrait {
     protected $_pvCompanyWisepocTotalBDMCount = [];
     protected $_pvCompanyWisePocCategories = [];
     protected $_pvCompanyWisePocBDMs = [];
+
+    protected $_pvCompanyWisePocEmail = [];
+    protected $_pvCompanyWisePocPhone = [];
+    protected $_isEmptyPOCRow = 0;
+    protected $_emptyPOCRows = [];
+
+    public function setIsEmptyPOCRow($value)
+    {
+        $this->_isEmptyPOCRow = $value;
+        return $this;
+    }
+
+    public function getIsEmptyPOCRow()
+    {
+        return $this->_isEmptyPOCRow;
+    }
+
+    public function setEmptyPOCRows($key)
+    {
+        $this->_emptyPOCRows[$key] = $key;
+        return $this;
+    }
+
+    public function getEmptyPOCRows()
+    {
+        return $this->_emptyPOCRows;
+    }
     public function formatString($input): string
     {
         return ucwords(str_replace('_', ' ', $input));
@@ -113,6 +140,7 @@ trait CommonTrait {
         }
 
         if(isset($this->_pvCompanyWisePocRequirementsCounts[$isUnique][$pvCompanyKey][$pocName])){
+            $this->setIsEmptyPOCRow(0);
             return $this->_pvCompanyWisePocRequirementsCounts[$isUnique][$pvCompanyKey][$pocName];
         }
 
@@ -134,6 +162,7 @@ trait CommonTrait {
         }
 
         if(isset($this->_pvCompanyWisePocAddedDate[$pvCompanyKey][$pocName])){
+            $this->setIsEmptyPOCRow(0);
             return $this->_pvCompanyWisePocAddedDate[$pvCompanyKey][$pocName];
         }
 
@@ -156,6 +185,7 @@ trait CommonTrait {
 
 
         if(isset($this->_pvCompanyWisePocLastReqDate[$pvCompanyKey][$pocName])){
+            $this->setIsEmptyPOCRow(0);
             return $this->_pvCompanyWisePocLastReqDate[$pvCompanyKey][$pocName];
         }
 
@@ -179,6 +209,7 @@ trait CommonTrait {
         }
 
         if(isset($this->_pvCompanyWisePocTotalSubmissionCounts[$pvCompanyKey][$pocName])){
+            $this->setIsEmptyPOCRow(0);
             return $this->_pvCompanyWisePocTotalSubmissionCounts[$pvCompanyKey][$pocName];
         }
 
@@ -198,6 +229,7 @@ trait CommonTrait {
         }
 
         if(isset($this->_pvCompanyWisePocTotalStatusCounts[$pvCompanyKey][$status][$pocName])){
+            $this->setIsEmptyPOCRow(0);
             return $this->_pvCompanyWisePocTotalStatusCounts[$pvCompanyKey][$status][$pocName];
         }
 
@@ -225,6 +257,7 @@ trait CommonTrait {
             $this->_pocWiseTotalClientStatusCounts[$pvCompanyKey][$status] = $collection->pluck('count', 'requirements.poc_name')->toArray();
         }
         if (isset($this->_pocWiseTotalClientStatusCounts[$pvCompanyKey][$status][$pocName])) {
+            $this->setIsEmptyPOCRow(0);
             return $this->_pocWiseTotalClientStatusCounts[$pvCompanyKey][$status][$pocName];
         }
 
@@ -247,6 +280,7 @@ trait CommonTrait {
         }
 
         if (isset($this->_pvCompanyWisepocTotalBDMCount[$pvCompanyKey][$pocName])) {
+            $this->setIsEmptyPOCRow(0);
             return $this->_pvCompanyWisepocTotalBDMCount[$pvCompanyKey][$pocName];
         }
 
@@ -291,6 +325,7 @@ trait CommonTrait {
         }
 
         if (isset($this->_pvCompanyWisePocCategories[$pvCompanyKey][$pocName])) {
+            $this->setIsEmptyPOCRow(0);
             return $this->_pvCompanyWisePocCategories[$pvCompanyKey][$pocName];
         }
         return [];
@@ -335,10 +370,47 @@ trait CommonTrait {
         }
 
         if (isset($this->_pvCompanyWisePocBDMs[$pvCompanyKey][$pocName])) {
+            $this->setIsEmptyPOCRow(0);
             return $this->_pvCompanyWisePocBDMs[$pvCompanyKey][$pocName];
         }
 
         return [];
+    }
+
+    public function getPVCompanyWisePocEmail($pvCompanyName, $pocName, $pocNames, $date)
+    {
+        $pvCompanyKey = $this->getKey($pvCompanyName);
+        if(!$this->_pvCompanyWisePocEmail || !isset($this->_pvCompanyWisePocEmail[$pvCompanyKey])){
+            $collection = PVCompany::select('poc_name', 'email')
+                ->whereIn('poc_name', $pocNames)
+                ->where('name', $pvCompanyName)
+                ->groupBy('poc_name');
+            $this->_pvCompanyWisePocEmail[$pvCompanyKey] = $collection->pluck('email', 'poc_name')->toArray();
+        }
+
+        if(isset($this->_pvCompanyWisePocEmail[$pvCompanyKey][$pocName])){
+            return $this->_pvCompanyWisePocEmail[$pvCompanyKey][$pocName];
+        }
+
+        return '';
+    }
+
+    public function getPVCompanyWisePocPhone($pvCompanyName, $pocName, $pocNames, $date)
+    {
+        $pvCompanyKey = $this->getKey($pvCompanyName);
+        if(!$this->_pvCompanyWisePocPhone || !isset($this->_pvCompanyWisePocPhone[$pvCompanyKey])){
+            $collection = PVCompany::select('poc_name', 'phone')
+                ->whereIn('poc_name', $pocNames)
+                ->where('name', $pvCompanyName)
+                ->groupBy('poc_name');
+            $this->_pvCompanyWisePocPhone[$pvCompanyKey] = $collection->pluck('phone', 'poc_name')->toArray();
+        }
+
+        if(isset($this->_pvCompanyWisePocPhone[$pvCompanyKey][$pocName])){
+            return $this->_pvCompanyWisePocPhone[$pvCompanyKey][$pocName];
+        }
+
+        return '';
     }
 
     public function getJoin($status, $filedName, $date)
