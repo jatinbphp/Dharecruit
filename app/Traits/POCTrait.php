@@ -54,7 +54,21 @@ trait POCTrait {
             return [];
         }
 
-        $companyWiseAllPocNames = PVCompany::where('name', $pvCompany)->distinct()->pluck('poc_name')->toArray();
+        $collection = PVCompany::where('name', $pvCompany);
+
+        if(!empty($request->vendor_email)){
+            $collection->where('email', $request->vendor_email);
+        }
+
+        if(!empty($request->vendor_phone)){
+            $collection->where('phone', $request->vendor_phone);
+        }
+
+        if(!empty($request->bdm_names)){
+            $collection->whereIn('user_id', $request->bdm_names);
+        }
+
+        $companyWiseAllPocNames = $collection->distinct()->pluck('poc_name')->toArray();
         $pocNames               = array_intersect($selectedPocNames, $companyWiseAllPocNames);
 
         if(!$pocNames || !count($pocNames)){
