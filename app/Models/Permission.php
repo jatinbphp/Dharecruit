@@ -28,6 +28,7 @@ class Permission extends Model
     const MODULE_INTERVIEW = 'manage_interview';
     const MODULE_VISA = 'manage_visa';
     const MODULE_EMPLOYEE = 'manage_employee';
+    const MODULE_REPORTS = 'manage_reports';
 
     public static $permission = [
         self::MODULE_PERMISSION => 'Manage Permission',
@@ -45,5 +46,6 @@ class Permission extends Model
         self::MODULE_INTERVIEW => 'Manage Interview',
         self::MODULE_VISA => 'Manage Visa',
         self::MODULE_EMPLOYEE => 'Manage Employee',
+        self::MODULE_REPORTS => 'Manage Reports',
     ];
 }

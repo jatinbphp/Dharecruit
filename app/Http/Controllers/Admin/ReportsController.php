@@ -11,6 +11,12 @@ use Illuminate\Http\Request;
 class ReportsController extends Controller
 {
     use ReportsTrait;
+
+    public function __construct(){
+        $this->middleware('auth');
+        $this->middleware('accessright:manage_reports');
+    }
+
     public function index(Request  $request, $type = 'efficiency', $subType = 'sub_received')
     {
         $data = [];
