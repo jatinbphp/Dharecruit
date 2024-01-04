@@ -25,7 +25,7 @@
                                 $bottomRight = (in_array($key, ['company_name', 'unique_req_count', 'status_unviewed', 'status_position_closed', 'client_status_total', 'bdm_count', 'bdm_wise_count'])) ? 'border-right' : '';
                                 $borderLeft = ($key == 'company_name') ? 'border-left' : '';
                             @endphp
-                            <th class="border-bottom {{"$borderLeft $bottomRight"}}">{{$data}}</th>
+                            <th class="border-bottom {{"$borderLeft $bottomRight $key"}}">{{$data}}</th>
                         @endforeach
                     </tr>
                 @endif
@@ -51,13 +51,13 @@
                                     $borderLeft = ($heading == 'company_name') ? 'border-left' : '';
                                 @endphp
                                 @if(is_array($data))
-                                    <td class="{{"$topBorder $bottomBorder $borderLeft $bottomRight"}} border-bottom pv-company-group-{{$key}}">
+                                    <td class="{{"$topBorder $bottomBorder $borderLeft $bottomRight $heading"}} border-bottom pv-company-group-{{$key}}">
                                     @foreach($data as $rowData)
                                         <div class="{{$class}}">{{$rowData}}</div>
                                     @endforeach
                                     </td>
                                 @else
-                                    <td class="{{"$topBorder $borderLeft $bottomRight"}} border-bottom pv-company-group-{{$key}}">
+                                    <td class="{{"$topBorder $borderLeft $bottomRight $heading"}} border-bottom pv-company-group-{{$key}}">
                                         <div class="data">
                                             <span class="{{$class}}">
                                                 {{$data}}
@@ -92,13 +92,13 @@
                                             <th class="{{"$topBorder $bottomBorder $borderLeft $bottomRight"}}"><span>{{$data}}</span></th>
                                         @else
                                             @if(is_array($data))
-                                                <td class="{{"$topBorder $bottomBorder $borderLeft $bottomRight"}} pv-company-group-{{$key}}">
+                                                <td class="{{"$topBorder $bottomBorder $borderLeft $bottomRight $heading"}} pv-company-group-{{$key}}">
                                                     @foreach($data as $rowData)
                                                         <div class="{{$class}}">{{$rowData}}</div>
                                                     @endforeach
                                                 </td>
                                             @else
-                                                <td class="{{"$topBorder $bottomBorder $borderLeft $bottomRight"}} pv-company-group-{{$key}}"><span class="{{$class}}">{{$data}}</span></td>
+                                                <td class="{{"$topBorder $bottomBorder $borderLeft $bottomRight $heading"}} pv-company-group-{{$key}}"><span class="{{$class}}">{{$data}}</span></td>
                                             @endif
                                         @endif
                                     @endforeach

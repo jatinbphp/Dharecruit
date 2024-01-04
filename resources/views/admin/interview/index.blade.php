@@ -36,41 +36,6 @@
                                         <button class="btn btn-info" type="button" id="filterBtn"><i class="fa fa-search pr-1"></i> Search</button>
                                     </div>
                                     <div class="col-md-8">
-                                        <div class='row'>
-                                            @foreach (\App\Models\Interview::$toggleOptions as $key => $value)
-                                                @php
-                                                    if($userType == 'bdm'){
-                                                        if(in_array($key,\App\Models\Interview::$hideForBDA)){
-                                                            continue;
-                                                        }
-                                                    } elseif($userType == 'recruiter'){
-                                                        if(in_array($key,\App\Models\Interview::$hideForReq)){
-                                                            continue;
-                                                        }
-                                                    }
-                                                @endphp
-                                                <div class="col-md-3">
-                                                    <label>
-                                                        {!! Form::checkbox('', $key, null, ['id' => "$key", 'onChange' => 'toggleOptions("'.$key.'")']) !!} <span style="margin-right: 10px">{{ $value }}</span>
-                                                    </label>
-                                                </div>
-                                            @endforeach
-                                            <div class="col-md-3">
-                                                <label>
-                                                    {!! Form::checkbox('', 'show-time', null, ['id' => "showTime"]) !!} <span style="margin-right: 10px; color:#AC5BAD; font-weight:bold; ">Status Time</span>
-                                                </label>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label>
-                                                    {!! Form::checkbox('', 'show-feedback', null, ['id' => "showFeedback"]) !!} <span style="margin-right: 10px">Show FeedBack</span>
-                                                </label>
-                                            </div>
-                                            @if(in_array(Auth::user()->role, ['admin', 'bdm']))
-                                                <div class="col-md-3 form-check">
-                                                    <button class="btn btn-sm btn-danger toggle-poc hide-poc" type="button" onclick="togglePoc()">Hide POC</button>
-                                                </div>
-                                            @endif
-                                        </div>
                                     </div>
                                     <div class="col-md-2">
                                         <a href="{{ route('interview.create') }}"><button class="btn btn-info float-right" type="button"><i class="fa fa-plus pr-1"></i> Add New</button></a>
@@ -84,6 +49,39 @@
                                 @include('admin.'.$filterFile)
                                 {!! Form::close() !!}
                             </div>
+                        </div>
+                        <div class='row mt-2'>
+                            @foreach (\App\Models\Interview::$toggleOptions as $key => $value)
+                                @php
+                                    if($userType == 'bdm'){
+                                        if(in_array($key,\App\Models\Interview::$hideForBDA)){
+                                            continue;
+                                        }
+                                    } elseif($userType == 'recruiter'){
+                                        if(in_array($key,\App\Models\Interview::$hideForReq)){
+                                            continue;
+                                        }
+                                    }
+                                @endphp
+                                <div class="col-md-3 text-right border-right mt-2">
+                                    <label class="form-check-label float-left" for="{{$key}}"> {{ $value }}</label>
+                                    {!! Form::checkbox('', $key, null, ['id' => "$key", 'onChange' => 'toggleOptions("'.$key.'")', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggl', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                </div>
+                            @endforeach
+                            <div class="col-md-3 text-right border-right mt-2">
+                                <label class="form-check-label float-left" for="showTime">Status Time</label>
+                                {!! Form::checkbox('', 'show-time', null, ['id' => "showTime", 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggl', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                            </div>
+                            <div class="col-md-3 text-right border-right mt-2">
+                                <label class="form-check-label float-left" for="showTime">Show FeedBack</label>
+                                {!! Form::checkbox('', 'show-feedback', null, ['id' => "showFeedback", 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggl', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                            </div>
+                            @if(in_array(Auth::user()->role, ['admin', 'bdm']))
+                                <div class="col-md-3 text-right border-right mt-2">
+                                    <label class="form-check-label float-left" for="showLink">Show POC</label>
+                                    {!! Form::checkbox('', '', null, ['id' => 'toggle-poc', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                </div>
+                            @endif
                         </div>
                     </div>
                     <div class="card-body table-responsive">
@@ -167,7 +165,7 @@
                             if(responce.status == 1){
                                 $('.statusUpdatedAt-'+responce.entity_type+'-'+responce.submission_id).html(responce.updated_date_html);
                                 if($("#showTime").is(':checked')){
-                                    $('.statusUpdatedAt-'+responce.entity_type+'-'+responce.submission_id).show();    
+                                    $('.statusUpdatedAt-'+responce.entity_type+'-'+responce.submission_id).show();
                                 }
                                 $('.candidate-'+interviewId).html(responce.updated_candidate_html);
                                 swal("Success", "Status successfully updated!", "success");
@@ -184,7 +182,7 @@
 
         $('#showTime').click(function(){
             if($('#showTime').is(':checked')){
-                $('.status-time').show();    
+                $('.status-time').show();
             } else {
                 $('.status-time').hide();
             }
@@ -216,7 +214,6 @@
                     return d;
                 },
             },
-            
             columns: [
                 {data: 'created_at', name: 'created_at'},
                 {data: 'DT_RowIndex', 'width': '2%', name: 'DT_RowIndex', orderable: false, searchable: false },
@@ -227,7 +224,7 @@
                 {data: 'client_location', name: 'client_location'},
                 {data: 'candidate_location', name: 'candidate_location'},
                 @if(in_array($userType,['admin','recruiter']))
-                    {data: 'bdm', name: 'bdm'},    
+                    {data: 'bdm', name: 'bdm'},
                 @endif
                 @if(in_array($userType,['admin','bdm']))
                     {data: 'pv_name', name: 'pv_name'},
@@ -247,7 +244,15 @@
                 {data: 'interview_time', name: 'interview_time'},
                 {data: 'status', name: 'status'},
                 {data: 'action', name: 'action', orderable: false, searchable: false},
-            ]
+            ],
+            initComplete: function(settings, json) {
+                $('#interviewTable thead th.toggle-column').each(function() {
+                    var columnIndex = $(this).index();
+                    table.column(columnIndex).nodes().to$().addClass('toggle-column');
+                });
+
+                $('#toggle-poc').trigger('change');
+            }
         });
     }
 

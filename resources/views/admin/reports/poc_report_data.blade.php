@@ -45,7 +45,7 @@
                                                 $borderLeft = $heading == 'who_added' ? 'border-left' : '';
                                             @endphp
                                             @if(is_array($data))
-                                                <td class="{{"$borderLeft $bottomRight"}} border-bottom">
+                                                <td class="{{"$borderLeft $bottomRight $heading"}} border-bottom">
                                                     @foreach($data as $rowData)
                                                         <div class="{{$class}}">{{$rowData}}</div>
                                                     @endforeach

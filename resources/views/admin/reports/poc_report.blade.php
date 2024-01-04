@@ -64,7 +64,7 @@
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label class="control-label" for="poc_name">Poc Name</label>
-                                                {!! Form::select('poc_name[]', [], null, ['class' => 'form-control select2', 'id'=>'poc_name', 'multiple' => true, 'data-placeholder' => 'Select POC Name']) !!}
+                                                {!! Form::select('poc_name[]', \App\Models\PVCompany::getActivePOCNames(), null, ['class' => 'form-control select2', 'id'=>'poc_name', 'multiple' => true, 'data-placeholder' => 'Select POC Name']) !!}
                                             </div>
                                         </div>
                                         <div class="col-md-3">
@@ -88,7 +88,7 @@
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label class="control-label" for="bdm_count">BDM Name</label>
-                                                {!! Form::select('bdm_count[]', \App\Models\Admin::getActiveBDM(), null, ['class' => 'form-control select2', 'id'=>'bdm_count', 'multiple' => true, 'data-placeholder' => 'Select BDM Users']) !!}
+                                                {!! Form::select('bdm_names[]', \App\Models\Admin::getActiveBDM(), null, ['class' => 'form-control select2', 'id'=>'bdm_count', 'multiple' => true, 'data-placeholder' => 'Select BDM Users']) !!}
                                             </div>
                                         </div>
                                         <div class="col-md-3">
@@ -101,6 +101,12 @@
                                             <div class="form-group">
                                                 <label class="control-label" for="toggle_columns">Show Email And Phone</label><br>
                                                 {!! Form::checkbox('', '', null, ['id' => 'toggle_columns', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggl', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label" for="toggle_categorties">Show Categories</label><br>
+                                                {!! Form::checkbox('', '', null, ['id' => 'toggle_categorties', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggl', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
                                             </div>
                                         </div>
                                     </div>
@@ -135,6 +141,7 @@
             searchReportData();
             $('#data_toggle').trigger('change');
             $('#toggle_columns').trigger('change');
+            $('#toggle_categorties').trigger('change');
         }
 
         function searchReportData()
@@ -157,6 +164,7 @@
                         $('#reportContent').html(responce.content);
                         $('#data_toggle').trigger('change');
                         $('#toggle_columns').trigger('change');
+                        $('#toggle_categorties').trigger('change');
                         $('#poc_report').DataTable({
                             "order": [],
                             "bPaginate": false,
@@ -169,31 +177,31 @@
             });
         }
 
-        $('#p_v_company').on('change', function() {
-            const selectedCompany = $(this).val();
-            const pocDropdown = $('#poc_name');
-            const selectedPoc = pocDropdown.val();
-            pocDropdown.empty().trigger("change");
-            if(selectedCompany && selectedCompany.length > 0){
-                $.ajax({
-                    url: '{{route('reports.getPocNames')}}',
-                    method: 'POST',
-                    data: { companyName: selectedCompany, _token: '{{csrf_token()}}' },
-                    success: function(data) {
-                        $.each(data, function(index, value) {
-                            pocDropdown.append($('<option>', {
-                                value: value,
-                                text: value
-                            }));
-                        });
-                        pocDropdown.val(selectedPoc).trigger("change");
-                    },
-                    error: function(xhr, status, error) {
-                        console.error(error);
-                    }
-                });
-            }
-        });
+        {{--$('#p_v_company').on('change', function() {--}}
+        {{--    const selectedCompany = $(this).val();--}}
+        {{--    const pocDropdown = $('#poc_name');--}}
+        {{--    const selectedPoc = pocDropdown.val();--}}
+        {{--    pocDropdown.empty().trigger("change");--}}
+        {{--    if(selectedCompany && selectedCompany.length > 0){--}}
+        {{--        $.ajax({--}}
+        {{--            url: '{{route('reports.getPocNames')}}',--}}
+        {{--            method: 'POST',--}}
+        {{--            data: { companyName: selectedCompany, _token: '{{csrf_token()}}' },--}}
+        {{--            success: function(data) {--}}
+        {{--                $.each(data, function(index, value) {--}}
+        {{--                    pocDropdown.append($('<option>', {--}}
+        {{--                        value: value,--}}
+        {{--                        text: value--}}
+        {{--                    }));--}}
+        {{--                });--}}
+        {{--                pocDropdown.val(selectedPoc).trigger("change");--}}
+        {{--            },--}}
+        {{--            error: function(xhr, status, error) {--}}
+        {{--                console.error(error);--}}
+        {{--            }--}}
+        {{--        });--}}
+        {{--    }--}}
+        {{--});--}}
 
         $('#toggle_columns').change(function (){
             var toggleClasses = [];
@@ -227,6 +235,14 @@
                     $('tr td:nth-child(' + totalColspanValue + ')').removeClass('border-right');
                     $('tr td:nth-child(' + totalColumnsLength + ')').addClass('border-right');
                 }
+            }
+        });
+
+        $('#toggle_categorties').change(function (){
+            if($(this).is(':checked')){
+                $('.category_wise_count').show();
+            }else{
+                $('.category_wise_count').hide();
             }
         });
     </script>

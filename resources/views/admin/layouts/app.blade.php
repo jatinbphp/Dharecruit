@@ -726,16 +726,12 @@
             }
         }
 
-        $('input[class="toggle-checkbox"]').bootstrapToggle();
+        $('.toggle-checkbox').bootstrapToggle();
 
         $('#data_toggle').change(function (){
-            console.log('new');
-            console.log($(this).val());
             if($(this).is(':checked')){
-                console.log('in');
                 $('.empty-row').hide();
             }else{
-                console.log('else');
                 $('.empty-row').show();
             }
         });
@@ -860,7 +856,7 @@
             });
         });
 
-        $('#showDate').click(function(){
+        $('#showDate').change(function(){
             if($('#showDate').is(":checked")){
                 $(".submission-date").show();
             }else{
@@ -907,7 +903,7 @@
         });
     });
 
-    $('#showTime').click(function(){
+    $('#showTime').change(function(){
         if($('#showTime').is(':checked')){
             $('.status-time').show();
         } else {
@@ -1164,7 +1160,7 @@
         }
     });
 
-    $('#showFeedback').click(function(){
+    $('#showFeedback').change(function(){
         if($('#showFeedback').is(':checked')){
             $('.feedback').show();
         } else {
@@ -1234,23 +1230,13 @@
         });
     };
 
-    function togglePoc(){
-        if($('.toggle-poc').hasClass('hide-poc')){
-            $('.toggle-poc').removeClass('btn-danger hide-poc');
-            $('.toggle-poc').addClass('btn-primary show-poc');
-            $('.toggle-poc').html('Show Poc');
-        }else{
-            $('.toggle-poc').addClass('btn-danger hide-poc');
-            $('.toggle-poc').removeClass('btn-primary show-poc');
-            $('.toggle-poc').html('Hide Poc');
+    $('#toggle-poc').change(function(){
+        if($('#toggle-poc').is(':checked')){
+            $('.toggle-column').removeClass('hidden-element');
+        } else {
+            $('.toggle-column').addClass('hidden-element');
         }
-
-        $('th.toggle-column').each(function() {
-            var columnIndex = $(this).index();
-            $('td:nth-child(' + (columnIndex + 1) + ')').toggleClass('hidden-element');
-            $(this).toggleClass('hidden-element');
-        });
-    }
+    });
 
     function submitForm(){
         $("#candidateStatus").prop("disabled", false);

@@ -38,9 +38,16 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="row">
-                                        <div class="col-md-2">
+                                        <div class="col-md-12">
                                             <button class="btn btn-info" type="button" id="filterBtn"><i class="fa fa-search pr-1"></i> Search</button>
                                         </div>
+                                        <div class="col-md-12 border mt-3 pb-3 pt-3 pl-3 pb-3 pr-3" id="filterDiv">
+                                            {!! Form::open(['id' => 'filterForm', 'class' => 'form-horizontal','files'=>true,'onsubmit' => 'return false;']) !!}
+                                            @include('admin.'.$filterFile)
+                                            {!! Form::close() !!}
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
                                         @foreach (\App\Models\Submission::$toggleOptions as $key => $value)
                                             @php
                                                 if($userType == 'bdm'){
@@ -53,32 +60,25 @@
                                                     }
                                                 }
                                             @endphp
-                                            <div class="col-md-2">
-                                                <label>
-                                                    {!! Form::checkbox('', $key, null, ['id' => "$key", 'onChange' => 'toggleOptions("'.$key.'")']) !!} <span style="margin-right: 10px">{{ $value }}</span>
-                                                </label>
+                                            <div class="col-md-3 text-right border-right mt-2">
+                                                <label class="form-check-label float-left" for="{{$key}}"> {{ $value }}</label>
+                                                {!! Form::checkbox('', $key, null, ['id' => "$key", 'onChange' => 'toggleOptions("'.$key.'")', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggl', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
                                             </div>
                                         @endforeach
-                                        <div class="col-md-2">
-                                            <label>
-                                                {!! Form::checkbox('', 'show-time', null, ['id' => "showTime"]) !!} <span style="margin-right: 10px; color:#AC5BAD; font-weight:bold; ">Status Time</span>
-                                            </label>
+                                        <div class="col-md-3 text-right border-right mt-2">
+                                            <label class="form-check-label float-left" for="showTime">Status Time</label>
+                                            {!! Form::checkbox('', 'show-time', null, ['id' => "showTime", 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggl', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
                                         </div>
-                                        <div class="col-md-2">
-                                            <label>
-                                                {!! Form::checkbox('', 'show-feedback', null, ['id' => "showFeedback"]) !!} <span style="margin-right: 10px">Show FeedBack</span>
-                                            </label>
+                                        <div class="col-md-3 text-right border-right mt-2">
+                                            <label class="form-check-label float-left" for="showFeedback">Show FeedBack</label>
+                                            {!! Form::checkbox('', 'show-feedback', null, ['id' => "showFeedback", 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggl', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
                                         </div>
                                         @if(in_array(Auth::user()->role, ['admin', 'bdm']))
-                                            <div class="col-md-2 form-check">
-                                                <button class="btn btn-sm btn-danger toggle-poc hide-poc" type="button" onclick="togglePoc()">Hide POC</button>
+                                            <div class="col-md-3 text-right border-right mt-2">
+                                                <label class="form-check-label float-left" for="showLink">Show POC</label>
+                                                {!! Form::checkbox('', '', null, ['id' => 'toggle-poc', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggl', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
                                             </div>
                                         @endif
-                                        <div class="col-md-12 border mt-3 pb-3 pt-3 pl-3 pb-3 pr-3" id="filterDiv">
-                                            {!! Form::open(['id' => 'filterForm', 'class' => 'form-horizontal','files'=>true,'onsubmit' => 'return false;']) !!}
-                                            @include('admin.'.$filterFile)
-                                            {!! Form::close() !!}
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -261,7 +261,7 @@
                                 $(".candidate-"+submissionId).attr('style', 'border-bottom :'+data.css);
                                 $('.statusUpdatedAt-'+data.entity_type+'-'+submissionId).html(data.updated_date_html);
                                 if($("#showTime").is(':checked')){
-                                    $('.statusUpdatedAt-'+data.entity_type+'-'+submissionId).show();    
+                                    $('.statusUpdatedAt-'+data.entity_type+'-'+submissionId).show();
                                 }
                                 swal("Success", "PV Status successfully updated!", "success");
                             }else{
@@ -292,7 +292,7 @@
         $('#showTime').prop('checked', false);
        // $("#mySubmissionTable").dataTable().fnDestroy();
         // var selectedFilter = $("#filter_status").val();
-        
+
         table = $('#mySubmissionTable').DataTable({
             processing: true,
             serverSide: true,
@@ -361,6 +361,11 @@
                 // {data: 'action', "width": "9%", name: 'action', orderable: false, searchable: false},
             ],
             initComplete: function(settings, json) {
+                $('#mySubmissionTable thead th.toggle-column').each(function() {
+                    var columnIndex = $(this).index();
+                    table.column(columnIndex).nodes().to$().addClass('toggle-column');
+                });
+                $('#toggle-poc').trigger('change');
                 $("#mySubmissionTable_length").detach().appendTo("#pageLendthSection");
                 $("#mySubmissionTable_filter").addClass('float-right').detach().appendTo("#searchSection");
                 $('select[name="mySubmissionTable_length"]').css({
@@ -379,7 +384,7 @@
 
     $('#showTime').click(function(){
         if($('#showTime').is(':checked')){
-            $('.status-time').show();    
+            $('.status-time').show();
         } else {
             $('.status-time').hide();
         }
@@ -401,7 +406,7 @@
         $(document).on('focusout keydown', '#pv_company', function (index, value) {
             $("#pv_company").autocomplete({
                 source: availablePvCompanyName,
-                minLength: 4 
+                minLength: 4
             });
         });
     @endif

@@ -201,14 +201,14 @@ trait PVCompanyTrait {
         if(!$this->_companyIdWiseCompanyAddedDate){
             $collection = PVCompany::select('name', \DB::raw("DATE_FORMAT(created_at, '%m-%d-%y') as formatted_date"))
                 ->whereIn('name', $allPvCompanies);
-                if($date && isset($date['from']) && $date['to']){
+                /*if($date && isset($date['from']) && $date['to']){
                     $collection->whereBetween('created_at', $date);
-                }
+                }*/
             $this->_companyIdWiseCompanyAddedDate = $collection->pluck('formatted_date', 'name')->toArray();
         }
 
         if(isset($this->_companyIdWiseCompanyAddedDate[$pvCompanyName])){
-            $this->setIsEmptyPVRow(0);
+            /*$this->setIsEmptyPVRow(0);*/
             return $this->_companyIdWiseCompanyAddedDate[$pvCompanyName];
         }
 
@@ -220,16 +220,16 @@ trait PVCompanyTrait {
         if(!$this->_companyWiseCompanyLastReqDate){
             $collection = Requirement::select(\DB::raw('LOWER(pv_company_name) as pv_company_name'), \DB::raw("DATE_FORMAT(MAX(created_at), '%m-%d-%y') as latest_created_at"))
                 ->whereIn('pv_company_name', $allPVCompanies);
-                if($date && isset($date['from']) && $date['to']){
+                /*if($date && isset($date['from']) && $date['to']){
                     $collection->whereBetween('created_at', $date);
-                }
+                }*/
             $collection->groupBy('pv_company_name');
             $this->_companyWiseCompanyLastReqDate = $collection->pluck('latest_created_at', 'pv_company_name')->toArray();
         }
 
         $pvCompanyName = strtolower($pvCompanyName);
         if(isset($this->_companyWiseCompanyLastReqDate[$pvCompanyName])){
-            $this->setIsEmptyPVRow(0);
+            /*$this->setIsEmptyPVRow(0);*/
             return $this->_companyWiseCompanyLastReqDate[$pvCompanyName];
         }
 

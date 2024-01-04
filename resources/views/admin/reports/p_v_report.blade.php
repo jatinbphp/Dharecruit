@@ -69,6 +69,12 @@
                                                 {!! Form::checkbox('', '', null, ['id' => 'data_toggle', 'class' => 'toggle-checkbox', 'checked' => true, 'data-toggle' => 'toggl', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
                                             </div>
                                         </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="control-label" for="toggle_categorties">Show Categories</label><br>
+                                                {!! Form::checkbox('', '', null, ['id' => 'toggle_categorties', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggl', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                            </div>
+                                        </div>
                                     </div>
                                     <button class="btn btn-info float-right" onclick="searchReportData()">Search</button>
                                     <button class="btn btn-default float-right mr-2" onclick="clearReportData()">Clear</button>
@@ -100,6 +106,7 @@
             $('#reportContent').html("");
             searchReportData();
             $('#data_toggle').trigger('change');
+            $('#toggle_categorties').trigger('change');
         }
 
         function searchReportData()
@@ -117,6 +124,7 @@
                     if(responce.content){
                         $('#reportContent').html(responce.content);
                         $('#data_toggle').trigger('change');
+                        $('#toggle_categorties').trigger('change');
                         // $('#pv_company_report2').DataTable({
                         //     "order": [],
                         //     "bPaginate": false,
@@ -129,6 +137,14 @@
                         // });
                     }
                     $('#overlay').hide();
+                }
+            });
+
+            $('#toggle_categorties').change(function (){
+                if($(this).is(':checked')){
+                    $('.category_wise_count').show();
+                }else{
+                    $('.category_wise_count').hide();
                 }
             });
         }

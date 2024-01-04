@@ -64,12 +64,14 @@ trait POCTrait {
             $collection->where('phone', $request->vendor_phone);
         }
 
+        $companyWiseAllPocNames = $collection->distinct()->pluck('poc_name')->toArray();
+
         if(!empty($request->bdm_names)){
-            $collection->whereIn('user_id', $request->bdm_names);
+            $bdmWiseNames = Requirement::whereIn('user_id', $request->bdm_names)->where('pv_company_name', $pvCompany)->distinct()->pluck('poc_name')->toArray();
+            $companyWiseAllPocNames = array_intersect($bdmWiseNames, $companyWiseAllPocNames);
         }
 
-        $companyWiseAllPocNames = $collection->distinct()->pluck('poc_name')->toArray();
-        $pocNames               = array_intersect($selectedPocNames, $companyWiseAllPocNames);
+        $pocNames = array_intersect($selectedPocNames, $companyWiseAllPocNames);
 
         if(!$pocNames || !count($pocNames)){
             return [];

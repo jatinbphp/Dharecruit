@@ -29,29 +29,6 @@
                                     <button class="btn btn-info" type="button" id="filterBtn"><i class="fa fa-search pr-1"></i> Search</button>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class='row'>
-                                        <div class="col-md-3 form-check mt-2">
-                                            <input class="form-check-input" type="checkbox" value="" id="showDate">
-                                            <label class="form-check-label" for="showDate">Show Date</label>
-                                        </div>
-                                        @if((Auth::user()->role == 'admin') || (Auth::user()->role == 'bdm' && $menu == 'My Requirements'))
-                                            <div class="col-md-3 form-check mt-2">
-                                                <input class="form-check-input" type="checkbox" value="" id="showMerge">
-                                                <label class="form-check-label" for="showMerge">Show Merge</label>
-                                            </div>
-                                        @endif
-                                        @if(Auth::user()->role == 'admin')
-                                            <div class="col-md-3 form-check mt-2">
-                                                <input class="form-check-input" type="checkbox" value="" id="showLink">
-                                                <label class="form-check-label" for="showLink">Show Link</label>
-                                            </div>
-                                        @endif
-                                        @if((Auth::user()->role == 'admin') || (Auth::user()->role == 'bdm' && $menu == 'My Requirements'))
-                                            <div class="col-md-3 form-check mt-2">
-                                            <button class="btn btn-sm btn-danger toggle-poc hide-poc" type="button" onclick="togglePoc()">Hide POC</button>
-                                            </div>
-                                        @endif
-                                    </div>
                                 </div>
                                 <div class="col-md-4">
                                     <a href="{{ route('requirement.create') }}"><button class="btn btn-info float-right" type="button"><i class="fa fa-plus pr-1"></i> Add New</button></a>
@@ -61,6 +38,30 @@
                                         @include('admin.'.$filterFile)
                                         {!! Form::close() !!}
                                 </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-3 text-right border-right mt-2">
+                                    <label class="form-check-label float-left" for="showDate">Show Date</label>
+                                    {!! Form::checkbox('', '', null, ['id' => 'showDate', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                </div>
+                                @if((Auth::user()->role == 'admin') || (Auth::user()->role == 'bdm' && $menu == 'My Requirements'))
+                                    <div class="col-md-3 text-right border-right mt-2">
+                                        <label class="form-check-label float-left" for="showMerge">Show Merge</label>
+                                        {!! Form::checkbox('', '', null, ['id' => 'showMerge', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                    </div>
+                                @endif
+                                @if(Auth::user()->role == 'admin')
+                                    <div class="col-md-3 text-right border-right mt-2">
+                                        <label class="form-check-label float-left" for="showLink">Show Link</label>
+                                        {!! Form::checkbox('', '', null, ['id' => 'showLink', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                    </div>
+                                @endif
+                                @if((Auth::user()->role == 'admin') || (Auth::user()->role == 'bdm' && $menu == 'My Requirements'))
+                                    <div class="col-md-3 text-right border-right mt-2">
+                                        <label class="form-check-label float-left" for="showLink">Show POC</label>
+                                        {!! Form::checkbox('', '', null, ['id' => 'toggle-poc', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                    </div>
+                                @endif
                             </div>
                         </div>
                         <div class="card-body table-responsive">
@@ -255,6 +256,14 @@
                     });
                 }
             },
+            initComplete: function(settings, json) {
+                $('#requirementTable thead th.toggle-column').each(function() {
+                    var columnIndex = $(this).index();
+                    table.column(columnIndex).nodes().to$().addClass('toggle-column');
+                });
+
+                $('#toggle-poc').trigger('change');
+            }
         });
 
         $('#requirementTable').on('preXhr.dt', function () {
@@ -346,12 +355,12 @@
             swal("Cancelled", "You can not change the status", "error");
         });
 
-        $('#showMerge').click(function(){
+        $('#showMerge').change(function(){
             $("#requirementTable").dataTable().fnDestroy();
             datatables();
         })
 
-        $('#showLink').click(function(){
+        $('#showLink').change(function(){
             if($('#showLink').is(':checked')){
                 $(".link-data").show();
             }else{
