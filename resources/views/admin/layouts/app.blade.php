@@ -1238,6 +1238,14 @@
         }
     });
 
+    $('#toggle_job_keyword').change(function(){
+        if($(this).is(':checked')){
+            $('.toggle-job-keyword-column').removeClass('hidden-element');
+        } else {
+            $('.toggle-job-keyword-column').addClass('hidden-element');
+        }
+    });
+
     function submitForm(){
         $("#candidateStatus").prop("disabled", false);
         $("#candidateForm").submit();

@@ -12,7 +12,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
 class BDMSubmissionCOntroller extends Controller
-{   
+{
     public function __construct(){
         $this->middleware('auth');
         $this->middleware('accessright:manage_bdm_submission');
@@ -27,21 +27,21 @@ class BDMSubmissionCOntroller extends Controller
 
             // $filterStatus = [];
             // $showUnviewed = 0;
-            
+
             // if(!empty($reqFilterStatus)){
             //     if(in_array('both',$reqFilterStatus)){
             //         $filterStatus[] = 'accepted';
             //         $filterStatus[] = 'rejected';
             //     }
-    
+
             //     if(in_array('accepted',$reqFilterStatus)){
             //         $filterStatus[] = 'accepted';
             //     }
-    
+
             //     if(in_array('rejected',$reqFilterStatus)){
             //         $filterStatus[] = 'rejected';
             //     }
-    
+
             //     if(in_array('pending',$reqFilterStatus)){
             //         $filterStatus[] = 'pending';
             //     }
@@ -60,7 +60,7 @@ class BDMSubmissionCOntroller extends Controller
                 $fromDate = date('Y-m-d', strtotime($request->fromDate));
                 $submissions->where('created_at', '>=' ,$fromDate." 00:00:00");
             }
-    
+
             if(!empty($request->toDate)){
                 $toDate = date('Y-m-d', strtotime($request->toDate));
                 $submissions->where('created_at', '<=' ,$toDate." 23:59:59");
@@ -69,15 +69,15 @@ class BDMSubmissionCOntroller extends Controller
             if(!empty($request->filter_employer_name)){
                 $submissions->where('employer_name', 'like', '%'.$request->filter_employer_name.'%');
             }
-    
+
             if(!empty($request->filter_employee_name)){
                 $submissions->where('employee_name', 'like', '%'.$request->filter_employee_name.'%');
             }
-    
+
             if(!empty($request->filter_employee_phone_number)){
                 $submissions->where('employee_phone', $request->filter_employee_phone_number);
             }
-    
+
             if(!empty($request->filter_employee_email)){
                 $submissions->where('employee_email', $request->filter_employee_email);
             }
@@ -85,11 +85,11 @@ class BDMSubmissionCOntroller extends Controller
             if(!empty($request->candidate_name)){
                 $submissions->where('name', 'like' , '%'.$request->candidate_name.'%');
             }
-    
+
             if(!empty($request->candidate_id)){
                 $submissions->where('candidate_id', $request->candidate_id);
             }
-    
+
             if(!empty($request->bdm_feedback)){
                 $bdmFeedBack = $request->bdm_feedback;
                 $isOrWhere = 0;
@@ -138,7 +138,7 @@ class BDMSubmissionCOntroller extends Controller
                     $submissions->whereIn('status', $request->bdm_feedback);
                 }
             }
-    
+
             if(!empty($request->pv_feedback)){
                 $submissions->whereIn('pv_status', $request->pv_feedback);
             }
@@ -166,9 +166,9 @@ class BDMSubmissionCOntroller extends Controller
                         $requiremrntIdsHavingSubmission = $submissions->pluck('requirement_id')->toArray();
                     } else {
                         if(!empty($request->recruiter)){
-                            $requiremrntIdsHavingSubmission = $submissions->where('user_id', $request->recruiter)->pluck('requirement_id')->toArray();   
+                            $requiremrntIdsHavingSubmission = $submissions->where('user_id', $request->recruiter)->pluck('requirement_id')->toArray();
                         } else {
-                            $requiremrntIdsHavingSubmission = $submissions->pluck('requirement_id')->toArray();   
+                            $requiremrntIdsHavingSubmission = $submissions->pluck('requirement_id')->toArray();
                         }
                     }
                 }
@@ -179,17 +179,17 @@ class BDMSubmissionCOntroller extends Controller
                 $pvEmailReqIds = $this->getRequirementIdBasedOnData('poc_email', $request->pv_email);
                 $requirementIds[] = $pvEmailReqIds;
             }
-    
+
             if(!empty($request->pv_company)){
                 $pvCompanyReqIds = $this->getRequirementIdBasedOnData('pv_company_name', $request->pv_company, 'like');
                 $requirementIds[] = $pvCompanyReqIds;
             }
-    
+
             if(!empty($request->pv_name)){
                 $pvNameReqIds = $this->getRequirementIdBasedOnData('poc_name', $request->pv_name, 'like');
                 $requirementIds[] = $pvNameReqIds;
             }
-    
+
             if(!empty($request->pv_phone)){
                 $pvPhoneReqIds = $this->getRequirementIdBasedOnData('poc_phone_number', $request->pv_phone);
                 $requirementIds[] = $pvPhoneReqIds;
@@ -199,22 +199,22 @@ class BDMSubmissionCOntroller extends Controller
                 $jobTitleReqIds = $this->getRequirementIdBasedOnData('job_title', $request->job_title, 'like');
                 $requirementIds[] = $jobTitleReqIds;
             }
-    
+
             if(!empty($request->bdm)){
                 $bdmReqIds = $this->getRequirementIdBasedOnData('user_id', $request->bdm);
                 $requirementIds[] = $bdmReqIds;
             }
-    
+
             if(!empty($request->job_id)){
                 $jobIdReqIds = $this->getRequirementIdBasedOnData('job_id', $request->job_id);
                 $requirementIds[] = $jobIdReqIds;
             }
-    
+
             if(!empty($request->client)){
                 $clientReqIds = $this->getRequirementIdBasedOnData('client_name', $request->client, 'like');
                 $requirementIds[] = $clientReqIds;
             }
-    
+
             if(!empty($request->job_location)){
                 $jobLocationReqIds = $this->getRequirementIdBasedOnData('location', $request->job_location, 'like');
                 $requirementIds[] = $jobLocationReqIds;
@@ -222,7 +222,7 @@ class BDMSubmissionCOntroller extends Controller
 
             if($requirementIds && count($requirementIds)){
                 $commonRequirementIds = call_user_func_array('array_intersect', $requirementIds);
-                
+
                 if(Auth::user()->role == 'recruiter'){
                     if($commonRequirementIds && count($commonRequirementIds)){
                         $submissions->whereIn('requirement_id', $commonRequirementIds);
@@ -245,7 +245,7 @@ class BDMSubmissionCOntroller extends Controller
                 //     } else {
                 //         $data = Submission::where('user_id', $user->id)->orderBy('id', 'desc')->get();
                 //     }
-                // }                
+                // }
             }else if($user->role == 'bdm'){
                 $loggedinBdmrequirementIds = Requirement::where('user_id', $user->id)->pluck('id')->toArray();
                 if($requirementIds && count($requirementIds)){
@@ -262,7 +262,7 @@ class BDMSubmissionCOntroller extends Controller
                 //     $data = Submission::whereIn('requirement_id', $requirementIds)->whereIn('status',$filterStatus)->orderBy('id', 'desc')->get();
                 //     if($showUnviewed){
                 //         $data = Submission::whereIn('requirement_id', $requirementIds)->whereIn('status',$filterStatus)->where('is_show','0')->orderBy('id', 'desc')->get();
-                //     }    
+                //     }
                 // } else {
                 //     if($showUnviewed){
                 //         $data = Submission::whereIn('requirement_id', $requirementIds)->where('is_show','0')->orderBy('id', 'desc')->get();
@@ -284,7 +284,7 @@ class BDMSubmissionCOntroller extends Controller
                 //     $data = Submission::orderBy('id', 'desc')->get();
                 //     if($showUnviewed){
                 //         $data = Submission::whereIn('status',$filterStatus)->where('is_show','0')->orderBy('id', 'desc')->get();
-                //     }    
+                //     }
                 // } else {
                 //     if($showUnviewed){
                 //         $data = Submission::where('is_show','0')->orderBy('id', 'desc')->get();
@@ -299,7 +299,7 @@ class BDMSubmissionCOntroller extends Controller
                     $requirmentId        = $row->requirement_id;
                     $jobId               = $row->Requirement->job_id;
                     $parentRequirementId = $row->Requirement->parent_requirement_id;
-                    
+
                     if(Auth::user()->role == 'admin' || (Auth::user()->role=='bdm')){
                         if($parentRequirementId &&  $parentRequirementId != $requirmentId && $parentRequirementId != 0){
                             return '<span data-order="'.$jobId.'" class="border-width-5 border-color-info job-title pt-1 pl-1 pl-1 pr-1" data-id="'.$requirmentId.'">'.$jobId.'</span>';
@@ -339,7 +339,16 @@ class BDMSubmissionCOntroller extends Controller
                     $candidateCount = $this->getCandidateCountByEmail($row->email);
                     $isCandidateHasLog  = $this->isCandidateHasLog($row);
                     $isEmployerNameChanged = $this->isEmployerNameChanged($row->candidate_id);
-                    return ($candidateCount ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "").(($isEmployerNameChanged) ? "<span class='badge bg-red ml-5'>2 Emp</span>" : "").'<div  class="a-center pt-2 pl-2 pb-2 pr-2 '. $candidateCss.'" style="width: fit-content;"><span class="'.$candidateClass.' candidate candidate-'.$row->id.'" style="'.$candidateBorderCss.'" data-cid="'.$row->id.'">'. $candidateName. '-' .$row->candidate_id. '</span></div>';
+                    $timeSpan = $this->getSubmissionTimeSpan($row->Requirement->created_at, $row->created_at);
+                    return ($candidateCount ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "")
+                        . (($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "")
+                        .(($isEmployerNameChanged) ? "<span class='badge bg-red ml-5'>2 Emp</span>" : "").
+                        '<div  class="a-center pt-2 pl-2 pb-2 pr-2 '. $candidateCss.'" style="width: fit-content;">
+                            <span class="'.$candidateClass.' candidate candidate-'.$row->id.'" style="'.$candidateBorderCss.'" data-cid="'.$row->id.'">'. $candidateName. '-' .$row->candidate_id. '</span>
+                        </div>
+                        <div class="p-1 mt-1 border border-dark" style="width: fit-content;">
+                            <span class="text-secondary font-weight-bold">'.$timeSpan.'</span>
+                        </div>';
                 })
                 ->addColumn('bdm_status', function($row){
                     $statusLastUpdatedAt = ($row->bdm_status_updated_at) ? strtotime($row->bdm_status_updated_at) : 0;
@@ -351,7 +360,7 @@ class BDMSubmissionCOntroller extends Controller
                     //         $status .= '<option value="'.$key.'" '.$selected.'>'.$val.'</option>';
                     //     }
                     //     $status .= '</select>';
-                        
+
                     // }else{
                     $status = isset(Submission::$status[$row->status]) ? "<p data-order='$statusLastUpdatedAt'>".Submission::$status[$row->status]."</p>" : '';
                     // }
@@ -377,12 +386,12 @@ class BDMSubmissionCOntroller extends Controller
                     }
 
                     return $status;
-                    
+
                     // if(in_array(Auth::user()->role,['admin','bdm'])){
                     //     if($row->status == Submission::STATUS_ACCEPT){
                     //         $isDisplay = 0;
                     //         if(!empty($row->pv_status)){
-                    //             $isDisplay = 1;       
+                    //             $isDisplay = 1;
                     //        } else {
                     //             $status .= '<button class="btn btn-sm btn-default show-pv-status-'.$row->id.' mr-2" data-id="'.$row->id.'" onclick="showStatusOptions('.$row->id.')"><i class="fa fa-plus-square"></i></button>';
                     //        }
@@ -393,7 +402,7 @@ class BDMSubmissionCOntroller extends Controller
                     //             $selected = $row->pv_status == $key ? 'selected' : '';
                     //             $status .= '<option value="'.$key.'" '.$selected.'>'.$val.'</option>';
                     //         }
-                    //         $status .= '</select>'; 
+                    //         $status .= '</select>';
                     //     }
                     // }else{
                     //     if($row->status == Submission::STATUS_ACCEPT){
@@ -436,7 +445,7 @@ class BDMSubmissionCOntroller extends Controller
                     }
                     $isNewPoc      = $this->isNewAsPerConfiguration('poc_name', $row->Requirement->poc_name);
                     $totalOrigReqInDays = $this->getTotalOrigReqBasedOnPocData($row->Requirement->poc_name);
-                    
+
                     return '<div class="container"><p class="'.(($isNewPoc) ? "text-primary" : "").'">'.$row->Requirement->poc_name. (($totalOrigReqInDays) ? "<span class='badge bg-indigo position-absolute top-0 end-0' style='margin-top: -6px'>$totalOrigReqInDays</span>" : "").'</p></div>';
                 })
                 ->addColumn('b_rate', function($row){
@@ -586,7 +595,7 @@ class BDMSubmissionCOntroller extends Controller
             $inputData['requirement_id'] = $submission->requirement_id;
             $inputData['entity_type']    = EntityHistory::ENTITY_TYPE_PV_STATUS;
             $inputData['entity_value']   = $submission->status;
-    
+
             EntityHistory::create($inputData);
 
             $data['status'] = 1;
@@ -617,7 +626,7 @@ class BDMSubmissionCOntroller extends Controller
     public function getUpdateSubmissionData(Request $request){
         $data['status'] = 0;
         $submissionData = Submission::where('id', $request->id)->first();
-        
+
         if(empty($submissionData)){
             return $data;
         }

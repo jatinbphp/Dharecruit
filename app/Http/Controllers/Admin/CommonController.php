@@ -398,7 +398,7 @@ class CommonController extends Controller
 
         return $data;
     }
-    
+
     public function getSubmissionData(Request $request){
         if(!$request->requirement_id){
             $data['status'] = 0;
@@ -415,13 +415,13 @@ class CommonController extends Controller
         }else{
             $submissions = Submission::where('requirement_id',$request->requirement_id)->get();
         }
-    
+
         $submissionData = '';
         $submissionHeadingData = '';
         $submissionHeaderData = '';
 
         if(!empty($requirement)){
-            $submissionHeadingData .= 
+            $submissionHeadingData .=
                 '<div class="col-md-12">
                     <span class="h5" style="font-weight:bold">('.$requirement->job_title.')</span>
                 </div>
@@ -429,7 +429,7 @@ class CommonController extends Controller
                     <sapm class="h5" style="font-weight:bold">'.date('m/d  h:i A', strtotime($requirement->created_at)).'</span>
                 </div>
                 ';
-            
+
             $submissionHeaderData .=
                 '<div class="row">
                     <div class="col">
@@ -480,10 +480,10 @@ class CommonController extends Controller
                 </tr>
             </thead>
         ';
-        
+
         $requirementCreatedDate = Carbon::parse($requirement->created_at);
         $interviewModel         = new Interview();
-        
+
         if(!empty($submissions) && count($submissions)){
             $submissionModel     = new Submission();
             $entityModel         = new EntityHistory();
@@ -498,32 +498,9 @@ class CommonController extends Controller
                 $candidateBorderCss = $this->getCandidateBorderCss($submission);
                 $candidateNames = explode(' ',$submission->name);
                 $candidateName = isset($candidateNames[0]) ? $candidateNames[0] : '';
-                $timeSpan = '';
-                
-                $submissionCreatedDate  = Carbon::parse($submission->created_at);
-                $timeSpan = '';
+                $timeSpan = $this->getSubmissionTimeSpan($requirementCreatedDate, $submission->created_at);
 
-                // Calculate the difference in hours and minutes
-                $diffInHours   = $requirementCreatedDate->diffInHours($submissionCreatedDate);
-                $diffInMinutes = $requirementCreatedDate->diffInMinutes($submissionCreatedDate) % 60;
-
-                if ($diffInHours >= 24) {
-                    // If the difference is more than 24 hours
-                    $diffInDays = floor($diffInHours / 24);
-                    $diffInHours = $diffInHours % 24;
-
-                    $timeSpan = "$diffInDays days, $diffInHours hr : $diffInMinutes mins";
-                } else {
-                    if($diffInHours > 1){
-                        // If the difference is less than 24 hours
-                        $timeSpan = "$diffInHours hr:$diffInMinutes mins";
-                    }else{
-                        // If the difference is less than 1 hours
-                        $timeSpan = "$diffInMinutes mins";
-                    }
-                }
-
-                $submissionData .= 
+                $submissionData .=
                     '<tr>
                         <td class="pt-4">' .$timeSpan . '</td>
                         <td class="pt-4">
@@ -550,11 +527,11 @@ class CommonController extends Controller
                         <td class="pt-4">
                             <span>' .$interviewModel->getInterviewStatusBasedOnSubmissionIdAndJobId($submission->id, $submission->Requirement->job_id).'</span><br>
                             '.getEntityLastUpdatedAtHtml($entityTypeInterview, $submission->id).'
-                        </td>                        
+                        </td>
                     </tr>';
             }
         }else{
-            $submissionData .= 
+            $submissionData .=
                 '<tbody>
                     <tr>
                         <td colspan="10" class="text-center">No Records Found</td>
@@ -566,7 +543,7 @@ class CommonController extends Controller
         $data['submissionHeadingData'] = $submissionHeadingData;
         $data['submissionHeaderData'] = $submissionHeaderData;
         $data['submissionData'] = $submissionData;
-        
+
         return $data;
     }
 }

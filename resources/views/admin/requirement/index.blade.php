@@ -40,26 +40,32 @@
                                 </div>
                             </div>
                             <div class="row mt-2">
-                                <div class="col-md-3 text-right border-right mt-2">
-                                    <label class="form-check-label float-left" for="showDate">Show Date</label>
-                                    {!! Form::checkbox('', '', null, ['id' => 'showDate', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                <div class="col-md-3 mt-2">
+                                    {!! Form::checkbox('', '', null, ['id' => 'showDate', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
+                                    <label class="form-check-label pl-2" for="showDate">Show Date</label>
                                 </div>
                                 @if((Auth::user()->role == 'admin') || (Auth::user()->role == 'bdm' && $menu == 'My Requirements'))
-                                    <div class="col-md-3 text-right border-right mt-2">
-                                        <label class="form-check-label float-left" for="showMerge">Show Merge</label>
-                                        {!! Form::checkbox('', '', null, ['id' => 'showMerge', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                    <div class="col-md-3 mt-2">
+                                        {!! Form::checkbox('', '', null, ['id' => 'showMerge', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
+                                        <label class="form-check-label pl-2" for="showMerge">Show Merge</label>
                                     </div>
                                 @endif
                                 @if(Auth::user()->role == 'admin')
-                                    <div class="col-md-3 text-right border-right mt-2">
-                                        <label class="form-check-label float-left" for="showLink">Show Link</label>
-                                        {!! Form::checkbox('', '', null, ['id' => 'showLink', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                    <div class="col-md-3 mt-2">
+                                        {!! Form::checkbox('', '', null, ['id' => 'showLink', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
+                                        <label class="form-check-label pl-2" for="showLink">Show Link</label>
                                     </div>
                                 @endif
                                 @if((Auth::user()->role == 'admin') || (Auth::user()->role == 'bdm' && $menu == 'My Requirements'))
-                                    <div class="col-md-3 text-right border-right mt-2">
-                                        <label class="form-check-label float-left" for="showLink">Show POC</label>
-                                        {!! Form::checkbox('', '', null, ['id' => 'toggle-poc', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                    <div class="col-md-3 mt-2">
+                                        {!! Form::checkbox('', '', null, ['id' => 'toggle-poc', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
+                                        <label class="form-check-label pl-2" for="showLink">Show POC</label>
+                                    </div>
+                                @endif
+                                @if(in_array(Auth::user()->role, ['bdm', 'recruiter']))
+                                    <div class="col-md-3 mt-2">
+                                        {!! Form::checkbox('', '', null, ['id' => 'toggle_job_keyword', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
+                                        <label class="form-check-label pl-2" for="toggle_job_keyword">Show Job Keyword</label>
                                     </div>
                                 @endif
                             </div>
@@ -92,7 +98,7 @@
                                         @endif
                                         <th>Onsite</th>
                                         <th>Duration</th>
-                                        <th>Job Keyword</th>
+                                        <th class="toggle-job-keyword-column">Job Keyword</th>
                                         <th>Category</th>
                                         <th>BDM</th>
                                         <th>Rate</th>
@@ -126,6 +132,9 @@
 <script type="text/javascript">
     $(document).ready(function () {
         datatables();
+        @if(Auth::user()->role == 'admin')
+            $('#toggle-poc').bootstrapToggle('on');
+        @endif
     });
 
     function showRequirementFilterData(){
@@ -200,7 +209,7 @@
                     return columnData;
                 }},
                 {data: 'job_id', 'width': '8%', name: 'job_id'},
-                {data: 'job_title', 'width': '30%', name: 'job_title', sortable : true},
+                {data: 'job_title', 'width': '20%', name: 'job_title', sortable : true},
                 {data: 'location', name: 'location'},
                 @if((Auth::user()->role == 'admin') || (Auth::user()->role == 'bdm' && $menu == 'My Requirements'))
                     {data: 'pv', name: 'pv'},
@@ -262,7 +271,13 @@
                     table.column(columnIndex).nodes().to$().addClass('toggle-column');
                 });
 
+                $('#requirementTable thead th.toggle-job-keyword-column').each(function() {
+                    var columnIndex = $(this).index();
+                    table.column(columnIndex).nodes().to$().addClass('toggle-job-keyword-column');
+                });
+
                 $('#toggle-poc').trigger('change');
+                $('#toggle_job_keyword').trigger('change');
             }
         });
 

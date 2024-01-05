@@ -32,7 +32,7 @@ class InterviewController extends Controller
                 $fromDate = date('Y-m-d', strtotime($request->fromDate));
                 $interviews->where('interviews.created_at', '>=' ,$fromDate." 00:00:00");
             }
-    
+
             if(!empty($request->toDate)){
                 $toDate = date('Y-m-d', strtotime($request->toDate));
                 $interviews->where('interviews.created_at', '<=' ,$toDate." 23:59:59");
@@ -46,12 +46,12 @@ class InterviewController extends Controller
                 $employerSubIds = $this->getSubmissionIdBasedOnData('employer_name', $request->filter_employer_name, 'like','submission');
                 $submissionIds[] = $employerSubIds;
             }
-    
+
             if(!empty($request->filter_employee_name)){
                 $employeeSubIds = $this->getSubmissionIdBasedOnData('employee_name', $request->filter_employee_name, 'like', 'submission');
                 $submissionIds[] = $employeeSubIds;
             }
-    
+
             if(!empty($request->filter_employee_phone_number)){
                 $employeePhoneSubIds = $this->getSubmissionIdBasedOnData('employee_phone', $request->filter_employee_phone_number, 'equal','submission');
                 $submissionIds[] = $employeePhoneSubIds;
@@ -66,7 +66,7 @@ class InterviewController extends Controller
                 $candidateNameSubIds = $this->getSubmissionIdBasedOnData('name', $request->candidate_name, 'like', 'submission');
                 $submissionIds[] = $candidateNameSubIds;
             }
-    
+
             if(!empty($request->candidate_id)){
                 $candidateIdSubIds = $this->getSubmissionIdBasedOnData('candidate_id', $request->candidate_id, 'equal', 'submission');
                 $submissionIds[] = $candidateIdSubIds;
@@ -76,7 +76,7 @@ class InterviewController extends Controller
                 $jobTitleSubIds = $this->getSubmissionIdBasedOnData('job_title', $request->job_title, 'like');
                 $submissionIds[] = $jobTitleSubIds;
             }
-    
+
             if(!empty($request->bdm)){
                 $bdmSubIds = $this->getSubmissionIdBasedOnData('user_id', $request->bdm, 'equal');
                 $submissionIds[] = $bdmSubIds;
@@ -86,16 +86,16 @@ class InterviewController extends Controller
                 $bdmSubIds = $this->getSubmissionIdBasedOnData('user_id', $request->recruiter, 'equal', 'submission');
                 $submissionIds[] = $bdmSubIds;
             }
-    
+
             if(!empty($request->job_id)){
                 $jobIdSubIds = $this->getSubmissionIdBasedOnData('job_id', $request->job_id, 'equal');
                 $submissionIds[] = $jobIdSubIds;
             }
-    
+
             if(!empty($request->client)){
                 $interviews->where('interviews.client', 'like', '%'.$request->client.'%');
             }
-    
+
             if(!empty($request->job_location)){
                 $jobLocationSubIds = $this->getSubmissionIdBasedOnData('location', $request->job_location, 'like');
                 $submissionIds[] = $jobLocationSubIds;
@@ -105,17 +105,17 @@ class InterviewController extends Controller
                 $pvEmailReqIds = $this->getSubmissionIdBasedOnData('poc_email', $request->pv_email, 'equal');
                 $submissionIds[] = $pvEmailReqIds;
             }
-    
+
             if(!empty($request->pv_company)){
                 $pvCompanyReqIds = $this->getSubmissionIdBasedOnData('pv_company_name', $request->pv_company, 'like');
                 $submissionIds[] = $pvCompanyReqIds;
             }
-    
+
             if(!empty($request->pv_name)){
                 $pvNameReqIds = $this->getSubmissionIdBasedOnData('poc_name', $request->pv_name, 'like');
                 $submissionIds[] = $pvNameReqIds;
             }
-    
+
             if(!empty($request->pv_phone)){
                 $pvPhoneReqIds = $this->getSubmissionIdBasedOnData('poc_phone_number', $request->pv_phone, 'equal');
                 $submissionIds[] = $pvPhoneReqIds;
@@ -123,14 +123,14 @@ class InterviewController extends Controller
 
             if($submissionIds && count($submissionIds)){
                 $commonSubmissiontIds = call_user_func_array('array_intersect', $submissionIds);
-                
+
                 if($commonSubmissiontIds && count($commonSubmissiontIds)){
                     $interviews->whereIn('interviews.submission_id', $commonSubmissiontIds);
                 } else {
                     $interviews->whereIn('interviews.submission_id', []);
                 }
             }
-            
+
             if(Auth::user()->role == 'admin'){
                 $data = $interviews->get();
             }elseif(Auth::user()->role == 'recruiter'){
@@ -140,7 +140,7 @@ class InterviewController extends Controller
             }else{
                 $data = $interviews->where('user_id', $loggedinUser)->get();
             }
-            
+
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('status', function($row){
@@ -199,7 +199,7 @@ class InterviewController extends Controller
                 ->addColumn('emp_poc', function($row){
                     $empPocNameArray = explode(' ', $row->Submission->employee_name);
                     $empPocFirstName = isset($empPocNameArray[0]) ? $empPocNameArray[0] : '';
-                    
+
                     if(Auth::user()->role != 'admin'){
                         return '<i class="fa fa-eye emp_poc-icon emp_poc-icon-'.$row->id.'" onclick="showData('.$row->id.',\'emp_poc-\')" aria-hidden="true"></i><span class="emp_poc emp_poc-'.$row->id.'" style="display:none">'.$empPocFirstName.'</span>';
 
@@ -217,7 +217,7 @@ class InterviewController extends Controller
                     }
                     $isNewPoc           = $this->isNewAsPerConfiguration('poc_name', $row->Submission->Requirement->poc_name);
                     $totalOrigReqInDays = $this->getTotalOrigReqBasedOnPocData($row->Submission->Requirement->poc_name);
-                    
+
                     return '<div class="container"><p class="'.(($isNewPoc) ? "text-primary" : "").'">'.$row->Submission->Requirement->poc_name. (($totalOrigReqInDays) ? "<span class='badge bg-indigo position-absolute top-0 end-0' style='margin-top: -6px'>$totalOrigReqInDays</span>" : "").'</p></div>';
 
                     // return '<i class="fa fa-eye poc_name-icon poc-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'poc-name-\')" aria-hidden="true"></i><span class="poc_name poc-name-'.$row->id.'" style="display:none">'.$pocFirstName.'</span>';
@@ -232,7 +232,7 @@ class InterviewController extends Controller
                     $pocHtml = '<span class="font-weight-bold '.(($isNewPoc) ? "text-primary" : "").'">'.$row->Submission->Requirement->pv_company_name;
                     $pocHtml .= '<br><br><span class="border pt-1 pl-1 pr-1 pb-1 '.(($isNewPoc) ? "border-primary" : "border-secondary").'">'.$totalPvCount.'</span></span>';
                     return $pocHtml;
-                    
+
                     //return '<i class="fa fa-eye pv_name-icon pv-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'pv-name-\')" aria-hidden="true"></i><span class="pv_name pv-name-'.$row->id.'" style="display:none">'.$row->Submission->Requirement->pv_company_name.'</span>';
                 })
                 ->addColumn('hiring_manager', function($row){
@@ -444,13 +444,13 @@ class InterviewController extends Controller
                                         </select>
                                     </div>
                                 </div>';
-        
+
         return $data;
     }
 
     public function getCandidateData(Request $request){
         $data['status'] = 0;
-        
+
         if(!$request->candidate_id){
             return $data;
         }
@@ -484,7 +484,7 @@ class InterviewController extends Controller
         $interviewStatus = $statusData->status;
         $interviewModel  = new Interview();
         $divCss          = "width: fit-content;";
-        
+
         if($interviewStatus == $interviewModel::STATUS_SCHEDULED){
             $divClass .= 'border border-warning rounded-pill';
             $textColor = 'text-dark';
@@ -511,8 +511,19 @@ class InterviewController extends Controller
         $candidateName = isset($candidateNames[0]) ? $candidateNames[0] : '';
         $isCandidateHasLog  = $this->isCandidateHasLog($submission);
         $isEmployerNameChanged = $this->isEmployerNameChanged($submission->candidate_id);
+        $timeSpan = $this->getSubmissionTimeSpan($interview->Submission->Requirement->created_at, $interview->Submission->created_at);
 
-        return ($candidateCount ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "").(($isEmployerNameChanged) ? "<span class='badge bg-red ml-5'>2 Emp</span>" : "").'<div class="candidate-'. $interview->id .'"><div class="'.$divClass.'  pt-2 pl-2 pb-2 pr-2" style="'.$divCss.'"><span class="candidate '.$textColor.'" data-cid='.$interview->submission_id.'>'.$candidateName.'-'.$interview->Submission->candidate_id.'</span></div></div>';
+        return ($candidateCount ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "")
+                .(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "")
+                .(($isEmployerNameChanged) ? "<span class='badge bg-red ml-5'>2 Emp</span>" : "")
+                .'<div class="candidate-'. $interview->id .'">
+                    <div class="'.$divClass.'  pt-2 pl-2 pb-2 pr-2" style="'.$divCss.'">
+                        <span class="candidate '.$textColor.'" data-cid='.$interview->submission_id.'>'.$candidateName.'-'.$interview->Submission->candidate_id.'</span>
+                    </div>
+                    <div class="p-1 mt-1 border border-dark" style="width: fit-content;">
+                        <span class="text-secondary font-weight-bold">'.$timeSpan.'</span>
+                    </div>
+                </div>';
     }
 
     public function removeDocument($id) {

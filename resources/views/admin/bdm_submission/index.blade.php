@@ -60,23 +60,23 @@
                                                     }
                                                 }
                                             @endphp
-                                            <div class="col-md-3 text-right border-right mt-2">
-                                                <label class="form-check-label float-left" for="{{$key}}"> {{ $value }}</label>
-                                                {!! Form::checkbox('', $key, null, ['id' => "$key", 'onChange' => 'toggleOptions("'.$key.'")', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggl', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                            <div class="col-md-3 mt-2">
+                                                {!! Form::checkbox('', $key, null, ['id' => "$key", 'onChange' => 'toggleOptions("'.$key.'")', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
+                                                <label class="form-check-label pl-2" for="{{$key}}"> {{ $value }}</label>
                                             </div>
                                         @endforeach
-                                        <div class="col-md-3 text-right border-right mt-2">
-                                            <label class="form-check-label float-left" for="showTime">Status Time</label>
-                                            {!! Form::checkbox('', 'show-time', null, ['id' => "showTime", 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggl', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                        <div class="col-md-3 mt-2">
+                                            {!! Form::checkbox('', 'show-time', null, ['id' => "showTime", 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
+                                            <label class="form-check-label pl-2" for="showTime">Status Time</label>
                                         </div>
-                                        <div class="col-md-3 text-right border-right mt-2">
-                                            <label class="form-check-label float-left" for="showFeedback">Show FeedBack</label>
-                                            {!! Form::checkbox('', 'show-feedback', null, ['id' => "showFeedback", 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggl', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                        <div class="col-md-3 mt-2">
+                                            {!! Form::checkbox('', 'show-feedback', null, ['id' => "showFeedback", 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
+                                            <label class="form-check-label pl-2" for="showFeedback">Show FeedBack</label>
                                         </div>
                                         @if(in_array(Auth::user()->role, ['admin', 'bdm']))
-                                            <div class="col-md-3 text-right border-right mt-2">
-                                                <label class="form-check-label float-left" for="showLink">Show POC</label>
-                                                {!! Form::checkbox('', '', null, ['id' => 'toggle-poc', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggl', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                            <div class="col-md-3 mt-2">
+                                                {!! Form::checkbox('', '', null, ['id' => 'toggle-poc', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
+                                                <label class="form-check-label pl-2" for="showLink">Show POC</label>
                                             </div>
                                         @endif
                                     </div>
@@ -188,6 +188,9 @@
             $("#filter_status").select2("val", "{{session()->get('filter') }}");
         }
         dataTables();
+        @if(Auth::user()->role == 'admin')
+            $('#toggle-poc').bootstrapToggle('on');
+        @endif
         $('#mySubmissionTable tbody').on('change', '.submissionStatus', function (event) {
             event.preventDefault();
             var submissionId = $(this).attr("data-id");

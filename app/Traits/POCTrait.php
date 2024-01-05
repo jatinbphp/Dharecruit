@@ -67,7 +67,11 @@ trait POCTrait {
         $companyWiseAllPocNames = $collection->distinct()->pluck('poc_name')->toArray();
 
         if(!empty($request->bdm_names)){
-            $bdmWiseNames = Requirement::whereIn('user_id', $request->bdm_names)->where('pv_company_name', $pvCompany)->distinct()->pluck('poc_name')->toArray();
+            $collection = Requirement::whereIn('user_id', $request->bdm_names)->where('pv_company_name', $pvCompany);
+            if($date && isset($date['from']) && $date['to']){
+                $collection->whereBetween('created_at', $date);
+            }
+            $bdmWiseNames = $collection->distinct()->pluck('poc_name')->toArray();
             $companyWiseAllPocNames = array_intersect($bdmWiseNames, $companyWiseAllPocNames);
         }
 

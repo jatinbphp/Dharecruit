@@ -27,28 +27,32 @@
                     <div class="card card-info card-outline">
                         <div class="card-header">
                             <div class="row">
-                                <div class="col-md-2">
+                                <div class="col-md-12">
                                     <button class="btn btn-info" type="button" id="filterBtn"><i class="fa fa-search pr-1"></i> Search</button>
                                 </div>
-                                <div class="col-md-2">
-                                    <div class="form-check mt-2">
-                                        <input class="form-check-input" type="checkbox" value="" id="showDate">
-                                        <label class="form-check-label" for="showDate">Show Date</label>
-                                    </div>
-                                </div>
-                                @if(Auth::user()->role == 'recruiter')
-                                    <div class="col-md-2">
-                                        <div class="form-check mt-2">
-                                            <input class="form-check-input" type="checkbox" value="" id="show_my_candidate">
-                                            <label class="form-check-label" for="show_my_candidate">Show My Candidates Only</label>
-                                        </div>
-                                    </div>
-                                @endif
                                 <div class="col-md-12 border mt-3 pb-3 pt-3 pl-3 pb-3 pr-3" id="filterDiv">
                                     {!! Form::open(['id' => 'filterForm', 'class' => 'form-horizontal','files'=>true,'onsubmit' => 'return false;']) !!}
                                     @include('admin.'.$filterFile)
                                     {!! Form::close() !!}
                                 </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-3 mt-2">
+                                    {!! Form::checkbox('', '', null, ['id' => 'showDate', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
+                                    <label class="form-check-label pl-2" for="showDate">Show Date</label>
+                                </div>
+                                @if(Auth::user()->role == 'recruiter')
+                                    <div class="col-md-3 mt-2">
+                                        {!! Form::checkbox('', '', null, ['id' => 'show_my_candidate', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
+                                        <label class="form-check-label pl-2" for=show_my_candidate">Show My Candidates Only</label>
+                                    </div>
+                                @endif
+                                @if(in_array(Auth::user()->role, ['bdm', 'recruiter']))
+                                    <div class="col-md-3 mt-2">
+                                        {!! Form::checkbox('', '', null, ['id' => 'toggle_job_keyword', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
+                                        <label class="form-check-label pl-2" for="toggle_job_keyword">Show Job Keyword</label>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                         <div class="card-body table-responsive">
@@ -61,7 +65,7 @@
                                         <th>Location</th>
                                         <th>Onsite</th>
                                         <th>Duration</th>
-                                        <th>Job Keyword</th>
+                                        <th class="toggle-job-keyword-column">Job Keyword</th>
                                         <th>Category</th>
                                         <th>BDM</th>
                                         <th>Rate</th>
@@ -150,7 +154,7 @@
                     return columnData;
                 }},
                 {data: 'job_id', 'width': '8%', name: 'job_id'},
-                {data: 'job_title', 'width': '30%', name: 'job_title'},
+                {data: 'job_title', 'width': '20%', name: 'job_title'},
                 {data: 'location', name: 'location'},
                 {data: 'work_type', name: 'work_type'},
                 {data: 'duration', name: 'duration'},
@@ -165,7 +169,14 @@
                 // {data: 'color', name: 'color'},
                 {data: 'candidate', name: 'candidate'},
                 {data: 'action', "width": "15%", name: 'action', orderable: false, searchable: false},
-            ]
+            ],
+            initComplete: function(settings, json) {
+                $('#requirementTable thead th.toggle-job-keyword-column').each(function() {
+                    var columnIndex = $(this).index();
+                    table.column(columnIndex).nodes().to$().addClass('toggle-job-keyword-column');
+                });
+                $('#toggle_job_keyword').trigger('change');
+            }
         });
     }
 
