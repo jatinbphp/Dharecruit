@@ -55,7 +55,7 @@ class CronController extends Controller
         }
 
         Log::info("Updated Requirements Id ----> ". json_encode($updatedRequirementIds));
-        Log::info("Cron Expire Requirement Start ----> ".Carbon::now()->format('m-d-y h:i:s'));
+        Log::info("Cron Expire Requirement End ----> ".Carbon::now()->format('m-d-y h:i:s'));
 
         return '';
     }
