@@ -158,3 +158,4 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
 Route::get('/',[LoginController::class,'showAdminLoginForm'])->name('admin.login-view');
 Route::get('/admin',[LoginController::class,'showAdminLoginForm'])->name('admin.login-view');
 Route::post('/admin',[LoginController::class,'adminLogin'])->name('admin.login');
+Route::get('/expireRequirements',[\App\Http\Controllers\CronController::class, 'expireRequirement']);
