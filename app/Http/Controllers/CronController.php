@@ -13,11 +13,10 @@ class CronController extends Controller
 {
     public function expireRequirement(){
         Log::info("Cron Expire Requirement Start ----> ".Carbon::now()->format('m-d-y h:i:s'));
-        return 'done';
         $settingRow =  Setting::where('name', 'no_of_hours_for_expire')->first();
 
         if(empty($settingRow) || !$settingRow->value){
-            return $this;
+            return '';
         }
 
         $expHours = $settingRow->value;
@@ -29,7 +28,7 @@ class CronController extends Controller
             ->get();
 
         if(empty($requirementData)){
-            return $this;
+            return '';
         }
 
         $logData = [];

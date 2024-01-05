@@ -5,8 +5,6 @@ use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
 
-$date = Carbon::now()->format('Y-m-d');
-
 return [
 
     /*
@@ -53,7 +51,7 @@ return [
     'channels' => [
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['single'],
+            'channels' => ['daily'],
             'ignore_exceptions' => false,
         ],
 
@@ -65,7 +63,7 @@ return [
 
         'daily' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/'.$date.'-laravel.log'),
+            'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => 7,
         ],
@@ -115,7 +113,7 @@ return [
 
         'emergency' => [
 //            'path' => storage_path('logs/laravel.log'),
-            'path' => storage_path('logs/'.$date.'-laravel.log'),
+            'path' => storage_path('logs/laravel.log'),
         ],
     ],
 
