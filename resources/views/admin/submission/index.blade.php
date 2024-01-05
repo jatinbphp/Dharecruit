@@ -154,7 +154,7 @@
                     return columnData;
                 }},
                 {data: 'job_id', 'width': '8%', name: 'job_id'},
-                {data: 'job_title', 'width': '20%', name: 'job_title'},
+                {data: 'job_title', 'width': '15%', name: 'job_title'},
                 {data: 'location', name: 'location'},
                 {data: 'work_type', name: 'work_type'},
                 {data: 'duration', name: 'duration'},

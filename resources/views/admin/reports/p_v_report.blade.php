@@ -38,7 +38,15 @@
                                                         <i class="far fa-calendar-alt"></i>
                                                     </span>
                                                     </div>
-                                                    {!! Form::text('fromDate', null, ['autocomplete' => 'off', 'class' => 'datepicker form-control float-right', 'placeholder' => 'Select From Date', 'id' => 'fromDate']) !!}
+                                                    @php
+                                                        $defaultDays = 30;
+                                                        $settingRow =  \App\Models\Setting::where('name', 'show_bet_date_data_on_pv_and_poc_reports')->first();
+
+                                                        if(!empty($settingRow) && $settingRow->value){
+                                                            $defaultDays = $settingRow->value;
+                                                        }
+                                                    @endphp
+                                                    {!! Form::text('fromDate', \Carbon\Carbon::now()->subDays($defaultDays)->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker form-control float-right', 'placeholder' => 'Select From Date', 'id' => 'fromDate']) !!}
                                                 </div>
                                             </div>
                                         </div>
@@ -51,7 +59,7 @@
                                                         <i class="far fa-calendar-alt"></i>
                                                     </span>
                                                     </div>
-                                                    {!! Form::text('toDate', null, ['autocomplete' => 'off', 'class' => 'datepicker form-control float-right', 'placeholder' => 'Select To Date', 'id' => 'toDate']) !!}
+                                                    {!! Form::text('toDate', \Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker form-control float-right', 'placeholder' => 'Select To Date', 'id' => 'toDate']) !!}
                                                 </div>
                                             </div>
                                         </div>

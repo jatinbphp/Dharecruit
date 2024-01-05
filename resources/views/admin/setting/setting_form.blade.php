@@ -72,8 +72,16 @@
                                             {!! Form::number('show_poc_count_days', (isset($settingData['show_poc_count_days']) && $settingData['show_poc_count_days']) ? $settingData['show_poc_count_days'] : '', ['class' => 'form-control', 'placeholder' => 'Enter Show POC Count Days', 'id' => 'show_poc_count_days']) !!}
                                         </div>
                                     </div>
-                                </div>  
-                            </div>                          
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="control-label" for="show_bet_date_data_on_pv_and_poc_reports">Show bet. Date Data On PV And POC Reports(In Days)</label>
+                                        <div class="col-md-12">
+                                            {!! Form::number('show_bet_date_data_on_pv_and_poc_reports', (isset($settingData['show_bet_date_data_on_pv_and_poc_reports']) && $settingData['show_bet_date_data_on_pv_and_poc_reports']) ? $settingData['show_bet_date_data_on_pv_and_poc_reports'] : '', ['class' => 'form-control', 'placeholder' => 'Enter Days', 'id' => 'show_bet_date_data_on_pv_and_poc_reports']) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="card-footer">
                             <a href="{{ route('setting.index') }}" ><button class="btn btn-default" type="button">Cancel</button></a>
