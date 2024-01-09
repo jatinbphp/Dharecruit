@@ -229,6 +229,8 @@ class BDMSubmissionController extends Controller
                 }
             }
 
+            $data = $data->get();
+
             return Datatables::of($data)
                 ->addColumn('job_id', function($row){
                     $requirmentId        = $row->requirement_id;

@@ -691,7 +691,7 @@ class Controller extends BaseController
             return $query->orderBy('parent_requirement_id', 'DESC')->orderBy('id', 'desc');
         }
 
-        return $query->orderBy('id', 'asc');
+        return $query->orderBy('id', 'desc');
     }
 
     public function getRequirementIdBasedOnServedOptions($served, $query, $request){
