@@ -525,7 +525,7 @@ class Controller extends BaseController
                         $query->select('name as category_name','id');
                     },
                 ]
-            )->select('id', 'created_at','user_id','job_id', 'job_title', 'location', 'work_type', 'duration', 'visa', 'client', 'my_rate', 'category', 'moi', 'job_keyword', 'pv_company_name', 'poc_name', 'client_name', 'display_client', 'status', 'recruiter', 'is_show_recruiter', 'is_show_recruiter_after_update','is_update_requirement');
+            )->select('id', 'created_at','user_id','job_id', 'job_title', 'location', 'work_type', 'duration', 'visa', 'client', 'my_rate', 'category', 'moi', 'job_keyword', 'pv_company_name', 'poc_name', 'client_name', 'display_client', 'status', 'recruiter', 'is_show_recruiter', 'is_show_recruiter_after_update','is_update_requirement','parent_requirement_id');
         $expStatus = [Requirement::STATUS_EXP_HOLD , Requirement::STATUS_EXP_NEED];
         if($user['role'] == 'bdm' && isset($request->authId) && $request->authId > 0){
             $query = $query->where('user_id',$request->authId);
