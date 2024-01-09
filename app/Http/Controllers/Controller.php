@@ -96,8 +96,7 @@ class Controller extends BaseController
                 return $this->getTotalOrigReqInDays($row);
             })
             ->setRowClass(function ($row) {
-                return '';
-               // return (($row->parent_requirement_id != 0 && $row->parent_requirement_id == $row->id) ? 'parent-row' : (($row->parent_requirement_id != 0) ? 'child-row' : ''));
+                return (($row->parent_requirement_id != 0 && $row->parent_requirement_id == $row->id) ? 'parent-row' : (($row->parent_requirement_id != 0) ? 'child-row' : ''));
             })
             ->rawColumns(['recruiter','status','candidate','job_title','job_keyword','job_id','pv','poc','total_orig_req','total_orig_req_in_days','action'])
             ->make(true);
