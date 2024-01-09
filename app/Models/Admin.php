@@ -47,6 +47,10 @@ class Admin extends Authenticatable
         return ($user && $user->name) ? $user->name : '';
     }
 
+    public static function getUserIdWiseName(){
+        return Admin::pluck('name', 'id')->toArray();
+    }
+
     public static function getActiveBDM($defaltOption = false){
         if($defaltOption){
             return Admin::where('role','bdm')->where('status','active')->orderBy('name')->pluck('name','id')->prepend('Please Select','');

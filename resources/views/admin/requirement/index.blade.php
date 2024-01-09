@@ -222,11 +222,23 @@
                 {data: 'work_type', name: 'work_type'},
                 {data: 'duration', name: 'duration'},
                 {data: 'job_keyword', 'width': '20%', name: 'job_keyword'},
-                {data: 'category', name: 'category'},
-                {data: 'user_id', 'width': '6%', name: 'user_id'},
+                {data: function(row, type){
+                        return row.category.category_name;
+                    }
+                },
+                {data: function(row, type){
+                        return row.b_d_m.bdm_name;
+                    }
+                },
                 {data: 'my_rate', name: 'my_rate'},
                 // {data: 'created_at', 'width': '18%', name: 'created_at'},
-                {data: 'client', name: 'client'},
+                {data: function(row, type) {
+                        if (row.display_client == 1) {
+                            return row.client_name;
+                        }
+                        return '';
+                    }
+                },
                 {data: 'recruiter', name: 'recruiter'},
                 {data: 'status', 'width': '10%', name: 'status'},
                 // {data: 'color', name: 'color'},

@@ -19,7 +19,6 @@ class SubmissionController extends Controller
     {
         $this->middleware('auth');
         $this->middleware('accessright:manage_submission');
-        $this->ExpireRequirement();
     }
 
     public function index(Request $request){
@@ -28,7 +27,7 @@ class SubmissionController extends Controller
 
         if ($request->ajax()) {
             $data = $this->Filter($request,'all');
-            return $this->getListHtml($data, 'submission', $request);
+            return $this->getListHtml($data, $request, 'submission');
         }
         $data['type'] = 1;
         $data['filterFile'] = 'requirement_filter';
@@ -43,7 +42,7 @@ class SubmissionController extends Controller
         if ($request->ajax()) {
             $request['authId'] = Auth::user()->id;
             $data = $this->Filter($request);
-            return $this->getListHtml($data, 'submission', $request);
+            return $this->getListHtml($data, $request, 'submission');
         }
         $data['type'] = 2;
         $data['filterFile'] = 'common_filter';

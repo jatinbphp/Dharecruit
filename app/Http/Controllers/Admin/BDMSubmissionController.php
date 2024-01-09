@@ -11,46 +11,17 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
-class BDMSubmissionCOntroller extends Controller
+class BDMSubmissionController extends Controller
 {
     public function __construct(){
         $this->middleware('auth');
         $this->middleware('accessright:manage_bdm_submission');
-        $this->ExpireRequirement();
     }
 
     public function index(Request $request)
     {
         $data['menu'] = "Manage Submission";
         if ($request->ajax()) {
-            // $reqFilterStatus = $request->filter_status;
-
-            // $filterStatus = [];
-            // $showUnviewed = 0;
-
-            // if(!empty($reqFilterStatus)){
-            //     if(in_array('both',$reqFilterStatus)){
-            //         $filterStatus[] = 'accepted';
-            //         $filterStatus[] = 'rejected';
-            //     }
-
-            //     if(in_array('accepted',$reqFilterStatus)){
-            //         $filterStatus[] = 'accepted';
-            //     }
-
-            //     if(in_array('rejected',$reqFilterStatus)){
-            //         $filterStatus[] = 'rejected';
-            //     }
-
-            //     if(in_array('pending',$reqFilterStatus)){
-            //         $filterStatus[] = 'pending';
-            //     }
-
-            //     if(in_array('un_viewed',$reqFilterStatus)){
-            //         $showUnviewed = 1;
-            //     }
-            // }
-
             $user = Auth::user();
             $requirementIds = [];
 
@@ -233,65 +204,29 @@ class BDMSubmissionCOntroller extends Controller
             }
 
             if($user->role == 'recruiter'){
-                $data = $submissions->where('user_id', $user->id)->orderBy('id', 'desc')->get();
-                // if(!empty($filterStatus)){
-                //     $data = Submission::where('user_id', $user->id)->whereIn('status',$filterStatus)->orderBy('id', 'desc')->get();
-                //     if($showUnviewed){
-                //         $data = Submission::where('user_id', $user->id)->whereIn('status',$filterStatus)->where('is_show','0')->orderBy('id', 'desc')->get();
-                //     }
-                // } else {
-                //     if($showUnviewed){
-                //         $data = Submission::where('user_id', $user->id)->where('is_show','0')->orderBy('id', 'desc')->get();
-                //     } else {
-                //         $data = Submission::where('user_id', $user->id)->orderBy('id', 'desc')->get();
-                //     }
-                // }
+                $data = $submissions->where('user_id', $user->id)->orderBy('id', 'desc');
             }else if($user->role == 'bdm'){
                 $loggedinBdmrequirementIds = Requirement::where('user_id', $user->id)->pluck('id')->toArray();
                 if($requirementIds && count($requirementIds)){
                     if(isset($commonRequirementIds) && $commonRequirementIds && count($commonRequirementIds)){
                         $allRequirementIds = array_intersect($loggedinBdmrequirementIds, $commonRequirementIds);
-                        $data = $submissions->whereIn('requirement_id', $allRequirementIds)->orderBy('id', 'desc')->get();
+                        $data = $submissions->whereIn('requirement_id', $allRequirementIds)->orderBy('id', 'desc');
                     } else {
-                        $data = $submissions->where('requirement_id', 0)->orderBy('id', 'desc')->get();
+                        $data = $submissions->where('requirement_id', 0)->orderBy('id', 'desc');
                     }
                 } else {
-                    $data = $submissions->whereIn('requirement_id', $loggedinBdmrequirementIds)->orderBy('id', 'desc')->get();
+                    $data = $submissions->whereIn('requirement_id', $loggedinBdmrequirementIds)->orderBy('id', 'desc');
                 }
-                // if(!empty($filterStatus)){
-                //     $data = Submission::whereIn('requirement_id', $requirementIds)->whereIn('status',$filterStatus)->orderBy('id', 'desc')->get();
-                //     if($showUnviewed){
-                //         $data = Submission::whereIn('requirement_id', $requirementIds)->whereIn('status',$filterStatus)->where('is_show','0')->orderBy('id', 'desc')->get();
-                //     }
-                // } else {
-                //     if($showUnviewed){
-                //         $data = Submission::whereIn('requirement_id', $requirementIds)->where('is_show','0')->orderBy('id', 'desc')->get();
-                //     } else {
-                //         $data = Submission::whereIn('requirement_id', $requirementIds)->orderBy('id', 'desc')->get();
-                //     }
-                // }
             }else{
                 if($requirementIds && count($requirementIds)){
                     if(isset($commonRequirementIds) && $commonRequirementIds && count($commonRequirementIds)){
                         $data = $submissions->whereIn('requirement_id', $commonRequirementIds)->orderBy('id', 'desc')->get();
                     } else {
-                        $data = $submissions->where('requirement_id', 0)->orderBy('id', 'desc')->get();
+                        $data = $submissions->where('requirement_id', 0)->orderBy('id', 'desc');
                     }
                 } else {
-                    $data = $submissions->orderBy('id', 'desc')->get();
+                    $data = $submissions->orderBy('id', 'desc');
                 }
-                // if(!empty($filterStatus)){
-                //     $data = Submission::orderBy('id', 'desc')->get();
-                //     if($showUnviewed){
-                //         $data = Submission::whereIn('status',$filterStatus)->where('is_show','0')->orderBy('id', 'desc')->get();
-                //     }
-                // } else {
-                //     if($showUnviewed){
-                //         $data = Submission::where('is_show','0')->orderBy('id', 'desc')->get();
-                //     } else {
-                //         $data = Submission::orderBy('id', 'desc')->get();
-                //     }
-                // }
             }
 
             return Datatables::of($data)

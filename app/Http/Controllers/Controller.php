@@ -11,6 +11,7 @@ use App\Models\Setting;
 use App\Models\DataLog;
 use App\Models\PVCompany;
 use App\Models\Admin;
+use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -26,6 +27,11 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
+    protected $_user = null;
+    protected $_currentUserId = null;
+    protected $_currentUserRole = null;
+    protected $_userIdWiseName = [];
+    protected $_candidateIdWiseIsEmployerChanged = [];
     public function fileMove($photo, $path){
         $root = storage_path('app/public/uploads/'.$path);
         $filename = pathinfo($photo->getClientOriginalName(), PATHINFO_FILENAME);
@@ -37,79 +43,499 @@ class Controller extends BaseController
         return 'uploads/'.$path."/".$name;
     }
 
-    public function getListHtml($data, $page='requirement',$request) {
-        return Datatables::of($data)
+    public function getCurrentUserId()
+    {
+        if(!$this->_currentUserId){
+            $this->_currentUserId = $this->getUser()->id;
+        }
+        return $this->_currentUserId;
+    }
+
+    public function getCurrentUserRole()
+    {
+        if(!$this->_currentUserRole){
+            $this->_currentUserRole = $this->getUser()->role;
+        }
+
+        return $this->_currentUserRole;
+    }
+    public function getListHtml($query, $request, $page='requirement') {
+        return Datatables::of($query)
             ->addIndexColumn()
+            ->addColumn('job_id', function($row) {
+                return $this->getJobIdHtml($row);
+            })
             ->addColumn('job_title', function($row){
-                return getJobTitleHtml($row);
-            })
-            ->addColumn('user_id', function($row){
-                return $row->BDM->name;
-            })
-            ->addColumn('category', function($row){
-                return $row->Category->name;
+                return $this->getJobTitleHtml($row);
             })
             ->addColumn('recruiter', function($row) use (&$request){
-                return getRecruiterHtml($row, $request);
+              return $this->getRecruiterHtml($row, $request);
             })
             ->addColumn('status', function($row){
-                return getStatusHtml($row);
+                return $this->getStatusHtml($row);
             })
             ->addColumn('candidate', function ($row) use (&$page, &$request){
-                return getCandidateHtml($row, $page, $request);
+                return $this->getCandidateListData($row, $page, $request);
             })
             ->addColumn('action', function ($row) use (&$page){
-                return getActionHtml($row, $page);
-            })
-            ->addColumn('client', function($row) {
-                return getClientHtml($row);
+                return $this->getActionHtml($row, $page);
             })
             ->addColumn('job_keyword', function($row) {
-                return getJobKeywordHtml($row);
-            })
-            ->addColumn('job_id', function($row) {
-                return getJobIdHtml($row);
+               return $this->getJobKeywordHtml($row);
             })
             ->addColumn('pv', function($row) {
-                return getPvHtml($row);
+                return $this->getPvHtml($row);
             })
             ->addColumn('poc', function($row) {
-                return getPocHtml($row);
+                return $this->getPocHtml($row);
             })
             ->addColumn('total_orig_req', function($row) {
-                return getTotalOrigReq($row);
+                return $this->getTotalOrigReq($row);
             })
             ->addColumn('total_orig_req_in_days', function($row) {
-                return getTotalOrigReqInDays($row);
+                return $this->getTotalOrigReqInDays($row);
             })
             ->setRowClass(function ($row) {
-                return (($row->parent_requirement_id != 0 && $row->parent_requirement_id == $row->id) ? 'parent-row' : (($row->parent_requirement_id != 0) ? 'child-row' : ''));
-                ;
+                return '';
+               // return (($row->parent_requirement_id != 0 && $row->parent_requirement_id == $row->id) ? 'parent-row' : (($row->parent_requirement_id != 0) ? 'child-row' : ''));
             })
-            ->rawColumns(['user_id','category','recruiter','status','candidate','action','client','job_title','job_keyword','job_id','pv','poc','total_orig_req','total_orig_req_in_days'])
+            ->rawColumns(['recruiter','status','candidate','job_title','job_keyword','job_id','pv','poc','total_orig_req','total_orig_req_in_days','action'])
             ->make(true);
     }
 
+    public function getJobIdHtml($row){
+        $jid = '';
+        if(Auth::user()->role == 'admin'){
+            if($this->isLinkRequirement($row->poc_email)){
+                $jid .= '<div class="border text-center text-light link-data" style="background-color:rgb(172, 91, 173); width: 40px; display:none">Link</div>';
+            }
+        }
+        if(Auth::user()->role == 'admin' || (Auth::user()->role=='bdm' && Auth::user()->id == $row->user_id)){
+            if($row->parent_requirement_id != $row->id && $row->parent_requirement_id != 0){
+                return $jid .'<span data-order="'.$row->job_id.'" class="border-width-5 border-color-info job-title pt-1 pl-1 pl-1 pr-1" data-id="'.$row->id.'">'.$row->job_id.'</span>';
+            } elseif($row->parent_requirement_id == $row->id){
+                return $jid.'<span data-order="'.$row->job_id.'" class="border-width-5 border-color-warning job-title pt-1 pl-1 pl-1 pr-1" data-id="'.$row->id.'">'.$row->job_id.'</span>';
+            } else {
+                return $jid.'<span class=" job-title" data-id="'.$row->id.'" data-order="'.$row->job_id.'">'.$row->job_id.'</span>';
+            }
+        } else {
+            return '<span class=" job-title" data-id="'.$row->id.'" data-order="'.$row->job_id.'">'.$row->job_id.'</span>';
+        }
+    }
+    public function getJobTitleHtml($row): string
+    {
+        $loggedinUser = $this->getCurrentUserId();
+        $isShowRecruiters = explode(',', $row->is_show_recruiter);
+        $isShowRecruitersAfterUpdate = explode(',', $row->is_show_recruiter_after_update);
+        $textStyle = '';
+        if($this->getCurrentUserRole() == 'recruiter'){
+            if(!in_array($loggedinUser, $isShowRecruiters)){
+                $textStyle = 'pt-1 pl-2 pb-1 pr-2 border border-primary text-primary';
+            } else if($row->is_update_requirement == 1){
+                if(!in_array($loggedinUser, $isShowRecruitersAfterUpdate) && in_array($loggedinUser, $isShowRecruiters)){
+                    $textStyle = 'pt-1 pl-2 pb-1 pr-2 border border-warning text-warning';
+                }
+            }
+        }
+        $userWiseCount = '';
+        if($this->getCurrentUserRole() == 'admin'){
+            $userWiseCount = $this->getUserWiseRequirementsCountAsPerPoc($row->poc_name, 1);
+        }
+        return '<div data-order="'.$row->job_title.'" class="'.$textStyle.' job-title job-title-'.$row->id.'" data-id="'.$row->id.'"><span class="font-weight-bold">'.$row->job_title.'</span></div>'.(($userWiseCount) ? "<div class='container pl-0'><div class='bg-white p-1 border d-inline-block'>".$userWiseCount."</div></div>" : "");
+    }
+
+    public function getRecruiterHtml($row, $request): string
+    {
+        $recruiterIds = !empty($row->recruiter) ? explode(',',$row->recruiter) : [];
+
+        if(!count($recruiterIds)){
+            return '';
+        }
+        $recName = '';
+
+        $user = $this->getUser();
+        $loggedInUserId = $this->getCurrentUserId();
+
+        if($this->getCurrentUserRole() == 'recruiter'){
+            if(in_array($loggedInUserId, $recruiterIds)){
+                $recruiterIds = array_flip($recruiterIds);
+                unset($recruiterIds[$loggedInUserId]);
+                $recruiterIds = array_filter(array_flip($recruiterIds));
+                sort($recruiterIds);
+                array_unshift($recruiterIds, $loggedInUserId);
+            }
+        } else {
+            $recruiterIds = array_filter($recruiterIds);
+            sort($recruiterIds);
+        }
+
+        $filterRecIds = [];
+        if(!empty($request->recruiter)){
+            if(empty($request->served)){
+                $filterRecIds[] = [$request->recruiter];
+            }
+        }
+
+        if(!empty($request->candidate_name)){
+            $candidateNameIds = Submission::where('name', 'like', '%'.$request->candidate_name.'%')->where('requirement_id', $row->id)->pluck('user_id')->toArray();
+            $filterRecIds[] = $candidateNameIds;
+        }
+
+        if(!empty($request->candidate_id)){
+            $candidateIdIds = Submission::where('candidate_id', $request->candidate_id)->where('requirement_id', $row->id)->pluck('user_id')->toArray();
+            $filterRecIds[] = $candidateIdIds;
+        }
+
+        if(!empty($request->filter_employer_name)){
+            $employerIds = Submission::where('employer_name', $request->filter_employer_name)->where('requirement_id', $row->id)->pluck('user_id')->toArray();
+            $filterRecIds[] = $employerIds;
+        }
+
+        if(!empty($request->filter_employee_name)){
+            $employeeNameIds = Submission::where('employee_name', $request->filter_employee_name)->where('requirement_id', $row->id)->pluck('user_id')->toArray();
+            $filterRecIds[] = $employeeNameIds;
+        }
+
+        if(!empty($request->filter_employee_phone_number)){
+            $employeePhoneIds = Submission::where('employee_phone', $request->filter_employee_phone_number)->where('requirement_id', $row->id)->pluck('user_id')->toArray();
+            $filterRecIds[] = $employeePhoneIds;
+        }
+
+        if(!empty($request->fifilterlter_employee_email)){
+            $employeeEmailIds = Submission::where('employee_email', $request->filter_employee_email)->where('requirement_id', $row->id)->pluck('user_id')->toArray();
+            $filterRecIds[] = $employeeEmailIds;
+        }
+
+        if($filterRecIds && count($filterRecIds)){
+            $commonRequirementIds = call_user_func_array('array_intersect', $filterRecIds);
+            if($commonRequirementIds && count($commonRequirementIds)){
+                $recruiterIds = array_unique($commonRequirementIds);
+            } else {
+                $recruiterIds = [];
+            }
+        }
+
+        foreach ($recruiterIds as $recruiterId){
+            $recruterUser = Admin::where('id',$recruiterId)->first();
+            if(empty($recruterUser)){
+                continue;
+            }
+            $bgColor = '';
+            if($user->id == $recruterUser->id){
+                $bgColor = '#BED8E2';
+            }
+            $submission = Submission::where('user_id',$recruiterId)->where('requirement_id',$row->id)->count();
+            $recName .= '<div class="border border-dark floar-left p-1 mt-2" style="
+                border-radius: 5px; width: auto; background-color:'.$bgColor.'"><span>'. $submission.' '.$recruterUser['name']. '</span></div>';
+        }
+        return $recName;
+    }
+
+    public function getStatusHtml($row){
+        $statusBtn = '';
+        $status = $row->status;
+        if($this->getCurrentUserRole() == 'admin' || $this->getCurrentUserRole() == $row->user_id){
+            if ($status == "hold") {
+                $statusBtn .= '<div class="btn-group-horizontal" id="assign_remove_"'.$row->id.'">
+                                    <button class="btn btn-danger unassign ladda-button" data-style="slide-left" id="remove" url="'.route('requirement.unassign').'" ruid="'.$row->id.'" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Hold</span> </button>
+                                </div>';
+                $statusBtn .= '<div class="btn-group-horizontal" id="assign_add_"'.$row->id.'"  style="display: none"  >
+                                    <button class="btn btn-success assign ladda-button" data-style="slide-left" id="assign" uid="'.$row->id.'" url="'.route('requirement.assign').'" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Need</span></button>
+                                </div>';
+            }
+            if ($status == "unhold") {
+                $statusBtn .= '<div class="btn-group-horizontal" id="assign_add_"'.$row->id.'">
+                                    <button class="btn btn-success assign ladda-button" id="assign" data-style="slide-left" uid="'.$row->id.'" url="'.route('requirement.assign').'" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Need</span></button>
+                                </div>';
+                $statusBtn .= '<div class="btn-group-horizontal" id="assign_remove_"'.$row->id.'" style="display: none" >
+                                    <button class="btn  btn-danger unassign ladda-button" id="remove" ruid="'.$row->id.'" data-style="slide-left" url="'.route('requirement.unassign').'" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Hold</span></button>
+                                </div>';
+            }
+        }else{
+            if ($status == "hold") {
+                $statusBtn .= '<div class="btn-group-horizontal">
+                                    <button class="btn btn-danger noChange ladda-button" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Hold</span></button>
+                                </div>';
+            }
+            if ($status == "unhold") {
+                $statusBtn .= '<div class="btn-group-horizontal">
+                                    <button class="btn btn-success noChange ladda-button" data-style="slide-left" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Need</span></button>
+                                </div>';
+            }
+        }
+        $requirementObj = new Requirement();
+        if(in_array($status,[$requirementObj::STATUS_EXP_HOLD, $requirementObj::STATUS_EXP_NEED])){
+            $statusBtn .= '<div class="btn-group-horizontal">
+                                <button class="btn btn btn-secondary noChange ladda-button" data-style="slide-left" type="button" style="height:28px; padding:0 12px"><span class="ladda-label"><b>'.(isset(Requirement::$exprieStatus[$status]) ? (Requirement::$exprieStatus[$status]) : '').'</b></span></button>
+                           </div>';
+        }
+        return $statusBtn;
+    }
+
+    public function getCandidateListData($row, $page='requirement', $request){
+        $userRole = $this->getCurrentUserRole();
+        $userId   = $this->getCurrentUserId();
+        if(in_array($userRole, ['recruiter', 'bdm', 'admin'])){
+            $loggedInRecruterSubmission    = Submission::query();
+            $notLoggedInRecruterSubmission = Submission::query();
+
+            if(!empty($request->filter_employer_name)){
+                $loggedInRecruterSubmission->where('employer_name', $request->filter_employer_name);
+            }
+
+            if(!empty($request->filter_employee_name)){
+                $loggedInRecruterSubmission->where('employee_name', $request->filter_employee_name);
+            }
+
+            if(!empty($request->filter_employee_phone_number)){
+                $loggedInRecruterSubmission->where('employee_phone', $request->filter_employee_phone_number);
+            }
+
+            if(!empty($request->filter_employee_email)){
+                $loggedInRecruterSubmission->where('employee_email', $request->filter_employee_email);
+            }
+
+            if(!empty($request->candidate_name)){
+                $loggedInRecruterSubmission->where('name', 'like', '%'.$request->candidate_name.'%');
+            }
+
+            if(!empty($request->candidate_id)){
+                $loggedInRecruterSubmission->where('candidate_id', $request->candidate_id);
+            }
+
+            if(!empty($request->bdm_feedback)){
+                $bdmFeedBack = $request->bdm_feedback;
+                $isOrWhere = 0;
+                $isWhere = 0;
+                $isStatus = 0;
+                if(in_array('no_updates', $bdmFeedBack)){
+                    $bdmFeedBack = array_flip($bdmFeedBack);
+                    unset($bdmFeedBack['no_updates']);
+                    $bdmFeedBack = array_flip($bdmFeedBack);
+                    $isWhere = 1;
+                }
+
+                if(in_array('no_viewed', $bdmFeedBack)){
+                    $bdmFeedBack = array_flip($bdmFeedBack);
+                    unset($bdmFeedBack['no_viewed']);
+                    $bdmFeedBack = array_flip($bdmFeedBack);
+
+                    if($bdmFeedBack && count($bdmFeedBack)){
+                        $isStatus = 1;
+                    } else {
+                        $isOrWhere = 1;
+                    }
+                }
+
+                $loggedInRecruterSubmission->where(function ($loggedInRecruterSubmission) use ($isWhere, $isStatus, $isOrWhere, $bdmFeedBack) {
+                    if($isWhere == 1){
+                        $loggedInRecruterSubmission->whereNull('pv_status');
+                        $loggedInRecruterSubmission->Where('is_show', 1);
+                        $loggedInRecruterSubmission->Where('status', 'pending');
+                        if($isStatus == 0 && $bdmFeedBack && count($bdmFeedBack)){
+                            $loggedInRecruterSubmission->orWhereIn('status', $bdmFeedBack);
+                        }
+                    }
+                    if($isOrWhere == 1){
+                        $loggedInRecruterSubmission->orWhere('is_show', 0);
+                    }
+                    if($isStatus == 1){
+                        $loggedInRecruterSubmission->orwhere(function ($loggedInRecruterSubmission) use ($isWhere, $isStatus, $isOrWhere, $bdmFeedBack) {
+                            $loggedInRecruterSubmission->whereIn('status', $bdmFeedBack);
+                            $loggedInRecruterSubmission->orWhere('is_show', 0);
+                        });
+                    }
+                });
+
+                if(!in_array('no_updates', $request->bdm_feedback) && !in_array('no_viewed', $request->bdm_feedback)){
+                    $loggedInRecruterSubmission->whereIn('status', $request->bdm_feedback);
+                }
+            }
+
+            if(!empty($request->pv_feedback)){
+                $loggedInRecruterSubmission->whereIn('pv_status', $request->pv_feedback);
+            }
+
+            if(!empty($request->client_feedback)){
+                $submissionId = Interview::whereIn('status', $request->client_feedback)->pluck('submission_id')->toArray();
+                if($submissionId){
+                    $loggedInRecruterSubmission->whereIn('id', $submissionId);
+                } else {
+                    $loggedInRecruterSubmission->whereIn('id', []);
+                }
+            }
+
+            if($userRole == 'recruiter'){
+                $loggedInRecruiters = $loggedInRecruterSubmission->where('user_id', $userId)->where('requirement_id',$row->id)->orderby('user_id','DESC')->get();
+            } else {
+                if(!empty($request->recruiter)){
+                    $loggedInRecruiters = $loggedInRecruterSubmission->where('user_id', $request->recruiter)->where('requirement_id',$row->id)->orderby('user_id','DESC')->get();
+                } else {
+                    $loggedInRecruiters = $loggedInRecruterSubmission->where('requirement_id',$row->id)->orderby('user_id','DESC')->get();
+
+                }
+            }
+
+            if(empty($request->filter_employer_name) && empty($request->filter_employee_name) && empty($request->filter_employee_phone_number) && empty($request->filter_employee_email) && empty($request->bdm_feedback) && empty($request->pv_feedback) && empty($request->client_feedback) && empty($request->candidate_name) && empty($request->candidate_id) && empty($request->recruiter)){
+                $notLogeedInRecruiters = $notLoggedInRecruterSubmission->where('user_id', '!=',$userId)->where('requirement_id',$row->id)->orderby('user_id','ASC')->get();
+                $allSubmission = $loggedInRecruiters->merge($notLogeedInRecruiters);
+            } else {
+                $allSubmission = $loggedInRecruiters;
+            }
+
+        } else {
+            $allSubmission = Submission::where('requirement_id',$row->id)->orderby('user_id','ASC')->get();
+            if($userRole == 'bdm' || $userRole == 'admin'){
+                if(!empty($request->recruiter)){
+                    $allSubmission = Submission::where('requirement_id',$row->id)->where('user_id', $request->recruiter)->orderby('user_id','ASC')->get();
+                }
+            }
+        }
+
+        $candidate = '';
+        if($allSubmission && count($allSubmission) > 0){
+            $candidate .= $this->getCandidateHtml($allSubmission, $row, $page);
+        } else {
+            if(!empty($row->recruiter)){
+                $candidate .= '<div style="width:50px; background-color: yellow;">&nbsp;</div>';
+            }
+        }
+        return $candidate;
+    }
+
+    public function getActionHtml($row, $page='requirement'){
+        $exprieStatus = Requirement::$exprieStatus;
+        $loggedInUserId = $this->getCurrentUserId();
+        $userRole       = $this->getCurrentUserRole();
+        $btn = '';
+        if($page == 'submission'){
+            if($row->submissionCounter < 3){
+                $rId = !empty($row->recruiter) ? explode(',',$row->recruiter) : [];
+                if(!empty($rId) && in_array($loggedInUserId, $rId) && !array_key_exists($row->status, $exprieStatus)){
+                    //$btn = '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/submission/'.$row->id).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" ><i class="fa fa-eye"></i></button></a></div>';
+                    $btn = '<div class="btn-group btn-group-sm mr-2"><button class="btn btn-sm btn-default tip view-submission" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" data-id="'.$row->id.'" ><i class="fa fa-eye"></i></button></div>';
+                    $btn .= '<div class="btn-group btn-group-sm"><a href="'.url('admin/submission/new/'.$row->id).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Add New Submission" data-trigger="hover" type="submit" ><i class="fa fa-upload"></i></button></a></div>';
+                }else{
+                    $btn = '';
+                    if($row->status != "hold" && !array_key_exists($row->status,$exprieStatus)){
+                        $btn = '<span data-toggle="tooltip" title="Assign Requirement" data-trigger="hover">
+                                    <button class="btn btn-sm btn-default assignRequirement mr-2" data-id="'.$row->id.'" type="button"><i class="fa fa-plus-square"></i></button>
+                                </span>';
+                    }
+                }
+            }else{
+                $btn = '';
+            }
+            $btn .= '<div class="border border-dark floar-left p-1 mt-2" style="
+                border-radius: 5px; width: auto"><span>'.getTimeInReadableFormate($row->created_at).'</span></div>';
+        } else {
+            if(($userRole == 'admin' && !array_key_exists($row->status, $exprieStatus)) || ($userRole == 'bdm' && $loggedInUserId == $row->user_id && !array_key_exists($row->status, $exprieStatus))){
+                $btn .= '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/requirement/'.$row->id.'/edit').'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Edit Requirement" data-trigger="hover" type="submit" ><i class="fa fa-edit"></i></button></a></div>';
+            }
+            if($userRole == 'admin' && !array_key_exists($row->status, $exprieStatus)){
+                $btn .= '<span data-toggle="tooltip" title="Delete Requirement" data-trigger="hover">
+                            <button class="btn btn-sm btn-default deleteRequirement mr-2" data-id="'.$row->id.'" type="button"><i class="fa fa-trash"></i></button>
+                        </span>';
+            }
+            //$btn .= '<div class="btn-group btn-group-sm"><a href="'.url('admin/requirement/'.$row->id).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" ><i class="fa fa-eye"></i></button></a></div>';
+            if(($userRole == 'admin') || ($loggedInUserId == $row->user_id)){
+                $btn .= '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-default tip view-submission" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" data-id="'.$row->id.'"><i class="fa fa-eye"></i></button></div>';
+            }
+            //$btn .= '<div class="btn-group btn-group-sm ml-2"><a href="'.Route('requirement.repost',[$row->id]).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Repost Requirement" data-trigger="hover" type="submit"><i class="fa fa-retweet"></i></button></a></div>';
+            if(($userRole == 'admin') || ($userRole == 'bdm' && $loggedInUserId == $row->user_id && $page != 'all_requirement')){
+                $btn .= '<div class="btn-group btn-group-sm ml-2"><a href="'.url('admin/requirement/repostReqirement').'/'.$row->id.'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Repost Requirement" data-trigger="hover" type="submit"><i class="fa fa-retweet"></i></button></a></div>';
+            }
+            $btn .= '<div class="border border-dark floar-left p-1 mt-2" style="
+                border-radius: 5px; width: auto"><span>'.getTimeInReadableFormate($row->created_at).'</span></div>';
+        }
+        return $btn;
+    }
+
+    public function getJobKeywordHtml($row){
+        $jobKeyword = strip_tags($row->job_keyword);
+        $userWiseCount = '';
+        if($this->getCurrentUserRole() == 'admin'){
+            $userWiseCount = $this->getUserWiseRequirementsCountAsPerPoc($row->poc_name);
+        }
+        if(strlen($jobKeyword) > 60){
+            $shortString = substr($jobKeyword, 0, 60);
+            return '<p>' . $shortString . '<span class=" job-title" data-id="'.$row->id.'"><span class="font-weight-bold"> More +</span></p>'.(($userWiseCount) ? "<div class='container pl-0'><div class='bg-white p-1 border d-inline-block'>".$userWiseCount."</div></div>" : "");
+        }
+        return '<p>'.strip_tags($row->job_keyword).'</p>'.(($userWiseCount) ? "<div class='container pl-0'><div class='bg-white p-1 border d-inline-block'>".$userWiseCount."</div></div>" : "");
+    }
+
+    public function getPvHtml($row){
+        if($this->getCurrentUserRole() != 'admin'){
+            return $row->pv_company_name;
+        }
+
+        $totalPvCount  = $this->getAllPvCompanyCount($row->pv_company_name);
+        $isNewPoc      = $this->isNewAsPerConfiguration('pv_company_name', $row->pv_company_name);
+
+        $pocHtml = '<span class="font-weight-bold '.(($isNewPoc) ? "text-primary" : "").'">'.$row->pv_company_name;
+        $pocHtml .= '<br><br><span class="border pt-1 pl-1 pr-1 pb-1 '.(($isNewPoc) ? "border-primary" : "border-secondary").'">'.$totalPvCount.'</span></span>';
+        return $pocHtml;
+    }
+
+    public function getPocHtml($row){
+        if($this->getCurrentUserRole() != 'admin'){
+            return $row->poc_name;
+        }
+        $controllerObj = new Controller();
+        $isNewPoc      = $controllerObj->isNewAsPerConfiguration('poc_name', $row->poc_name);
+        return '<p class="font-weight-bold '.(($isNewPoc) ? "text-primary" : "").'">'.$row->poc_name.'</p>';
+    }
+
+    public function getTotalOrigReq($row){
+        if($this->getCurrentUserRole() != 'admin'){
+            return '';
+        }
+        $controllerObj = new Controller();
+
+        return $controllerObj->getTotalOrigReqBasedOnPocData($row->poc_name, 1);
+    }
+
+    public function getTotalOrigReqInDays($row){
+        if($this->getCurrentUserRole() != 'admin'){
+            return '';
+        }
+        $controllerObj = new Controller();
+        $totalPvCount = $controllerObj->getAllPvCompanyCount($row->poc_name);
+        $isNewPoc     = $controllerObj->isNewAsPerConfiguration('poc_name', $row->poc_name);
+
+        return $controllerObj->getTotalOrigReqBasedOnPocData($row->poc_name);
+    }
+
     public function getUser(){
-        return Auth::user();
+        if(!$this->_user){
+            $this->_user = Auth::user();
+        }
+        return $this->_user;
     }
 
     public function Filter($request, $page=''){
-        $whereInfo = [];
         $user = Auth::user();
         $requirementIds = [];
 
+        $query = Requirement::with(
+                [
+                    'BDM' => function ($query) {
+                        $query->select('name as bdm_name','id');
+                    },
+                    'Category' => function ($query) {
+                        $query->select('name as category_name','id');
+                    },
+                ]
+            )->select('id', 'created_at','user_id','job_id', 'job_title', 'location', 'work_type', 'duration', 'visa', 'client', 'my_rate', 'category', 'moi', 'job_keyword', 'pv_company_name', 'poc_name', 'client_name', 'display_client', 'status', 'recruiter', 'is_show_recruiter', 'is_show_recruiter_after_update','is_update_requirement');
         $expStatus = [Requirement::STATUS_EXP_HOLD , Requirement::STATUS_EXP_NEED];
         if($user['role'] == 'bdm' && isset($request->authId) && $request->authId > 0){
-            $query = Requirement::where('user_id',$request->authId)->select();
+            $query = $query->where('user_id',$request->authId);
         }elseif($user['role'] == 'recruiter' && isset($request->authId) && $request->authId > 0){
-            $query = Requirement::whereRaw("find_in_set($request->authId,recruiter)")->select();
-        }else{
-            $query = Requirement::select();
+            $query = $query->whereRaw("find_in_set($request->authId,recruiter)");
         }
 
         // As Per Client Requirement Not Show Expired Req on all page for bdm and req but they can search it.
-        if(in_array(Auth::user()->role, ['bdm', 'recruiter']) && $page == 'all'){
+        if(in_array(Auth::user()->role, ['bdm', 'recruiter']) && $page == 'all' && empty($request->fromDate) && empty($request->toDate)){
             if(!in_array($request->status, ['exp_hold','exp_need'])){
                 $query->whereNotIn('status',$expStatus);
             }
@@ -262,10 +688,10 @@ class Controller extends BaseController
         }
 
         if(!empty($request->show_merge) && $request->show_merge == 1){
-            return $query->orderBy('parent_requirement_id', 'DESC')->orderBy('id', 'desc')->get();
+            return $query->orderBy('parent_requirement_id', 'DESC')->orderBy('id', 'desc');
         }
 
-        return $query->orderBy('id', 'desc')->get();
+        return $query->orderBy('id', 'asc');
     }
 
     public function getRequirementIdBasedOnServedOptions($served, $query, $request){
@@ -505,7 +931,7 @@ class Controller extends BaseController
                 if(isset($request->authId) && $request->authId > 0){
                     $requiremrntIdsHavingSubmission = $submissions->where('user_id', $request->authId)->pluck('requirement_id')->toArray();
                 } else {
-                    $requiremrntIdsHavingSubmission = $submission->pluck('requirement_id')->toArray();
+                    $requiremrntIdsHavingSubmission = $submissions->pluck('requirement_id')->toArray();
                 }
             } else if(Auth::user()->role == 'bdm'){
                 $requirementIds = Requirement::where('user_id', Auth::user()->id)->pluck('id')->toArray();
@@ -589,12 +1015,15 @@ class Controller extends BaseController
         return $query->where($whereInfo);
     }
 
-    public function getCandidateHtml($submissions, $row, $page = 'requirement') {
-        $user = Auth::user();
+    public function getCandidateHtml($submissions, $row, $page = 'requirement'): string
+    {
+        $loggedInUserId = $this->getCurrentUserId();
+        $userRole = $this->getCurrentUserRole();
         $candidate = '';
         $linkData = '';
         $submissionModel = new Submission();
         $interviewModel  = new Interview();
+        $requirementCreatedAt = $row->created_at;
 
         foreach ($submissions as $submission){
             $textColor = '';
@@ -612,7 +1041,7 @@ class Controller extends BaseController
 
             $isSamePvCandidate = $this->isSamePvCandidate($submission->email, $submission->requirement_id, $submission->id);
             $otherCandidate = 'other-candidate';
-            if($user->id == $userId || $user->role == 'admin'){
+            if($loggedInUserId == $userId || $userRole == 'admin'){
                 $otherCandidate = '';
                 if($submission->is_show == 0){
                     $textColor = 'text-primary';
@@ -669,26 +1098,53 @@ class Controller extends BaseController
             $candidateFirstName = isset($nameArray[0]) ? $nameArray[0] : '';
             $candidateLastDate  = ($this->getCandidateLastStatusUpdatedAt($submission)) ? date('m/d h:i A', strtotime($this->getCandidateLastStatusUpdatedAt($submission))) : '';
             $candidateCount     = $this->getCandidateCountByEmail($submission->email);
-            $latestJobIdOfMatchPvCompany = $this->getLatestJobIdOfMatchPvCompany($submission->email);
+//            $latestJobIdOfMatchPvCompany = $this->getLatestJobIdOfMatchPvCompany($submission->email);
             $isCandidateHasLog  = $this->isCandidateHasLog($submission);
             $isEmployerNameChanged = $this->isEmployerNameChanged($submission->candidate_id);
+            $timeSpan = $this->getSubmissionTimeSpan($requirementCreatedAt, $submission->created_at);
 
-            if($user->role == 'admin'){
+            if($userRole == 'admin'){
                 $linkData = '';
                 if($this->isLinkSubmission($submission->employee_email)){
                     $linkData .= '<div class="border text-center ml-5 text-light link-data" style="background-color:rgb(172, 91, 173); width: 40px; display:none">Link</div>';
                 }
             }
 
-            if($user->id == $userId && $user->role == 'recruiter'){
-                $candidate .= "<div class='$otherCandidate'>".(($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "").(($isEmployerNameChanged) ? "<span class='badge bg-red ml-5'>2 Emp</span>" : "").'<div class="'.$divClass.'" style="'.$divCss.'"><span class="candidate '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i>  ": "").$candidateFirstName.'-'.$submission->candidate_id.'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span></div><br>';
+            if($loggedInUserId == $userId && $userRole == 'recruiter'){
+                $candidate .=
+                    "<div class='$otherCandidate'>"
+                        .(($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "")
+                        .(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "")
+                        .(($isEmployerNameChanged) ? "<span class='badge bg-red ml-5'>2 Emp</span>" : "")
+                        .'<div class="'.$divClass.'" style="'.$divCss.'">
+                            <span class="candidate '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'
+                            .($isSamePvCandidate ? "<i class='fa fa-info'></i>  ": "").$candidateFirstName.'-'.$submission->candidate_id.'</span>
+                        </div>
+                        <div class="p-1 ml-2 mt-1 border border-dark" style="width: fit-content;">
+                            <span class="text-secondary font-weight-bold">'.$timeSpan.'</span>
+                        </div>
+                        <span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date ml-2">'.$candidateLastDate.'</span>
+                    </div><br>';
             } else {
-                if(($user->id == $userId && $user->role == 'bdm') || $user->role == 'admin'){
+                if(($loggedInUserId == $userId && $userRole == 'bdm') || $userRole == 'admin'){
                     $class = 'candidate';
                 } else {
                     $class = '';
                 }
-                $candidate .= "<div class='$otherCandidate'>".(($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "").(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "").$linkData.(($isEmployerNameChanged) ? "<span class='badge bg-red ml-5'>2 Emp</span>" : "").'<div class="'.$divClass.'" style="'.$divCss.'"><span class="'.$class.' '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i> " :"").$candidateFirstName.'-'.$submission->candidate_id.'</span></div><span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date">'.$candidateLastDate.'</span></div><br>';
+                $candidate .=
+                    "<div class='$otherCandidate'>"
+                        .(($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "")
+                        .(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "")
+                        .$linkData.(($isEmployerNameChanged) ? "<span class='badge bg-red ml-5'>2 Emp</span>" : "")
+                        .'<div class="'.$divClass.'" style="'.$divCss.'">
+                            <span class="'.$class.' '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'
+                            .($isSamePvCandidate ? "<i class='fa fa-info'></i> " :"").$candidateFirstName.'-'.$submission->candidate_id.'</span>
+                        </div>
+                        <div class="p-1 ml-2 mt-1 border border-dark" style="width: fit-content;">
+                            <span class="text-secondary font-weight-bold">'.$timeSpan.'</span>
+                        </div>
+                        <span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date ml-2">'.$candidateLastDate.'</span>
+                    </div><br>';
             }
         }
         return $candidate;
@@ -828,23 +1284,23 @@ class Controller extends BaseController
             return 0;
         }
 
-        $requirementIdsWithCurrentEmail = Submission::where('email', $submissionEmail)->pluck('requirement_id')->toArray();
-
         if($submissionId){
-            $requirementIdsWithCurrentEmail = Submission::where('email', $submissionEmail)->where('id','!=',$submissionId)->pluck('requirement_id')->toArray();
+            $requirementIdsWithCurrentEmail = Submission::select('requirement_id')->where('email', $submissionEmail)->where('id','!=',$submissionId)->pluck('requirement_id')->toArray();
+        } else {
+            $requirementIdsWithCurrentEmail = Submission::select('requirement_id')->where('email', $submissionEmail)->pluck('requirement_id')->toArray();
         }
 
         if(!$requirementIdsWithCurrentEmail || !count($requirementIdsWithCurrentEmail)){
             return 0;
         }
 
-        $currentRequirement = Requirement::where('id', $requirementId)->first();
+        $currentRequirement = Requirement::select('pv_company_name')->where('id', $requirementId)->first();
         if(!$currentRequirement){
             return 0;
         }
         $currentRequirementPvCompany = $currentRequirement->pv_company_name;
 
-        $samePvCompanyCandidate = Requirement::whereIn('id',$requirementIdsWithCurrentEmail)->where('pv_company_name',$currentRequirementPvCompany)->first();
+        $samePvCompanyCandidate = Requirement::select('id')->whereIn('id',$requirementIdsWithCurrentEmail)->where('pv_company_name',$currentRequirementPvCompany)->first();
 
         if(empty($samePvCompanyCandidate)){
             return 0;
@@ -944,9 +1400,9 @@ class Controller extends BaseController
             return '';
         }
 
-        $allLogData = DataLog::where('section_id', $submission->id)->where('section', DataLog::SECTION_SUBMISSION)->orderBy('created_at', 'DESC')->get();
+        $allLogData = DataLog::select('data','user_id','job_id')->where('section_id', $submission->id)->where('section', DataLog::SECTION_SUBMISSION)->orderBy('created_at', 'DESC')->get();
 
-        if(empty($allLogData) || !count($allLogData)){
+        if(empty($allLogData)){
             return '';
         }
 
@@ -996,6 +1452,38 @@ class Controller extends BaseController
         return $logData;
     }
 
+    public function isLogData($submission, $key, $manageLogFileds){
+        if(!$submission || !$key || !in_array($key, $manageLogFileds)){
+            return 0;
+        }
+
+        $allLogData = DataLog::select('data')->where('section_id', $submission->id)->where('section', DataLog::SECTION_SUBMISSION)->orderBy('created_at', 'DESC')->get();
+
+        if(empty($allLogData)){
+            return 0;
+        }
+
+        $count = 0;
+        $isNoLogData = 1;
+        foreach($allLogData as $data){
+            $allData = json_decode($data->data, 1);
+            if(isset($allData[$key]) && $allData[$key]){
+                $count++;
+                $isNoLogData = 0;
+            }
+        }
+
+        if($isNoLogData){
+            return 0;
+        }
+
+        if($count == 1){
+            return 0;
+        }
+
+        return 1;
+    }
+
     public function isCandidateHasLog($submission) {
         if(empty($submission)){
             return 0;
@@ -1009,7 +1497,7 @@ class Controller extends BaseController
 
         $isHasLog = 0;
         foreach ($manageLogFileds as $value) {
-            $oldLogData = $this->getLogDataByName($submission, $value);
+            $oldLogData = $this->isLogData($submission, $value, $manageLogFileds);
 
             if($oldLogData){
                 $isHasLog = 1;
@@ -1054,50 +1542,6 @@ class Controller extends BaseController
                 }
             }
         }
-        return $this;
-    }
-
-    public function ExpireRequirement(){
-        $settingRow =  Setting::where('name', 'no_of_hours_for_expire')->first();
-
-        if(empty($settingRow) || !$settingRow->value){
-            return $this;
-        }
-
-        $expHours = $settingRow->value;
-        $requirementObj = new Requirement();
-
-        $requirementData = Requirement::
-            whereNotIn('status', [$requirementObj::STATUS_EXP_HOLD, $requirementObj::STATUS_EXP_NEED])
-            ->whereRaw('TIMESTAMPDIFF(HOUR, created_at, NOW()) >= ?', [$expHours])
-            ->get();
-
-        if(empty($requirementData)){
-            return $this;
-        }
-
-        $logData = [];
-
-        foreach ($requirementData as $requirement) {
-            $data = [];
-
-            $data['status'] = ($requirement->status == 'unhold') ? $requirementObj::STATUS_EXP_NEED : $requirementObj::STATUS_EXP_HOLD;
-
-            $requirement->update($data);
-
-            $data['requirement_id'] = $requirement->id;
-            $data['created_at'] = $requirement->created_at;
-            $logData[$requirement->id] = $data;
-        }
-
-        if($logData){
-            $inputData['section_id'] = 0;
-            $inputData['section']    = 'requirement';
-            $inputData['data']       = json_encode($logData);
-
-            DataLog::create($inputData);
-        }
-
         return $this;
     }
 
@@ -1170,6 +1614,7 @@ class Controller extends BaseController
 
     public function isLinkRequirement($pocEmail)
     {
+        return 1;
         if(!$pocEmail){
             return 0;
         }
@@ -1194,7 +1639,7 @@ class Controller extends BaseController
             return 0;
         }
         $isFound = 0;
-        $employee = Admin::where('email', $empEmail)->where('role','employee')->first();
+        $employee = Admin::select('linked_data')->where('email', $empEmail)->where('role','employee')->first();
 
         if($employee && $employee->linked_data){
             $linkedData = json_decode($employee->linked_data, 1);
@@ -1223,33 +1668,25 @@ class Controller extends BaseController
             return 0;
         }
 
-        $latestCandudateData = Submission::where('candidate_id', $candidateId)->orderBy('id', 'desc')->first();
-
-        if(empty($latestCandudateData) || !$latestCandudateData->id || !$latestCandudateData->employer_name){
-            return 0;
+        if(isset($this->_candidateIdWiseIsEmployerChanged[$candidateId])){
+            return $this->_candidateIdWiseIsEmployerChanged[$candidateId];
         }
-
-        $latestEmployerName = $latestCandudateData->employer_name;
 
         $startDate = \Carbon\Carbon::now()->subDays(90);
+        $totalCount =  Submission::select(\DB::raw('COUNT(DISTINCT employer_name) as employer_count'))
+            ->where('created_at', '>=', $startDate)
+            ->where('candidate_id', $candidateId)
+            ->groupBy('candidate_id')
+            ->first();
 
-        $recentSubmissions = Submission::where('candidate_id', $candidateId)->where('created_at', '>=', $startDate)->latest()->get();
-
-        if(empty($recentSubmissions)){
-            return 0;
+        if($totalCount->employer_count > 1){
+            $this->_candidateIdWiseIsEmployerChanged[$candidateId] = 1;
+            return 1;
         }
 
-        $isEmployeeUpdate = 0;
+        $this->_candidateIdWiseIsEmployerChanged[$candidateId] = 0;
 
-        foreach ($recentSubmissions as $submission) {
-            $currentemployeeName = $submission->employer_name;
-            if($latestEmployerName != $currentemployeeName){
-                $isEmployeeUpdate = 1;
-                break;
-            }
-        }
-
-        return $isEmployeeUpdate;
+        return 0;
     }
 
     public function getAllPvCompanyCount($pvComapnyName)
@@ -1284,7 +1721,7 @@ class Controller extends BaseController
             return false;
         }
 
-        $requirementRow = Requirement::where($columnName, $value)
+        $requirementRow = Requirement::select('created_at')->where($columnName, $value)
             ->where(function ($query) {
                 $query->where('id' ,\DB::raw('parent_requirement_id'));
                 $query->orwhere('parent_requirement_id', '=', '0');
@@ -1321,7 +1758,7 @@ class Controller extends BaseController
 
         $settingRow =  Setting::where('name', 'show_poc_count_days')->first();
 
-        if(!empty($settingRow) || !$settingRow->value){
+        if(!empty($settingRow) && $settingRow->value){
             $newPocCountConfiguration = $settingRow->value;
         }
 
@@ -1391,7 +1828,7 @@ class Controller extends BaseController
         $requirementCountWiseUserData = [];
 
         foreach ($userIdWiseRequirementCount as $userId => $count) {
-            $requirementCountWiseUserData[] = Admin::getUserNameBasedOnId($userId)."($count)";
+            $requirementCountWiseUserData[] = $this->getUserIdWiseName($userId)."($count)";
         }
 
         return implode(", ", $requirementCountWiseUserData);
@@ -1448,5 +1885,45 @@ class Controller extends BaseController
             }
         }
         return  $this;
+    }
+
+    public function getSubmissionTimeSpan($requirementCreateDate, $submissionCreateDate): string
+    {
+        if(!$requirementCreateDate || !$submissionCreateDate){
+            return '';
+        }
+
+        $timeSpan = '';
+        $submissionCreatedDate  = Carbon::parse($submissionCreateDate);
+        $diffInHours   = $requirementCreateDate->diffInHours($submissionCreatedDate);
+        $diffInMinutes = $requirementCreateDate->diffInMinutes($submissionCreatedDate) % 60;
+
+        if ($diffInHours >= 24) {
+            $diffInDays = floor($diffInHours / 24);
+            $diffInHours = $diffInHours % 24;
+
+            $timeSpan = "$diffInDays days, $diffInHours hr : $diffInMinutes mins";
+        } else {
+            if($diffInHours > 1){
+                $timeSpan = "$diffInHours hr:$diffInMinutes mins";
+            }else{
+                $timeSpan = "$diffInMinutes mins";
+            }
+        }
+        return $timeSpan;
+    }
+
+    public function getUserIdWiseName($userId)
+    {
+        if(!$userId){
+            return '';
+        }
+
+        if(!$this->_userIdWiseName){
+            $this->_userIdWiseName = Admin::getUserIdWiseName();
+        }
+
+        return isset($this->_userIdWiseName[$userId]) ? $this->_userIdWiseName[$userId] : '';
+
     }
 }
