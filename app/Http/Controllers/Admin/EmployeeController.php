@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
+use App\Models\Requirement;
+use App\Models\Submission;
 use DataTables;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -47,9 +49,9 @@ class EmployeeController extends Controller
                 ->addColumn('action', function($row){
                     $btn = '<div class="btn-group btn-group-sm"><a href="'.url('admin/employee/'.$row->id.'/edit').'"><button class="btn btn-sm btn-info tip" data-toggle="tooltip" title="Edit PV Company" data-trigger="hover" type="submit" ><i class="fa fa-edit"></i></button></a></div>';
 
-                    $btn .= '<span data-toggle="tooltip" title="Delete Moi" data-trigger="hover">
-                                    <button class="btn btn-sm btn-danger deletePvCompany" data-id="'.$row->id.'" type="button"><i class="fa fa-trash"></i></button>
-                                </span>';
+//                    $btn .= '<span data-toggle="tooltip" title="Delete Moi" data-trigger="hover">
+//                                    <button class="btn btn-sm btn-danger deletePvCompany" data-id="'.$row->id.'" type="button"><i class="fa fa-trash"></i></button>
+//                                </span>';
                     return $btn;
                 })
                 ->rawColumns(['status','action'])
@@ -89,6 +91,14 @@ class EmployeeController extends Controller
         ]);
 
         $input = $request->all();
+        unset($input['email']);
+        if(!empty($request->email)){
+            Submission::where('employee_email', $request->email)->update([
+                'employer_name' => $request->name,
+                'employee_name' => $request->employee_name,
+                'employee_phone' => $request->phone,
+            ]);
+        }
         $employee = Admin::findorFail($id);
         $employee->update($input);
 

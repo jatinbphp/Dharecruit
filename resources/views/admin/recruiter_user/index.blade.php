@@ -61,6 +61,8 @@
         var table = $('#usersTable').DataTable({
             processing: true,
             serverSide: true,
+            pageLength: 100,
+            lengthMenu: [ 100, 200, 300, 400, 500 ],
             ajax: "{{ route('recruiter_user.index') }}",
             columns: [
                 {data: 'name', "width": "15%", name: 'name'},

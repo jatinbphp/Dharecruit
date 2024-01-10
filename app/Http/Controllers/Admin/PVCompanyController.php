@@ -52,9 +52,9 @@ class PVCompanyController extends Controller
                 ->addColumn('action', function($row){
                     $btn = '<div class="btn-group btn-group-sm"><a href="'.url('admin/pv_company/'.$row->id.'/edit').'"><button class="btn btn-sm btn-info tip" data-toggle="tooltip" title="Edit PV Company" data-trigger="hover" type="submit" ><i class="fa fa-edit"></i></button></a></div>';
 
-                    $btn .= '<span data-toggle="tooltip" title="Delete Moi" data-trigger="hover">
-                                    <button class="btn btn-sm btn-danger deletePvCompany" data-id="'.$row->id.'" type="button"><i class="fa fa-trash"></i></button>
-                                </span>';
+//                    $btn .= '<span data-toggle="tooltip" title="Delete Moi" data-trigger="hover">
+//                                    <button class="btn btn-sm btn-danger deletePvCompany" data-id="'.$row->id.'" type="button"><i class="fa fa-trash"></i></button>
+//                                </span>';
                     return $btn;
                 })
                 ->rawColumns(['status','action'])

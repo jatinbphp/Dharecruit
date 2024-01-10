@@ -135,6 +135,7 @@ trait CommonTrait {
             if($date && isset($date['from']) && $date['to']){
                 $collection->whereBetween('created_at', $date);
             }
+
             $collection->groupBy('poc_name');
             $this->_pvCompanyWisePocRequirementsCounts[$isUnique][$pvCompanyKey] = $collection->pluck('count', 'poc_name')->toArray();
         }

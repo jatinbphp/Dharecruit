@@ -144,8 +144,8 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::resource('setting', SettingController::class);
 
     /* SETTING MANAGEMENT */
-    Route::post('user/assign', [EmployeeController::class,'assign'])->name('employee.assign');
-    Route::post('user/unassign', [EmployeeController::class,'unassign'])->name('employee.unassign');
+    Route::post('employee/assign', [EmployeeController::class,'assign'])->name('employee.assign');
+    Route::post('employee/unassign', [EmployeeController::class,'unassign'])->name('employee.unassign');
     Route::resource('employee', EmployeeController::class);
 
     /* REPORTS MANAGEMENT */

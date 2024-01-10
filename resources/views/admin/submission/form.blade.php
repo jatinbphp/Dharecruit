@@ -156,7 +156,7 @@
                 @endif
             </div>
         </div>
-            
+
 
         <div class="col-md-12">
             <div class="form-group{{ $errors->has('resume') ? ' has-error' : '' }}">
@@ -215,8 +215,8 @@
         <div class="row mt-3 pl-3 pr-3">
             <div class="col-md-6">
                 <div class="form-group{{ $errors->has('employer_name') ? ' has-error' : '' }}">
-                    <label class="control-label" for="employer_name">Employer Name :<span class="text-red">*</span></label>
-                    {!! Form::text('employer_name', null, ['class' => 'form-control','placeholder' => 'Enter Employer Name', 'id'=>'employer_name', 'readonly' => (isset($submission)) ? true : false]) !!}
+                    <label class="control-label" for="employer_name">CompanyName- 3rd Party Employer :<span class="text-red">*</span></label>
+                    {!! Form::text('employer_name', null, ['class' => 'form-control','placeholder' => 'Enter CompanyName- 3rd Party Employer', 'id'=>'employer_name', 'readonly' => (isset($submission)) ? true : false]) !!}
                     @if ($errors->has('employer_name'))
                         <span class="text-danger">
                             <strong>{{ $errors->first('employer_name') }}</strong>
@@ -227,8 +227,8 @@
 
             <div class="col-md-6" @if(Auth::user()->role == 'bdm') style="display: none;" @endif>
                 <div class="form-group{{ $errors->has('employee_name') ? ' has-error' : '' }}">
-                    <label class="control-label" for="employee_name">Employee Name :<span class="text-red">*</span></label>
-                    {!! Form::text('employee_name', null, ['class' => 'form-control', 'placeholder' => 'Enter Employee Name', 'id' => 'employee_name', 'readonly' => (isset($submission)) ? true : false]) !!}
+                    <label class="control-label" for="employee_name">Recruiter’s Name - 3rd Party Employee :<span class="text-red">*</span></label>
+                    {!! Form::text('employee_name', null, ['class' => 'form-control', 'placeholder' => 'Enter Recruiter’s Name - 3rd Party Employee', 'id' => 'employee_name', 'readonly' => (isset($submission)) ? true : false]) !!}
                     @if ($errors->has('employee_name'))
                         <span class="text-danger">
                             <strong>{{ $errors->first('employee_name') }}</strong>
@@ -330,7 +330,7 @@
                                             if(elementId == 'employer_name'){
                                                 if(settings.hasOwnProperty('is_fill_employer_name') && settings['is_fill_employer_name'] == 'yes'){
                                                     var id = "#" + elementId;
-                                                    $(id).val(data[elementId]); 
+                                                    $(id).val(data[elementId]);
                                                 }
                                             } else {
                                                 var id = "#" + elementId;
@@ -417,7 +417,7 @@
                 }
             });
         }
-    
+
         $('.add-submission').click(function(){
             var requirementId = $('#requirement_id').val();
             var candidateEmail = $('#email').val();
@@ -463,7 +463,7 @@
         $('#search_by_emp_email').click(function(){
             var empEmail = $('#search_emp_email').val().trim();
             if(!empEmail){
-                swal("Error", "Please Enter POC Email.", "error"); 
+                swal("Error", "Please Enter POC Email.", "error");
                 return;
             }
             var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;

@@ -156,7 +156,7 @@
                     @endif
                 </div>
             </div>
-                
+
 
             <div class="col-md-12">
                 <div class="form-group{{ $errors->has('resume') ? ' has-error' : '' }}">
@@ -190,8 +190,8 @@
         <div class="row row mt-3 pl-3 pr-3">
             <div class="col-md-6">
                 <div class="form-group{{ $errors->has('employer_name') ? ' has-error' : '' }}">
-                    <label class="control-label" for="employer_name">Employer Name :<span class="text-red">*</span></label>
-                    {!! Form::text('employer_name', null, ['class' => 'form-control','placeholder' => 'Enter Employer Name', 'id'=>'employer_name', 'readonly' => true]) !!}
+                    <label class="control-label" for="employer_name">CompanyName- 3rd Party Employer :<span class="text-red">*</span></label>
+                    {!! Form::text('employer_name', null, ['class' => 'form-control','placeholder' => 'Enter CompanyName- 3rd Party Employer', 'id'=>'employer_name', 'readonly' => true]) !!}
                     @if ($errors->has('employer_name'))
                         <span class="text-danger">
                             <strong>{{ $errors->first('employer_name') }}</strong>
@@ -202,8 +202,8 @@
 
             <div class="col-md-6" @if(Auth::user()->role == 'bdm') ? style="display:none" @endif>
                 <div class="form-group{{ $errors->has('employee_name') ? ' has-error' : '' }}">
-                    <label class="control-label" for="employee_name">Employee Name :<span class="text-red">*</span></label>
-                    {!! Form::text('employee_name', null, ['class' => 'form-control', 'placeholder' => 'Enter Employee Name', 'id' => 'employee_name', 'readonly' => true]) !!}
+                    <label class="control-label" for="employee_name">Recruiter’s Name - 3rd Party Employee :<span class="text-red">*</span></label>
+                    {!! Form::text('employee_name', null, ['class' => 'form-control', 'placeholder' => 'Enter Recruiter’s Name - 3rd Party Employee', 'id' => 'employee_name', 'readonly' => true]) !!}
                     @if ($errors->has('employee_name'))
                         <span class="text-danger">
                             <strong>{{ $errors->first('employee_name') }}</strong>

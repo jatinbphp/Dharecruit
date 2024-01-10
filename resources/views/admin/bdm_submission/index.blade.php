@@ -190,6 +190,8 @@
         dataTables();
         @if(Auth::user()->role == 'admin')
             $('#toggle-poc').bootstrapToggle('on');
+            $('#show_employer_name').bootstrapToggle('on');
+            $('#emp_poc').bootstrapToggle('on');
         @endif
         $('#mySubmissionTable tbody').on('change', '.submissionStatus', function (event) {
             event.preventDefault();
@@ -369,6 +371,8 @@
                     table.column(columnIndex).nodes().to$().addClass('toggle-column');
                 });
                 $('#toggle-poc').trigger('change');
+                $('#show_employer_name').trigger('change');
+                $('#emp_poc').trigger('change');
                 $("#mySubmissionTable_length").detach().appendTo("#pageLendthSection");
                 $("#mySubmissionTable_filter").addClass('float-right').detach().appendTo("#searchSection");
                 $('select[name="mySubmissionTable_length"]').css({

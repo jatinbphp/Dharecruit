@@ -27,7 +27,7 @@
     <div class="col-md-6">
         <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
             <label class="control-label" for="email">Employee Email :<span class="text-red">*</span></label>
-            {!! Form::text('email', null, ['class' => 'form-control', 'placeholder' => 'Enter Employee Email', 'id' => 'email']) !!}
+            {!! Form::text('email', null, ['class' => 'form-control', 'placeholder' => 'Enter Employee Email', 'id' => 'email', 'readonly' => (isset($employee)) ? true : false]) !!}
             @if ($errors->has('email'))
                 <span class="text-danger">
                     <strong>{{ $errors->first('email') }}</strong>

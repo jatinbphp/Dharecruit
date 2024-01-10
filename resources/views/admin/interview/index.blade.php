@@ -197,6 +197,8 @@
             processing: true,
             serverSide: true,
             responsive: true,
+            pageLength: 100,
+            lengthMenu: [ 100, 200, 300, 400, 500 ],
             ajax: {
                 url: "{{ route('interview.index') }}",
                 data: function (d) {

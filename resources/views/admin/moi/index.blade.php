@@ -58,6 +58,8 @@
         var table = $('#moiTable').DataTable({
             processing: true,
             serverSide: true,
+            pageLength: 100,
+            lengthMenu: [ 100, 200, 300, 400, 500 ],
             ajax: "{{ route('moi.index') }}",
             columns: [
                 {data: 'name', "width": "70%", name: 'name'},
