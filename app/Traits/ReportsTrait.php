@@ -142,7 +142,6 @@ trait ReportsTrait {
         if(!$pvCompanies || !count($pvCompanies)){
             $pvCompanies = array_keys(PVCompany::getActivePVCompanyies()->toArray());
         }
-        \Log::info($pvCompanies);
 
         if(!$pocNames || !count($pocNames)){
             $pocNames = array_keys(PVCompany::getActivePOCNames()->toArray());
