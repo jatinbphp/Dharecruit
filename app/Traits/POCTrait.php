@@ -75,7 +75,7 @@ trait POCTrait {
             $companyWiseAllPocNames = array_intersect(array_map('strtolower', $bdmWiseNames), array_map('strtolower', $companyWiseAllPocNames));
         }
 
-        $pocNames = array_intersect(array_map('strtolower', $selectedPocNames), array_map('strtolower', $companyWiseAllPocNames));
+        $pocNames = array_intersect($selectedPocNames, $companyWiseAllPocNames);
 
         if(!$pocNames || !count($pocNames)){
             return [];
