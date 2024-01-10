@@ -141,6 +141,8 @@
         dataTables();
         @if(Auth::user()->role == 'admin')
             $('#toggle-poc').bootstrapToggle('on');
+            $('#show_employer_name').bootstrapToggle('on');
+            $('#emp_poc').bootstrapToggle('on');
         @endif
 
         $('#interviewTable tbody').on('click', '.interviewStatus', function (event) {
@@ -257,6 +259,8 @@
                 });
 
                 $('#toggle-poc').trigger('change');
+                $('#show_employer_name').trigger('change');
+                $('#emp_poc').trigger('change');
             }
         });
     }
