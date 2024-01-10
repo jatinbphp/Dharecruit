@@ -233,7 +233,7 @@ class Controller extends BaseController
     public function getStatusHtml($row){
         $statusBtn = '';
         $status = $row->status;
-        if($this->getCurrentUserRole() == 'admin' || $this->getCurrentUserRole() == $row->user_id){
+        if($this->getCurrentUserRole() == 'admin' || $this->getCurrentUserId() == $row->user_id){
             if ($status == "hold") {
                 $statusBtn .= '<div class="btn-group-horizontal" id="assign_remove_"'.$row->id.'">
                                     <button class="btn btn-danger unassign ladda-button" data-style="slide-left" id="remove" url="'.route('requirement.unassign').'" ruid="'.$row->id.'" type="button" style="height:28px; padding:0 12px"><span class="ladda-label">Hold</span> </button>
