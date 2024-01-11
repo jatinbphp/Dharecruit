@@ -36,7 +36,7 @@ class BDMSubmissionController extends Controller
                         $query->select('id', 'name');
                     }
                 ]
-            )->select('id', 'user_id', 'requirement_id', 'candidate_id', 'name', 'email', 'location', 'recruiter_rate', 'employer_name', 'employee_name', 'status', 'pv_status', 'created_at');
+            )->select('id', 'user_id', 'requirement_id', 'candidate_id', 'name', 'email', 'location', 'recruiter_rate', 'employer_name', 'employee_name', 'employee_email', 'status', 'pv_status', 'created_at');
 
             if(!empty($request->fromDate)){
                 $fromDate = date('Y-m-d', strtotime($request->fromDate));
@@ -133,7 +133,7 @@ class BDMSubmissionController extends Controller
                 $submissionId = Interview::whereIn('status', $request->client_feedback)->pluck('submission_id')->toArray();
                 $requiremrntIdsHavingSubmission = [];
                 if($submissionId && count($submissionId)) {
-                    $submissions = Submission::whereIn('id', $submissionId);
+                    $submissionsData = Submission::whereIn('id', $submissionId);
                     if(Auth::user()->role == 'recruiter'){
                         $requiremrntIdsHavingSubmission = $submissions->where('user_id', Auth::user()->id)->pluck('requirement_id')->toArray();
                     } else if(Auth::user()->role == 'bdm') {
@@ -145,12 +145,12 @@ class BDMSubmissionController extends Controller
                             $submissions->where('requirement_id', 0);
                         }
 
-                        $requiremrntIdsHavingSubmission = $submissions->pluck('requirement_id')->toArray();
+                        $requiremrntIdsHavingSubmission = $submissionsData->pluck('requirement_id')->toArray();
                     } else {
                         if(!empty($request->recruiter)){
-                            $requiremrntIdsHavingSubmission = $submissions->where('user_id', $request->recruiter)->pluck('requirement_id')->toArray();
+                            $requiremrntIdsHavingSubmission = $submissionsData->where('user_id', $request->recruiter)->pluck('requirement_id')->toArray();
                         } else {
-                            $requiremrntIdsHavingSubmission = $submissions->pluck('requirement_id')->toArray();
+                            $requiremrntIdsHavingSubmission = $submissionsData->pluck('requirement_id')->toArray();
                         }
                     }
                 }
@@ -215,30 +215,31 @@ class BDMSubmissionController extends Controller
             }
 
             if($user->role == 'recruiter'){
-                $data = $submissions->where('user_id', $user->id)->orderBy('id', 'desc');
+                $submissions->where('user_id', $user->id);
             }else if($user->role == 'bdm'){
                 $loggedinBdmrequirementIds = Requirement::where('user_id', $user->id)->pluck('id')->toArray();
                 if($requirementIds && count($requirementIds)){
                     if(isset($commonRequirementIds) && $commonRequirementIds && count($commonRequirementIds)){
                         $allRequirementIds = array_intersect($loggedinBdmrequirementIds, $commonRequirementIds);
-                        $data = $submissions->whereIn('requirement_id', $allRequirementIds)->orderBy('id', 'desc');
+                        $submissions->whereIn('requirement_id', $allRequirementIds);
                     } else {
-                        $data = $submissions->where('requirement_id', 0)->orderBy('id', 'desc');
+                        $submissions->where('requirement_id', 0);
                     }
                 } else {
-                    $submissions->whereIn('requirement_id', $loggedinBdmrequirementIds)->orderBy('id', 'desc');
+                    $submissions->whereIn('requirement_id', $loggedinBdmrequirementIds);
                 }
             }else{
                 if($requirementIds && count($requirementIds)){
                     if(isset($commonRequirementIds) && $commonRequirementIds && count($commonRequirementIds)){
-                        $submissions->whereIn('requirement_id', $commonRequirementIds)->orderBy('id', 'desc');
+                        \Log::info($commonRequirementIds);
+                        $submissions->whereIn('requirement_id', $commonRequirementIds);
                     } else {
-                        $submissions->where('requirement_id', 0)->orderBy('id', 'desc');
+                        $submissions->where('requirement_id', 0);
                     }
-                } else {
-                    $submissions->orderBy('id', 'desc');
                 }
             }
+
+            \Log::info($submissions->toSql());
 
             return Datatables::of($submissions)
                 ->addColumn('candidate_name', function($row){
@@ -261,6 +262,7 @@ class BDMSubmissionController extends Controller
                             <span class="text-secondary font-weight-bold">'.$timeSpan.'</span>
                         </div>';
                 })
+
                 ->addColumn('bdm_status', function($row){
                     $statusLastUpdatedAt = ($row->bdm_status_updated_at) ? strtotime($row->bdm_status_updated_at) : 0;
                     $status = isset(Submission::$status[$row->status]) ? "<p data-order='$statusLastUpdatedAt'>".Submission::$status[$row->status]."</p>" : '';
@@ -330,7 +332,7 @@ class BDMSubmissionController extends Controller
                         return '<i class="fa fa-eye emp_poc-icon emp_poc-icon-'.$row->id.'" onclick="showData('.$row->id.',\'emp_poc-\')" aria-hidden="true"></i><span class="emp_poc emp_poc-'.$row->id.'" style="display:none">'.$empPocFirstName.'</span>';
 
                     }
-                    $empPocCount = $this->getAllEmpDataCount('employee_name', $row->employee_name);
+                    $empPocCount = $this->getAllEmpDataCount('employee_email', $row->employee_email);
                     return '<i class="fa fa-eye emp_poc-icon emp_poc-icon-'.$row->id.'" onclick="showData('.$row->id.',\'emp_poc-\')" aria-hidden="true"></i><div><span class="emp_poc emp_poc-'.$row->id.'" style="display:none">'.$empPocFirstName.(($empPocCount) ? "<span class='badge bg-indigo position-absolute top-0 end-0' style='margin-top: -6px'>$empPocCount</span>" : "").'</span></div>';
                 })
                 ->addColumn('client_status', function($row){

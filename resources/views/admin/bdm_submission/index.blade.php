@@ -355,7 +355,7 @@
                     }
                 },
                 {data: function (row){
-                        return '<span class="job-title" data-id="'+row.requirement_id+'">'+row.requirement.job_title+'</span>';
+                        return '<span data-order="'+row.requirement.job_title+'" class="job-title" data-id="'+row.requirement_id+'">'+row.requirement.job_title+'</span>';
                     }, width : '10%'},
                 {data: function (row){
                         return row.requirement.location;
@@ -368,8 +368,9 @@
                 // {data: 'job_keyword', 'width': '10%',  name: 'job_keyword'},
                 // {data: 'duration',  name: 'duration'},
                 {data: function (row) {
-                        return '<i class="fa fa-eye client-icon client-icon-'+row.id+'" onclick="showData('+row.id+',\'client-\')" aria-hidden="true"></i><span class="client client-'+row.id+'" style="display:none">'+((row.requirement.display_client) ? row.requirement.client_name : '')+'</span>';
-                    }},
+                        return '<i class="fa fa-eye client_data-icon client_data-icon-'+row.id+'" onclick="showData('+row.id+',\'client_data-\')" aria-hidden="true"></i><span class="client_data client_data-'+row.id+'" style="display:none">'+((row.requirement.display_client &&  row.requirement.client_name) ? row.requirement.client_name : '')+'</span>';
+                    }
+                },
                 @if(in_array($userType,['admin','recruiter']))
                     {data: function (row){
                         return row.requirement.b_d_m.name;
