@@ -253,9 +253,17 @@ class SubmissionController extends Controller
     public function assignSubmission($id){
         $requirement = Requirement::where('id',$id)->first();
         if(!empty($requirement)){
-            $input['recruiter'] = !empty($requirement['recruiter']) ? $requirement['recruiter'].Auth::user()->id.',' : ','.Auth::user()->id.',';
+            if(empty($requirement->recruiter)){
+                $oldRequirements[] = Auth::user()->id;
+                $input['recruiter'] = ','.Auth::user()->id.',';
+            } else {
+                $oldRequirements = explode(',', $requirement->recruiter);
+                $oldRequirements[] = Auth::user()->id;
+                $oldRequirements = array_unique(array_filter($oldRequirements));
+                $input['recruiter'] = ','.implode(',',$oldRequirements).',';
+            }
             $requirement->update($input);
-            $this->assignRecruiterToRequirement($requirement->id, [Auth::user()->id]);
+            $this->assignRecruiterToRequirement($requirement->id, $oldRequirements);
             return 1;
         }else{
             return 0;

@@ -590,6 +590,8 @@
                             });
                         } else if(data.new_poc_email == 1){
                             $('#poc_email').attr("readonly",true).val(pocEmail);
+                            var domain = (pocEmail.match(/@(.+?)\./) || [])[1] || "";
+                            $('#pv_company_name').attr("readonly",true).val(domain);
                             $('.add-new-form').show();
                             $('.search-poc-email').hide();
                         }

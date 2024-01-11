@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PVCompany;
+use App\Models\Requirement;
 use DataTables;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -107,6 +108,17 @@ class PVCompanyController extends Controller
         ]);
 
         $input = $request->all();
+        unset($input['email']);
+        if(!empty($request->email)){
+            Requirement::where('poc_email', $request->email)->update([
+                'pv_company_name' => $request->name,
+                'poc_name' => $request->poc_name,
+                'poc_phone_number' => $request->phone,
+                'poc_location' => $request->poc_location,
+                'pv_company_location' => $request->pv_company_location,
+                'client_name' => $request->client_name,
+            ]);
+        }
         $pv_company = PVCompany::findorFail($id);
         $pv_company->update($input);
 

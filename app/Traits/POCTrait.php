@@ -14,6 +14,7 @@ trait POCTrait {
             'who_added'                         => 'Who Added',
             'reg_to'                            => 'Reg. To',
             'vendor_company_name'               => 'Vendor Company',
+            'vendor_company_total_req'          => 'Vendor Company Total Req.',
             'poc_name'                          => 'POC Name',
             'poc_email'                         => 'POC Email',
             'poc_phone'                         => 'POC Phone',
@@ -44,7 +45,7 @@ trait POCTrait {
         ];
     }
 
-    public function getPocWiseData($pvCompany, $selectedPocNames, $request): array
+    public function getPocWiseData($pvCompany, $pvCompanies, $selectedPocNames, $request): array
     {
         $submissionModel = new Submission();
         $interviewModel  = new Interview();
@@ -91,6 +92,7 @@ trait POCTrait {
                 'who_added'                         => '-',
                 'reg_to'                            => '-',
                 'vendor_company_name'               => $pvCompany,
+                'vendor_company_total_req'          => $this->getRequirementCounts($pvCompany, $pvCompanies, $date),
                 'poc_name'                          => $pocName,
                 'poc_email'                         => $this->getPVCompanyWisePocEmail($pvCompany, $pocName, $pocNames, $date),
                 'poc_phone'                         => $this->getPVCompanyWisePocPhone($pvCompany, $pocName, $pocNames, $date),
@@ -121,7 +123,8 @@ trait POCTrait {
             ];
 
             if($this->getIsEmptyPOCRow()){
-                $this->setEmptyPOCRows($pocName);
+                $pvCompanyKey = $this->getKey($pvCompany);
+                $this->setEmptyPOCRows($pvCompanyKey.'_'.$pocName);
             }
 
             $pocNameWiseData[$pocName] = $pocData;
@@ -143,6 +146,7 @@ trait POCTrait {
             'who_added',
             'reg_to',
             'vendor_company_name',
+            'vendor_company_total_req',
             'poc_name'
         ];
     }

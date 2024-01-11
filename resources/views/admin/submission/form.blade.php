@@ -503,6 +503,8 @@
                             });
                         } else if(data.new_emp_email == 1){
                             $('#employee_email').attr("readonly",true).val(empEmail);
+                            var domain = (empEmail.match(/@(.+?)\./) || [])[1] || "";
+                            $('#employer_name').attr("readonly",true).val(domain);
                             $('.employee-detail').show();
                             $('.search-employee-email').hide();
                         }

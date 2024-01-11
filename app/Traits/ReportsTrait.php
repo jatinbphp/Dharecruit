@@ -129,6 +129,7 @@ trait ReportsTrait {
         $pvData['heading']    = $this->getPvHeadingData();
         $pvData['class_data'] = $this->getPVClass();
         $pvData['empty_pv_rows'] = $this->getEmptyPVRows();
+        \Log::info($this->getEmptyPOCRows());
         $pvData['empty_poc_rows'] = $this->getEmptyPOCRows();
 
         return  $pvData;
@@ -153,7 +154,7 @@ trait ReportsTrait {
         $pocData['heading'] = $this->getPOCHeadingData();
         foreach ($pvCompanies as $pvCompany){
             $pvCompanyKey = $this->getKey($pvCompany);
-            $pocData['poc_data'][$pvCompanyKey] = $this->getPocWiseData($pvCompany, $pocNames, $request);
+            $pocData['poc_data'][$pvCompanyKey] = $this->getPocWiseData($pvCompany, $pvCompanies, $pocNames, $request);
         }
         $pocData['class_data']     = $this->getPVClass();
         $pocData['empty_poc_rows'] = $this->getEmptyPOCRows();

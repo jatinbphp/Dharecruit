@@ -9,7 +9,7 @@
             <table class="table table-bordered table-striped" id="poc_report">
                 <thead>
                 <tr>
-                    <th scope="col" class="text-center element-border company-name" colspan="4">Company Name</th>
+                    <th scope="col" class="text-center element-border company-name" colspan="5">Company Name</th>
                     <th scope="col" colspan="4" class="text-center element-border rm-left-border">Requirement</th>
                     <th scope="col" colspan="5" class="text-center element-border rm-left-border">BDM Status</th>
                     <th scope="col" colspan="5" class="text-center element-border rm-left-border">Vendor Status</th>
@@ -36,7 +36,7 @@
                             @endphp
                             @foreach($allPocData as $pocName => $pocData)
                                 @if(count($pocData))
-                                    <tr class=" {{$pocName}} @if(in_array($pocName, $emptyPOCRows)) empty-row @endif">
+                                    <tr class=" {{$pocName}} @if(in_array($companyKey.'_'.$pocName, $emptyPOCRows)) empty-row @endif">
                                         @foreach($pocData as $heading => $data)
                                             @php
                                                 $class = (isset($classData[$heading])) ? $classData[$heading] : '';

@@ -77,7 +77,7 @@
                     </tr>
                     @if(isset($pvFilterData['poc_data'][$key]) && $pvFilterData['poc_data'][$key])
                         @foreach($pvFilterData['poc_data'][$key] as $pocName => $pocData)
-                            <tr class="collapse collapse-{{$key}} @if(in_array($pocName, $emptyPOCRows)) empty-row @endif">
+                            <tr class="collapse collapse-{{$key}} @if(in_array($key.'_'.$pocName, $emptyPOCRows)) empty-row @endif">
                                 @if($pocData && count($pocData))
                                     @foreach($pocData as $heading => $data)
                                         @php

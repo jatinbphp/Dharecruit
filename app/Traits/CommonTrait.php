@@ -471,6 +471,7 @@ trait CommonTrait {
         if(!$data){
             return '';
         }
-        return strtolower(str_replace([' ', '.'], ['_', ''], $data));
+        return strtolower(str_replace([' ', '.'], ['_', '_'], preg_replace('/[^a-zA-Z0-9.]/', '_', $data)));
+//        return strtolower(str_replace([' ', '.'], ['_', ''], $data));
     }
 }

@@ -187,7 +187,8 @@ trait PVCompanyTrait {
             ];
 
             if($this->getIsEmptyPOCRow()){
-                $this->setEmptyPOCRows($pocName);
+                $pvCompanyKey = $this->getKey($pvCompany);
+                $this->setEmptyPOCRows($pvCompanyKey.'_'.$pocName);
             }
 
             $pocNameWiseData[$pocName] = $pocData;

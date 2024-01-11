@@ -146,6 +146,7 @@ class Controller extends BaseController
     public function getRecruiterHtml($row, $request): string
     {
         $recruiterIds = !empty($row->recruiter) ? explode(',',$row->recruiter) : [];
+        $recruiterIds = array_unique($recruiterIds);
 
         if(!count($recruiterIds)){
             return '';
