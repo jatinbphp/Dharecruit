@@ -338,23 +338,60 @@
             columns: [
                 {data: 'created_at', name: 'created_at'},
                 {data: 'id', name: 'id'},
-                {data: 'job_id', name: 'job_id'},
-                {data: 'job_title', 'width': '10%', name: 'job_title'},
-                {data: 'location', name: 'location'},
-                {data: 'candidate_location', name: 'candidate_location'},
+                {data: function (row) {
+                        @if(in_array(Auth::user()->role, ['admin', 'bdm']))
+                            if (row.requirement.parent_requirement_id && row.requirement.parent_requirement_id != row.requirement.id && row.requirement.parent_requirement_id != 0){
+                                    return '<span data-order="' + row.requirement.job_id + '" class="border-width-5 border-color-info job-title pt-1 pl-1 pl-1 pr-1" data-id="'+row.requirement.id+'">' + row.requirement.job_id + '</span>';
+                            }else {
+                                if (row.requirement.parent_requirement_id == row.requirement.id) {
+                                    return '<span data-order="' + row.requirement.job_id + '" class="border-width-5 border-color-warning job-title pt-1 pl-1 pl-1 pr-1" data-id="'+row.requirement.id+'">' + row.requirement.job_id + '</span>';
+                                } else {
+                                    return '<span data-order="' + row.requirement.job_id + '" class=" job-title" data-id="' + row.requirement.id + '">' + row.requirement.job_id + '</span>';
+                                }
+                            }
+                        @else
+                            return '<span data-order="'+row.requirement.job_id+'" class=" job-title" data-id="'+row.requirement.id+'">'+row.requirement.job_id+'</span>';
+                        @endif
+                    }
+                },
+                {data: function (row){
+                        return '<span class="job-title" data-id="'+row.requirement_id+'">'+row.requirement.job_title+'</span>';
+                    }, width : '10%'},
+                {data: function (row){
+                        return row.requirement.location;
+                    }
+                },
+                {data: function (row){
+                        return row.location;
+                    }
+                },
                 // {data: 'job_keyword', 'width': '10%',  name: 'job_keyword'},
                 // {data: 'duration',  name: 'duration'},
-                {data: 'client_name',  name: 'client_name'},
+                {data: function (row) {
+                        return '<i class="fa fa-eye client-icon client-icon-'+row.id+'" onclick="showData('+row.id+',\'client-\')" aria-hidden="true"></i><span class="client client-'+row.id+'" style="display:none">'+((row.requirement.display_client) ? row.requirement.client_name : '')+'</span>';
+                    }},
                 @if(in_array($userType,['admin','recruiter']))
-                    {data: 'bdm',  name: 'bdm'},
+                    {data: function (row){
+                        return row.requirement.b_d_m.name;
+                    }
+                },
                 @endif
                 @if(in_array($userType,['admin','bdm']))
                     {data: 'pv',  name: 'pv'},
                     {data: 'poc',  name: 'poc'},
-                    {data: 'recruter_name',  name: 'recruter_name'},
+                    {data: function (row){
+                            return row.recruiters.name;
+                        }
+                    },
                 @endif
-                {data: 'b_rate',  name: 'b_rate'},
-                {data: 'r_rate',  name: 'r_rate'},
+                {data: function (row){
+                        return row.requirement.my_rate;
+                    }
+                },
+                {data: function (row){
+                        return row.recruiter_rate;
+                    }
+                },
                 {data: 'candidate_name',  name: 'candidate_name'},
                 {data: 'employer_name',  name: 'employer_name'},
                 @if(in_array($userType,['admin','recruiter']))

@@ -25,7 +25,18 @@ class BDMSubmissionController extends Controller
             $user = Auth::user();
             $requirementIds = [];
 
-            $submissions = Submission::Query();
+            $submissions = Submission::with(
+                [
+                    'Requirement' => function ($query) {
+                        $query->with(['BDM' => function ($queryBDM) {
+                            $queryBDM->select('id', 'name');
+                        }])->select('id', 'created_at','user_id','job_id', 'job_title', 'location', 'work_type', 'duration', 'visa', 'client', 'my_rate', 'category', 'moi', 'job_keyword', 'pv_company_name', 'poc_name', 'client_name', 'display_client', 'status', 'recruiter', 'is_show_recruiter', 'is_show_recruiter_after_update','is_update_requirement','parent_requirement_id');
+                    },
+                    'recruiters' => function ($query) {
+                        $query->select('id', 'name');
+                    }
+                ]
+            )->select('id', 'user_id', 'requirement_id', 'candidate_id', 'name', 'email', 'location', 'recruiter_rate', 'employer_name', 'employee_name', 'status', 'pv_status', 'created_at');
 
             if(!empty($request->fromDate)){
                 $fromDate = date('Y-m-d', strtotime($request->fromDate));
@@ -215,58 +226,21 @@ class BDMSubmissionController extends Controller
                         $data = $submissions->where('requirement_id', 0)->orderBy('id', 'desc');
                     }
                 } else {
-                    $data = $submissions->whereIn('requirement_id', $loggedinBdmrequirementIds)->orderBy('id', 'desc');
+                    $submissions->whereIn('requirement_id', $loggedinBdmrequirementIds)->orderBy('id', 'desc');
                 }
             }else{
                 if($requirementIds && count($requirementIds)){
                     if(isset($commonRequirementIds) && $commonRequirementIds && count($commonRequirementIds)){
-                        $data = $submissions->whereIn('requirement_id', $commonRequirementIds)->orderBy('id', 'desc')->get();
+                        $submissions->whereIn('requirement_id', $commonRequirementIds)->orderBy('id', 'desc');
                     } else {
-                        $data = $submissions->where('requirement_id', 0)->orderBy('id', 'desc');
+                        $submissions->where('requirement_id', 0)->orderBy('id', 'desc');
                     }
                 } else {
-                    $data = $submissions->orderBy('id', 'desc');
+                    $submissions->orderBy('id', 'desc');
                 }
             }
 
-            $data = $data->get();
-
-            return Datatables::of($data)
-                ->addColumn('job_id', function($row){
-                    $requirmentId        = $row->requirement_id;
-                    $jobId               = $row->Requirement->job_id;
-                    $parentRequirementId = $row->Requirement->parent_requirement_id;
-
-                    if(Auth::user()->role == 'admin' || (Auth::user()->role=='bdm')){
-                        if($parentRequirementId &&  $parentRequirementId != $requirmentId && $parentRequirementId != 0){
-                            return '<span data-order="'.$jobId.'" class="border-width-5 border-color-info job-title pt-1 pl-1 pl-1 pr-1" data-id="'.$requirmentId.'">'.$jobId.'</span>';
-                        } elseif($parentRequirementId == $requirmentId){
-                            return '<span data-order="'.$jobId.'" class="border-width-5 border-color-warning job-title pt-1 pl-1 pl-1 pr-1" data-id="'.$requirmentId.'">'.$jobId.'</span>';
-                        } else {
-                            return '<span data-order="'.$jobId.'" class=" job-title" data-id="'.$requirmentId.'">'.$jobId.'</span>';
-                        }
-                    } else {
-                        return '<span data-order="'.$jobId.'" class=" job-title" data-id="'.$requirmentId.'">'.$jobId.'</span>';
-                    }
-                })
-                ->addColumn('job_title', function($row){
-                    return '<span class="job-title" data-id="'.$row->requirement_id.'">'.$row->Requirement->job_title.'</span>';
-                })
-                // ->addColumn('job_keyword', function($row){
-                //     return $row->Requirement->job_keyword;
-                // })
-                // ->addColumn('duration', function($row){
-                //     return $row->Requirement->duration;
-                // })
-                ->addColumn('client_name', function($row){
-                    return '<i class="fa fa-eye client-icon client-icon-'.$row->id.'" onclick="showData('.$row->id.',\'client-\')" aria-hidden="true"></i><span class="client client-'.$row->id.'" style="display:none">'.(($row->Requirement->display_client) ? $row->Requirement->client_name : '').'</span>';
-                })
-                ->addColumn('recruter_name', function($row){
-                    return $row->recruiters->name;
-                })
-                ->addColumn('bdm', function($row){
-                    return $row->Requirement->BDM->name;
-                })
+            return Datatables::of($submissions)
                 ->addColumn('candidate_name', function($row){
                     $candidateClass = $this->getCandidateClass($row,true);
                     $candidateCss   = $this->getCandidateCss($row,true);
@@ -289,18 +263,7 @@ class BDMSubmissionController extends Controller
                 })
                 ->addColumn('bdm_status', function($row){
                     $statusLastUpdatedAt = ($row->bdm_status_updated_at) ? strtotime($row->bdm_status_updated_at) : 0;
-                    // if(in_array(Auth::user()->role,['admin'])){
-                    //     $status = '<select data-order="'.$statusLastUpdatedAt.'" name="status" class="form-control select2 submissionStatus" data-id="'.$row->id.'">';
-                    //     $submissionStatus = Submission::$status;
-                    //     foreach ($submissionStatus as $key => $val){
-                    //         $selected = $row->status == $key ? 'selected' : '';
-                    //         $status .= '<option value="'.$key.'" '.$selected.'>'.$val.'</option>';
-                    //     }
-                    //     $status .= '</select>';
-
-                    // }else{
                     $status = isset(Submission::$status[$row->status]) ? "<p data-order='$statusLastUpdatedAt'>".Submission::$status[$row->status]."</p>" : '';
-                    // }
                     if($row->status){
                         if($row->status == Submission::STATUS_REJECTED){
                             $status .= "<span class='feedback' style='display:none'>".$this->getTooltipHtml($row->reason)."</span>";
@@ -321,45 +284,10 @@ class BDMSubmissionController extends Controller
                         $status .= "<span class='feedback' style='display:none'>".$this->getTooltipHtml($row->pv_reason)."</span>";
                         $status .= getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_PV_STATUS,$row->id);
                     }
-
                     return $status;
-
-                    // if(in_array(Auth::user()->role,['admin','bdm'])){
-                    //     if($row->status == Submission::STATUS_ACCEPT){
-                    //         $isDisplay = 0;
-                    //         if(!empty($row->pv_status)){
-                    //             $isDisplay = 1;
-                    //        } else {
-                    //             $status .= '<button class="btn btn-sm btn-default show-pv-status-'.$row->id.' mr-2" data-id="'.$row->id.'" onclick="showStatusOptions('.$row->id.')"><i class="fa fa-plus-square"></i></button>';
-                    //        }
-                    //        $status .= '<select data-order="'.$statusLastUpdatedAt.'" style=" '.(!$isDisplay ? "display:none;" : "").'" name="pvstatus" class="form-control select2 submissionPvStatus pv-status-'.$row->id.'" data-id="'.$row->id.'">';
-                    //         $submissionPvStatus = Submission::$pvStatus;
-                    //         $status .= '<option value="">Select Status</option>';
-                    //         foreach ($submissionPvStatus as $key => $val){
-                    //             $selected = $row->pv_status == $key ? 'selected' : '';
-                    //             $status .= '<option value="'.$key.'" '.$selected.'>'.$val.'</option>';
-                    //         }
-                    //         $status .= '</select>';
-                    //     }
-                    // }else{
-                    //     if($row->status == Submission::STATUS_ACCEPT){
-                    //         $status .= isset(Submission::$pvStatus[$row->pv_status]) ? "<p data-order='$statusLastUpdatedAt'>".Submission::$pvStatus[$row->pv_status]."</p>" : '';
-                    //     }
-                    // }
-                    // if($row->pv_status && $row->status == Submission::STATUS_ACCEPT){
-                    //     $status .= "<span class='feedback' style='display:none'>".$this->getTooltipHtml($row->pv_reason)."</span>";
-                    //     $status .= getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_PV_STATUS,$row->id);
-                    // }
-                    // return $status;
                 })
                 ->addColumn('created_at', function($row){
                     return date('m/d/y', strtotime($row->created_at));
-                })
-                ->addColumn('location', function($row){
-                    return $row->Requirement->location;
-                })
-                ->addColumn('candidate_location', function($row){
-                    return $row->location;
                 })
                 ->addColumn('pv', function($row){
                     if(Auth::user()->role != 'admin'){
@@ -385,9 +313,6 @@ class BDMSubmissionController extends Controller
 
                     return '<div class="container"><p class="'.(($isNewPoc) ? "text-primary" : "").'">'.$row->Requirement->poc_name. (($totalOrigReqInDays) ? "<span class='badge bg-indigo position-absolute top-0 end-0' style='margin-top: -6px'>$totalOrigReqInDays</span>" : "").'</p></div>';
                 })
-                ->addColumn('b_rate', function($row){
-                    return $row->Requirement->my_rate;
-                })
                 ->addColumn('r_rate', function($row){
                     return $row->recruiter_rate;
                 })
@@ -408,9 +333,6 @@ class BDMSubmissionController extends Controller
                     $empPocCount = $this->getAllEmpDataCount('employee_name', $row->employee_name);
                     return '<i class="fa fa-eye emp_poc-icon emp_poc-icon-'.$row->id.'" onclick="showData('.$row->id.',\'emp_poc-\')" aria-hidden="true"></i><div><span class="emp_poc emp_poc-'.$row->id.'" style="display:none">'.$empPocFirstName.(($empPocCount) ? "<span class='badge bg-indigo position-absolute top-0 end-0' style='margin-top: -6px'>$empPocCount</span>" : "").'</span></div>';
                 })
-                // ->addColumn('action', function($row){
-                //     return '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/bdm_submission/'.$row->id.'/edit').'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Edit Interview" data-trigger="hover" type="submit" ><i class="fa fa-edit"></i></button></a></div>';
-                // })
                 ->addColumn('client_status', function($row){
                     $interviewModel = new Interview();
                     $statusLastUpdatedAt = ($row->interview_status_updated_at) ? strtotime($row->interview_status_updated_at) : 0;
@@ -419,7 +341,7 @@ class BDMSubmissionController extends Controller
                     $status .= "<span class='feedback' style='display:none'>".$this->getTooltipHtml($interviewFeedback)."</span>";
                     return $status;
                 })
-                ->rawColumns(['job_id','job_title','job_keyword','duration','client_name','poc','pv','employer_name','recruter_name','candidate_name','action','bdm_status','pv_status','emp_poc','created_at','client_status'])
+                ->rawColumns(['poc','pv','employer_name','candidate_name','action','bdm_status','pv_status','emp_poc','created_at','client_status'])
                 ->make(true);
         }
 
