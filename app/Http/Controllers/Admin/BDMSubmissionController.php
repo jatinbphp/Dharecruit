@@ -231,15 +231,12 @@ class BDMSubmissionController extends Controller
             }else{
                 if($requirementIds && count($requirementIds)){
                     if(isset($commonRequirementIds) && $commonRequirementIds && count($commonRequirementIds)){
-                        \Log::info($commonRequirementIds);
                         $submissions->whereIn('requirement_id', $commonRequirementIds);
                     } else {
                         $submissions->where('requirement_id', 0);
                     }
                 }
             }
-
-            \Log::info($submissions->toSql());
 
             return Datatables::of($submissions)
                 ->addColumn('candidate_name', function($row){
