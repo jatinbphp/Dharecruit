@@ -490,9 +490,8 @@ class Controller extends BaseController
         if($this->getCurrentUserRole() != 'admin'){
             return '';
         }
-        $controllerObj = new Controller();
 
-        return $controllerObj->getTotalOrigReqBasedOnPocData($row->poc_name, 1);
+        return $this->getTotalOrigReqBasedOnPocData($row->poc_name, 1);
     }
 
     public function getTotalOrigReqInDays($row){
@@ -1752,6 +1751,7 @@ class Controller extends BaseController
                 $query->where('id' ,\DB::raw('parent_requirement_id'));
                 $query->orwhere('parent_requirement_id', '=', '0');
             })->count();
+
         }
 
         $newPocCountConfiguration = 0;
