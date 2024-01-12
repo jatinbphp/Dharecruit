@@ -18,6 +18,7 @@
             <div class="form-group{{ $errors->has('poc_name') ? ' has-error' : '' }}">
                 <label class="control-label" for="poc_name">POC Name :<span class="text-red">*</span></label>
                 {!! Form::text('poc_name', null, ['class' => 'form-control', 'placeholder' => 'Enter POC Name', 'id' => 'poc_name', 'readonly' => (isset($requirement)) ? true : false]) !!}
+                <span class="text-danger"><strong id="poc_name_message"></strong></span>
                 @if ($errors->has('poc_name'))
                     <span class="text-danger">
                         <strong>{{ $errors->first('poc_name') }}</strong>
@@ -588,6 +589,11 @@
                                     swal.close();
                                 }
                             });
+                        } else if(data.same_pv_company == 1) {
+                            $('#poc_email').attr("readonly",true).val(pocEmail);
+                            $('#pv_company_name').attr("readonly",true).val(data.pv_company_name);
+                            $('.add-new-form').show();
+                            $('.search-poc-email').hide();
                         } else if(data.new_poc_email == 1){
                             $('#poc_email').attr("readonly",true).val(pocEmail);
                             var domain = (pocEmail.match(/@(.+?)\./) || [])[1] || "";
@@ -693,6 +699,31 @@
                     } else {
                         $("#linking_poc_data").modal('hide');
                     }
+                }
+            });
+        });
+
+        $('#poc_name').on('keyup', function () {
+            if ($(this).prop('readonly')) {
+                return;
+            }
+            var pocName = $(this).val();
+            var pvCompanyName = $('#pv_company_name').val();
+            $.ajax({
+                type: 'POST',
+                url: '{{ route('requirement.checkPoc') }}',
+                data: { poc_name: pocName, pv_company_name : pvCompanyName, "_token": "{{ csrf_token() }}"},
+                success: function (response) {
+                    if(response.status == 1){
+                        $('#poc_name_message').text('Poc Name Already Added With This PV Company ('+pvCompanyName+' )');
+                        $('#requirement_add').prop('disabled', true);
+                    } else {
+                        $('#poc_name_message').text('');
+                        $('#requirement_add').prop('disabled', false);
+                    }
+                },
+                error: function (error) {
+                    console.error('Error:', error);
                 }
             });
         });

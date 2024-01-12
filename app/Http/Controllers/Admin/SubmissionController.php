@@ -413,6 +413,23 @@ class SubmissionController extends Controller
             return $data;
         }
 
+        $matches = [];
+        $domain = (preg_match('/@(.+?)\./', $empEmail, $matches) && isset($matches[1])) ? $matches[1] : null;
+
+        if($domain){
+            $isMatchWithDomain = Admin::where(function ($query) use ($domain) {
+                $query->where('email', 'like', '%@'. $domain .'.%')
+                    ->orWhere('linked_data', 'like', '%@'. $domain .'.%');
+            })->where('role','employee')->orderBy('id', 'desc')->first();
+
+            if(!empty($isMatchWithDomain)){
+                $data['status'] = 1;
+                $data['same_employer'] = 1;
+                $data['employer_name'] = $isMatchWithDomain->name;
+                return $data;
+            }
+        }
+
         $data['status'] = 1;
         $data['new_emp_email'] = 1;
 
@@ -496,6 +513,19 @@ class SubmissionController extends Controller
         $data['value'] = $value;
         $data['parent_div'] = $parentDiv;
         return $data;
+    }
+
+    public function checkEmp(Request $request)
+    {
+        $status = 0;
+        if(!empty($request->employee_name) && !empty($request->employer_name)){
+            $exists = Admin::where('employee_name','like', '%'.$request->employee_name.'%')->where('name', $request->employer_name)->exists();
+            if($exists){
+                $status = 1;
+            }
+        }
+        $data['status'] = $status;
+        return  $data;
     }
 
 }

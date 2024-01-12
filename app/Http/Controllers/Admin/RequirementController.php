@@ -669,6 +669,23 @@ class RequirementController extends Controller
             return $data;
         }
 
+        $matches = [];
+        $domain = (preg_match('/@(.+?)\./', $pocEmail, $matches) && isset($matches[1])) ? $matches[1] : null;
+
+        if($domain){
+            $isMatchWithDomain = PVCompany::where(function ($query) use ($domain) {
+                $query->where('email', 'like', '%@'. $domain .'.%')
+                    ->orWhere('linked_data', 'like', '%@'. $domain .'.%');
+            })->orderBy('id', 'desc')->first();
+
+            if(!empty($isMatchWithDomain)){
+                $data['status'] = 1;
+                $data['same_pv_company'] = 1;
+                $data['pv_company_name'] = $isMatchWithDomain->name;
+                return $data;
+            }
+        }
+
         $data['status'] = 1;
         $data['new_poc_email'] = 1;
 
@@ -802,5 +819,17 @@ class RequirementController extends Controller
         $data['linkPvCompanyLocation'] = "<div id='linkPvCompanyLocation'> $ulStartData  $linkPvCompanyLocation  $ulEndData </div>";
 
         return $data;
+    }
+    public function checkPoc(Request $request)
+    {
+        $status = 0;
+        if(!empty($request->poc_name) && !empty($request->pv_company_name)){
+            $exists = PVCompany::where('poc_name','like', '%'.$request->poc_name.'%')->where('name', $request->pv_company_name)->exists();
+            if($exists){
+                $status = 1;
+            }
+        }
+        $data['status'] = $status;
+        return  $data;
     }
 }

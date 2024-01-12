@@ -229,6 +229,7 @@
                 <div class="form-group{{ $errors->has('employee_name') ? ' has-error' : '' }}">
                     <label class="control-label" for="employee_name">Recruiter’s Name - 3rd Party Employee :<span class="text-red">*</span></label>
                     {!! Form::text('employee_name', null, ['class' => 'form-control', 'placeholder' => 'Enter Recruiter’s Name - 3rd Party Employee', 'id' => 'employee_name', 'readonly' => (isset($submission)) ? true : false]) !!}
+                    <span class="text-danger"><strong id="employee_name_message"></strong></span>
                     @if ($errors->has('employee_name'))
                         <span class="text-danger">
                             <strong>{{ $errors->first('employee_name') }}</strong>
@@ -501,6 +502,11 @@
                                     swal.close();
                                 }
                             });
+                        } else if(data.same_employer == 1) {
+                            $('#employee_email').attr("readonly",true).val(empEmail);
+                            $('#employer_name').attr("readonly",true).val(data.employer_name);
+                            $('.employee-detail').show();
+                            $('.search-employee-email').hide();
                         } else if(data.new_emp_email == 1){
                             $('#employee_email').attr("readonly",true).val(empEmail);
                             var domain = (empEmail.match(/@(.+?)\./) || [])[1] || "";
@@ -536,5 +542,31 @@
             $('.employee-detail').show();
             $('.search-employee-email').hide();
         }
+
+    $('#employee_name').on('keyup', function () {
+        if ($(this).prop('readonly')) {
+            return;
+        }
+        var employeeName = $(this).val();
+        var employerName = $('#employer_name').val();
+        console.log('{{ route('submission.checkEmp') }}');
+        $.ajax({
+            type: 'POST',
+            url: '{{ route('submission.checkEmp') }}',
+            data: { employee_name: employeeName, employer_name : employerName, "_token": "{{ csrf_token() }}"},
+            success: function (response) {
+                if(response.status == 1){
+                    $('#employee_name_message').text('Company Name Already Added With Recruiter ('+employerName+' )');
+                    $('#submission_add').prop('disabled', true);
+                } else {
+                    $('#employee_name_message').text('');
+                    $('#submission_add').prop('disabled', false);
+                }
+            },
+            error: function (error) {
+                console.error('Error:', error);
+            }
+        });
+    });
     </script>
 @endsection

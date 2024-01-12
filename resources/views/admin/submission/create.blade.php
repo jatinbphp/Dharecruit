@@ -29,7 +29,7 @@
                             <div class="card-body">
                                     <div class="row mb-2">
                                         <div class="col-sm-6">
-                                            Search By Email Or Id   
+                                            Search By Email Or Id
                                         </div>
                                     </div>
                                     <div class="row">
@@ -54,7 +54,7 @@
                                 </div>
                             <div class="card-footer">
                                 <a href="{{ route('submission.show',['submission'=>$requirement['id']]) }}" ><button class="btn btn-default" type="button">Back</button></a>
-                                <button class="btn btn-info float-right add-submission" type="button">Add</button>
+                                <button class="btn btn-info float-right add-submission" id="submission_add" type="button">Add</button>
                             </div>
                         {!! Form::close() !!}
                     </div>

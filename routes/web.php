@@ -91,6 +91,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('pv_company/unassign', [PVCompanyController::class,'unassign'])->name('pv_company.unassign');
     Route::resource('pv_company', PVCompanyController::class);
 
+
     /* REQUIREMENTS MANAGEMENT */
     Route::post('requirement/changeStatus/{id}', [RequirementController::class,'changeStatus'])->name('requirement.changeStatus');
     Route::post('requirement/assign', [RequirementController::class,'assign'])->name('requirement.assign');
@@ -108,6 +109,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('requirement/saveRepostRequirement/{id}', [RequirementController::class,'saveRepostRequirement'])->name('requirement.saveRepostRequirement');
     Route::post('requirement/checkPocEmailData',  [RequirementController::class, 'checkPocEmailData'])->name('requirement.checkPocEmailData');
     Route::post('requirement/savePocLinkingData',  [RequirementController::class,'savePocLinkingData'])->name('requirement.savePocLinkingData');
+    Route::post('requirement/check_poc', [RequirementController::class, 'checkPoc'])->name('requirement.checkPoc');
 
     /* SUBMISSION MANAGEMENT */
     Route::get('submission/new/{id}', [SubmissionController::class,'submissionAdd'])->name('submission.newAdd');
@@ -120,6 +122,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('submission/checkPvCompany', [SubmissionController::class,'checkPvCompany'])->name('checkPvCompany');
     Route::post('submission/checkEmpData',  [SubmissionController::class, 'checkEmpData'])->name('submission.checkEmpData');
     Route::post('submission/saveEmpLinkingData',  [SubmissionController::class,'saveEmpLinkingData'])->name('submission.saveEmpLinkingData');
+    Route::post('submission/check_emp', [SubmissionController::class, 'checkEmp'])->name('submission.checkEmp');
 
     /* BDM SUBMISSION MANAGEMENT */
     Route::resource('bdm_submission', BDMSubmissionController::class);
