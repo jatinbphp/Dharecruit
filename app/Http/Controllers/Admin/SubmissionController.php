@@ -359,7 +359,10 @@ class SubmissionController extends Controller
         $email        = $submission->employee_email;
         $phone        = $submission->employee_phone;
 
-        $oldemployeeData = Admin::where('email', $email)->where('added_by', Auth::user()->id)->where('role','employee')->first();
+        $oldemployeeData = Admin::where('email', $email)
+            ->where('name', $employerName)
+            ->where('employee_name', $employeeName)
+            ->where('role','employee')->first();
 
         if($oldemployeeData){
             return $this;
@@ -385,31 +388,18 @@ class SubmissionController extends Controller
             return $data;
         }
 
-        $logggedInUserId = Auth::user()->id;
         $empEmail = $request->emp_email;
-        $currentUserPocEmail = Admin::where(function ($query) use ($empEmail) {
+
+        $empPocEmail = Admin::where(function ($query) use ($empEmail) {
             $query->where('email', '=', $empEmail)
                   ->orWhere('linked_data', 'like', '%'.$empEmail.'%');
-            })->where('added_by', $logggedInUserId)->where('role','employee')->first();
+            })->where('role','employee')->first();
 
-        if(!empty($currentUserPocEmail)){
+        if(!empty($empPocEmail)){
             $data['status'] = 1;
             $data['is_current_user_email'] = 1;
-            $data['empdata'] = $currentUserPocEmail;
-            $data['linking_data'] = $this->getEmployeeLinkData([], $currentUserPocEmail->email);
-            return $data;
-        }
-
-        $otherUserEmpEmail = Admin::where(function ($query) use ($empEmail) {
-            $query->where('email', '=', $empEmail)
-                  ->orWhere('linked_data', 'like', '%'.$empEmail.'%');
-            })->where('added_by','!=', $logggedInUserId)->where('role','employee')->first();
-
-        if(!empty($otherUserEmpEmail)){
-            $data['status'] = 1;
-            $data['empdata'] = $otherUserEmpEmail;
-            $data['emp_registered'] = 1;
-            $data['linking_data'] =  $this->getEmployeeLinkData([], $otherUserEmpEmail->email);
+            $data['empdata'] = $empPocEmail;
+            $data['linking_data'] = $this->getEmployeeLinkData([], $empPocEmail->email);
             return $data;
         }
 

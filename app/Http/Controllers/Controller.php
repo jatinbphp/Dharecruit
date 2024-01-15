@@ -491,7 +491,7 @@ class Controller extends BaseController
             return '';
         }
 
-        return $this->getTotalOrigReqBasedOnPocData($row->poc_name, 1);
+        return $this->getTotalOrigReqBasedOnPocData($row->poc_name, $row->poc_email, 1);
     }
 
     public function getTotalOrigReqInDays($row){
@@ -502,7 +502,7 @@ class Controller extends BaseController
         $totalPvCount = $controllerObj->getAllPvCompanyCount($row->poc_name);
         $isNewPoc     = $controllerObj->isNewAsPerConfiguration('poc_name', $row->poc_name);
 
-        return $controllerObj->getTotalOrigReqBasedOnPocData($row->poc_name);
+        return $controllerObj->getTotalOrigReqBasedOnPocData($row->poc_name, $row->poc_email);
     }
 
     public function getUser(){
@@ -525,7 +525,7 @@ class Controller extends BaseController
                         $query->select('name as category_name','id');
                     },
                 ]
-            )->select('id', 'created_at','user_id','job_id', 'job_title', 'location', 'work_type', 'duration', 'visa', 'client', 'my_rate', 'category', 'moi', 'job_keyword', 'pv_company_name', 'poc_name', 'client_name', 'display_client', 'status', 'recruiter', 'is_show_recruiter', 'is_show_recruiter_after_update','is_update_requirement','parent_requirement_id');
+            )->select('id', 'created_at','user_id','job_id', 'job_title', 'location', 'work_type', 'duration', 'visa', 'client', 'my_rate', 'category', 'moi', 'job_keyword', 'pv_company_name', 'poc_name', 'client_name', 'display_client', 'status', 'recruiter', 'is_show_recruiter', 'is_show_recruiter_after_update','is_update_requirement','parent_requirement_id','poc_email');
         $expStatus = [Requirement::STATUS_EXP_HOLD , Requirement::STATUS_EXP_NEED];
         if($user['role'] == 'bdm' && isset($request->authId) && $request->authId > 0){
             $query = $query->where('user_id',$request->authId);
@@ -1739,14 +1739,15 @@ class Controller extends BaseController
         return false;
     }
 
-    public function getTotalOrigReqBasedOnPocData($pocName, $isTotal = 0)
+    public function getTotalOrigReqBasedOnPocData($pocName, $pocEmail, $isTotal = 0)
     {
-        if(!$pocName){
+        if(!$pocName || !$pocEmail){
             return 0;
         }
 
         if($isTotal){
             return Requirement::where('poc_name', $pocName)
+            ->where('poc_email', $pocEmail)
             ->where(function ($query) {
                 $query->where('id' ,\DB::raw('parent_requirement_id'));
                 $query->orwhere('parent_requirement_id', '=', '0');
@@ -1769,6 +1770,7 @@ class Controller extends BaseController
         $createdAtDateAsPerConfiguration = \Carbon\Carbon::now()->subDays($newPocCountConfiguration);
 
         return Requirement::where('poc_name', $pocName)
+            ->where('poc_email', $pocEmail)
             ->where('created_at', '>=', $createdAtDateAsPerConfiguration)
             ->where(function ($query) {
                 $query->where('id' ,\DB::raw('parent_requirement_id'));

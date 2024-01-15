@@ -345,7 +345,11 @@
                             }
                             $("#existResume").val(data['documents']);
                         });
+                        $('#name, #email').attr("readonly",true);
                     }
+                    $('.add-new-form').show();
+                    $('.search-emp-email').hide();
+                    $('.select2').select2();
                 }
             });
         });
@@ -482,26 +486,26 @@
                     if(data.status == 1){
                         if(data.is_current_user_email == 1){
                             fillEmpData(data);
-                        } else if(data.emp_registered == 1){
-                            swal({
-                                title: "Are you sure?",
-                                text: "Click Yes to Add and Register.",
-                                type: "warning",
-                                showCancelButton: true,
-                                confirmButtonColor: '#138496',
-                                confirmButtonText: 'Yes, Post Submission',
-                                cancelButtonText: "No, cancel",
-                                closeOnConfirm: false,
-                                closeOnCancel: false
-                            },
-                            function(isConfirm) {
-                                if (isConfirm) {
-                                    swal.close();
-                                    fillEmpData(data);
-                                } else {
-                                    swal.close();
-                                }
-                            });
+                        // } else if(data.emp_registered == 1){
+                        //     swal({
+                        //         title: "Are you sure?",
+                        //         text: "Click Yes to Add and Register.",
+                        //         type: "warning",
+                        //         showCancelButton: true,
+                        //         confirmButtonColor: '#138496',
+                        //         confirmButtonText: 'Yes, Post Submission',
+                        //         cancelButtonText: "No, cancel",
+                        //         closeOnConfirm: false,
+                        //         closeOnCancel: false
+                        //     },
+                        //     function(isConfirm) {
+                        //         if (isConfirm) {
+                        //             swal.close();
+                        //             fillEmpData(data);
+                        //         } else {
+                        //             swal.close();
+                        //         }
+                        //     });
                         } else if(data.same_employer == 1) {
                             $('#employee_email').attr("readonly",true).val(empEmail);
                             $('#employer_name').attr("readonly",true).val(data.employer_name);

@@ -145,7 +145,7 @@
             $('#emp_poc').bootstrapToggle('on');
         @endif
 
-        $('#interviewTable tbody').on('click', '.interviewStatus', function (event) {
+        $('#interviewTable tbody').on('change', '.interviewStatus', function (event) {
             event.preventDefault();
             var interviewId = $(this).attr("data-id");
             var status = $(this).val();

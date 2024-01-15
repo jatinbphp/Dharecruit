@@ -216,7 +216,7 @@ class InterviewController extends Controller
                         return $pocFirstName;
                     }
                     $isNewPoc           = $this->isNewAsPerConfiguration('poc_name', $row->Submission->Requirement->poc_name);
-                    $totalOrigReqInDays = $this->getTotalOrigReqBasedOnPocData($row->Submission->Requirement->poc_name);
+                    $totalOrigReqInDays = $this->getTotalOrigReqBasedOnPocData($row->Submission->Requirement->poc_name, $row->Submission->Requirement->poc_email);
 
                     return '<div class="container"><p class="'.(($isNewPoc) ? "text-primary" : "").'">'.$row->Submission->Requirement->poc_name. (($totalOrigReqInDays) ? "<span class='badge bg-indigo position-absolute top-0 end-0' style='margin-top: -6px'>$totalOrigReqInDays</span>" : "").'</p></div>';
 

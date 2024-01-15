@@ -30,7 +30,7 @@ class BDMSubmissionController extends Controller
                     'Requirement' => function ($query) {
                         $query->with(['BDM' => function ($queryBDM) {
                             $queryBDM->select('id', 'name');
-                        }])->select('id', 'created_at','user_id','job_id', 'job_title', 'location', 'work_type', 'duration', 'visa', 'client', 'my_rate', 'category', 'moi', 'job_keyword', 'pv_company_name', 'poc_name', 'client_name', 'display_client', 'status', 'recruiter', 'is_show_recruiter', 'is_show_recruiter_after_update','is_update_requirement','parent_requirement_id');
+                        }])->select('id', 'created_at','user_id','job_id', 'job_title', 'location', 'work_type', 'duration', 'visa', 'client', 'my_rate', 'category', 'moi', 'job_keyword', 'pv_company_name', 'poc_name', 'client_name', 'display_client', 'status', 'recruiter', 'is_show_recruiter', 'is_show_recruiter_after_update','is_update_requirement','parent_requirement_id','poc_email');
                     },
                     'recruiters' => function ($query) {
                         $query->select('id', 'name');
@@ -308,7 +308,7 @@ class BDMSubmissionController extends Controller
                         return $pocFirstName;
                     }
                     $isNewPoc      = $this->isNewAsPerConfiguration('poc_name', $row->Requirement->poc_name);
-                    $totalOrigReqInDays = $this->getTotalOrigReqBasedOnPocData($row->Requirement->poc_name);
+                    $totalOrigReqInDays = $this->getTotalOrigReqBasedOnPocData($row->Requirement->poc_name, $row->Requirement->poc_email);
 
                     return '<div class="container"><p class="'.(($isNewPoc) ? "text-primary" : "").'">'.$row->Requirement->poc_name. (($totalOrigReqInDays) ? "<span class='badge bg-indigo position-absolute top-0 end-0' style='margin-top: -6px'>$totalOrigReqInDays</span>" : "").'</p></div>';
                 })

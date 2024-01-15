@@ -25,38 +25,42 @@
                         <div class="card-header">
                             <h3 class="card-title">Add New {{$sub_menu}}</h3>
                         </div>
-                        {!! Form::open(['url' => route('submission.store'), 'id' => 'submissionsForm', 'class' => 'form-horizontal','files'=>true]) !!}
-                            <div class="card-body">
-                                    <div class="row mb-2">
-                                        <div class="col-sm-6">
-                                            Search By Email Or Id
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                {!! Form::text('email', null, ['class' => 'form-control', 'placeholder' => 'Enter Email', 'id' => 'search_email']) !!}
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                {!! Form::text('name', null, ['class' => 'form-control', 'placeholder' => 'Enter Id', 'id' => 'search_id']) !!}
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <button class="btn btn-info float-left" id="search_fill" type="button">Search</button>
-                                            </div>
-                                        </div>
-                                    </div>
+                        <div class='add-new-form' style='{{(count($errors) == 0 ? "display: none;" : "")}}'>
+                            {!! Form::open(['url' => route('submission.store'), 'id' => 'submissionsForm', 'class' => 'form-horizontal','files'=>true]) !!}
+                                <div class="card-body">
                                     <input type="hidden" id="requirement_id" name="requirement_id" value="{{$requirement['id']}}">
                                     @include ('admin.submission.form')
                                 </div>
-                            <div class="card-footer">
-                                <a href="{{ route('submission.show',['submission'=>$requirement['id']]) }}" ><button class="btn btn-default" type="button">Back</button></a>
-                                <button class="btn btn-info float-right add-submission" id="submission_add" type="button">Add</button>
+                                <div class="card-footer">
+                                    <a href="{{ route('submission.show',['submission'=>$requirement['id']]) }}" ><button class="btn btn-default" type="button">Back</button></a>
+                                    <button class="btn btn-info float-right add-submission" id="submission_add" type="button">Add</button>
+                                </div>
+                            {!! Form::close() !!}
+                        </div>
+                        <div class="search-emp-email">
+                            <div class="row mb-2 mt-3 pl-3 pr-3">
+                                <div class="col-sm-6">
+                                    Search By Email Or Candidate Id
+                                </div>
                             </div>
-                        {!! Form::close() !!}
+                            <div class="row pl-3 pr-3">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        {!! Form::text('email', null, ['class' => 'form-control', 'placeholder' => 'Enter Email', 'id' => 'search_email']) !!}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        {!! Form::text('name', null, ['class' => 'form-control', 'placeholder' => 'Enter Candidate Id', 'id' => 'search_id']) !!}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <button class="btn btn-info float-left" id="search_fill" type="button">Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

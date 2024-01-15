@@ -605,8 +605,12 @@ class RequirementController extends Controller
         $pocLocation   = $requirement->poc_location;
         $pvCompanyLocation = $requirement->pv_company_location;
         $clientName    = $requirement->client_name;
+        $userId        = Auth::user()->id;
 
-        $oldPvCompanyData = PVCompany::where('email',$requirement->poc_email)->where('user_id',Auth::user()->id)->first();
+        $oldPvCompanyData = PVCompany::where('email',$requirement->poc_email)
+            ->where('name', $pvCompanyName)
+            ->where('poc_name', $pocName)
+            ->first();
 
         if($oldPvCompanyData){
             return $this;
@@ -614,7 +618,8 @@ class RequirementController extends Controller
 
         PVCompany::create(
             [
-                'user_id'             => Auth::user()->id,
+                'user_id'             => $userId,
+                'assigned_user_id'    => $userId,
                 'name'                => $pvCompanyName,
                 'poc_name'            => $pocName,
                 'email'               => $email,
