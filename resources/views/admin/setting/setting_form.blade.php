@@ -81,6 +81,14 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="control-label" for="transfer_poc_if_req_not_post_days">Transfer POC If Requirement Not Post Days</label>
+                                        <div class="col-md-12">
+                                            {!! Form::number('transfer_poc_if_req_not_post_days', (isset($settingData['transfer_poc_if_req_not_post_days']) && $settingData['transfer_poc_if_req_not_post_days']) ? $settingData['transfer_poc_if_req_not_post_days'] : '', ['class' => 'form-control', 'placeholder' => 'Enter Transfer POC If Requirement Not Post Days', 'id' => 'transfer_poc_if_req_not_post_days']) !!}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="card-footer">

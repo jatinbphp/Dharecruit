@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AssignToRecruiter;
+use App\Models\POCTransfer;
 use App\Models\Requirement;
 use App\Models\Submission;
 use App\Models\Interview;
@@ -138,7 +139,7 @@ class Controller extends BaseController
         }
         $userWiseCount = '';
         if($this->getCurrentUserRole() == 'admin'){
-            $userWiseCount = $this->getUserWiseRequirementsCountAsPerPoc($row->poc_name, 1);
+            $userWiseCount = $this->getUserWiseRequirementsCountAsPerPoc($row->poc_name, $row->poc_email ,1);
         }
         return '<div data-order="'.$row->job_title.'" class="'.$textStyle.' job-title job-title-'.$row->id.'" data-id="'.$row->id.'"><span class="font-weight-bold">'.$row->job_title.'</span></div>'.(($userWiseCount) ? "<div class='container pl-0'><div class='bg-white p-1 border d-inline-block'>".$userWiseCount."</div></div>" : "");
     }
@@ -455,7 +456,7 @@ class Controller extends BaseController
         $jobKeyword = strip_tags($row->job_keyword);
         $userWiseCount = '';
         if($this->getCurrentUserRole() == 'admin'){
-            $userWiseCount = $this->getUserWiseRequirementsCountAsPerPoc($row->poc_name);
+            $userWiseCount = $this->getUserWiseRequirementsCountAsPerPoc($row->poc_name, $row->poc_email);
         }
         if(strlen($jobKeyword) > 60){
             $shortString = substr($jobKeyword, 0, 60);
@@ -1778,14 +1779,15 @@ class Controller extends BaseController
             })->count();
     }
 
-    public function getUserWiseRequirementsCountAsPerPoc($pocName, $isTotal = 0)
+    public function getUserWiseRequirementsCountAsPerPoc($pocName, $pocEmail, $isTotal = 0)
     {
-        if(!$pocName){
+        if(!$pocName || !$pocEmail){
             return '';
         }
 
         if($isTotal){
             $userIdWiseRequirementCount = Requirement::where('poc_name', $pocName)
+            ->where('poc_email', $pocEmail)
             ->groupBy('user_id')
             ->selectRaw('user_id, COUNT(*) as count')
             ->where(function ($query) {
@@ -1810,6 +1812,7 @@ class Controller extends BaseController
             $createdAtDateAsPerConfiguration = \Carbon\Carbon::now()->subDays($newPocCountConfiguration);
 
             $userIdWiseRequirementCount = Requirement::where('poc_name', $pocName)
+                ->where('poc_email', $pocEmail)
                 ->groupBy('user_id')
                 ->selectRaw('user_id, COUNT(*) as count')
                 ->where('created_at', '>=', $createdAtDateAsPerConfiguration)
@@ -1927,5 +1930,25 @@ class Controller extends BaseController
 
         return isset($this->_userIdWiseName[$userId]) ? $this->_userIdWiseName[$userId] : '';
 
+    }
+
+    public function transferPocData($pvCompanyRow, $userId, $type)
+    {
+        if(empty($pvCompanyRow)){
+            return $this;
+        }
+
+        $pocTransferData['pv_company_id'] = $pvCompanyRow->id;
+        $pocTransferData['transfer_by']   = $pvCompanyRow->assigned_user_id;
+        $pocTransferData['transfer_to']   = $userId;
+        $pocTransferData['transfer_type'] = $type;
+
+        POCTransfer::create($pocTransferData);
+
+        $pvCompanyRow->assigned_user_id = $userId;
+        $pvCompanyRow->is_transfer      = 1;
+        $pvCompanyRow->save();
+
+        return $this;
     }
 }

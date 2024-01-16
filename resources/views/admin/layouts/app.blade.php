@@ -505,6 +505,14 @@
                             </ul>
                         </li>
                     @endif
+                    @if(\Illuminate\Support\Facades\Auth::user()->role == 'bdm')
+                        <li class="nav-item">
+                            <a href="{{ route('pv_transfer.index') }}" class="nav-link @if($menu=='PV Data & Transfer') active @endif">
+                                <i class="nav-icon fa fa-exchange-alt"></i>
+                                <p>PV Data & Transfer</p>
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </nav>
         </div>

@@ -570,25 +570,40 @@
                         if(data.is_current_user_email == 1){
                             fillPvData(data);
                         } else if(data.poc_registered == 1){
+                            // swal("Already Registered", '<b>'+data.message+'</b>', "warning", true);
+                            swal({
+                                title: "Already Registered",
+                                text: data.message,
+                                type: "warning",
+                                html: true  // Allow HTML in the message
+                            });
+                        } else if(data.poc_can_transfer == 1) {
                             swal({
                                 title: "Are you sure?",
                                 text: data.message,
                                 type: "warning",
                                 showCancelButton: true,
-                                confirmButtonColor: '#138496',
                                 confirmButtonText: 'Yes, Post requirement',
                                 cancelButtonText: "No, cancel",
-                                closeOnConfirm: false,
-                                closeOnCancel: false
+                                closeOnConfirm: true,
+                                closeOnCancel: true
                             },
                             function(isConfirm) {
                                 if (isConfirm) {
-                                    swal.close();
-                                    fillPvData(data);
-                                } else {
-                                    swal.close();
+                                    $.ajax({
+                                        url: "{{route('requirement.transfer_poc')}}",
+                                        type: "POST",
+                                        data: {'poc_email' : pocEmail,_token: '{{csrf_token()}}' },
+                                        success: function(data) {
+                                            if(data.status == 1){
+                                                console.log(data);
+                                                fillPvData(data);
+                                            }
+                                        }
+                                    });
                                 }
                             });
+
                         } else if(data.same_pv_company == 1) {
                             $('#poc_email').attr("readonly",true).val(pocEmail);
                             $('#pv_company_name').attr("readonly",true).val(data.pv_company_name);

@@ -27,4 +27,9 @@ class PVCompany extends Model
     public static function getActivePOCNames(){
         return PVCompany::where('status','active')->orderBy('poc_name')->distinct()->pluck('poc_name','poc_name');
     }
+
+    public function pocTransfers()
+    {
+        return $this->hasMany(\App\Models\POCTransfer::class, 'pv_company_id')->latest();
+    }
 }

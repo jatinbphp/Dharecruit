@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\MoiController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ProfileUpdateController;
 use App\Http\Controllers\Admin\PVCompanyController;
+use App\Http\Controllers\Admin\PVTransferController;
 use App\Http\Controllers\Admin\RecruiterUserController;
 use App\Http\Controllers\Admin\ReportsController;
 use App\Http\Controllers\Admin\RequirementController;
@@ -110,6 +111,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('requirement/checkPocEmailData',  [RequirementController::class, 'checkPocEmailData'])->name('requirement.checkPocEmailData');
     Route::post('requirement/savePocLinkingData',  [RequirementController::class,'savePocLinkingData'])->name('requirement.savePocLinkingData');
     Route::post('requirement/check_poc', [RequirementController::class, 'checkPoc'])->name('requirement.checkPoc');
+    Route::post('requirement/transfer_poc', [RequirementController::class, 'transferPoc'])->name('requirement.transfer_poc');
 
     /* SUBMISSION MANAGEMENT */
     Route::get('submission/new/{id}', [SubmissionController::class,'submissionAdd'])->name('submission.newAdd');
@@ -154,6 +156,11 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     /* REPORTS MANAGEMENT */
     Route::get('reports/{type}/{subType?}', [ReportsController::class, 'index'])->name('reports');
     Route::post('reports/getPocNames', [ReportsController::class, 'getPocNames'])->name('reports.getPocNames');
+
+    /* PV DATA TRANSFER MANAGEMENT */
+    Route::post('pv_transfer/getPvCompanyData', [PVTransferController::class, 'getPvCompanyData'])->name('pv_transfer.getPvCompanyData');
+    Route::post('pv_transfer/transferPoc', [PVTransferController::class, 'transferPoc'])->name('pv_transfer.transferPoc');
+    Route::resource('pv_transfer', PVTransferController::class);
 
     Auth::routes();
 });

@@ -18,7 +18,7 @@ class CreatePOCTransfersTable extends Migration
             $table->integer('pv_company_id')->nullable();
             $table->integer('transfer_by')->nullable();
             $table->integer('transfer_to')->nullable();
-            $table->integer('transfer_type')->default(2)->comment('1 = Key, 2 = Automatic');
+            $table->integer('transfer_type')->default(2)->comment('1 = Key, 2 = Automatic, 3 = Self');
             $table->timestamps();
         });
     }

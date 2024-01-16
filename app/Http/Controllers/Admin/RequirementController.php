@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\Category;
 use App\Models\Moi;
+use App\Models\POCTransfer;
 use App\Models\PVCompany;
 use App\Models\Requirement;
 use App\Models\Submission;
@@ -640,12 +641,11 @@ class RequirementController extends Controller
         }
 
         $logggedInUserId = Auth::user()->id;
-        $previousDate = \Carbon\Carbon::now()->subDays(14);
         $pocEmail = $request->poc_email;
         $currentUserPocEmail = PVCompany::where(function ($query) use ($pocEmail) {
             $query->where('email', '=', $pocEmail)
                   ->orWhere('linked_data', 'like', '%'.$pocEmail.'%');
-            })->where('user_id', $logggedInUserId)->first();
+            })->where('assigned_user_id', $logggedInUserId)->first();
 
         if(!empty($currentUserPocEmail)){
             $data['status'] = 1;
@@ -658,18 +658,32 @@ class RequirementController extends Controller
         $otherUserPocEmail = PVCompany::where(function ($query) use ($pocEmail) {
             $query->where('email', '=', $pocEmail)
                   ->orWhere('linked_data', 'like', '%'.$pocEmail.'%');
-            })->where('user_id','!=', $logggedInUserId)->first();
+            })->where('assigned_user_id','!=', $logggedInUserId)->first();
 
         if(!empty($otherUserPocEmail)){
-            $requirement = Requirement::where('poc_email', $otherUserPocEmail->email)->where('created_at', '>=', $previousDate)->first();
-                $data['status'] = 1;
+            $defaultDays = 14;
+            $settingRow =  \App\Models\Setting::where('name', 'transfer_poc_if_req_not_post_days')->first();
+
+            if(!empty($settingRow) && $settingRow->value){
+                $defaultDays = $settingRow->value;
+            }
+            $previousDate = \Carbon\Carbon::now()->subDays($defaultDays);
+            $requirement = Requirement::where('poc_email', $otherUserPocEmail->email)->where('created_at', '=>', $previousDate)->first();
+            $data['status'] = 1;
                 $data['pvcompany'] = $otherUserPocEmail;
                 $data['linking_data'] = $this->getLinkingPocDetail([], $otherUserPocEmail->email);
-                $data['poc_registered'] = 1;
             if($requirement){
-                $data['message'] = '1 or more Requirement are posted from this PV in the past 14 days.Use the PV Emails Filter to manually search for the same requirement from this PV.If same job is not posted Click Yes to Post requirement and register this PV';
+                $data['poc_registered'] = 1;
+                $data['message'] = "<ul class='list-group list-group-flush text-left'>
+                                        <li class='list-group-item'><i class='fa fa-hand-point-right mr-2'></i>1 or more Original Requirement are posted from this POC in the past ".$defaultDays." days.</li>
+                                        <li class='list-group-item'><i class='fa fa-hand-point-right mr-2'></i>This Account is currently Registered to BDM: <span class='font-weight-bold'>".Admin::getUserNameBasedOnId($otherUserPocEmail->assigned_user_id)."</span>.</li>
+                                        <li class='list-group-item'><i class='fa fa-hand-point-right mr-2'></i>Use the POC Email Filter to manually search for the same requirement from this POC on All Requirement Page. If same job is not posted,</li>
+                                        <li class='list-group-item'><i class='fa fa-hand-point-right mr-2'></i>Request manager for a Key Transfer or request BDM: <span class='font-weight-bold'>".Admin::getUserNameBasedOnId($otherUserPocEmail->assigned_user_id)."</span> to use Self Transfer under PV Data & Transfer Page to transfer this POC to you. Once Transfer is complete, you will be able to post</li>
+                                </ul>";
             } else {
-                $data['message'] = 'There are 0 Requirements posted from this PV in the past 14 days';
+                $data['poc_can_transfer'] = 1;
+                $data['message'] = 'There are 0 Original Requirements posted from this POC in the past '. $defaultDays .' days.
+                                    Click Yes to Post requirement and Automatically Transfer this POC to you';
             }
             return $data;
         }
@@ -836,5 +850,23 @@ class RequirementController extends Controller
         }
         $data['status'] = $status;
         return  $data;
+    }
+
+    public function transferPoc(Request $request)
+    {
+        $status = 0;
+        if(!empty($request->poc_email) && Auth::user()->role == 'bdm'){
+            $pvCompanyRow = PVCompany::where('email', $request->poc_email)->first();
+            if(!empty($pvCompanyRow)){
+
+                $this->transferPocData($pvCompanyRow, $this->getCurrentUserId(), POCTransfer::TRANSFER_TYPE_AUTOMATIC);
+
+                $status = 1;
+                $data['pvcompany'] = $pvCompanyRow;
+                $data['linking_data'] = $this->getLinkingPocDetail([], $pvCompanyRow->email);
+            }
+        }
+        $data['status'] = $status;
+        return $data;
     }
 }
