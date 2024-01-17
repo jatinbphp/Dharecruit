@@ -47,6 +47,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     /*IMAGE UPLOAD IN SUMMER NOTE*/
     Route::post('image/upload', [ImageController::class,'upload_image']);
 
+    Route::get('profile_update/getTransferKey', [ProfileUpdateController::class,'getTransferKey'])->name('profile_update.getTransferKey');
     Route::resource('profile_update', ProfileUpdateController::class);
 
     /* PERMISSION MANAGEMENT */
@@ -112,6 +113,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('requirement/savePocLinkingData',  [RequirementController::class,'savePocLinkingData'])->name('requirement.savePocLinkingData');
     Route::post('requirement/check_poc', [RequirementController::class, 'checkPoc'])->name('requirement.checkPoc');
     Route::post('requirement/transfer_poc', [RequirementController::class, 'transferPoc'])->name('requirement.transfer_poc');
+    Route::post('requirement/checkTransferKey', [RequirementController::class, 'checkTransferKey'])->name('requirement.checkTransferKey');
 
     /* SUBMISSION MANAGEMENT */
     Route::get('submission/new/{id}', [SubmissionController::class,'submissionAdd'])->name('submission.newAdd');

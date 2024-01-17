@@ -25,7 +25,7 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="form-group{{ $errors->has('phone') ? ' has-error' : '' }}">
             <label class="control-label" for="phone">Phone :<span class="text-red">*</span></label>
             {!! Form::text('phone', null, ['class' => 'form-control', 'placeholder' => 'Enter Phone', 'id' => 'phone']) !!}
@@ -37,7 +37,7 @@
         </div>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="form-group{{ $errors->has('indian_phone') ? ' has-error' : '' }}">
             <label class="control-label" for="indian_phone">Indian Phone :<span class="text-red"></span></label>
             {!! Form::text('indian_phone', null, ['class' => 'form-control', 'placeholder' => 'Enter Indian Phone', 'id' => 'indian_phone']) !!}
@@ -49,7 +49,7 @@
         </div>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="form-group{{ $errors->has('status') ? ' has-error' : '' }}">
             <label class="col-md-12 control-label" for="status">Status :<span class="text-red">*</span></label>
             <div class="col-md-12">
@@ -63,6 +63,24 @@
                 @if ($errors->has('status'))
                     <span class="text-danger" id="statusError">
                         <strong>{{ $errors->first('status') }}</strong>
+                    </span>
+                @endif
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group{{ $errors->has('is_allow_transfer_key') ? ' has-error' : '' }}">
+            <label class="col-md-12 control-label" for="is_allow_transfer_key">Is Allow Transfer Key :</label>
+            <div class="col-md-12">
+                <label>
+                    {!! Form::radio('is_allow_transfer_key', 1, null, ['class' => 'flat-red']) !!} <span style="margin-right: 10px">Yes</span>
+                </label>
+                <label>
+                    {!! Form::radio('is_allow_transfer_key', 0, null, ['class' => 'flat-red']) !!} <span style="margin-right: 10px">No</span>
+                </label>
+                @if ($errors->has('is_allow_transfer_key'))
+                    <span class="text-danger">
+                        <strong>{{ $errors->first('is_allow_transfer_key') }}</strong>
                     </span>
                 @endif
             </div>

@@ -668,7 +668,7 @@ class RequirementController extends Controller
                 $defaultDays = $settingRow->value;
             }
             $previousDate = \Carbon\Carbon::now()->subDays($defaultDays);
-            $requirement = Requirement::where('poc_email', $otherUserPocEmail->email)->where('created_at', '=>', $previousDate)->first();
+            $requirement = Requirement::where('poc_email', $otherUserPocEmail->email)->where('created_at', '>=', $previousDate)->first();
             $data['status'] = 1;
                 $data['pvcompany'] = $otherUserPocEmail;
                 $data['linking_data'] = $this->getLinkingPocDetail([], $otherUserPocEmail->email);
@@ -864,6 +864,27 @@ class RequirementController extends Controller
                 $status = 1;
                 $data['pvcompany'] = $pvCompanyRow;
                 $data['linking_data'] = $this->getLinkingPocDetail([], $pvCompanyRow->email);
+            }
+        }
+        $data['status'] = $status;
+        return $data;
+    }
+
+    public function checkTransferKey(Request $request)
+    {
+        $status = 0;
+        if(!empty($request->poc_email) && !empty($request->transfer_key)){
+            $userDataRow = Admin::where('transfer_key', $request->transfer_key)->first();
+            if(!empty($userDataRow)){
+                $pvCompanyRow = PVCompany::where('email', $request->poc_email)->first();
+                if(!empty($pvCompanyRow)){
+                    $this->transferPocData($pvCompanyRow, $this->getCurrentUserId(), POCTransfer::TRANSFER_TYPE_KEY);
+
+                    $pvCompanyRow->used_key = $userDataRow->transfer_key;
+                    $pvCompanyRow->used_key_owner = $userDataRow->id;
+                    $pvCompanyRow->save();
+                    $status = 1;
+                }
             }
         }
         $data['status'] = $status;

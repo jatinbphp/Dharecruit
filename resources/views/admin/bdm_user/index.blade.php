@@ -65,7 +65,13 @@
             lengthMenu: [ 100, 200, 300, 400, 500 ],
             ajax: "{{ route('bdm_user.index') }}",
             columns: [
-                {data: 'name', "width": "15%", name: 'name'},
+                {data: 'name', "width": "15%", name: 'name', render: function (data,type,row){
+                        if(row.is_allow_transfer_key == 1){
+                            return '<div class="float-left">'+ data + '</div><div class="text-right"><i class="fa fa-key"></i></div>';
+                        }
+                        return  data;
+                    }
+                },
                 {data: 'email',  name: 'email'},
                 {data: 'phone',  name: 'phone'},
                 {data: 'indian_phone',  name: 'indian_phone'},

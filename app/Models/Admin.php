@@ -22,7 +22,9 @@ class Admin extends Authenticatable
         'role',
         'status',
         'employee_name',
-        'added_by'
+        'added_by',
+        'is_allow_transfer_key',
+        'transfer_key',
     ];
 
     protected $hidden = [

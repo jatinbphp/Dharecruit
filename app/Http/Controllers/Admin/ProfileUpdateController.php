@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ProfileUpdateController extends Controller
 {
@@ -61,5 +62,16 @@ class ProfileUpdateController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function getTransferKey()
+    {
+        $transferKey = Str::random(8);
+        $adminRow = Admin::where('transfer_key',$transferKey)->first();
+        if(!empty($adminRow)){
+            return $this->getTransferKey();
+        }else{
+            return $transferKey;
+        }
     }
 }

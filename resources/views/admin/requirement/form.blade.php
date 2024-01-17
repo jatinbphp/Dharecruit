@@ -414,7 +414,6 @@
     <div class="text-right mb-3 pr-3">
         <button class="btn btn-info" id="pvSave">Save</button>
     </div> --}}
-    @include('admin.requirement.linking_pocModel')
 </div>
 
 @section('jquery')
@@ -570,12 +569,28 @@
                         if(data.is_current_user_email == 1){
                             fillPvData(data);
                         } else if(data.poc_registered == 1){
-                            // swal("Already Registered", '<b>'+data.message+'</b>', "warning", true);
                             swal({
                                 title: "Already Registered",
                                 text: data.message,
                                 type: "warning",
-                                html: true  // Allow HTML in the message
+                                html: true,
+                                showCancelButton: true,
+                                confirmButtonText: 'Yes, Use Key Trasfer',
+                                cancelButtonText: "Cancel",
+                                closeOnConfirm: false,
+                                closeOnCancel: true
+                            },
+                            function(isConfirm) {
+                                if (isConfirm) {
+                                    var email = $('#search_poc_email').val();
+                                    if(!email){
+                                        swal("Error", "Something is wrong!", "error");
+                                        return '';
+                                    }
+                                    swal.close();
+                                    $('#model_poc_email').val(email);
+                                    $('#addTransferKey').modal('show');
+                                }
                             });
                         } else if(data.poc_can_transfer == 1) {
                             swal({
@@ -744,5 +759,27 @@
             });
         });
 
+        $('#transferKey').click(function (){
+            var key = $('#transfer_key').val();
+            var pocEmail = $('#model_poc_email').val();
+            if(!key){
+                $('#transfer_key_error').text('Please Add Transfer Key.');
+                return;
+            }
+
+            $.ajax({
+                url: "{{route('requirement.checkTransferKey')}}",
+                type: "POST",
+                data: {'poc_email' : pocEmail, 'transfer_key': key,_token: '{{csrf_token()}}' },
+                success: function(data) {
+                    if(data.status == 1){
+                        $('#addTransferKey').modal('hide');
+                        $('#search_by_poc_email').click();
+                    } else {
+                        $('#transfer_key_error').text('Invalid Key.');
+                    }
+                }
+            });
+        });
     </script>
 @endsection

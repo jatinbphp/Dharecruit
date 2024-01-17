@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
@@ -46,18 +48,23 @@ class LoginController extends Controller
     }
 
     public function adminLogin(Request $request){
-       
+
         $this->validate($request, [
             'email'   => 'required|email',
             'password' => 'required|min:6'
         ]);
 
-
-        if (\Auth::guard('admin')->attempt($request->only(['email','password']), $request->get('remember'))){
+        if (\Auth::guard('admin')->attempt(array_merge( $request->only('email', 'password'), ['status' => 'active' ]), $request->get('remember'))){
             //return "success login";
             return redirect()->intended('admin/dashboard');
         }
+        $this->sendFailedLoginResponse($request);
+    }
 
-        return back()->withInput($request->only('email', 'remember'));
+    protected function sendFailedLoginResponse(Request $request)
+    {
+        throw ValidationException::withMessages([
+            'status' => ['Your account is inactive please contact admin.'],
+        ]);
     }
 }

@@ -46,7 +46,27 @@
     </div>
 </div>
 
-<script src="{{ URL::asset('assets/plugins/jQuery/jquery.min.js')}}"></script>
+@if(getLoggedInUserRole() == 'bdm' && isset($user) && $user->is_allow_transfer_key == 1)
+    <div class="form-group{{ $errors->has('transfer_key') ? ' has-error' : '' }}">
+    <label class="control-label" for="transferKey">Generate Kay</label>
+    <div class="col-sm-8">
+        <div class="input-group mb-3">
+            {!! Form::text('transfer_key', null, ['class' => 'form-control','id' => 'transferKey', 'readonly' => true]) !!}
+            <div class="input-group-append">
+                <button type="button" class="btn btn-sm btn-default" title="Generate Key" onclick="generateKey()"><i class="fa fa-redo" aria-hidden="true"></i></button>
+                <button type="button" class="btn btn-sm btn-default" data-toggle="tooltip" data-placement="top" title="Copy to Clipboard" onclick="copyKey()" id="copyTooltip"><i class="fa fa-copy" aria-hidden="true"></i></button>
+            </div>
+        </div>
+        @if ($errors->has('transfer_key'))
+            <span class="help-block">
+             <strong>{{ $errors->first('transfer_key') }}</strong>
+            </span>
+        @endif
+    </div>
+</div>
+@endif
+
+@section('jquery')
 <script>
     $(document).ready(function() {
         $("#profileForm").validate({
@@ -62,4 +82,23 @@
         });
         $('.error').css("font-weight", "bold")
     });
+
+    function generateKey() {
+        $.ajax({
+            url: "{{route('profile_update.getTransferKey')}}",
+            type: "get",
+            success: function(data){
+                if(data){
+                    $("#transferKey").val(data);
+                }
+            }
+        });
+    }
+
+    function copyKey() {
+        $("#transferKey").select();
+        document.execCommand('copy');
+        $("#copyMessage").fadeIn(300).delay(1500).fadeOut(300);
+    }
 </script>
+@endsection

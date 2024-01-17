@@ -112,6 +112,10 @@ class BDMUserController extends Controller
         }
 
         $input = $request->all();
+        if($request->has('is_allow_transfer_key') && $request->is_allow_transfer_key == 0){
+            $input['transfer_key'] = null;
+        }
+
         $user = Admin::findorFail($id);
         $user->update($input);
 

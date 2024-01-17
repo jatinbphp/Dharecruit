@@ -54,4 +54,6 @@
             </div>
         </section>
     </div>
+    @include('admin.requirement.linking_pocModel')
+    @include('admin.requirement.add_transfer_key')
 @endsection

@@ -107,7 +107,7 @@ trait SubmissionTrait{
             'heading_type'                   => $headingType,
             'total_employer'                 => $this->getUserIdWiseTotalEmployer($date, $userId, $recruiters, $type),
             'new_employer'                   => "-",
-            'total_employee'                 => $this->getUserIdWiseTotalEmployer($date, $userId, $recruiters, $type),
+            'total_employee'                 => $this->getUserIdWiseTotalEmployee($date, $userId, $recruiters, $type),
             'new_employee'                   => "-",
             'new_employee_uni_submission'    => "-",
             'alloted'                        => $totalAllotedRequirements,
