@@ -36,7 +36,7 @@ class BDMSubmissionController extends Controller
                         $query->select('id', 'name');
                     }
                 ]
-            )->select('id', 'user_id', 'requirement_id', 'candidate_id', 'name', 'email', 'location', 'recruiter_rate', 'employer_name', 'employee_name', 'employee_email', 'status', 'pv_status', 'created_at');
+            )->select('id', 'user_id', 'requirement_id', 'candidate_id', 'name', 'email', 'location', 'recruiter_rate', 'employer_name', 'employee_name', 'employee_email', 'status', 'pv_status', 'created_at', 'is_show');
 
             if(!empty($request->fromDate)){
                 $fromDate = date('Y-m-d', strtotime($request->fromDate));
@@ -259,7 +259,6 @@ class BDMSubmissionController extends Controller
                             <span class="text-secondary font-weight-bold">'.$timeSpan.'</span>
                         </div>';
                 })
-
                 ->addColumn('bdm_status', function($row){
                     $statusLastUpdatedAt = ($row->bdm_status_updated_at) ? strtotime($row->bdm_status_updated_at) : 0;
                     $status = isset(Submission::$status[$row->status]) ? "<p data-order='$statusLastUpdatedAt'>".Submission::$status[$row->status]."</p>" : '';
