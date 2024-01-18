@@ -15,7 +15,7 @@
                     <thead>
                         <tr>
                             <th scope="col" class="text-center element-border">BDM</th>
-                            <th scope="col" colspan="5" class="text-center element-border rm-left-border">POC Data</th>
+                            <th scope="col" colspan="6" class="text-center element-border rm-left-border">POC Data</th>
                             <th scope="col" colspan="5" class="text-center element-border rm-left-border">Requirement</th>
                             <th scope="col" class="text-center element-border rm-left-border">Submission</th>
                             <th scope="col" colspan="4" class="text-center element-border rm-left-border">BDM Status</th>
@@ -26,7 +26,7 @@
                             <tr>
                                 @foreach($headings as $key => $data)
                                     @php
-                                       $bottomRight = (in_array($key, ['heading_bdm', 'heading_type', 'heading_servable_per', 'servable_per', 'heading_sub_rec', 'heading_submission_received', 'submission_received', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout', 'heading_new_req_poc'])) ? 'border-right' : '';
+                                       $bottomRight = (in_array($key, ['heading_bdm', 'heading_type', 'heading_servable_per', 'servable_per', 'heading_sub_rec', 'heading_submission_received', 'submission_received', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout', 'heading_tramsfer_out_poc'])) ? 'border-right' : '';
                                        $borderLeft = (in_array($key, ['heading_type', 'heading_bdm'])) ? 'border-left' : '';
                                     @endphp
                                         <th class="border-bottom {{"$borderLeft $bottomRight"}}">{{$data}}</th>
@@ -45,7 +45,7 @@
                                                 $data = ($data) ? $data : '-';
                                                 $topBorder = ($key == 'heading') ? 'border-top' : '';
                                                 $bottomBorder = (in_array($key,['time_frame', 'heading']) || (isset($bdmData['time_frame']) && !count($bdmData['time_frame']) && $key == 'last_month')) ? 'border-bottom' : '';
-                                                $bottomRight = (in_array($heading, ['heading_bdm', 'heading_type', 'heading_servable_per', 'servable_per', 'heading_sub_rec', 'heading_submission_received', 'submission_received', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout', 'new_req_poc'])) ? 'border-right' : '';
+                                                $bottomRight = (in_array($heading, ['heading_bdm', 'heading_type', 'heading_servable_per', 'servable_per', 'heading_sub_rec', 'heading_submission_received', 'submission_received', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout', 'tramsfer_out_poc'])) ? 'border-right' : '';
                                                 $borderLeft = (in_array($heading, ['heading_type', 'heading_bdm'])) ? 'border-left' : '';
                                             @endphp
                                             <td class="{{"$class $topBorder $bottomBorder $borderLeft $bottomRight"}}">{{$data}}</td>
@@ -78,7 +78,7 @@
                     <thead>
                     <tr>
                         <th scope="col" class="text-center element-border">Recruiter</th>
-                        <th scope="col" colspan="5" class="text-center element-border rm-left-border">Employee Data</th>
+                        <th scope="col" colspan="4" class="text-center element-border rm-left-border">Employee Data</th>
                         <th scope="col" colspan="4" class="text-center element-border rm-left-border">Requirement</th>
                         <th scope="col" colspan="2" class="text-center element-border rm-left-border">Submission</th>
                         <th scope="col" colspan="4" class="text-center element-border rm-left-border">BDM Status</th>
@@ -89,7 +89,7 @@
                         <tr>
                             @foreach($headings as $key => $data)
                                 @php
-                                    $bottomRight = (in_array($key, ['heading_recruiter', 'heading_type','heading_servable_per', 'heading_uniq_sub', 'heading_submission_received', 'heading_un_viewed', 'heading_position_closed', 'heading_client_backout', 'heading_backout', 'heading_new_employee_uni_submission'])) ? 'border-right' : '';
+                                    $bottomRight = (in_array($key, ['heading_recruiter', 'heading_type','heading_servable_per', 'heading_uniq_sub', 'heading_submission_received', 'heading_un_viewed', 'heading_position_closed', 'heading_client_backout', 'heading_backout', 'heading_new_employee'])) ? 'border-right' : '';
                                     $borderLeft = (in_array($key, ['heading_type', 'heading_recruiter'])) ? 'border-left' : '';
                                 @endphp
                                 <th class="border-bottom {{"$borderLeft $bottomRight"}}">{{$data}}</th>
@@ -108,7 +108,7 @@
                                             $data = ($data) ? $data : '-';
                                             $topBorder = ($key == 'heading') ? 'border-top' : '';
                                             $bottomBorder = (in_array($key,['time_frame', 'heading']) || (isset($recruitersData['time_frame']) && !count($recruitersData['time_frame']) && $key == 'last_month')) ? 'border-bottom' : '';
-                                            $bottomRight = (in_array($heading, ['heading_recruiter', 'heading_type','heading_servable_per', 'servable_per', 'heading_uniq_sub', 'unique_submission_sent','heading_submission_received', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout', 'new_employee_uni_submission'])) ? 'border-right' : '';
+                                            $bottomRight = (in_array($heading, ['heading_recruiter', 'heading_type','heading_servable_per', 'servable_per', 'heading_uniq_sub', 'unique_submission_sent','heading_submission_received', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout', 'new_employee'])) ? 'border-right' : '';
                                             $borderLeft = (in_array($heading, ['heading_type', 'heading_recruiter'])) ? 'border-left' : '';
                                         @endphp
                                         <td class="{{"$class $topBorder $bottomBorder $borderLeft $bottomRight"}}">{{$data}}</td>
@@ -139,7 +139,7 @@
                         <thead>
                         <tr>
                             <th scope="col" class="text-center element-border">BDM</th>
-                            <th scope="col" colspan="5" class="text-center element-border rm-left-border">POC Data</th>
+                            <th scope="col" colspan="6" class="text-center element-border rm-left-border">POC Data</th>
                             <th scope="col" colspan="5" class="text-center element-border rm-left-border">Requirement</th>
                             <th scope="col" class="text-center element-border rm-left-border">Submission</th>
                             <th scope="col" colspan="4" class="text-center element-border rm-left-border">BDM Status</th>
@@ -150,7 +150,7 @@
                             <tr>
                                 @foreach($headings as $key => $data)
                                     @php
-                                        $bottomRight = (in_array($key, ['heading_time_frame', 'heading_type', 'heading_servable_per', 'heading_sub_rec', 'heading_submission_received', 'heading_un_viewed', 'heading_position_closed', 'heading_client_backout', 'heading_backout', 'heading_new_req_poc'])) ? 'border-right' : '';
+                                        $bottomRight = (in_array($key, ['heading_time_frame', 'heading_type', 'heading_servable_per', 'heading_sub_rec', 'heading_submission_received', 'heading_un_viewed', 'heading_position_closed', 'heading_client_backout', 'heading_backout', 'heading_tramsfer_out_poc'])) ? 'border-right' : '';
                                         $borderLeft = (in_array($key, ['heading_type', 'heading_time_frame'])) ? 'border-left' : '';
                                     @endphp
                                     <th class="border-bottom {{"$borderLeft $bottomRight"}}">{{$data}}</th>
@@ -172,7 +172,7 @@
                                                 $data = ($data) ? $data : '-';
                                                 $topBorder = ($key == 'heading') ? 'border-top' : '';
                                                 $bottomBorder = ($key == 'heading' || $i == $totalCount) ? 'border-bottom' : '';
-                                                $bottomRight = (in_array($heading, ['heading_time_frame', 'heading_type', 'heading_servable_per', 'servable_per', 'heading_sub_rec', 'heading_submission_received', 'submission_received', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout','new_req_poc'])) ? 'border-right' : '';
+                                                $bottomRight = (in_array($heading, ['heading_time_frame', 'heading_type', 'heading_servable_per', 'servable_per', 'heading_sub_rec', 'heading_submission_received', 'submission_received', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout','tramsfer_out_poc'])) ? 'border-right' : '';
                                                 $borderLeft = (in_array($heading, ['heading_type', 'heading_time_frame'])) ? 'border-left' : '';
                                             @endphp
                                             <td class="{{"$class $topBorder $bottomBorder $borderLeft $bottomRight"}}">{{$data}}</td>
@@ -201,7 +201,7 @@
                 <thead>
                 <tr>
                     <th scope="col" class="text-center element-border">Recruiter</th>
-                    <th scope="col" colspan="5" class="text-center element-border rm-left-border">Employee Data</th>
+                    <th scope="col" colspan="4" class="text-center element-border rm-left-border">Employee Data</th>
                     <th scope="col" colspan="4" class="text-center element-border rm-left-border">Requirement</th>
                     <th scope="col" colspan="2" class="text-center element-border rm-left-border">Submission</th>
                     <th scope="col" colspan="4" class="text-center element-border rm-left-border">BDM Status</th>
@@ -212,7 +212,7 @@
                     <tr>
                         @foreach($headings as $key => $data)
                             @php
-                                $bottomRight = (in_array($key, ['heading_recruiter', 'heading_new_employee_uni_submission', 'heading_time_frame' ,'heading_type','heading_servable_per', 'heading_uniq_sub','heading_submission_received', 'heading_un_viewed', 'heading_position_closed', 'heading_client_backout', 'heading_backout'])) ? 'border-right' : '';
+                                $bottomRight = (in_array($key, ['heading_recruiter', 'heading_new_employee', 'heading_time_frame' ,'heading_type','heading_servable_per', 'heading_uniq_sub','heading_submission_received', 'heading_un_viewed', 'heading_position_closed', 'heading_client_backout', 'heading_backout'])) ? 'border-right' : '';
                                 $borderLeft = (in_array($key, ['heading_type', 'heading_time_frame'])) ? 'border-left' : '';
                             @endphp
                             <th class="border-bottom {{"$borderLeft $bottomRight"}}">{{$data}}</th>
@@ -234,7 +234,7 @@
                                     $data = ($data) ? $data : '-';
                                     $topBorder = ($key == 'heading') ? 'border-top' : '';
                                     $bottomBorder = ($key == 'heading' || $i == $totalCount) ? 'border-bottom' : '';
-                                    $bottomRight = (in_array($heading, ['heading_recruiter', 'new_employee_uni_submission', 'heading_time_frame' ,'heading_type','heading_servable_per', 'servable_per', 'heading_uniq_sub', 'unique_submission_sent','heading_submission_received', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout'])) ? 'border-right' : '';
+                                    $bottomRight = (in_array($heading, ['heading_recruiter', 'new_employee', 'heading_time_frame' ,'heading_type','heading_servable_per', 'servable_per', 'heading_uniq_sub', 'unique_submission_sent','heading_submission_received', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout'])) ? 'border-right' : '';
                                     $borderLeft = (in_array($heading, ['heading_type', 'heading_time_frame'])) ? 'border-left' : '';
                                 @endphp
                                 <td class="{{"$class $topBorder $bottomBorder $borderLeft $bottomRight"}}">{{$data}}</td>

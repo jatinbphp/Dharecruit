@@ -21,6 +21,8 @@ trait SubmissionTrait{
     protected $_userIdWisetotalReceivedSubmissionCount = [];
     protected $_userIdWiseTotalEmployeeCount = [];
     protected $_userIdWiseTotalEmployerCount = [];
+    protected $_userIdWiseTotalNewEmployeeCount = [];
+    protected $_userIdWiseTotalNewEmployerCount = [];
 
     public function getRecruiterUserHeadingData(): array
     {
@@ -30,7 +32,6 @@ trait SubmissionTrait{
             'heading_new_employer'       => "New Sales Comp",
             'heading_total_employee'     => "Total Bench POC",
             'heading_new_employee'       => "New Bench POC",
-            'heading_new_employee_uni_submission'     => "New Bench POC Uni Can.",
             'heading_alloted'            =>'Allotad',
             'heading_served'             =>'Served',
             'heading_unserved'           =>'Unserved',
@@ -63,7 +64,6 @@ trait SubmissionTrait{
             'heading_new_employer'       => "New Sales Comp",
             'heading_total_employee'     => "Total Bench POC",
             'heading_new_employee'       => "New Bench POC",
-            'heading_new_employee_uni_submission'     => "New Bench POC Uni Can.",
             'heading_alloted'            =>'Allotad',
             'heading_served'             =>'Served',
             'heading_unserved'           =>'Unserved',
@@ -106,10 +106,9 @@ trait SubmissionTrait{
         return [
             'heading_type'                   => $headingType,
             'total_employer'                 => $this->getUserIdWiseTotalEmployer($date, $userId, $recruiters, $type),
-            'new_employer'                   => "-",
+            'new_employer'                   => $this->getuserIdWiseTotalNewEmployer($date, $userId, $recruiters, $type),
             'total_employee'                 => $this->getUserIdWiseTotalEmployee($date, $userId, $recruiters, $type),
-            'new_employee'                   => "-",
-            'new_employee_uni_submission'    => "-",
+            'new_employee'                   => $this->getuserIdWiseTotalNewEmployee($date, $userId, $recruiters, $type),
             'alloted'                        => $totalAllotedRequirements,
             'served'                         => $servedRequirements,
             'unserved'                       => $this->getTotalRecruiterUnServedRequirementCount($date, $userId, $recruiters, $type),
@@ -277,8 +276,8 @@ trait SubmissionTrait{
 
     public function getUserIdWiseTotalEmployer($date, $userId, $recruiters, $type)
     {
-        if(!$this->_userIdWiseTotalEmployeeCount || !isset($this->_userIdWiseTotalEmployeeCount[$type])){
-            $this->_userIdWiseTotalEmployeeCount[$type] = Submission::select('user_id', \DB::raw('COUNT(DISTINCT LOWER(employer_name)) as count'))
+        if(!$this->_userIdWiseTotalEmployerCount || !isset($this->_userIdWiseTotalEmployerCount[$type])){
+            $this->_userIdWiseTotalEmployerCount[$type] = Submission::select('user_id', \DB::raw('COUNT(DISTINCT LOWER(employer_name)) as count'))
                 ->whereIn('user_id', $recruiters)
                 ->whereBetween('created_at', $date)
                 ->groupBy('user_id')
@@ -286,8 +285,44 @@ trait SubmissionTrait{
                 ->toArray();
         }
 
-        if(isset($this->_userIdWiseTotalEmployeeCount[$type][$userId])){
-            return $this->_userIdWiseTotalEmployeeCount[$type][$userId];
+        if(isset($this->_userIdWiseTotalEmployerCount[$type][$userId])){
+            return $this->_userIdWiseTotalEmployerCount[$type][$userId];
+        }
+
+        return 0;
+    }
+    public function getuserIdWiseTotalNewEmployer($date, $userId, $recruiters, $type)
+    {
+        if(!$this->_userIdWiseTotalNewEmployerCount || !isset($this->_userIdWiseTotalNewEmployerCount[$type])){
+            $this->_userIdWiseTotalNewEmployerCount[$type] = Admin::select('added_by', \DB::raw('COUNT(DISTINCT LOWER(name)) as count'))
+                ->whereIn('added_by', $recruiters)
+                ->where('role', 'employee')
+                ->whereBetween('created_at', $date)
+                ->groupBy('added_by')
+                ->pluck('count', 'added_by')
+                ->toArray();
+        }
+
+        if(isset($this->_userIdWiseTotalNewEmployerCount[$type][$userId])){
+            return $this->_userIdWiseTotalNewEmployerCount[$type][$userId];
+        }
+
+        return 0;
+    }
+    public function getuserIdWiseTotalNewEmployee($date, $userId, $recruiters, $type)
+    {
+        if(!$this->_userIdWiseTotalNewEmployeeCount || !isset($this->_userIdWiseTotalNewEmployeeCount[$type])){
+            $this->_userIdWiseTotalNewEmployeeCount[$type] = Admin::select('added_by', \DB::raw('COUNT(DISTINCT LOWER(employee_name)) as count'))
+                ->whereIn('added_by', $recruiters)
+                ->where('role', 'employee')
+                ->whereBetween('created_at', $date)
+                ->groupBy('added_by')
+                ->pluck('count', 'added_by')
+                ->toArray();
+        }
+
+        if(isset($this->_userIdWiseTotalNewEmployeeCount[$type][$userId])){
+            return $this->_userIdWiseTotalNewEmployeeCount[$type][$userId];
         }
 
         return 0;

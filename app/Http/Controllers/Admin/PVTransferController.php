@@ -115,8 +115,8 @@ class PVTransferController extends Controller
 
             $pvCompanyData['date_added'] = ($loggedInUserId == $pvCompany->user_id) ? $this->getFormattedDate($pvCompany->created_at) : '';
             $pvCompanyData['who_added'] = ($loggedInUserId == $pvCompany->user_id) ? 'Me' : '';
-            $pvCompanyData['date_transformed'] = ($pvCompany->is_transfer == 1) ? $this->getFormattedDate(optional($pvCompany->pocTransfers->first())->created_at) : '';
-            $pvCompanyData['who_transformed'] = ($pvCompany->is_transfer == 1) ? Admin::getUserNameBasedOnId(optional($pvCompany->pocTransfers->first())->transfer_by) ." (" .$transferType1 .")" : '';
+            $pvCompanyData['date_transformed'] = $this->getFormattedDate(optional($pvCompany->pocTransfers->first())->created_at);
+            $pvCompanyData['who_transformed'] = (optional($pvCompany->pocTransfers->first())->transfer_by) ? Admin::getUserNameBasedOnId(optional($pvCompany->pocTransfers->first())->transfer_by) ." (" .$transferType1 .")" : '';
             $pvCompanyData['key_transfered'] = ($transferType == POCTransfer::TRANSFER_TYPE_KEY) ? Admin::getUserNameBasedOnId($pvCompany->used_key_owner) : '';
             $pvCompanyData['any_req_in_past_days'] = $this->anyReqInLastNDays($pvCompany);
             $pvCompanyData['last_post'] = $this->getLastPostDate($pvCompany);

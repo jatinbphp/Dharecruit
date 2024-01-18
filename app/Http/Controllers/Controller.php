@@ -61,18 +61,24 @@ class Controller extends BaseController
         return $this->_currentUserRole;
     }
     public function getListHtml($query, $request, $page='requirement') {
+        $newPocCountConfiguration = 1;
+        $settingRow =  Setting::where('name', 'show_poc_count_days')->first();
+        if(!empty($settingRow) && $settingRow->value){
+            $newPocCountConfiguration = $settingRow->value;
+        }
+        $createdAtDateAsPerConfiguration = \Carbon\Carbon::now()->subDays($newPocCountConfiguration);
         return Datatables::of($query)
             ->addIndexColumn()
-            ->addColumn('job_id', function($row) {
+            ->editColumn('job_id', function($row) {
                 return $this->getJobIdHtml($row);
             })
-            ->addColumn('job_title', function($row){
+            ->editColumn('job_title', function($row){
                 return $this->getJobTitleHtml($row);
             })
             ->addColumn('recruiter', function($row) use (&$request){
-              return $this->getRecruiterHtml($row, $request);
+                return $this->getRecruiterHtml($row, $request);
             })
-            ->addColumn('status', function($row){
+            ->editColumn('status', function($row){
                 return $this->getStatusHtml($row);
             })
             ->addColumn('candidate', function ($row) use (&$page, &$request){
@@ -81,20 +87,26 @@ class Controller extends BaseController
             ->addColumn('action', function ($row) use (&$page){
                 return $this->getActionHtml($row, $page);
             })
-            ->addColumn('job_keyword', function($row) {
-               return $this->getJobKeywordHtml($row);
+            ->editColumn('job_keyword', function($row) {
+                return $this->getJobKeywordHtml($row);
             })
-            ->addColumn('pv', function($row) {
+            ->editColumn('pv', function($row) {
                 return $this->getPvHtml($row);
             })
-            ->addColumn('poc', function($row) {
+            ->editColumn('poc', function($row) {
                 return $this->getPocHtml($row);
             })
             ->addColumn('total_orig_req', function($row) {
                 return $this->getTotalOrigReq($row);
             })
+            ->filterColumn('poc_count', function ($query, $keyword) {
+                $query->whereRaw('(SELECT COUNT(*) FROM requirements r2 WHERE r2.poc_email = requirements.poc_email and r2.poc_name = requirements.poc_name and (r2.id = r2.parent_requirement_id or r2.parent_requirement_id = 0)) LIKE ?', ["%{$keyword}%"]);
+            })
             ->addColumn('total_orig_req_in_days', function($row) {
                 return $this->getTotalOrigReqInDays($row);
+            })
+            ->filterColumn('poc_count_in_days', function ($query, $keyword) use (&$createdAtDateAsPerConfiguration) {
+                $query->whereRaw('(SELECT COUNT(*) FROM requirements r2 WHERE r2.poc_email = requirements.poc_email and r2.poc_name = requirements.poc_name and (r2.id = r2.parent_requirement_id or r2.parent_requirement_id = 0) and r2.created_at >= ?) LIKE ?', [$createdAtDateAsPerConfiguration, "%{$keyword}%"]);
             })
             ->setRowClass(function ($row) {
                 return (($row->parent_requirement_id != 0 && $row->parent_requirement_id == $row->id) ? 'parent-row' : (($row->parent_requirement_id != 0) ? 'child-row' : ''));
@@ -499,11 +511,8 @@ class Controller extends BaseController
         if($this->getCurrentUserRole() != 'admin'){
             return '';
         }
-        $controllerObj = new Controller();
-        $totalPvCount = $controllerObj->getAllPvCompanyCount($row->poc_name);
-        $isNewPoc     = $controllerObj->isNewAsPerConfiguration('poc_name', $row->poc_name);
 
-        return $controllerObj->getTotalOrigReqBasedOnPocData($row->poc_name, $row->poc_email);
+        return $this->getTotalOrigReqBasedOnPocData($row->poc_name, $row->poc_email);
     }
 
     public function getUser(){
@@ -517,19 +526,51 @@ class Controller extends BaseController
         $user = Auth::user();
         $requirementIds = [];
 
-        $query = Requirement::with(
-                [
-                    'BDM' => function ($query) {
-                        $query->select('name as bdm_name','id');
-                    },
-                    'Category' => function ($query) {
-                        $query->select('name as category_name','id');
-                    },
-                ]
-            )->select('id', 'created_at','user_id','job_id', 'job_title', 'location', 'work_type', 'duration', 'visa', 'client', 'my_rate', 'category', 'moi', 'job_keyword', 'pv_company_name', 'poc_name', 'client_name', 'display_client', 'status', 'recruiter', 'is_show_recruiter', 'is_show_recruiter_after_update','is_update_requirement','parent_requirement_id','poc_email');
+        $newPocCountConfiguration = 1;
+        $settingRow =  Setting::where('name', 'show_poc_count_days')->first();
+        if(!empty($settingRow) && $settingRow->value){
+            $newPocCountConfiguration = $settingRow->value;
+        }
+        $createdAtDateAsPerConfiguration = \Carbon\Carbon::now()->subDays($newPocCountConfiguration);
+
+        $query = Requirement::select(
+            'requirements.id',
+            'requirements.created_at',
+            'requirements.user_id',
+            'requirements.job_id',
+            'requirements.job_title',
+            'requirements.location',
+            'requirements.work_type',
+            'requirements.duration',
+            'requirements.visa',
+            'requirements.client',
+            'requirements.my_rate',
+            'requirements.category',
+            'requirements.moi',
+            'requirements.job_keyword',
+            'requirements.pv_company_name',
+            'requirements.poc_name',
+            'requirements.client_name',
+            'requirements.display_client',
+            'requirements.status',
+            'requirements.recruiter',
+            'requirements.is_show_recruiter',
+            'requirements.is_show_recruiter_after_update',
+            'requirements.is_update_requirement',
+            'requirements.parent_requirement_id',
+            'requirements.poc_email',
+            'bdm.name as bdm_name',
+            'category.name as category_name',
+            \DB::raw('(SELECT COUNT(*) FROM requirements r2 WHERE r2.poc_email = requirements.poc_email and r2.poc_name = requirements.poc_name and (r2.id = r2.parent_requirement_id or r2.parent_requirement_id = 0)) as poc_count'),
+            \DB::raw('(SELECT COUNT(*) FROM requirements r2 WHERE r2.poc_email = requirements.poc_email and r2.poc_name = requirements.poc_name and (r2.id = r2.parent_requirement_id or r2.parent_requirement_id = 0) and r2.created_at >= "'.$createdAtDateAsPerConfiguration.'") as poc_count_in_days'),
+
+        )
+            ->join('admins as bdm', 'bdm.id', '=', 'requirements.user_id')
+            ->join('categories as category', 'category.id', '=', 'requirements.category');
+
         $expStatus = [Requirement::STATUS_EXP_HOLD , Requirement::STATUS_EXP_NEED];
         if($user['role'] == 'bdm' && isset($request->authId) && $request->authId > 0){
-            $query = $query->where('user_id',$request->authId);
+            $query = $query->where('requirements.user_id',$request->authId);
         }elseif($user['role'] == 'recruiter' && isset($request->authId) && $request->authId > 0){
             $query = $query->whereRaw("find_in_set($request->authId,recruiter)");
         }
@@ -537,58 +578,58 @@ class Controller extends BaseController
         // As Per Client Requirement Not Show Expired Req on all page for bdm and req but they can search it.
         if(in_array(Auth::user()->role, ['bdm', 'recruiter']) && $page == 'all' && empty($request->fromDate) && empty($request->toDate)){
             if(!in_array($request->status, ['exp_hold','exp_need'])){
-                $query->whereNotIn('status',$expStatus);
+                $query->whereNotIn('requirements.status',$expStatus);
             }
         }
 
         if(!empty($request->fromDate)){
             $fromDate = date('Y-m-d', strtotime($request->fromDate));
-            $query->where('created_at', '>=' ,$fromDate." 00:00:00");
+            $query->where('requirements.created_at', '>=' ,$fromDate." 00:00:00");
         }
 
         if(!empty($request->toDate)){
             $toDate = date('Y-m-d', strtotime($request->toDate));
-            $query->where('created_at', '<=' ,$toDate." 23:59:59");
+            $query->where('requirements.created_at', '<=' ,$toDate." 23:59:59");
         }
 
         if(!empty($request->job_title)){
-            $query->where('job_title', 'like', '%'.$request->job_title.'%');
+            $query->where('requirements.job_title', 'like', '%'.$request->job_title.'%');
         }
 
         if(!empty($request->bdm)){
-            $query->where('user_id', $request->bdm);
+            $query->where('requirements.user_id', $request->bdm);
         }
 
         if(!empty($request->job_id)){
-            $query->where('job_id', $request->job_id);
+            $query->where('requirements.job_id', $request->job_id);
         }
 
         if(!empty($request->client)){
-            $query->where('client_name', 'like', '%'.$request->client.'%');
+            $query->where('requirements.client_name', 'like', '%'.$request->client.'%');
         }
 
         if(!empty($request->job_location)){
-            $query->where('location', 'like', '%'.$request->job_location.'%');
+            $query->where('requirements.location', 'like', '%'.$request->job_location.'%');
         }
 
         if(!empty($request->moi)){
-            $query->where('moi', 'like', '%,'.$request->moi.',%');
+            $query->where('requirements.moi', 'like', '%,'.$request->moi.',%');
         }
 
         if(!empty($request->work_type)){
-            $query->where('work_type', $request->work_type);
+            $query->where('requirements.work_type', $request->work_type);
         }
 
         if(!empty($request->category)){
-            $query->where('category', $request->category);
+            $query->where('requirements.category', $request->category);
         }
 
         if(!empty($request->visa)){
-            $query->where('visa', 'like', '%,'.$request->visa.',%');
+            $query->where('requirements.visa', 'like', '%,'.$request->visa.',%');
         }
 
         if(!empty($request->recruiter)){
-            $query->where('recruiter', 'like', '%,'.$request->recruiter.',%');
+            $query->where('requirements.recruiter', 'like', '%,'.$request->recruiter.',%');
             // $recruiterReqId = $this->getRequirementIdsBasedOnFilterData('recruiter', $request->recruiter, $request);
             // $requirementIds[] = $recruiterReqId;
         }
@@ -603,32 +644,32 @@ class Controller extends BaseController
         }
 
         if(!empty($request->status)){
-            $query->where('status', $request->status);
+            $query->where('requirements.status', $request->status);
         }
 
         if(!empty($request->pv_email)){
-            $query->where('poc_email', $request->pv_email);
+            $query->where('requirements.poc_email', $request->pv_email);
         }
 
         if(!empty($request->pv_company)){
-            $query->where('pv_company_name', $request->pv_company);
+            $query->where('requirements.pv_company_name', $request->pv_company);
         }
 
         if(!empty($request->pv_name)){
-            $query->where('poc_name', $request->pv_name);
+            $query->where('requirements.poc_name', $request->pv_name);
         }
 
         if(!empty($request->pv_phone)){
-            $query->where('poc_phone_number', $request->pv_phone);
+            $query->where('requirements.poc_phone_number', $request->pv_phone);
         }
 
         if(!empty($request->requirement_type)){
             if($request->requirement_type == 'repost'){
-                $query->where('id' ,'!=', \DB::raw('parent_requirement_id'))->where('parent_requirement_id', '!=', '0');
+                $query->where('requirements.id' ,'!=', \DB::raw('requirements.parent_requirement_id'))->where('requirements.parent_requirement_id', '!=', '0');
             } elseif($request->requirement_type == 'original') {
                 $query->where(function ($query) {
-                    $query->where('id' ,'=', \DB::raw('parent_requirement_id'));
-                    $query->orwhere('parent_requirement_id', '=', '0');
+                    $query->where('requirements.id' ,'=', \DB::raw('requirements.parent_requirement_id'));
+                    $query->orwhere('requirements.parent_requirement_id', '=', '0');
                 });
             }
         }
@@ -681,17 +722,18 @@ class Controller extends BaseController
         if($requirementIds && count($requirementIds)){
             $commonRequirementIds = call_user_func_array('array_intersect', $requirementIds);
             if($commonRequirementIds && count($commonRequirementIds)){
-                $query->whereIn('id', $commonRequirementIds);
+                $query->whereIn('requirements.id', $commonRequirementIds);
             } else {
-                $query->where('id', 0);
+                $query->where('requirements.id', 0);
             }
         }
 
         if(!empty($request->show_merge) && $request->show_merge == 1){
-            return $query->orderBy('parent_requirement_id', 'DESC')->orderBy('id', 'desc');
+            return $query->orderBy('requirements.parent_requirement_id', 'DESC')->orderBy('id', 'desc');
         }
 
-        return $query->orderBy('id', 'desc');
+        return $query;
+//        return $query->orderBy('id', 'desc');
     }
 
     public function getRequirementIdBasedOnServedOptions($served, $query, $request){
@@ -701,8 +743,8 @@ class Controller extends BaseController
             $query->where('recruiter', 'like', '%,'.Auth::user()->id.',%');
             $userId = Auth::user()->id;
             $requirementIds =  Requirement::whereHas('submissions', function ($query) use ($userId) {
-                    $query->where('user_id', $userId);
-                })->pluck('id')->toArray();
+                $query->where('user_id', $userId);
+            })->pluck('id')->toArray();
 
             $data['type'] = 'where_in';
             $data['requirement_id'] = array_unique($requirementIds);
@@ -720,8 +762,8 @@ class Controller extends BaseController
             $query->where('recruiter', 'like', '%,'.Auth::user()->id.',%');
             $userId = Auth::user()->id;
             $requirementForCurrentUsersIds =  Requirement::whereHas('submissions', function ($query) use ($userId) {
-                    $query->where('user_id', $userId);
-                })->pluck('id')->toArray();
+                $query->where('user_id', $userId);
+            })->pluck('id')->toArray();
             $requirementIds =  Requirement::whereHas('submissions', function ($query) use ($userId) {
                 $query->where('user_id', '!=', $userId);
             })->pluck('id')->toArray();
@@ -1113,12 +1155,12 @@ class Controller extends BaseController
             if($loggedInUserId == $userId && $userRole == 'recruiter'){
                 $candidate .=
                     "<div class='$otherCandidate'>"
-                        .(($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "")
-                        .(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "")
-                        .(($isEmployerNameChanged) ? "<span class='badge bg-red ml-5'>2 Emp</span>" : "")
-                        .'<div class="'.$divClass.'" style="'.$divCss.'">
+                    .(($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "")
+                    .(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "")
+                    .(($isEmployerNameChanged) ? "<span class='badge bg-red ml-5'>2 Emp</span>" : "")
+                    .'<div class="'.$divClass.'" style="'.$divCss.'">
                             <span class="candidate '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'
-                            .($isSamePvCandidate ? "<i class='fa fa-info'></i>  ": "").$candidateFirstName.'-'.$submission->candidate_id.'</span>
+                    .($isSamePvCandidate ? "<i class='fa fa-info'></i>  ": "").$candidateFirstName.'-'.$submission->candidate_id.'</span>
                         </div>
                         <div class="p-1 ml-2 mt-1 border border-dark" style="width: fit-content;">
                             <span class="text-secondary font-weight-bold">'.$timeSpan.'</span>
@@ -1133,12 +1175,12 @@ class Controller extends BaseController
                 }
                 $candidate .=
                     "<div class='$otherCandidate'>"
-                        .(($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "")
-                        .(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "")
-                        .$linkData.(($isEmployerNameChanged) ? "<span class='badge bg-red ml-5'>2 Emp</span>" : "")
-                        .'<div class="'.$divClass.'" style="'.$divCss.'">
+                    .(($candidateCount) ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "")
+                    .(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "")
+                    .$linkData.(($isEmployerNameChanged) ? "<span class='badge bg-red ml-5'>2 Emp</span>" : "")
+                    .'<div class="'.$divClass.'" style="'.$divCss.'">
                             <span class="'.$class.' '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'
-                            .($isSamePvCandidate ? "<i class='fa fa-info'></i> " :"").$candidateFirstName.'-'.$submission->candidate_id.'</span>
+                    .($isSamePvCandidate ? "<i class='fa fa-info'></i> " :"").$candidateFirstName.'-'.$submission->candidate_id.'</span>
                         </div>
                         <div class="p-1 ml-2 mt-1 border border-dark" style="width: fit-content;">
                             <span class="text-secondary font-weight-bold">'.$timeSpan.'</span>
@@ -1446,7 +1488,7 @@ class Controller extends BaseController
         }
 
         $logData .=
-                '</tbody>
+            '</tbody>
             </table>';
 
         return $logData;
@@ -1748,11 +1790,11 @@ class Controller extends BaseController
 
         if($isTotal){
             return Requirement::where('poc_name', $pocName)
-            ->where('poc_email', $pocEmail)
-            ->where(function ($query) {
-                $query->where('id' ,\DB::raw('parent_requirement_id'));
-                $query->orwhere('parent_requirement_id', '=', '0');
-            })->count();
+                ->where('poc_email', $pocEmail)
+                ->where(function ($query) {
+                    $query->where('id' ,\DB::raw('parent_requirement_id'));
+                    $query->orwhere('parent_requirement_id', '=', '0');
+                })->count();
 
         }
 
@@ -1787,15 +1829,15 @@ class Controller extends BaseController
 
         if($isTotal){
             $userIdWiseRequirementCount = Requirement::where('poc_name', $pocName)
-            ->where('poc_email', $pocEmail)
-            ->groupBy('user_id')
-            ->selectRaw('user_id, COUNT(*) as count')
-            ->where(function ($query) {
-                $query->where('id' ,\DB::raw('parent_requirement_id'));
-                $query->orwhere('parent_requirement_id', '=', '0');
-            })
-            ->pluck('count', 'user_id')
-            ->toArray();
+                ->where('poc_email', $pocEmail)
+                ->groupBy('user_id')
+                ->selectRaw('user_id, COUNT(*) as count')
+                ->where(function ($query) {
+                    $query->where('id' ,\DB::raw('parent_requirement_id'));
+                    $query->orwhere('parent_requirement_id', '=', '0');
+                })
+                ->pluck('count', 'user_id')
+                ->toArray();
         } else {
             $newPocCountConfiguration = 0;
 

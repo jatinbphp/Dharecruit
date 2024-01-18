@@ -3,6 +3,8 @@ namespace App\Traits;
 
 use App\Models\Admin;
 use App\Models\Interview;
+use App\Models\POCTransfer;
+use App\Models\PVCompany;
 use App\Models\Requirement;
 use App\Models\Submission;
 
@@ -18,6 +20,10 @@ trait RequirementTrait
     protected $_userIdWisetotalReceivedSubmissionCount = [];
     protected $_userIdWiseTotalPv = [];
     protected $_userIdWiseTotalPOC = [];
+    protected $_userIdWiseTotalTransferInPOC = [];
+    protected $_userIdWiseTotalTransferOutPOC = [];
+    protected $_userIdWiseNewPv = [];
+    protected $_userIdWiseNewPoc = [];
 
     public function getBdmUserHeadingData(): array
     {
@@ -27,7 +33,8 @@ trait RequirementTrait
             'heading_new_pv'             => 'New PV',
             'heading_total_poc'          => 'Total POC',
             'heading_new_poc'            => 'New POC',
-            'heading_new_req_poc'        => 'New Req POC',
+            'heading_tramsfer_in_poc'    => 'Transfer In POC',
+            'heading_tramsfer_out_poc'   => 'Transfer Out  POC',
             'heading_total'              => 'Total',
             'heading_unique'             => 'Unique',
             'heading_served'             => 'Served',
@@ -60,7 +67,8 @@ trait RequirementTrait
             'heading_new_pv'             => 'New PV',
             'heading_total_poc'          => 'Total POC',
             'heading_new_poc'            => 'New POC',
-            'heading_new_req_poc'        => 'New Req POC',
+            'heading_tramsfer_in_poc'    => 'Transfer In POC',
+            'heading_tramsfer_out_poc'   => 'Transfer Out  POC',
             'heading_total'              => 'Total',
             'heading_unique'             => 'Unique',
             'heading_served'             => 'Served',
@@ -103,10 +111,11 @@ trait RequirementTrait
         return [
             'heading_type'                   => $headingType,
             'total_pv'                       => $this->getTotalPv($date, $bdms, $userId, $type),
-            'new_pv'                         => '-',
+            'new_pv'                         => $this->getTotalNewPV($date, $bdms, $userId, $type),
             'total_poc'                      => $this->getTotalPOC($date, $bdms, $userId, $type),
-            'new_poc'                        => '-',
-            'new_req_poc'                    => '-',
+            'new_poc'                        => $this->getTotalNewPOC($date, $bdms, $userId, $type),
+            'tramsfer_in_poc'                => $this->getTotalTransferInPoc($date, $bdms, $userId, $type),
+            'tramsfer_out_poc'               => $this->getTotalTransferOutPoc($date, $bdms, $userId, $type),
             'total_req'                      => $totalRequirements,
             'total_uni_req'                  => $this->getTotalRequirementCount($date, $bdms, $userId, $type, 1),
             'served'                         => $servedRequirements,
@@ -290,6 +299,74 @@ trait RequirementTrait
 
         if(isset($this->_userIdWiseTotalPOC[$type][$userId])){
             return $this->_userIdWiseTotalPOC[$type][$userId];
+        }
+
+        return 0;
+    }
+
+    public function getTotalNewPV($date, $bdms, $userId, $type)
+    {
+        if(!$this->_userIdWiseNewPv  || !isset($this->_userIdWiseNewPv[$type])){
+            $collection = PVCompany::select('user_id', \DB::raw('COUNT(DISTINCT(name)) as count'))
+                ->whereIn('user_id', $bdms)
+                ->whereBetween('created_at', $date)
+                ->groupBy('user_id');
+            $this->_userIdWiseNewPv[$type] = $collection->pluck('count', 'user_id')->toArray();
+        }
+
+        if(isset($this->_userIdWiseNewPv[$type][$userId])){
+            return $this->_userIdWiseNewPv[$type][$userId];
+        }
+
+        return 0;
+    }
+
+    public function getTotalNewPOC($date, $bdms, $userId, $type)
+    {
+        if(!$this->_userIdWiseNewPoc  || !isset($this->_userIdWiseNewPoc[$type])){
+            $collection = PVCompany::select('user_id', \DB::raw('COUNT(DISTINCT(poc_name)) as count'))
+                ->whereIn('user_id', $bdms)
+                ->whereBetween('created_at', $date)
+                ->groupBy('user_id');
+            $this->_userIdWiseNewPoc[$type] = $collection->pluck('count', 'user_id')->toArray();
+        }
+
+        if(isset($this->_userIdWiseNewPoc[$type][$userId])){
+            return $this->_userIdWiseNewPoc[$type][$userId];
+        }
+
+        return 0;
+    }
+
+    public function getTotalTransferInPoc($date, $bdms, $userId, $type)
+    {
+        if(!$this->_userIdWiseTotalTransferInPOC  || !isset($this->_userIdWiseTotalTransferInPOC[$type])){
+            $collection = POCTransfer::select('transfer_to', \DB::raw('COUNT(DISTINCT(pv_company_id)) as count'))
+                ->whereIn('transfer_to', $bdms)
+                ->whereBetween('created_at', $date)
+                ->groupBy('transfer_to');
+            $this->_userIdWiseTotalTransferInPOC[$type] = $collection->pluck('count', 'transfer_to')->toArray();
+        }
+
+        if(isset($this->_userIdWiseTotalTransferInPOC[$type][$userId])){
+            return $this->_userIdWiseTotalTransferInPOC[$type][$userId];
+        }
+
+        return 0;
+    }
+
+    public function getTotalTransferOutPoc($date, $bdms, $userId, $type)
+    {
+        if(!$this->_userIdWiseTotalTransferOutPOC  || !isset($this->_userIdWiseTotalTransferOutPOC[$type])){
+            $collection = POCTransfer::select('transfer_by', \DB::raw('COUNT(DISTINCT(pv_company_id)) as count'))
+                ->whereIn('transfer_by', $bdms)
+                ->whereBetween('created_at', $date)
+                ->groupBy('transfer_by');
+            $this->_userIdWiseTotalTransferOutPOC[$type] = $collection->pluck('count', 'transfer_by')->toArray();
+        }
+
+        if(isset($this->_userIdWiseTotalTransferOutPOC[$type][$userId])){
+            return $this->_userIdWiseTotalTransferOutPOC[$type][$userId];
         }
 
         return 0;

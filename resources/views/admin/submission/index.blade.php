@@ -38,18 +38,18 @@
                             </div>
                             <div class="row mt-2">
                                 <div class="col-md-3 mt-2">
-                                    {!! Form::checkbox('', '', null, ['id' => 'showDate', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
+                                    {!! Form::checkbox('', '', null, ['id' => 'showDate', 'class' => 'toggle-checkbox toggle-change', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
                                     <label class="form-check-label pl-2" for="showDate">Show Date</label>
                                 </div>
                                 @if(Auth::user()->role == 'recruiter')
                                     <div class="col-md-3 mt-2">
-                                        {!! Form::checkbox('', '', null, ['id' => 'show_my_candidate', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
+                                        {!! Form::checkbox('', '', null, ['id' => 'show_my_candidate', 'class' => 'toggle-checkbox toggle-change', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
                                         <label class="form-check-label pl-2" for=show_my_candidate">Show My Candidates Only</label>
                                     </div>
                                 @endif
                                 @if(in_array(Auth::user()->role, ['bdm', 'recruiter']))
                                     <div class="col-md-3 mt-2">
-                                        {!! Form::checkbox('', '', null, ['id' => 'toggle_job_keyword', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
+                                        {!! Form::checkbox('', '', null, ['id' => 'toggle_job_keyword', 'class' => 'toggle-checkbox toggle-change', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
                                         <label class="form-check-label pl-2" for="toggle_job_keyword">Show Job Keyword</label>
                                     </div>
                                 @endif
@@ -159,16 +159,10 @@
                 {data: 'work_type', name: 'work_type'},
                 {data: 'duration', name: 'duration'},
                 {data: 'job_keyword', 'width': '15%', name: 'job_keyword'},
-                {data: function(row, type){
-                        return row.category.category_name;
-                    }
-                },
-                {'width': '6%', data: function(row, type){
-                        return row.b_d_m.bdm_name;
-                    }
-                },
+                {data: 'category_name', name: 'category.name'},
+                {data: 'bdm_name', name: 'bdm.name'},
                 {data: 'my_rate', name: 'my_rate'},
-                {data: function(row, type) {
+                {data: 'client_name', name: 'client_name', render: function(data, type, row) {
                         if (row.display_client == 1) {
                             return row.client_name;
                         }
@@ -176,19 +170,22 @@
                     }
                 },
                 // {data: 'created_at', 'width': '18%', name: 'created_at'},
-                {data: 'recruiter', name: 'recruiter'},
+                {data: 'recruiter', name: 'recruiter', orderable: false},
                 {data: 'status', 'width': '10%', name: 'status'},
                 // {data: 'color', name: 'color'},
-                {data: 'candidate', name: 'candidate'},
+                {data: 'candidate', name: 'candidate', orderable: false},
                 {data: 'action', "width": "15%", name: 'action', orderable: false, searchable: false},
             ],
-            initComplete: function(settings, json) {
-                $('#requirementTable thead th.toggle-job-keyword-column').each(function() {
-                    var columnIndex = $(this).index();
-                    table.column(columnIndex).nodes().to$().addClass('toggle-job-keyword-column');
-                });
-                $('#toggle_job_keyword').trigger('change');
-            }
+            order: [[1, 'desc']],
+        });
+        $('#requirementTable').on('draw.dt', function () {
+            $('#requirementTable thead th.toggle-job-keyword-column').each(function() {
+                var columnIndex = $(this).index();
+                table.column(columnIndex).nodes().to$().addClass('toggle-job-keyword-column');
+            });
+            $('#toggle_job_keyword').trigger('change');
+            $('.toggle-change').trigger('change');
+
         });
     }
 
