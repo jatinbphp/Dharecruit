@@ -77,6 +77,12 @@
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
+                                                <label class="control-label" for="who_added">Who Added</label>
+                                                {!! Form::select('who_added[]', \App\Models\Admin::getActiveBDM(), null, ['class' => 'form-control select2', 'id'=>'who_added', 'multiple' => true, 'data-placeholder' => 'Select BDM Users']) !!}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
                                                 <label class="control-label" for="registered_to">Registered To</label>
                                                 {!! Form::select('registered_to[]', \App\Models\Admin::getActiveBDM(), null, ['class' => 'form-control select2', 'id'=>'registered_to', 'multiple' => true, 'data-placeholder' => 'Select BDM Users']) !!}
                                             </div>

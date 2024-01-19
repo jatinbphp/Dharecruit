@@ -8,6 +8,8 @@ use App\Models\Submission;
 trait POCTrait {
     use CommonTrait;
 
+    protected $_pocWiseWhoAddedUserName = [];
+    protected $_pocWiseRegisteredToUserName = [];
     public function getPOCHeadingData(): array
     {
         return [
@@ -65,6 +67,14 @@ trait POCTrait {
             $collection->where('phone', $request->vendor_phone);
         }
 
+        if(!empty($request->who_added)){
+            $collection->whereIn('user_id', $request->who_added);
+        }
+
+        if(!empty($request->registered_to)){
+            $collection->whereIn('assigned_user_id', $request->registered_to);
+        }
+
         $companyWiseAllPocNames = $collection->distinct()->pluck('poc_name')->toArray();
 
         if(!empty($request->bdm_names)){
@@ -89,8 +99,8 @@ trait POCTrait {
             $totalUniqueRequirement = $this->getPVCompanyWisePocRequirementCounts($pvCompany, $pocName, $pocNames, $date, 1);
 
             $pocData = [
-                'who_added'                         => '-',
-                'reg_to'                            => '-',
+                'who_added'                         => $this->getWhoAddedName($pvCompany, $pocName, $pocNames),
+                'reg_to'                            => $this->getRegisteredToName($pvCompany, $pocName, $pocNames),
                 'vendor_company_name'               => $pvCompany,
                 'vendor_company_total_req'          => $this->getRequirementCounts($pvCompany, $pvCompanies, $date),
                 'poc_name'                          => $pocName,
@@ -130,6 +140,42 @@ trait POCTrait {
             $pocNameWiseData[$pocName] = $pocData;
         }
         return $pocNameWiseData;
+    }
+
+    public function getWhoAddedName($pvCompany, $pocName, $pocNames)
+    {
+        $pvCompanyKey = $this->getKey($pvCompany);
+        if(!$this->_pocWiseWhoAddedUserName || !isset($this->_pocWiseWhoAddedUserName[$pvCompanyKey])){
+            $this->_pocWiseWhoAddedUserName[$pvCompanyKey] = PVCompany::select('admins.name as user_name', 'poc_name')
+                ->leftJoin('admins', 'admins.id', '=', 'p_v_companies.user_id')
+                ->whereIn('poc_name', $pocNames)
+                ->where('p_v_companies.name', $pvCompany)
+                ->groupBy('poc_name')->pluck('user_name', 'poc_name');
+        }
+
+        if(isset($this->_pocWiseWhoAddedUserName[$pvCompanyKey][$pocName])){
+            return $this->_pocWiseWhoAddedUserName[$pvCompanyKey][$pocName];
+        }
+
+        return 0;
+    }
+
+    public function getRegisteredToName($pvCompany, $pocName, $pocNames)
+    {
+        $pvCompanyKey = $this->getKey($pvCompany);
+        if(!$this->_pocWiseRegisteredToUserName || !isset($this->_pocWiseRegisteredToUserName[$pvCompanyKey])){
+            $this->_pocWiseRegisteredToUserName[$pvCompanyKey] = PVCompany::select('admins.name as user_name', 'poc_name')
+                ->leftJoin('admins', 'admins.id', '=', 'p_v_companies.assigned_user_id')
+                ->whereIn('poc_name', $pocNames)
+                ->where('p_v_companies.name', $pvCompany)
+                ->groupBy('poc_name')->pluck('user_name', 'poc_name');
+        }
+
+        if(isset($this->_pocWiseRegisteredToUserName[$pvCompanyKey][$pocName])){
+            return $this->_pocWiseRegisteredToUserName[$pvCompanyKey][$pocName];
+        }
+
+        return 0;
     }
 
     public function getPocHideColumns(): array
