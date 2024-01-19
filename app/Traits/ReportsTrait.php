@@ -162,4 +162,26 @@ trait ReportsTrait {
 
         return  $pocData;
     }
+
+    public function getEmployerFilterData($request): array
+    {
+        $employers = $request->employer;
+
+        if(!$employers || !count($employers)){
+            $employers = array_keys(Admin::getActiveEmployers()->toArray());
+        }
+
+        foreach ($employers as $pvCompany){
+            $pvCompanyKey = $this->getKey($pvCompany);
+            $pvData['pv_company_data'][$pvCompanyKey] = $this->getCompanyWisePVCompanyData($pvCompany, $employers, $request);
+            $pvData['poc_data'][$pvCompanyKey]        = $this->getCompanyWisePocData($pvCompany, $request);
+        }
+        $pvData['heading']    = $this->getPvHeadingData();
+        $pvData['class_data'] = $this->getPVClass();
+        $pvData['empty_pv_rows'] = $this->getEmptyPVRows();
+        \Log::info($this->getEmptyPOCRows());
+        $pvData['empty_poc_rows'] = $this->getEmptyPOCRows();
+
+        return  $pvData;
+    }
 }

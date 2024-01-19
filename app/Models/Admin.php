@@ -66,4 +66,8 @@ class Admin extends Authenticatable
         }
         return Admin::where('role','recruiter')->where('status','active')->orderBy('name')->pluck('name','id');
     }
+
+    public static function getActiveEmployers(){
+        return Admin::where('status','active')->where('role', 'employee')->orderBy('name')->distinct()->pluck('name','name');
+    }
 }

@@ -47,6 +47,13 @@ class ReportsController extends Controller
                     return $this->getPOCData($request);
                 }
                 break;
+            case "employer_report":
+                $data['menu'] = 'Employer Report';
+                $data['subType'] = '';
+                if(!empty($request->all())){
+                    return $this->getEmployerData($request);
+                }
+                break;
             default:
                 $data = $this->getEfficiencyData($request, $subType);
         }
@@ -91,5 +98,13 @@ class ReportsController extends Controller
             $pocNames = PVCompany::whereIn('name', $companyName)->distinct()->orderBY('name')->pluck('poc_name', 'poc_name');
         }
         return response()->json($pocNames);
+    }
+
+    public function getEmployerData($request)
+    {
+        $employerData['employerFilterData'] = $this->getEmployerFilterData($request);
+        $data['content']        = view('admin.reports.employer_report_data', $employerData)->render();
+
+        return $data;
     }
 }

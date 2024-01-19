@@ -465,8 +465,8 @@
                         </li>
                     @endif
                     @if($loginRole == 'admin')
-                        <li class="nav-item @if(in_array($menu, ['Efficiency Report', 'PV Company Report', 'POC Report'])) menu-open @endif">
-                            <a href="#" class="nav-link @if(in_array($menu, ['Efficiency Report', 'PV Company Report', 'POC Report'])) active @endif">
+                        <li class="nav-item @if(in_array($menu, ['Efficiency Report', 'PV Company Report', 'POC Report', 'Employer Report'])) menu-open @endif">
+                            <a href="#" class="nav-link @if(in_array($menu, ['Efficiency Report', 'PV Company Report', 'POC Report', 'Employer Report'])) active @endif">
                                 <i class="nav-icon fas fa-tasks"></i>
                                 <p>Manage Reports <i class="right fas fa-angle-left"></i>
                                 </p>
@@ -500,6 +500,14 @@
                                     <a href="{{ route('reports',['type' => 'poc_report']) }}" class="nav-link @if($menu == 'POC Report') active @endif">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>POC Report</p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ route('reports',['type' => 'employer_report']) }}" class="nav-link @if($menu == 'Employer Report') active @endif">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Employer Report</p>
                                     </a>
                                 </li>
                             </ul>
