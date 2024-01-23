@@ -12,5 +12,10 @@ class AssignToRecruiter extends Model
     protected $fillable = [
         'requirement_id',
         'recruiter_id',
+        'filling_confident',
+        'is_profile_pending',
     ];
+
+    const FILLING_CONFIDENT_WILL_TRY = 1;
+    const FILLING_CONFIDENT_YES = 2;
 }

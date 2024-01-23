@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
+use App\Models\AssignToRecruiter;
 use App\Models\Requirement;
 use App\Models\Submission;
 use App\Models\Setting;
@@ -250,7 +251,7 @@ class SubmissionController extends Controller
         }
     }
 
-    public function assignSubmission($id){
+    public function assignSubmission($id, Request $request){
         $requirement = Requirement::where('id',$id)->first();
         if(!empty($requirement)){
             if(empty($requirement->recruiter)){
@@ -264,6 +265,11 @@ class SubmissionController extends Controller
             }
             $requirement->update($input);
             $this->assignRecruiterToRequirement($requirement->id, $oldRequirements);
+            $assignRecRow = AssignToRecruiter::where('requirement_id', $requirement->id)->where('recruiter_id', Auth::user()->id)->first();
+            if(!empty($assignRecRow) && !empty($request->filling_confident)){
+                $assignRecRow->filling_confident = $request->filling_confident;
+                $assignRecRow->save();
+            }
             return 1;
         }else{
             return 0;
@@ -516,6 +522,21 @@ class SubmissionController extends Controller
         }
         $data['status'] = $status;
         return  $data;
+    }
+
+    public function submissionWaiting($id)
+    {
+        $status = 0;
+        if($id){
+            $assignRecRow = AssignToRecruiter::where('requirement_id', $id)->where('recruiter_id', Auth::user()->id)->first();
+            if(!empty($assignRecRow)){
+                $assignRecRow->is_profile_pending = 1;
+                $assignRecRow->save();
+                $status = 1;
+            }
+        }
+        $data['status'] = $status;
+        return $data;
     }
 
 }

@@ -203,19 +203,38 @@
                 confirmButtonText: 'Yes, Assign',
                 cancelButtonText: "No, cancel",
                 closeOnConfirm: false,
-                closeOnCancel: false
+                closeOnCancel: false,
             },
             function(isConfirm) {
                 if (isConfirm) {
-                    $.ajax({
-                        url: "{{url('admin/submission/assign/')}}/"+requirementId,
-                        type: "POST",
-                        data: {_token: '{{csrf_token()}}' },
-                        success: function(data){
-                            swal("Success", "Requirement has been successfully assign!", "success");
-                            //table.draw(false);
-                            $('#requirementTable').DataTable().ajax.reload();
+                    swal({
+                        title: "Filling Confident",
+                        text: "",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: '#b9b9b9',
+                        confirmButtonText: 'Yes',
+                        cancelButtonText: "Will Try",
+                        closeOnConfirm: false,
+                        closeOnCancel: false
+                    },
+                    function(isConfirm) {
+                        var fillConfident = 1;
+                        if (isConfirm) {
+                            fillConfident = 2;
+                        } else {
+                            fillConfident = 1;
                         }
+                        $.ajax({
+                            url: "{{url('admin/submission/assign/')}}/"+requirementId,
+                            type: "POST",
+                            data: {'filling_confident': fillConfident,_token: '{{csrf_token()}}' },
+                            success: function(data){
+                                swal("Success", "Requirement has been successfully assign!", "success");
+                                //table.draw(false);
+                                $('#requirementTable').DataTable().ajax.reload();
+                            }
+                        });
                     });
                 } else {
                     swal("Cancelled", "Your data safe!", "error");
@@ -223,5 +242,22 @@
             });
         });
     });
+
+    function addWaiting(id)
+    {
+        $.ajax({
+            url: "{{url('admin/submission/waiting/')}}/"+id,
+            type: "GET",
+            data: {_token: '{{csrf_token()}}' },
+            success: function(data){
+                if(data.status == 1){
+                    swal("Success", "Waiting Added successfully!", "success");
+                } else {
+                    swal("Error", "Something Went Wrong!", "error");
+                }
+                $('#requirementTable').DataTable().ajax.reload();
+            }
+        });
+    }
   </script>
 @endsection

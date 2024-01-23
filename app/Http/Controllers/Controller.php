@@ -169,17 +169,33 @@ class Controller extends BaseController
         $user = $this->getUser();
         $loggedInUserId = $this->getCurrentUserId();
 
-        if($this->getCurrentUserRole() == 'recruiter'){
-            if(in_array($loggedInUserId, $recruiterIds)){
-                $recruiterIds = array_flip($recruiterIds);
-                unset($recruiterIds[$loggedInUserId]);
-                $recruiterIds = array_filter(array_flip($recruiterIds));
-                sort($recruiterIds);
-                array_unshift($recruiterIds, $loggedInUserId);
-            }
+        if($this->getCurrentUserRole() == 'recruiter' && in_array($loggedInUserId, $recruiterIds)){
+            $recruiterIds = array_flip($recruiterIds);
+            unset($recruiterIds[$loggedInUserId]);
+            $recruiterIds = array_flip($recruiterIds);
+            $defaultArray = array_fill_keys($recruiterIds, 0);
+            $data = Submission::select('user_id', \DB::raw('count(id) as count'))
+                ->whereIn('user_id', $recruiterIds)
+                ->where('requirement_id', $row->id)
+                ->groupBy('user_id')
+                ->pluck('count', 'user_id')
+                ->toArray();
+            $result =  $data + $defaultArray;
+            arsort($result);
+            $recruiterIds = array_keys($result);
+            array_unshift($recruiterIds, $loggedInUserId);
         } else {
             $recruiterIds = array_filter($recruiterIds);
-            sort($recruiterIds);
+            $defaultArray = array_fill_keys($recruiterIds, 0);
+            $data = Submission::select('user_id', \DB::raw('count(id) as count'))
+                ->whereIn('user_id', $recruiterIds)
+                ->where('requirement_id', $row->id)
+                ->groupBy('user_id')
+                ->pluck('count', 'user_id')
+                ->toArray();
+            $result = $data + $defaultArray;
+            arsort($result);
+            $recruiterIds = array_keys($result);
         }
 
         $filterRecIds = [];
@@ -234,12 +250,30 @@ class Controller extends BaseController
                 continue;
             }
             $bgColor = '';
+            $fontClass = '';
             if($user->id == $recruterUser->id){
                 $bgColor = '#BED8E2';
+                $fontClass = 'text-primary';
             }
             $submission = Submission::where('user_id',$recruiterId)->where('requirement_id',$row->id)->count();
-            $recName .= '<div class="border border-dark floar-left p-1 mt-2" style="
+            if($submission > 0){
+                $recName .= '<div class="border border-dark floar-left p-1 mt-2" style="
                 border-radius: 5px; width: auto; background-color:'.$bgColor.'"><span>'. $submission.' '.$recruterUser['name']. '</span></div>';
+            } else {
+                $textBold = '';
+                $textUnderLine = '';
+                $assignRecRow = AssignToRecruiter::where('requirement_id', $row->id)->where('recruiter_id', $recruiterId)->first();
+                if(!empty($assignRecRow)){
+                    if($assignRecRow->filling_confident == 2){
+                        $textUnderLine = 'border-bottom';
+                    }
+
+                    if($assignRecRow->is_profile_pending == 1){
+                        $textBold = 'text-bold';
+                    }
+                }
+                $recName .= '<div class="floar-left p-1 mt-2"><span class="'.$fontClass . ' ' . $textUnderLine . ' ' . $textBold.'">'. $submission.' '.$recruterUser['name']. '</span></div>';
+            }
         }
         return $recName;
     }
@@ -290,30 +324,38 @@ class Controller extends BaseController
         $userId   = $this->getCurrentUserId();
         if(in_array($userRole, ['recruiter', 'bdm', 'admin'])){
             $loggedInRecruterSubmission    = Submission::query();
+            $loggedInsubmissions = Submission::select('requirement_id','user_id', \DB::raw('COUNT(user_id) as count'));
             $notLoggedInRecruterSubmission = Submission::query();
 
             if(!empty($request->filter_employer_name)){
                 $loggedInRecruterSubmission->where('employer_name', $request->filter_employer_name);
+                $loggedInsubmissions->where('employer_name', $request->filter_employer_name);
+
             }
 
             if(!empty($request->filter_employee_name)){
                 $loggedInRecruterSubmission->where('employee_name', $request->filter_employee_name);
+                $loggedInsubmissions->where('employee_name', $request->filter_employee_name);
             }
 
             if(!empty($request->filter_employee_phone_number)){
                 $loggedInRecruterSubmission->where('employee_phone', $request->filter_employee_phone_number);
+                $loggedInsubmissions->where('employee_phone', $request->filter_employee_phone_number);
             }
 
             if(!empty($request->filter_employee_email)){
                 $loggedInRecruterSubmission->where('employee_email', $request->filter_employee_email);
+                $loggedInsubmissions->where('employee_email', $request->filter_employee_email);
             }
 
             if(!empty($request->candidate_name)){
                 $loggedInRecruterSubmission->where('name', 'like', '%'.$request->candidate_name.'%');
+                $loggedInsubmissions->where('name', 'like', '%'.$request->candidate_name.'%');
             }
 
             if(!empty($request->candidate_id)){
                 $loggedInRecruterSubmission->where('candidate_id', $request->candidate_id);
+                $loggedInsubmissions->where('candidate_id', $request->candidate_id);
             }
 
             if(!empty($request->bdm_feedback)){
@@ -360,47 +402,95 @@ class Controller extends BaseController
                     }
                 });
 
+                $loggedInsubmissions->where(function ($loggedInsubmissions) use ($isWhere, $isStatus, $isOrWhere, $bdmFeedBack) {
+                    if($isWhere == 1){
+                        $loggedInsubmissions->whereNull('pv_status');
+                        $loggedInsubmissions->Where('is_show', 1);
+                        $loggedInsubmissions->Where('status', 'pending');
+                        if($isStatus == 0 && $bdmFeedBack && count($bdmFeedBack)){
+                            $loggedInsubmissions->orWhereIn('status', $bdmFeedBack);
+                        }
+                    }
+                    if($isOrWhere == 1){
+                        $loggedInsubmissions->orWhere('is_show', 0);
+                    }
+                    if($isStatus == 1){
+                        $loggedInsubmissions->orwhere(function ($loggedInsubmissions) use ($isWhere, $isStatus, $isOrWhere, $bdmFeedBack) {
+                            $loggedInsubmissions->whereIn('status', $bdmFeedBack);
+                            $loggedInsubmissions->orWhere('is_show', 0);
+                        });
+                    }
+                });
+
                 if(!in_array('no_updates', $request->bdm_feedback) && !in_array('no_viewed', $request->bdm_feedback)){
                     $loggedInRecruterSubmission->whereIn('status', $request->bdm_feedback);
+                    $loggedInsubmissions->whereIn('status', $request->bdm_feedback);
                 }
             }
 
             if(!empty($request->pv_feedback)){
                 $loggedInRecruterSubmission->whereIn('pv_status', $request->pv_feedback);
+                $loggedInsubmissions->whereIn('pv_status', $request->pv_feedback);
             }
 
             if(!empty($request->client_feedback)){
                 $submissionId = Interview::whereIn('status', $request->client_feedback)->pluck('submission_id')->toArray();
                 if($submissionId){
                     $loggedInRecruterSubmission->whereIn('id', $submissionId);
+                    $loggedInsubmissions->whereIn('id', $submissionId);
                 } else {
                     $loggedInRecruterSubmission->whereIn('id', []);
+                    $loggedInsubmissions->whereIn('id', []);
                 }
             }
 
             if($userRole == 'recruiter'){
-                $loggedInRecruiters = $loggedInRecruterSubmission->where('user_id', $userId)->where('requirement_id',$row->id)->orderby('user_id','DESC')->get();
+                $loggedInRecruterSubmission->where('submissions.user_id', $userId)->where('submissions.requirement_id',$row->id);
+                $loggedInsubmissions->where('submissions.user_id', $userId)->where('submissions.requirement_id',$row->id);
             } else {
                 if(!empty($request->recruiter)){
-                    $loggedInRecruiters = $loggedInRecruterSubmission->where('user_id', $request->recruiter)->where('requirement_id',$row->id)->orderby('user_id','DESC')->get();
+                    $loggedInRecruterSubmission->where('submissions.user_id', $request->recruiter)->where('submissions.requirement_id',$row->id);
+                    $loggedInsubmissions->where('submissions.user_id', $request->recruiter)->where('submissions.requirement_id',$row->id);
                 } else {
-                    $loggedInRecruiters = $loggedInRecruterSubmission->where('requirement_id',$row->id)->orderby('user_id','DESC')->get();
+                    $loggedInRecruterSubmission->where('submissions.requirement_id',$row->id);
+                    $loggedInsubmissions->where('submissions.user_id', $request->recruiter)->where('submissions.requirement_id',$row->id);
 
                 }
             }
 
+            $loggedInsubmissions->groupBy('user_id');
+            $loggedInRecruitersData = $loggedInRecruterSubmission->joinSub($loggedInsubmissions, 'subquery', function ($join) {
+                $join->on('subquery.user_id', '=', 'submissions.user_id');
+                $join->on('subquery.requirement_id', '=', 'submissions.requirement_id');
+            })
+                ->select('submissions.*')
+                ->orderByDesc('subquery.count')
+                ->get();
+
             if(empty($request->filter_employer_name) && empty($request->filter_employee_name) && empty($request->filter_employee_phone_number) && empty($request->filter_employee_email) && empty($request->bdm_feedback) && empty($request->pv_feedback) && empty($request->client_feedback) && empty($request->candidate_name) && empty($request->candidate_id) && empty($request->recruiter)){
-                $notLogeedInRecruiters = $notLoggedInRecruterSubmission->where('user_id', '!=',$userId)->where('requirement_id',$row->id)->orderby('user_id','ASC')->get();
-                $allSubmission = $loggedInRecruiters->merge($notLogeedInRecruiters);
+                $notLoggedInsubmissions = Submission::select('requirement_id', 'user_id', \DB::raw('COUNT(user_id) as count'))->where('user_id', '!=',$userId)->where('requirement_id',$row->id)->groupBy('user_id');
+                $notLogeedInRecruitersData = $notLoggedInRecruterSubmission->joinSub($notLoggedInsubmissions, 'subquery', function ($join) {
+                    $join->on('subquery.user_id', '=', 'submissions.user_id');
+                    $join->on('subquery.requirement_id', '=', 'submissions.requirement_id');
+                })
+                    ->select('submissions.*')
+                    ->orderByDesc('subquery.count')
+                    ->get();
+                $allSubmission = $loggedInRecruitersData->merge($notLogeedInRecruitersData);
             } else {
-                $allSubmission = $loggedInRecruiters;
+                $allSubmission = $loggedInRecruitersData;
             }
 
         } else {
-            $allSubmission = Submission::where('requirement_id',$row->id)->orderby('user_id','ASC')->get();
+            $allSubmission = Submission::where('requirement_id',$row->id)
+                ->orderby(\DB::raw('count(id) as count'), 'DESC')
+                ->groupBy('user_id')
+                ->get();
             if($userRole == 'bdm' || $userRole == 'admin'){
                 if(!empty($request->recruiter)){
-                    $allSubmission = Submission::where('requirement_id',$row->id)->where('user_id', $request->recruiter)->orderby('user_id','ASC')->get();
+                    $allSubmission = Submission::where('requirement_id',$row->id)
+                        ->where('user_id', $request->recruiter)
+                        ->orderby('user_id','ASC')->get();
                 }
             }
         }
@@ -428,6 +518,12 @@ class Controller extends BaseController
                     //$btn = '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/submission/'.$row->id).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" ><i class="fa fa-eye"></i></button></a></div>';
                     $btn = '<div class="btn-group btn-group-sm mr-2"><button class="btn btn-sm btn-default tip view-submission" data-toggle="tooltip" title="View Submission" data-trigger="hover" type="submit" data-id="'.$row->id.'" ><i class="fa fa-eye"></i></button></div>';
                     $btn .= '<div class="btn-group btn-group-sm"><a href="'.url('admin/submission/new/'.$row->id).'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Add New Submission" data-trigger="hover" type="submit" ><i class="fa fa-upload"></i></button></a></div>';
+                    $assignRecRow = AssignToRecruiter::where('requirement_id', $row->id)->where('recruiter_id', Auth::user()->id)->first();
+                    $isDisable = 0;
+                    if(!empty($assignRecRow) && $assignRecRow->is_profile_pending == 1){
+                        $isDisable = 1;
+                    }
+                    $btn .= '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-default tip ml-2" data-toggle="tooltip" title="Waiting" data-trigger="hover" '.(($isDisable) ? 'disabled' : '').' type="button" onclick="addWaiting('.$row->id.')"><img src="'.url('assets/dist/img/waiting.png').'" height="25"></img></button></div>';
                 }else{
                     $btn = '';
                     if($row->status != "hold" && !array_key_exists($row->status,$exprieStatus)){
