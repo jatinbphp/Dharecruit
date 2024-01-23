@@ -64,21 +64,21 @@
                                     }
                                 @endphp
                                 <div class="col-md-3 mt-2">
-                                    {!! Form::checkbox('', $key, null, ['id' => "$key", 'onChange' => 'toggleOptions("'.$key.'")', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
+                                    {!! Form::checkbox('', $key, null, ['id' => "$key", 'onChange' => 'toggleOptions("'.$key.'")', 'class' => 'toggle-checkbox toggle-change', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
                                     <label class="form-check-label pl-2" for="{{$key}}"> {{ $value }}</label>
                                 </div>
                             @endforeach
                             <div class="col-md-3 mt-2">
-                                {!! Form::checkbox('', 'show-time', null, ['id' => "showTime", 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
+                                {!! Form::checkbox('', 'show-time', null, ['id' => "showTime", 'class' => 'toggle-checkbox toggle-change', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
                                 <label class="form-check-label pl-2" for="showTime">Status Time</label>
                             </div>
                             <div class="col-md-3 mt-2">
-                                {!! Form::checkbox('', 'show-feedback', null, ['id' => "showFeedback", 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'warning', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
+                                {!! Form::checkbox('', 'show-feedback', null, ['id' => "showFeedback", 'class' => 'toggle-checkbox toggle-change', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
                                 <label class="form-check-label pl-2" for="showTime">Show FeedBack</label>
                             </div>
                             @if(in_array(Auth::user()->role, ['admin', 'bdm']))
                                 <div class="col-md-3 mt-2">
-                                    {!! Form::checkbox('', '', null, ['id' => 'toggle-poc', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
+                                    {!! Form::checkbox('', '', null, ['id' => 'toggle-poc', 'class' => 'toggle-checkbox toggle-change', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
                                     <label class="form-check-label pl-2" for="showLink">Show POC</label>
                                 </div>
                             @endif
@@ -172,7 +172,8 @@
                                 if($("#showTime").is(':checked')){
                                     $('.statusUpdatedAt-'+responce.entity_type+'-'+responce.submission_id).show();
                                 }
-                                $('.candidate-'+interviewId).html(responce.updated_candidate_html);
+
+                                $('.candidate-'+interviewId).closest('td').empty().addClass('candidate-'+interviewId).html(responce.updated_candidate_html);
                                 swal("Success", "Status successfully updated!", "success");
                             }else{
                                 swal("Error", "Something is wrong!", "error");
@@ -201,6 +202,7 @@
             responsive: true,
             pageLength: 100,
             lengthMenu: [ 100, 200, 300, 400, 500 ],
+            order: [[ 1, 'desc' ],],
             ajax: {
                 url: "{{ route('interview.index') }}",
                 data: function (d) {
@@ -223,45 +225,47 @@
             },
             columns: [
                 {data: 'created_at', name: 'created_at'},
-                {data: 'DT_RowIndex', 'width': '2%', name: 'DT_RowIndex', orderable: false, searchable: false },
+                {data: 'id', 'width': '2%', name: 'interviews.id' },
                 {data: 'job_id', name: 'job_id'},
-                {data: 'candidate_name', name: 'candidate_name'},
+                {data: 'candidate_name', name: 'candidate_name', orderable: false, searchable: false},
                 {data: 'candidate_phone_number', name: 'candidate_phone_number'},
                 {data: 'candidate_email', name: 'candidate_email'},
-                {data: 'client_location', name: 'client_location'},
-                {data: 'candidate_location', name: 'candidate_location'},
+                {data: 'client_location', name: 'requirements.location'},
+                {data: 'candidate_location', name: 'submissions.location'},
                 @if(in_array($userType,['admin','recruiter']))
-                    {data: 'bdm', name: 'bdm'},
+                    {data: 'bdm', name: 'admins.name'},
                 @endif
                 @if(in_array($userType,['admin','bdm']))
-                    {data: 'pv_name', name: 'pv_name'},
-                    {data: 'poc_name', name: 'poc_name'},
+                    {data: 'pv_name', name: 'requirements.pv_company_name'},
+                    {data: 'poc_name', name: 'requirements.poc_name'},
                 @endif
                 @if(in_array($userType,['admin','bdm']))
-                    {data: 'recruiter', name: 'recruiter'},
+                    {data: 'recruiter', name: 'recruiter.name'},
                 @endif
-                {data: 'br', name: 'br'},
-                {data: 'rr', name: 'rr'},
-                {data: 'employer_name', name: 'employer_name'},
+                {data: 'br', name: 'requirements.my_rate'},
+                {data: 'rr', name: 'submissions.recruiter_rate'},
+                {data: 'employer_name', name: 'submissions.employer_name'},
                 @if(in_array($userType,['admin','recruiter']))
-                    {data: 'emp_poc', name: 'emp_poc'},
+                    {data: 'employee_name', name: 'submissions.employee_name'},
                 @endif
                 {data: 'hiring_manager', name: 'hiring_manager'},
                 {data: 'client', name: 'client'},
-                {data: 'interview_time', name: 'interview_time'},
+                {data: 'interview_time', name: 'interviews.created_at'},
                 {data: 'status', name: 'status'},
                 {data: 'action', name: 'action', orderable: false, searchable: false},
             ],
-            initComplete: function(settings, json) {
-                $('#interviewTable thead th.toggle-column').each(function() {
-                    var columnIndex = $(this).index();
-                    table.column(columnIndex).nodes().to$().addClass('toggle-column');
-                });
+        });
 
-                $('#toggle-poc').trigger('change');
-                $('#show_employer_name').trigger('change');
-                $('#emp_poc').trigger('change');
-            }
+        $('#interviewTable').on('draw.dt', function () {
+            $('#interviewTable thead th.toggle-column').each(function() {
+                var columnIndex = $(this).index();
+                table.column(columnIndex).nodes().to$().addClass('toggle-column');
+            });
+
+            $('#toggle-poc').trigger('change');
+            $('#show_employer_name').trigger('change');
+            $('#emp_poc').trigger('change');
+            $('.toggle-change').trigger('change');
         });
     }
 

@@ -25,51 +25,104 @@ class BDMSubmissionController extends Controller
             $user = Auth::user();
             $requirementIds = [];
 
-            $submissions = Submission::with(
-                [
-                    'Requirement' => function ($query) {
-                        $query->with(['BDM' => function ($queryBDM) {
-                            $queryBDM->select('id', 'name');
-                        }])->select('id', 'created_at','user_id','job_id', 'job_title', 'location', 'work_type', 'duration', 'visa', 'client', 'my_rate', 'category', 'moi', 'job_keyword', 'pv_company_name', 'poc_name', 'client_name', 'display_client', 'status', 'recruiter', 'is_show_recruiter', 'is_show_recruiter_after_update','is_update_requirement','parent_requirement_id','poc_email');
-                    },
-                    'recruiters' => function ($query) {
-                        $query->select('id', 'name');
-                    }
-                ]
-            )->select('id', 'user_id', 'requirement_id', 'candidate_id', 'name', 'email', 'location', 'recruiter_rate', 'employer_name', 'employee_name', 'employee_email', 'status', 'pv_status', 'created_at', 'is_show');
+//            $submissions = Submission::with(
+//                [
+//                    'Requirement' => function ($query) {
+//                        $query->with(['BDM' => function ($queryBDM) {
+//                            $queryBDM->select('id', 'name');
+//                        }])->select('id', 'created_at','user_id','job_id', 'job_title', 'location', 'work_type', 'duration', 'visa', 'client', 'my_rate', 'category', 'moi', 'job_keyword', 'pv_company_name', 'poc_name', 'client_name', 'display_client', 'status', 'recruiter', 'is_show_recruiter', 'is_show_recruiter_after_update','is_update_requirement','parent_requirement_id','poc_email');
+//                    },
+//                    'recruiters' => function ($query) {
+//                        $query->select('id', 'name');
+//                    }
+//                ]
+//            )->select('id', 'user_id', 'requirement_id', 'candidate_id', 'name', 'email', 'location', 'recruiter_rate', 'employer_name', 'employee_name', 'employee_email', 'status', 'pv_status', 'created_at', 'is_show');
+
+
+            $submissions = Submission::select()
+                ->join('requirements', 'submissions.requirement_id', '=', 'requirements.id')
+                ->leftJoin('admins', 'requirements.user_id', '=', 'admins.id')
+                ->leftJoin('admins as recruiter', 'submissions.user_id', '=', 'recruiter.id')
+                ->select(
+                    'submissions.id',
+                    'submissions.user_id',
+                    'submissions.requirement_id',
+                    'submissions.candidate_id',
+                    'submissions.name',
+                    'submissions.email',
+                    'submissions.location',
+                    'submissions.recruiter_rate',
+                    'submissions.employer_name',
+                    'submissions.employee_name',
+                    'submissions.employee_email',
+                    'submissions.status',
+                    'submissions.pv_status',
+                    'submissions.created_at',
+                    'submissions.is_show',
+                    'submissions.bdm_status_updated_at',
+                    'submissions.pv_status_updated_at',
+                    'submissions.interview_status_updated_at',
+                    'requirements.id as requirement_id',
+                    'requirements.created_at as requirement_created_at',
+                    'requirements.user_id as requirement_user_id',
+                    'requirements.job_id',
+                    'requirements.job_title',
+                    'requirements.location as requirement_location',
+                    'requirements.work_type',
+                    'requirements.duration',
+                    'requirements.visa',
+                    'requirements.client',
+                    'requirements.my_rate',
+                    'requirements.category',
+                    'requirements.moi',
+                    'requirements.job_keyword',
+                    'requirements.pv_company_name',
+                    'requirements.poc_name',
+                    'requirements.client_name',
+                    'requirements.display_client',
+                    'requirements.status as requirement_status',
+                    'requirements.recruiter',
+                    'requirements.is_show_recruiter',
+                    'requirements.is_show_recruiter_after_update',
+                    'requirements.is_update_requirement',
+                    'requirements.parent_requirement_id',
+                    'requirements.poc_email',
+                    'admins.name as bdm_name',
+                    'recruiter.name as recruiter_name',
+                );
 
             if(!empty($request->fromDate)){
                 $fromDate = date('Y-m-d', strtotime($request->fromDate));
-                $submissions->where('created_at', '>=' ,$fromDate." 00:00:00");
+                $submissions->where('submissions.created_at', '>=' ,$fromDate." 00:00:00");
             }
 
             if(!empty($request->toDate)){
                 $toDate = date('Y-m-d', strtotime($request->toDate));
-                $submissions->where('created_at', '<=' ,$toDate." 23:59:59");
+                $submissions->where('submissions.created_at', '<=' ,$toDate." 23:59:59");
             }
 
             if(!empty($request->filter_employer_name)){
-                $submissions->where('employer_name', 'like', '%'.$request->filter_employer_name.'%');
+                $submissions->where('submissions.employer_name', 'like', '%'.$request->filter_employer_name.'%');
             }
 
             if(!empty($request->filter_employee_name)){
-                $submissions->where('employee_name', 'like', '%'.$request->filter_employee_name.'%');
+                $submissions->where('submissions.employee_name', 'like', '%'.$request->filter_employee_name.'%');
             }
 
             if(!empty($request->filter_employee_phone_number)){
-                $submissions->where('employee_phone', $request->filter_employee_phone_number);
+                $submissions->where('submissions.employee_phone', $request->filter_employee_phone_number);
             }
 
             if(!empty($request->filter_employee_email)){
-                $submissions->where('employee_email', $request->filter_employee_email);
+                $submissions->where('submissions.employee_email', $request->filter_employee_email);
             }
 
             if(!empty($request->candidate_name)){
-                $submissions->where('name', 'like' , '%'.$request->candidate_name.'%');
+                $submissions->where('submissions.name', 'like' , '%'.$request->candidate_name.'%');
             }
 
             if(!empty($request->candidate_id)){
-                $submissions->where('candidate_id', $request->candidate_id);
+                $submissions->where('submissions.candidate_id', $request->candidate_id);
             }
 
             if(!empty($request->bdm_feedback)){
@@ -98,11 +151,11 @@ class BDMSubmissionController extends Controller
 
                 $submissions->where(function ($submissions) use ($isWhere, $isStatus, $isOrWhere, $bdmFeedBack) {
                     if($isWhere == 1){
-                        $submissions->whereNull('pv_status');
-                        $submissions->Where('is_show', 1);
-                        $submissions->Where('status', 'pending');
+                        $submissions->whereNull('submissions.pv_status');
+                        $submissions->Where('submissions.is_show', 1);
+                        $submissions->Where('submissions.status', 'pending');
                         if($isStatus == 0 && $bdmFeedBack && count($bdmFeedBack)){
-                            $submissions->orWhereIn('status', $bdmFeedBack);
+                            $submissions->orWhereIn('submissions.status', $bdmFeedBack);
                         }
                     }
                     if($isOrWhere == 1){
@@ -110,23 +163,23 @@ class BDMSubmissionController extends Controller
                     }
                     if($isStatus == 1){
                         $submissions->orwhere(function ($submissions) use ($isWhere, $isStatus, $isOrWhere, $bdmFeedBack) {
-                            $submissions->whereIn('status', $bdmFeedBack);
-                            $submissions->orWhere('is_show', 0);
+                            $submissions->whereIn('submissions.status', $bdmFeedBack);
+                            $submissions->orWhere('submissions.is_show', 0);
                         });
                     }
                 });
 
                 if(!in_array('no_updates', $request->bdm_feedback) && !in_array('no_viewed', $request->bdm_feedback)){
-                    $submissions->whereIn('status', $request->bdm_feedback);
+                    $submissions->whereIn('submissions.status', $request->bdm_feedback);
                 }
             }
 
             if(!empty($request->pv_feedback)){
-                $submissions->whereIn('pv_status', $request->pv_feedback);
+                $submissions->whereIn('submissions.pv_status', $request->pv_feedback);
             }
 
             if(!empty($request->recruiter)){
-                $submissions->where('user_id',$request->recruiter);
+                $submissions->where('submissions.user_id',$request->recruiter);
             }
 
             if(!empty($request->client_feedback)){
@@ -215,7 +268,7 @@ class BDMSubmissionController extends Controller
             }
 
             if($user->role == 'recruiter'){
-                $submissions->where('user_id', $user->id);
+                $submissions->where('submissions.user_id', $user->id);
             }else if($user->role == 'bdm'){
                 $loggedinBdmrequirementIds = Requirement::where('user_id', $user->id)->pluck('id')->toArray();
                 if($requirementIds && count($requirementIds)){
@@ -284,7 +337,7 @@ class BDMSubmissionController extends Controller
                     }
                     return $status;
                 })
-                ->addColumn('created_at', function($row){
+                ->editColumn('created_at', function($row){
                     return date('m/d/y', strtotime($row->created_at));
                 })
                 ->addColumn('pv', function($row){
@@ -314,14 +367,14 @@ class BDMSubmissionController extends Controller
                 ->addColumn('r_rate', function($row){
                     return $row->recruiter_rate;
                 })
-                ->addColumn('employer_name', function($row){
+                ->editColumn('employer_name', function($row){
                     if(Auth::user()->role != 'admin'){
                         return '<i class="fa fa-eye show_employer_name-icon employer-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'employer-name-\')" aria-hidden="true"></i><span class="show_employer_name employer-name-'.$row->id.'" style="display:none">'.$row->employer_name.'</span>';
                     }
                     $employerNameCount = $this->getAllEmpDataCount('employer_name', $row->employer_name);
                     return '<i class="fa fa-eye show_employer_name-icon employer-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'employer-name-\')" aria-hidden="true"></i><div class="container"><span class="show_employer_name employer-name-'.$row->id.'" style="display:none">'.$row->employer_name.(($employerNameCount) ? "<span class='badge bg-indigo position-absolute top-0 end-0' style='margin-top: -6px'>$employerNameCount</span>" : "").'</span></div>';
                 })
-                ->addColumn('emp_poc', function($row){
+                ->editColumn('employee_name', function($row){
                     $empPocNameArray = explode(' ', $row->employee_name);
                     $empPocFirstName = isset($empPocNameArray[0]) ? $empPocNameArray[0] : '';
                     if(Auth::user()->role != 'admin'){
@@ -339,7 +392,7 @@ class BDMSubmissionController extends Controller
                     $status .= "<span class='feedback' style='display:none'>".$this->getTooltipHtml($interviewFeedback)."</span>";
                     return $status;
                 })
-                ->rawColumns(['poc','pv','employer_name','candidate_name','action','bdm_status','pv_status','emp_poc','created_at','client_status'])
+                ->rawColumns(['poc','pv','employer_name','employee_name','candidate_name','action','bdm_status','pv_status','emp_poc','created_at','client_status'])
                 ->make(true);
         }
 

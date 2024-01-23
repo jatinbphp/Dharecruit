@@ -25,7 +25,15 @@ class InterviewController extends Controller
 
         if ($request->ajax()) {
             $loggedinUser = Auth::user()->id;
-            $interviews = Interview::Query();
+            $interviews = Interview::join('submissions', 'submissions.id', '=', 'interviews.submission_id')
+                ->join('requirements', 'requirements.id', '=', 'submissions.requirement_id')
+                ->join('admins', 'admins.id', '=', 'requirements.user_id')
+                ->join('admins as recruiter', 'recruiter.id', '=', 'submissions.user_id')
+                ->select(
+                    'interviews.*',
+                    'admins.name as bdm_name',
+                    'recruiter.name as recruiter_name',
+                );
             $submissionIds = [];
 
             if(!empty($request->fromDate)){
@@ -131,19 +139,15 @@ class InterviewController extends Controller
                 }
             }
 
-            if(Auth::user()->role == 'admin'){
-                $data = $interviews->get();
-            }elseif(Auth::user()->role == 'recruiter'){
-                $data = $interviews->join('submissions', 'submissions.id', '=', 'interviews.submission_id')->where('submissions.user_id', $loggedinUser)->get(['interviews.*']);
+            if(Auth::user()->role == 'recruiter'){
+                $interviews->where('submissions.user_id', $loggedinUser);
             }elseif(Auth::user()->role == 'bdm'){
-                $data = $interviews->join('submissions', 'submissions.id', '=', 'interviews.submission_id')->join('requirements', 'requirements.id', '=', 'submissions.requirement_id')->where('requirements.user_id', $loggedinUser)->get(['interviews.*']);
-            }else{
-                $data = $interviews->where('user_id', $loggedinUser)->get();
+                $interviews->where('requirements.user_id', $loggedinUser);
             }
 
-            return Datatables::of($data)
+            return Datatables::of($interviews)
                 ->addIndexColumn()
-                ->addColumn('status', function($row){
+                ->editColumn('status', function($row){
                     $status = '<select name="interviewStatus" class="form-control select2 interviewStatus" data-id="'.$row->id.'">';
                     $interviewStatus = Interview::$interviewStatusOptions;
                     foreach ($interviewStatus as $key => $val){
@@ -158,10 +162,10 @@ class InterviewController extends Controller
                 ->addColumn('action', function($row){
                     return '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/interview/'.$row->id.'/edit').'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Edit Interview" data-trigger="hover" type="submit" ><i class="fa fa-edit"></i></button></a></div>';
                 })
-                ->addColumn('candidate_phone_number', function($row){
+                ->editColumn('candidate_phone_number', function($row){
                     return '<i class="fa fa-eye candidate_phone-icon candidate-phone-icon-'.$row->id.'" onclick="showData('.$row->id.',\'candidate-phone-\')" aria-hidden="true"></i><span class="candidate_phone candidate-phone-'.$row->id.'" style="display:none">'.$row->candidate_phone_number.'</span>';
                 })
-                ->addColumn('candidate_email', function($row){
+                ->editColumn('candidate_email', function($row){
                     return '<i class="fa fa-eye candidate_email-icon candidate-email-icon-'.$row->id.'" onclick="showData('.$row->id.',\'candidate-email-\')" aria-hidden="true"></i><span class="candidate_email candidate-email-'.$row->id.'" style="display:none">'.$row->candidate_email.'</span>';
                 })
                 ->addColumn('candidate_name', function($row){
@@ -188,7 +192,7 @@ class InterviewController extends Controller
                 ->addColumn('rr', function($row){
                     return $row->Submission->recruiter_rate;
                 })
-                ->addColumn('employer_name', function($row){
+                ->editColumn('employer_name', function($row){
                     if(Auth::user()->role != 'admin'){
                         return '<i class="fa fa-eye show_employer_name-icon employer-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'employer-name-\')" aria-hidden="true"></i><span class="show_employer_name employer-name-'.$row->id.'" style="display:none">'.$row->Submission->employer_name.'</span>';
                     }
@@ -196,7 +200,7 @@ class InterviewController extends Controller
                     return '<i class="fa fa-eye show_employer_name-icon employer-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'employer-name-\')" aria-hidden="true"></i><div class="container"><span class="show_employer_name employer-name-'.$row->id.'" style="display:none">'.$row->Submission->employer_name.(($employerNameCount) ? "<span class='badge bg-indigo position-absolute top-0 end-0' style='margin-top: -6px'>$employerNameCount</span>" : "").'</span></div>';
                     // return '<i class="fa fa-eye show_employer_name-icon show-employer-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'show-employer-name-\')" aria-hidden="true"></i><span class="show_employer_name show-employer-name-'.$row->id.'" style="display:none">'.$row->Submission->employer_name.'</span>';
                 })
-                ->addColumn('emp_poc', function($row){
+                ->editColumn('employee_name', function($row){
                     $empPocNameArray = explode(' ', $row->Submission->employee_name);
                     $empPocFirstName = isset($empPocNameArray[0]) ? $empPocNameArray[0] : '';
 
@@ -235,11 +239,11 @@ class InterviewController extends Controller
 
                     //return '<i class="fa fa-eye pv_name-icon pv-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'pv-name-\')" aria-hidden="true"></i><span class="pv_name pv-name-'.$row->id.'" style="display:none">'.$row->Submission->Requirement->pv_company_name.'</span>';
                 })
-                ->addColumn('hiring_manager', function($row){
+                ->editColumn('hiring_manager', function($row){
                     return '<i class="fa fa-eye hiring_manager-icon hiring-manager-icon-'.$row->id.'" onclick="showData('.$row->id.',\'hiring-manager-\')" aria-hidden="true"></i><span class="hiring_manager hiring-manager-'.$row->id.'" style="display:none">'.$row->hiring_manager.'</span>';
                 })
-                ->addColumn('client', function($row){
-                    return '<i class="fa fa-eye client-icon client-icon-'.$row->id.'" onclick="showData('.$row->id.',\'client-\')" aria-hidden="true"></i><span class="client client-'.$row->id.'" style="display:none">'.$row->client.'</span>';
+                ->editColumn('client', function($row){
+                    return '<i class="fa fa-eye client_data-icon client_data-icon-'.$row->id.'" onclick="showData('.$row->id.',\'client_data-\')" aria-hidden="true"></i><span class="client_data client_data-'.$row->id.'" style="display:none">'.$row->client.'</span>';
                 })
                 ->addColumn('interview_time', function($row){
                     return '<br><span style="font-weight:bold">'.date('m/d l', strtotime($row->interview_date)).'</span><br>
@@ -248,7 +252,7 @@ class InterviewController extends Controller
                 ->addColumn('job_id', function($row){
                     return '<span class=" job-title" data-id="'.$row->Submission->requirement_id.'">'.$row->job_id.'</span>';;
                 })
-                ->rawColumns(['status','candidate_name','action','candidate_phone_number','emp_poc','candidate_email','employer_name','poc_name','pv_name','hiring_manager','client','interview_time','job_id'])
+                ->rawColumns(['status','candidate_name','action','candidate_phone_number','emp_poc','candidate_email','employer_name','employee_name','poc_name','pv_name','hiring_manager','client','interview_time','job_id'])
                 ->make(true);
         }
 

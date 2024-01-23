@@ -61,21 +61,21 @@
                                                 }
                                             @endphp
                                             <div class="col-md-3 mt-2">
-                                                {!! Form::checkbox('', $key, null, ['id' => "$key", 'onChange' => 'toggleOptions("'.$key.'")', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
+                                                {!! Form::checkbox('', $key, null, ['id' => "$key", 'onChange' => 'toggleOptions("'.$key.'")', 'class' => 'toggle-checkbox toggle-change', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
                                                 <label class="form-check-label pl-2" for="{{$key}}"> {{ $value }}</label>
                                             </div>
                                         @endforeach
                                         <div class="col-md-3 mt-2">
-                                            {!! Form::checkbox('', 'show-time', null, ['id' => "showTime", 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
+                                            {!! Form::checkbox('', 'show-time', null, ['id' => "showTime", 'class' => 'toggle-checkbox toggle-change', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
                                             <label class="form-check-label pl-2" for="showTime">Status Time</label>
                                         </div>
                                         <div class="col-md-3 mt-2">
-                                            {!! Form::checkbox('', 'show-feedback', null, ['id' => "showFeedback", 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
+                                            {!! Form::checkbox('', 'show-feedback', null, ['id' => "showFeedback", 'class' => 'toggle-checkbox toggle-change', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
                                             <label class="form-check-label pl-2" for="showFeedback">Show FeedBack</label>
                                         </div>
                                         @if(in_array(Auth::user()->role, ['admin', 'bdm']))
                                             <div class="col-md-3 mt-2">
-                                                {!! Form::checkbox('', '', null, ['id' => 'toggle-poc', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
+                                                {!! Form::checkbox('', '', null, ['id' => 'toggle-poc', 'class' => 'toggle-checkbox toggle-change', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
                                                 <label class="form-check-label pl-2" for="showLink">Show POC</label>
                                             </div>
                                         @endif
@@ -294,7 +294,6 @@
     }
 
     function dataTables(){
-        $('#showTime').prop('checked', false);
        // $("#mySubmissionTable").dataTable().fnDestroy();
         // var selectedFilter = $("#filter_status").val();
 
@@ -306,7 +305,6 @@
             lengthMenu: [ 100, 200, 300, 400, 500 ],
             order: [[ 1, 'desc' ],],
             drawCallback: function(settings) {
-
                 var headerClassName = $('#sort_data').val();
                 if(headerClassName){
                     var columnIndex = $('.' + headerClassName).index();
@@ -338,69 +336,70 @@
             columns: [
                 {data: 'created_at', name: 'created_at'},
                 {data: 'id', name: 'id'},
-                {data: function (row) {
+                {data: 'job_id', name: 'requirements.job_id',render: function(data, type, row) {
                         @if(in_array(Auth::user()->role, ['admin', 'bdm']))
-                            if (row.requirement.parent_requirement_id && row.requirement.parent_requirement_id != row.requirement.id && row.requirement.parent_requirement_id != 0){
-                                    return '<span data-order="' + row.requirement.job_id + '" class="border-width-5 border-color-info job-title pt-1 pl-1 pl-1 pr-1" data-id="'+row.requirement.id+'">' + row.requirement.job_id + '</span>';
+                            if (row.parent_requirement_id && row.parent_requirement_id != row.requirement_id && row.parent_requirement_id != 0){
+                                    return '<span data-order="' + row.job_id + '" class="border-width-5 border-color-info job-title pt-1 pl-1 pl-1 pr-1" data-id="'+row.requirement_id+'">' + row.job_id + '</span>';
                             }else {
-                                if (row.requirement.parent_requirement_id == row.requirement.id) {
-                                    return '<span data-order="' + row.requirement.job_id + '" class="border-width-5 border-color-warning job-title pt-1 pl-1 pl-1 pr-1" data-id="'+row.requirement.id+'">' + row.requirement.job_id + '</span>';
+                                if (row.parent_requirement_id == row.requirement_id) {
+                                    return '<span data-order="' + row.job_id + '" class="border-width-5 border-color-warning job-title pt-1 pl-1 pl-1 pr-1" data-id="'+row.requirement_id+'">' + row.job_id + '</span>';
                                 } else {
-                                    return '<span data-order="' + row.requirement.job_id + '" class=" job-title" data-id="' + row.requirement.id + '">' + row.requirement.job_id + '</span>';
+                                    return '<span data-order="' + row.job_id + '" class=" job-title" data-id="' + row.requirement_id + '">' + row.job_id + '</span>';
                                 }
                             }
                         @else
-                            return '<span data-order="'+row.requirement.job_id+'" class=" job-title" data-id="'+row.requirement.id+'">'+row.requirement.job_id+'</span>';
+                            return '<span data-order="'+row.job_id+'" class=" job-title" data-id="'+row.requirement_id+'">'+row.job_id+'</span>';
                         @endif
+                    },
+                },
+                {data: 'job_title', name: 'requirements.job_title', width : '10%', render: function(data, type, row){
+                        return '<span data-order="'+row.job_title+'" class="job-title" data-id="'+row.requirement_id+'">'+row.job_title+'</span>';
                     }
                 },
-                {data: function (row){
-                        return '<span data-order="'+row.requirement.job_title+'" class="job-title" data-id="'+row.requirement_id+'">'+row.requirement.job_title+'</span>';
-                    }, width : '10%'},
-                {data: function (row){
-                        return row.requirement.location;
+                {data: 'requirement_location', name: 'requirements.location', render: function(data, type, row){
+                        return row.requirement_location;
                     }
                 },
-                {data: function (row){
+                {data: 'location', name: 'submissions.location', render: function(data, type, row){
                         return row.location;
                     }
                 },
                 // {data: 'job_keyword', 'width': '10%',  name: 'job_keyword'},
                 // {data: 'duration',  name: 'duration'},
-                {data: function (row) {
-                        return '<i class="fa fa-eye client_data-icon client_data-icon-'+row.id+'" onclick="showData('+row.id+',\'client_data-\')" aria-hidden="true"></i><span class="client_data client_data-'+row.id+'" style="display:none">'+((row.requirement.display_client &&  row.requirement.client_name) ? row.requirement.client_name : '')+'</span>';
-                    }
+                {data: 'client_name', name: 'requirements.client_name', render: function(data, type, row){
+                        return '<i class="fa fa-eye client_data-icon client_data-icon-'+row.id+'" onclick="showData('+row.id+',\'client_data-\')" aria-hidden="true"></i><span class="client_data client_data-'+row.id+'" style="display:none">'+((row.display_client &&  row.client_name) ? row.client_name : '')+'</span>';
+                    },
                 },
                 @if(in_array($userType,['admin','recruiter']))
-                    {data: function (row){
-                        return row.requirement.b_d_m.name;
+                    {data: 'bdm_name', name: 'admins.name', render: function(data, type, row){
+                        return row.bdm_name;
                     }
                 },
                 @endif
                 @if(in_array($userType,['admin','bdm']))
-                    {data: 'pv',  name: 'pv'},
-                    {data: 'poc',  name: 'poc'},
-                    {data: function (row){
-                            return row.recruiters.name;
+                    {data: 'pv',  name: 'requirements.pv_company_name'},
+                    {data: 'poc',  name: 'requirements.poc_name'},
+                    {data: 'recruiter_name', name: 'recruiter.name', render: function(data, type, row){
+                            return row.recruiter_name;
                         }
                     },
                 @endif
-                {data: function (row){
-                        return row.requirement.my_rate;
+                {data: 'my_rate', name: 'requirements.my_rate', render: function(data, type, row){
+                        return row.my_rate;
                     }
                 },
-                {data: function (row){
+                {data: 'recruiter_rate', name: 'submissions.recruiter_rate', render: function(data, type, row){
                         return row.recruiter_rate;
                     }
                 },
-                {data: 'candidate_name',  name: 'candidate_name'},
+                {data: 'candidate_name',  name: 'candidate_name', 'orderable': false, searchable: false},
                 {data: 'employer_name',  name: 'employer_name'},
                 @if(in_array($userType,['admin','recruiter']))
-                    {data: 'emp_poc',  name: 'emp_poc'},
+                    {data: 'employee_name',  name: 'employee_name'},
                 @endif
-                {data: 'bdm_status', "width": "9%", name: 'bdm_status', searchable: false},
-                {data: 'pv_status', "width": "10%", name: 'pv_status', searchable: false},
-                {data: 'client_status', "width": "10%", name: 'client_status', searchable: false},
+                {data: 'bdm_status', "width": "9%", name: 'bdm_status_updated_at', searchable: false},
+                {data: 'pv_status', "width": "10%", name: 'pv_status_updated_at', searchable: false},
+                {data: 'client_status', "width": "10%", name: 'interview_status_updated_at', searchable: false},
                 // {data: 'action', "width": "9%", name: 'action', orderable: false, searchable: false},
             ],
             initComplete: function(settings, json) {
@@ -420,6 +419,10 @@
                     'display': 'flex',
                 }).addClass('mt-4');
             },
+        });
+
+        $('#mySubmissionTable').on('draw.dt', function () {
+            $('.toggle-change').trigger('change');
         });
     }
 
@@ -442,8 +445,10 @@
 
     $('#sort_data').on('change', function(){
         var headerClassName = $('#sort_data').val();
-        var columnIndex = $('.' + headerClassName).index();
-        table.order([columnIndex, 'desc']).draw();
+        if(headerClassName){
+            var columnIndex = $('.' + headerClassName).index();
+            table.order([columnIndex, 'desc']).draw();
+        }
     });
 
     @if(isset($pvCompanyName) && $pvCompanyName)

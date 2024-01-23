@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Interview extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = [
         'user_id',
         'hiring_manager',
@@ -54,7 +54,7 @@ class Interview extends Model
 
     public static $toggleOptions = [
         // 'poc_name' => 'Show Poc',
-        'client' => 'Show Client',
+        'client_data' => 'Show Client',
         'show_employer_name' => 'Show Employer',
         'candidate_phone' => 'Show Candidate Phone',
         'candidate_email' => 'Show Candidate Email',
