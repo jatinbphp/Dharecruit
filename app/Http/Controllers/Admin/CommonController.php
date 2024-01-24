@@ -40,6 +40,7 @@ class CommonController extends Controller
         $status = 0;
         $showLogButton = 1;
         $manageLogFileds = Submission::$manageLogFileds;
+        $isSamePvCandidate = 0;
         $isInterviewCreated = 0;
         if(!empty($submission)){
             $interviewRow = Interview::where('submission_id', $submission->id)->first();
@@ -62,6 +63,7 @@ class CommonController extends Controller
             $oldEmployerNameHtml = '';//$this->getLogDataByName($submission, 'employer_name');
             $oldEmployerDetailHtml = $this->getLogDataByName($submission, 'employer_detail');
             $oldRelocationHtml = $this->getLogDataByName($submission, 'relocation');
+            $isSamePvCandidate = $this->isSamePvCandidate($submission->email, $submission->requirement_id, $submission->id);
             if(!$oldLocationHtml && !$oldPhoneHtml && !$oldWorkAuthorizationHtml && !$oldLast4ssnHtml && !$oldEducationDetailsHtml && !$oldResumeExperienceHtml && !$oldLinkedinIdHtml && !$oldEmployerNameHtml && !$oldEmployerDetailHtml){
                 $showLogButton = 0;
             }
@@ -255,6 +257,7 @@ class CommonController extends Controller
         $data['editData'] = $editData;
         $data['linking_data'] = $this->getEmployeeLinkData([],$submission->employee_email);
         $data['isInterviewCreated'] = $isInterviewCreated;
+        $data['isSamePvCandidate'] = $isSamePvCandidate;
         return $data;
     }
 

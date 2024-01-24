@@ -62,6 +62,8 @@ class BDMSubmissionController extends Controller
                     'submissions.bdm_status_updated_at',
                     'submissions.pv_status_updated_at',
                     'submissions.interview_status_updated_at',
+                    'submissions.reason',
+                    'submissions.pv_reason',
                     'requirements.id as requirement_id',
                     'requirements.created_at as requirement_created_at',
                     'requirements.user_id as requirement_user_id',
@@ -301,12 +303,13 @@ class BDMSubmissionController extends Controller
                     $candidateCount = $this->getCandidateCountByEmail($row->email);
                     $isCandidateHasLog  = $this->isCandidateHasLog($row);
                     $isEmployerNameChanged = $this->isEmployerNameChanged($row->candidate_id);
+                    $isSamePvCandidate = $this->isSamePvCandidate($row->email, $row->requirement_id, $row->id);
                     $timeSpan = $this->getSubmissionTimeSpan($row->Requirement->created_at, $row->created_at);
                     return ($candidateCount ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "")
                         . (($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "")
                         .(($isEmployerNameChanged) ? "<span class='badge bg-red ml-5'>2 Emp</span>" : "").
                         '<div  class="a-center pt-2 pl-2 pb-2 pr-2 '. $candidateCss.'" style="width: fit-content;">
-                            <span class="'.$candidateClass.' candidate candidate-'.$row->id.'" style="'.$candidateBorderCss.'" data-cid="'.$row->id.'">'. $candidateName. '-' .$row->candidate_id. '</span>
+                            <span class="'.$candidateClass.' candidate candidate-'.$row->id.'" style="'.$candidateBorderCss.'" data-cid="'.$row->id.'">'.($isSamePvCandidate ? "<i class='fa fa-info'></i>  ": ""). $candidateName. '-' .$row->candidate_id. '</span>
                         </div>
                         <div class="p-1 mt-1 border border-dark" style="width: fit-content;">
                             <span class="text-secondary font-weight-bold">'.$timeSpan.'</span>
@@ -331,7 +334,7 @@ class BDMSubmissionController extends Controller
                     }else{
                         $status .= "<p data-order='$statusLastUpdatedAt'></p>";
                     }
-                    if($row->pv_status && $row->status == Submission::STATUS_ACCEPT){
+                    if($row->pv_status){
                         $status .= "<span class='feedback' style='display:none'>".$this->getTooltipHtml($row->pv_reason)."</span>";
                         $status .= getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_PV_STATUS,$row->id);
                     }

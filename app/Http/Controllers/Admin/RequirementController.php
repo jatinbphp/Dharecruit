@@ -412,6 +412,14 @@ class RequirementController extends Controller
             EntityHistory::create($inputData);
         }
 
+        if(isset($input['status']) && $input['status'] != 'rejected'){
+            $input['reason'] = '';
+        }
+
+        if(isset($input['pv_status']) && !in_array($input['pv_status'], ['rejected_by_pv', 'rejected_by_end_client'])){
+            $input['pv_reason'] = '';
+        }
+
         $submission->update($input);
 
         \Session::flash('success', 'Candidate status has been updated successfully!');

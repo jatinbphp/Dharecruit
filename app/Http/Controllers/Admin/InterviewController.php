@@ -516,13 +516,14 @@ class InterviewController extends Controller
         $isCandidateHasLog  = $this->isCandidateHasLog($submission);
         $isEmployerNameChanged = $this->isEmployerNameChanged($submission->candidate_id);
         $timeSpan = $this->getSubmissionTimeSpan($interview->Submission->Requirement->created_at, $interview->Submission->created_at);
+        $isSamePvCandidate = $this->isSamePvCandidate($interview->Submission->email, $interview->Submission->requirement_id, $interview->Submission->id);
 
         return ($candidateCount ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "")
                 .(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "")
                 .(($isEmployerNameChanged) ? "<span class='badge bg-red ml-5'>2 Emp</span>" : "")
                 .'<div class="candidate-'. $interview->id .'">
                     <div class="'.$divClass.'  pt-2 pl-2 pb-2 pr-2" style="'.$divCss.'">
-                        <span class="candidate '.$textColor.'" data-cid='.$interview->submission_id.'>'.$candidateName.'-'.$interview->Submission->candidate_id.'</span>
+                        <span class="candidate '.$textColor.'" data-cid='.$interview->submission_id.'>'.($isSamePvCandidate ? "<i class='fa fa-info'></i>  ": "").$candidateName.'-'.$interview->Submission->candidate_id.'</span>
                     </div>
                     <div class="p-1 mt-1 border border-dark" style="width: fit-content;">
                         <span class="text-secondary font-weight-bold">'.$timeSpan.'</span>

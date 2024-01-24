@@ -83,9 +83,8 @@ trait POCTrait {
                 $collection->whereBetween('created_at', $date);
             }
             $bdmWiseNames = $collection->distinct()->pluck('poc_name')->toArray();
-            $companyWiseAllPocNames = array_intersect(array_map('strtolower', $bdmWiseNames), array_map('strtolower', $companyWiseAllPocNames));
+            $companyWiseAllPocNames = array_intersect($bdmWiseNames, $companyWiseAllPocNames);
         }
-
         $pocNames = array_intersect($selectedPocNames, $companyWiseAllPocNames);
 
         if(!$pocNames || !count($pocNames)){

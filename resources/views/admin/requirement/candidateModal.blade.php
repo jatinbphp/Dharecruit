@@ -26,6 +26,11 @@
                         @if($hide == 0)
                             <div class="col-md-12 border-bottom mb-2 pb-2" id="requirementData"></div>
                             <div class="col-md-12 border-bottom mb-2 pb-2" id="candidateData"></div>
+                            <div class="col-md-12 border-bottom d-none" id="candidateSubmissionMessage">
+                                <div class="alert alert-danger" role="alert">
+                                    Candidate Has Already Been Submitted To The Same Pv. Check Highlighted Blue Column.
+                                </div>
+                            </div>
                         @endif
                         <div class="col-md-12" id="statusUpdate">
                             <div class="row">
@@ -64,6 +69,14 @@
                                         {!! Form::textarea('reason', null, ['class' => 'form-control', 'rows'=>4, 'placeholder' => 'Enter Reason', 'id' => 'reason']) !!}
                                     </div>
                                 </div>
+
+                                <div class="col-md-12 pv_rejection" @if($hide == 0) style="display: none;" @endif>
+                                    <div class="form-group{{ $errors->has('pv_reason') ? ' has-error' : '' }}">
+                                        <label class="control-label" for="pv_reason">Pv Rejection Reason :<span class="text-red"></span></label>
+                                        {!! Form::textarea('pv_reason', null, ['class' => 'form-control', 'rows'=>4, 'placeholder' => 'Enter PV Rejection Reason', 'id' => 'pv_rej_reason']) !!}
+                                    </div>
+                                </div>
+
                                 <div class="col-md-6 mt-2" @if($isSubmission != 1) style="display: none;" @endif>
                                     <strong>BDM Status: </strong> <span id='status'></span>
                                 </div>

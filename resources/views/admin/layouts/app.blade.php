@@ -1068,6 +1068,11 @@
             data: {'cId': cId,'_token' : $('meta[name=_token]').attr('content') },
             success: function(data){
                 if(data.status == 1){
+                    if(data.isSamePvCandidate == 1){
+                        $('#candidateSubmissionMessage').removeClass('d-none');
+                    } else {
+                        $('#candidateSubmissionMessage').addClass('d-none');
+                    }
                     if(data.showLogButton == 0){
                         $('.show-logs').addClass('no-display');
                         $('.show-logs').hide();
@@ -1077,6 +1082,7 @@
                     }
                     $('.show-view').show();
                     $('.show-edit').show();
+                    $('.pv-status-select').show();
                     var submission = data.submission;
                     $('#jobTitle').html(submission.requirement.job_title);
                     $('#submissionId').val(cId);
@@ -1095,6 +1101,7 @@
                     if ($("#candidatePvStatus").length > 0) {
                         $("#candidatePvStatus").select2("val", submission.pv_status);
                     }
+
                     if(submission.status && submission.status != 'accepted'){
                        $('.pv-status-select').hide();
                     }else{
@@ -1103,7 +1110,9 @@
                         }
                     }
                     $("#reason").val(submission.reason);
+                    $("#pv_rej_reason").val(submission.pv_reason);
                     $('#requirementData').html(data.requirementData);
+                    $('#candidateData').html(data.candidateData);
                     $('#candidateData').html(data.candidateData);
                     $('#historyData').html(data.historyData);
                     $('#edit-section').html(data.editData);
@@ -1165,6 +1174,13 @@
             if ($('#candidateStatus').is(':visible')) {
                 $('#candidateStatus').prop('disabled', true);
             }
+        }
+
+        var rejReasons = ['rejected_by_pv', 'rejected_by_end_client'];
+        if(rejReasons.includes($(this).val())){
+            $('.pv_rejection').show();
+        } else {
+            $('.pv_rejection').hide();
         }
     });
 
