@@ -65,8 +65,8 @@
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
-                                                <label class="control-label" for="p_v_company">Employer Company</label>
-                                                {!! Form::select('p_v_company[]', \App\Models\Admin::getActiveEmployers(), null, ['class' => 'form-control select2', 'id'=>'p_v_company', 'multiple' => true, 'data-placeholder' => 'Select PV Company']) !!}
+                                                <label class="control-label" for="employer">Employer Company</label>
+                                                {!! Form::select('employer[]', \App\Models\Admin::getActiveEmployers(), null, ['class' => 'form-control select2', 'id'=>'employer', 'multiple' => true, 'data-placeholder' => 'Select Employer Company']) !!}
                                             </div>
                                         </div>
                                     </div>

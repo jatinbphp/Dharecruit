@@ -1,5 +1,6 @@
 <?php
 namespace App\Traits;
+use App\Models\Admin;
 use App\Models\PVCompany;
 use App\Models\Requirement;
 use App\Models\Submission;
@@ -17,6 +18,19 @@ trait CommonTrait {
 
     protected $_pvCompanyWisePocEmail = [];
     protected $_pvCompanyWisePocPhone = [];
+
+    protected $_employerWiseEmployeeSubmissionsCounts = [];
+    protected $_employerWiseEmployeeAddedDate = [];
+    protected $_employerWiseEmployeeLastReqDate = [];
+    protected $_employerWiseEmployeeTotalSubmissionCounts = [];
+    protected $_employerWiseEmployeeTotalStatusCounts = [];
+    protected $_employerWiseEmployeeTotalClientStatusCounts = [];
+    protected $_employerWiseEmployeeTotalRecCount = [];
+    protected $_employerWiseEmployeeCategories = [];
+    protected $_employerWiseEmployeeRec = [];
+
+//    protected $_pvCompanyWisePocEmail = [];
+//    protected $_pvCompanyWisePocPhone = [];
     protected $_isEmptyPOCRow = 0;
     protected $_emptyPOCRows = [];
 
@@ -431,7 +445,7 @@ trait CommonTrait {
         return $collection;
     }
 
-    public function getPVClass(): array
+    public function getTextClass(): array
     {
         return [
             'company_name'                      => '',
@@ -463,6 +477,13 @@ trait CommonTrait {
             'bdm_count'                         => 'font-weight-bold',
             'category_wise_count'               => 'font-weight-bold',
             'bdm_wise_count'                    => 'font-weight-bold',
+            'last_sub_date'                     => 'font-weight-bold',
+            'total_submission_count'            => 'font-weight-bold',
+            'unique_sub_count'                  => 'font-weight-bold',
+            'rec_count'                         => 'font-weight-bold',
+            'rec_wise_count'                    => 'font-weight-bold',
+            'employee_count'                    => 'font-weight-bold',
+            'highest_uni_sub_by_employee'       => 'font-weight-bold',
         ];
     }
 
@@ -472,6 +493,309 @@ trait CommonTrait {
             return '';
         }
         return strtolower(str_replace([' ', '.'], ['_', '_'], preg_replace('/[^a-zA-Z0-9.]/', '_', $data)));
-//        return strtolower(str_replace([' ', '.'], ['_', ''], $data));
     }
+
+    public function getEmployerWiseEmployeeSubmissionCounts($employerName, $employeeName, $allEmployeeNames, $date, $isUnique = 0): int
+    {
+        $employerNameKey = $this->getKey($employerName);
+        if(!$this->_employerWiseEmployeeSubmissionsCounts || !isset($this->_employerWiseEmployeeSubmissionsCounts[$isUnique][$employerNameKey])){
+            $collection = Submission::select('employee_name', \DB::raw("count(id) as count"))
+                ->whereIn('employee_name', $allEmployeeNames)
+                ->where('employer_name', $employerName);
+            if($isUnique){
+                $collection->where('id' ,\DB::raw('candidate_id'));
+            }
+            if($date && isset($date['from']) && $date['to']){
+                $collection->whereBetween('created_at', $date);
+            }
+
+            $collection->groupBy('employee_name');
+            $this->_employerWiseEmployeeSubmissionsCounts[$isUnique][$employerNameKey] = $collection->pluck('count', 'employee_name')->toArray();
+        }
+
+        if(isset($this->_employerWiseEmployeeSubmissionsCounts[$isUnique][$employerNameKey][$employeeName])){
+            $this->setIsEmptyPOCRow(0);
+            return $this->_employerWiseEmployeeSubmissionsCounts[$isUnique][$employerNameKey][$employeeName];
+        }
+
+        return 0;
+    }
+
+    public function getEmployerWiseEmployeeAddedDate($employerName, $employeeName, $allEmployeeNames, $date): string
+    {
+        $employerNameKey = $this->getKey($employerName);
+        if(!$this->_employerWiseEmployeeAddedDate || !isset($this->_employerWiseEmployeeAddedDate[$employerNameKey])){
+            $collection = $collection = Admin::select('employee_name', \DB::raw("DATE_FORMAT(created_at, '%m-%d-%y') as formatted_date"))
+                ->whereIn('employee_name', $allEmployeeNames);
+            /*if($date && isset($date['from']) && $date['to']){
+                $collection->whereBetween('created_at', $date);
+            }*/
+            $collection->groupBy('employee_name');
+            $this->_employerWiseEmployeeAddedDate[$employerNameKey] = $collection->pluck('formatted_date', 'employee_name')->toArray();
+        }
+
+        if(isset($this->_employerWiseEmployeeAddedDate[$employerNameKey][$employeeName])){
+            /*$this->setIsEmptyPOCRow(0);*/
+            return $this->_employerWiseEmployeeAddedDate[$employerNameKey][$employeeName];
+        }
+
+        return '';
+    }
+
+    public function getEmployerWiseEmployeeLastSubmissionDate($employerName, $employeeName, $allEmployeeNames, $date): string
+    {
+        $employerNameKey = $this->getKey($employerName);
+        if(!$this->_employerWiseEmployeeLastReqDate || !isset($this->_employerWiseEmployeeLastReqDate[$employerNameKey])){
+
+            $collection = Submission::whereIn('employee_name', $allEmployeeNames)
+                ->where('employer_name', $employerName)
+                ->groupBy('employee_name')
+                ->selectRaw("employee_name, DATE_FORMAT(MAX(created_at),    '%m-%d-%y') as latest_created_at");
+
+            $this->_employerWiseEmployeeLastReqDate[$employerNameKey] = $collection->pluck('latest_created_at', 'employee_name')->toArray();
+        }
+
+        if(isset($this->_employerWiseEmployeeLastReqDate[$employerNameKey][$employeeName])){
+            /*$this->setIsEmptyPOCRow(0);*/
+            return $this->_employerWiseEmployeeLastReqDate[$employerNameKey][$employeeName];
+        }
+
+        return '';
+    }
+
+    public function getEmployerWiseEmployeeTotalSubmissionCounts($employerName, $employeeName, $allEmployeeNames, $date): int
+    {
+        $employerNameKey = $this->getKey($employerName);
+        if(!$this->_employerWiseEmployeeTotalSubmissionCounts || !isset($this->_employerWiseEmployeeTotalSubmissionCounts[$employerNameKey])){
+            $collection = Submission::whereIn('employee_name', $allEmployeeNames)
+                ->where('employer_name', $employerName);
+            $collection->groupBy('employee_name')
+                ->selectRaw("employee_name, count(id) as count");
+            if($date && isset($date['from']) && $date['to']){
+                $collection->whereBetween('created_at', $date);
+            }
+
+            $this->_employerWiseEmployeeTotalSubmissionCounts[$employerNameKey] = $collection->pluck('count', 'employee_name')->toArray();
+        }
+
+        if(isset($this->_employerWiseEmployeeTotalSubmissionCounts[$employerNameKey][$employeeName])){
+            $this->setIsEmptyPOCRow(0);
+            return $this->_employerWiseEmployeeTotalSubmissionCounts[$employerNameKey][$employeeName];
+        }
+
+        return 0;
+    }
+
+    public function getEmployerWiseEmployeeStatusCount($employerName, $filedName, $status, $employeeName, $allEmployeeNames, $date): int
+    {
+        $employerNameKey = $this->getKey($employerName);
+        if(!$this->_employerWiseEmployeeTotalStatusCounts || !isset($this->_employerWiseEmployeeTotalStatusCounts[$employerNameKey][$status])){
+            $collection = Submission::select(\DB::raw('employee_name'), \DB::raw("count(id) as count"))
+                ->whereIn('employee_name', $allEmployeeNames)
+                ->where('employer_name', $employerName);
+
+            if ($status == Submission::STATUS_NOT_VIEWED) {
+                $collection->where('submissions.is_show', '0');
+            } elseif ($status == Submission::STATUS_PENDING) {
+                $collection->where('submissions.is_show', '1')
+                    ->where("submissions.$filedName", $status);
+            } else {
+                $collection->where("submissions.$filedName", $status);
+            }
+            if ($date && isset($date['from']) && $date['to']) {
+                $collection->whereBetween('submissions.updated_at', $date);
+            }
+
+            if($date && isset($date['from']) && $date['to']){
+                $collection->whereBetween('created_at', $date);
+            }
+            $collection->groupBy('employer_name');
+            $this->_employerWiseEmployeeTotalStatusCounts[$employerNameKey][$status] = $collection->pluck('count', 'employee_name')->toArray();
+        }
+
+        if(isset($this->_employerWiseEmployeeTotalStatusCounts[$employerNameKey][$status][$employeeName])){
+            $this->setIsEmptyPOCRow(0);
+            return $this->_employerWiseEmployeeTotalStatusCounts[$employerNameKey][$status][$employeeName];
+        }
+
+        return 0;
+    }
+
+    public function getEmployerWiseEmployeeClientStatusCount($employerName, $status, $employeeName, $allEmployeeNames, $date): int
+    {
+        $employerNameKey = $this->getKey($employerName);
+        if(!$this->_employerWiseEmployeeTotalClientStatusCounts || !isset($this->_employerWiseEmployeeTotalClientStatusCounts[$employerNameKey][$status])){
+            $collection =  Submission::leftJoin('interviews', 'submissions.id', '=', 'interviews.submission_id');
+            if($status != 'all'){
+                $collection->where('interviews.status', $status);
+
+            }
+            if($date && isset($date['from']) && $date['to']){
+                $collection->whereBetween('interviews.updated_at', $date);
+            }
+            $collection->whereIn('submissions.employee_name', $allEmployeeNames)
+                ->where('submissions.employer_name', $employerName)
+                ->groupBy('submissions.employee_name')
+                ->selectRaw('submissions.employee_name, COUNT(interviews.id) as count');
+
+            $this->_employerWiseEmployeeTotalClientStatusCounts[$employerNameKey][$status] = $collection->pluck('count', 'submissions.employee_name')->toArray();
+        }
+        if (isset($this->_employerWiseEmployeeTotalClientStatusCounts[$employerNameKey][$status][$employeeName])) {
+            $this->setIsEmptyPOCRow(0);
+            return $this->_employerWiseEmployeeTotalClientStatusCounts[$employerNameKey][$status][$employeeName];
+        }
+
+        return 0;
+    }
+
+    public function getEmployerWiseEmployeeTotalRecruiterCount($employerName, $employeeName, $allEmployeeNames, $date): int
+    {
+        $employerNameKey = $this->getKey($employerName);
+        if(!$this->_employerWiseEmployeeTotalRecCount || !isset($this->_employerWiseEmployeeTotalRecCount[$employerNameKey])){
+            $collection = Submission::select(\DB::raw('employee_name'), \DB::raw("COUNT(DISTINCT user_id) as count"))
+                ->whereIn('employee_name', $allEmployeeNames)
+                ->where('employer_name', $employerName);
+            if($date && isset($date['from']) && $date['to']){
+                $collection->whereBetween('created_at', $date);
+            }
+            $collection->groupBy('employee_name');
+
+            $this->_employerWiseEmployeeTotalRecCount[$employerNameKey] = $collection->pluck('count', 'employee_name')->toArray();
+        }
+
+        if (isset($this->_employerWiseEmployeeTotalRecCount[$employerNameKey][$employeeName])) {
+            $this->setIsEmptyPOCRow(0);
+            return $this->_employerWiseEmployeeTotalRecCount[$employerNameKey][$employeeName];
+        }
+
+        return 0;
+    }
+
+    public function getEmployerWiseEmployeeCategories($employerName, $employeeName, $allEmployeeNames, $date): array
+    {
+        $employerNameKey = $this->getKey($employerName);
+        if(!$this->_employerWiseEmployeeCategories || !isset($this->_employerWiseEmployeeCategories[$employerNameKey])){
+            $collection = Requirement::select(
+                \DB::raw('submissions.employee_name as employee_name'),
+                \DB::raw('GROUP_CONCAT(categories.name) as category_names'),
+            )
+                ->whereIn('submissions.employee_name', $allEmployeeNames)
+                ->where('submissions.employer_name', $employerName)
+                ->leftJoin('categories', 'requirements.category', '=', 'categories.id')
+                ->leftJoin('submissions', 'requirements.id', '=', 'submissions.requirement_id');
+            if($date && isset($date['from']) && $date['to']){
+                $collection->whereBetween('submissions.created_at', $date);
+            }
+
+            $employeeData = $collection->groupBy('submissions.employee_name')->get();
+
+            \Log::info($employeeData);
+            if($employeeData){
+                foreach ($employeeData as $data){
+                    $dataEmplyeeName = $data->employee_name;
+                    if(!$dataEmplyeeName){
+                        continue;
+                    }
+                    $categoryNameArray = explode(',', $data->category_names);
+                    $categoryCount = array_count_values($categoryNameArray);
+
+                    $categoryString = [];
+
+                    foreach (array_unique($categoryNameArray) as $category){
+                        $categoryString[] = $category .' ('. (isset($categoryCount[$category]) ? $categoryCount[$category] : 0) . ')';
+                    }
+
+                    $this->_employerWiseEmployeeCategories[$employerNameKey][$dataEmplyeeName] = $categoryString;
+                }
+            }
+        }
+
+        if (isset($this->_employerWiseEmployeeCategories[$employerNameKey][$employeeName])) {
+            $this->setIsEmptyPOCRow(0);
+            return $this->_employerWiseEmployeeCategories[$employerNameKey][$employeeName];
+        }
+        return [];
+    }
+
+    public function getEmployerWiseEmployeeRecruiter($employerName, $employeeName, $allEmployeeNames, $date): array
+    {
+        $employerNameKey = $this->getKey($employerName);
+        if(!$this->_employerWiseEmployeeRec || !isset($this->_employerWiseEmployeeRec[$employerNameKey])){
+            $collection = Submission::select(
+                \DB::raw('submissions.employee_name as employee_name'),
+                \DB::raw('GROUP_CONCAT(admins.name) as admin'),
+            )
+                ->whereIn('submissions.employee_name', $allEmployeeNames)
+                ->where('submissions.employer_name', $employerName)
+                ->leftJoin('admins', 'submissions.user_id', '=', 'admins.id');
+
+            if($date && isset($date['from']) && $date['to']){
+                $collection->whereBetween('submissions.created_at', $date);
+            }
+
+            $employeeData = $collection->groupBy('submissions.employee_name')->get();
+
+            if($employeeData){
+                foreach ($employeeData as $data){
+                    $dataEmplyeeName = $data->employee_name;
+                    if(!$dataEmplyeeName){
+                        continue;
+                    }
+                    $recNameArray = explode(',', $data->admin);
+                    $recCount = array_count_values($recNameArray);
+
+                    $recNameString = [];
+
+                    foreach (array_unique($recNameArray) as $recName){
+                        $recNameString[] = $recName .' ('. (isset($recCount[$recName]) ? $recCount[$recName] : 0) . ')';
+                    }
+
+                    $this->_employerWiseEmployeeRec[$employerNameKey][$dataEmplyeeName] = $recNameString;
+                }
+            }
+        }
+
+        if (isset($this->_employerWiseEmployeeRec[$employerNameKey][$employeeName])) {
+            $this->setIsEmptyPOCRow(0);
+            return $this->_employerWiseEmployeeRec[$employerNameKey][$employeeName];
+        }
+
+        return [];
+    }
+
+//    public function getEmployerWiseEmployeeEmail($pvCompanyName, $pocName, $pocNames, $date)
+//    {
+//        $pvCompanyKey = $this->getKey($pvCompanyName);
+//        if(!$this->_pvCompanyWisePocEmail || !isset($this->_pvCompanyWisePocEmail[$pvCompanyKey])){
+//            $collection = PVCompany::select('poc_name', 'email')
+//                ->whereIn('poc_name', $pocNames)
+//                ->where('name', $pvCompanyName)
+//                ->groupBy('poc_name');
+//            $this->_pvCompanyWisePocEmail[$pvCompanyKey] = $collection->pluck('email', 'poc_name')->toArray();
+//        }
+//
+//        if(isset($this->_pvCompanyWisePocEmail[$pvCompanyKey][$pocName])){
+//            return $this->_pvCompanyWisePocEmail[$pvCompanyKey][$pocName];
+//        }
+//
+//        return '';
+//    }
+
+//    public function getEmployerWiseEmployeePhone($pvCompanyName, $pocName, $pocNames, $date)
+//    {
+//        $pvCompanyKey = $this->getKey($pvCompanyName);
+//        if(!$this->_pvCompanyWisePocPhone || !isset($this->_pvCompanyWisePocPhone[$pvCompanyKey])){
+//            $collection = PVCompany::select('poc_name', 'phone')
+//                ->whereIn('poc_name', $pocNames)
+//                ->where('name', $pvCompanyName)
+//                ->groupBy('poc_name');
+//            $this->_pvCompanyWisePocPhone[$pvCompanyKey] = $collection->pluck('phone', 'poc_name')->toArray();
+//        }
+//
+//        if(isset($this->_pvCompanyWisePocPhone[$pvCompanyKey][$pocName])){
+//            return $this->_pvCompanyWisePocPhone[$pvCompanyKey][$pocName];
+//        }
+//
+//        return '';
+//    }
 }

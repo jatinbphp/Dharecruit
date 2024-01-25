@@ -11,6 +11,7 @@ trait ReportsTrait {
     use SubmissionTrait;
     use PVCompanyTrait;
     use POCTrait;
+    use EmployerTrait;
     public function getAllBdmsData($request): array
     {
         $bdms = $request->bdm;
@@ -127,9 +128,8 @@ trait ReportsTrait {
             $pvData['poc_data'][$pvCompanyKey]        = $this->getCompanyWisePocData($pvCompany, $request);
         }
         $pvData['heading']    = $this->getPvHeadingData();
-        $pvData['class_data'] = $this->getPVClass();
+        $pvData['class_data'] = $this->getTextClass();
         $pvData['empty_pv_rows'] = $this->getEmptyPVRows();
-        \Log::info($this->getEmptyPOCRows());
         $pvData['empty_poc_rows'] = $this->getEmptyPOCRows();
 
         return  $pvData;
@@ -156,7 +156,7 @@ trait ReportsTrait {
             $pvCompanyKey = $this->getKey($pvCompany);
             $pocData['poc_data'][$pvCompanyKey] = $this->getPocWiseData($pvCompany, $pvCompanies, $pocNames, $request);
         }
-        $pocData['class_data']     = $this->getPVClass();
+        $pocData['class_data']     = $this->getTextClass();
         $pocData['empty_poc_rows'] = $this->getEmptyPOCRows();
         $pocData['hide_columns']   = $this->getPocHideColumns();
 
@@ -171,15 +171,14 @@ trait ReportsTrait {
             $employers = array_keys(Admin::getActiveEmployers()->toArray());
         }
 
-        foreach ($employers as $pvCompany){
-            $pvCompanyKey = $this->getKey($pvCompany);
-            $pvData['pv_company_data'][$pvCompanyKey] = $this->getCompanyWisePVCompanyData($pvCompany, $employers, $request);
-            $pvData['poc_data'][$pvCompanyKey]        = $this->getCompanyWisePocData($pvCompany, $request);
+        foreach ($employers as $employer){
+            $employerKey = $this->getKey($employer);
+            $pvData['employer_company_data'][$employerKey] = $this->getEmployerWiseData($employer, $employers, $request);
+            $pvData['employee_data'][$employerKey]        = $this->getEmployerWiseEmployeeData($employer, $request);
         }
-        $pvData['heading']    = $this->getPvHeadingData();
-        $pvData['class_data'] = $this->getPVClass();
-        $pvData['empty_pv_rows'] = $this->getEmptyPVRows();
-        \Log::info($this->getEmptyPOCRows());
+        $pvData['heading']    = $this->getEmployerHeadingData();
+        $pvData['class_data'] = $this->getTextClass();
+        $pvData['empty_employer_rows'] = $this->getEmptyEmployerRows();
         $pvData['empty_poc_rows'] = $this->getEmptyPOCRows();
 
         return  $pvData;

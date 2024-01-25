@@ -65,7 +65,7 @@
                                         </div>
                                         @if(strtolower($heading) == 'company_name')
                                             <div class="expand-toggle mt-3">
-                                                <button class="btn btn-sm btn-default hide-rows" title="Show POC of {{$data}}" data-company-id="{{$key}}" onclick="toggleButton(this)" data-toggle="collapse" data-target=".collapse-{{$key}}">
+                                                <button class="btn btn-sm btn-default hide-rows" title="Show POC of {{$data}}" data-company-id="{{$key}}" onclick="toggleButton(this, 'pv-company')" data-toggle="collapse" data-target=".collapse-{{$key}}">
                                                     <i class="fa fa-plus" aria-hidden="true"></i>
                                                 </button>
                                             </div>

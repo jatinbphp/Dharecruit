@@ -103,7 +103,7 @@ class ReportsController extends Controller
     public function getEmployerData($request)
     {
         $employerData['employerFilterData'] = $this->getEmployerFilterData($request);
-        $data['content']        = view('admin.reports.employer_report_data', $employerData)->render();
+        $data['content']                    = view('admin.reports.employer_report_data', $employerData)->render();
 
         return $data;
     }

@@ -1283,10 +1283,10 @@
         $("#candidateForm").submit();
     }
 
-    function toggleButton(el){
+    function toggleButton(el, text){
         const companyId = $(el).attr('data-company-id');
-        const className = 'pv-company-group-' + companyId;
-        const mainTrClass = 'pv-company-' + companyId;
+        const className = text +'-group-' + companyId;
+        const mainTrClass = text +'-' + companyId;
         if($(el).hasClass('hide-rows')){
             $(el).removeClass('hide-rows').addClass('show-rows');
             $('.'+className).removeClass('border-bottom border-top');
