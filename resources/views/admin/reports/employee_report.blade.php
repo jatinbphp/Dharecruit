@@ -65,20 +65,20 @@
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label class="control-label" for="p_v_company">Employer Name</label>
-                                                {!! Form::select('employers_name[]', \App\Models\Admin::getActiveEmployers(), null, ['class' => 'form-control select2', 'id'=>'employer_name', 'multiple' => true, 'data-placeholder' => 'Select Employer Name']) !!}
+                                                <label class="control-label" for="employer_name">Employer Name</label>
+                                                {!! Form::select('employer_name[]', \App\Models\Admin::getActiveEmployers(), null, ['class' => 'form-control select2', 'id'=>'employer_name', 'multiple' => true, 'data-placeholder' => 'Select Employer Name']) !!}
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label class="control-label" for="poc_name">Employee Name</label>
-                                                {!! Form::select('poc_name[]', \App\Models\Admin::getActiveEmployees(), null, ['class' => 'form-control select2', 'id'=>'employee_name', 'multiple' => true, 'data-placeholder' => 'Select Employee Name']) !!}
+                                                <label class="control-label" for="employee_name">Employee Name</label>
+                                                {!! Form::select('employee_name[]', \App\Models\Admin::getActiveEmployees(), null, ['class' => 'form-control select2', 'id'=>'employee_name', 'multiple' => true, 'data-placeholder' => 'Select Employee Name']) !!}
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label class="control-label" for="who_added">Who Added</label>
-                                                {!! Form::select('who_added[]', \App\Models\Admin::getActiveBDM(), null, ['class' => 'form-control select2', 'id'=>'who_added', 'multiple' => true, 'data-placeholder' => 'Select BDM Users']) !!}
+                                                {!! Form::select('who_added[]', \App\Models\Admin::getActiveRecruiter(), null, ['class' => 'form-control select2', 'id'=>'who_added', 'multiple' => true, 'data-placeholder' => 'Select Recruiter Users']) !!}
                                             </div>
                                         </div>
                                         <div class="col-md-3">

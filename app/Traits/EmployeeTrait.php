@@ -70,17 +70,19 @@ trait EmployeeTrait {
             $collection->whereIn('added_by', $request->who_added);
         }
 
-        $companyWiseAllPocNames = $collection->distinct()->pluck('employee_name')->toArray();
+        $employerWiseAllEmployeeNames = $collection->distinct()->pluck('employee_name')->toArray();
 
-        if(!empty($request->bdm_names)){
-            $collection = Submission::whereIn('user_id', $request->bdm_names)->where('employer_name', $employerName);
+        \Log::info($employerWiseAllEmployeeNames);
+
+        if(!empty($request->recruiter_names)){
+            $collection = Submission::whereIn('user_id', $request->recruiter_names)->where('employer_name', $employerName);
             if($date && isset($date['from']) && $date['to']){
                 $collection->whereBetween('created_at', $date);
             }
             $bdmWiseNames = $collection->distinct()->pluck('employee_name')->toArray();
-            $companyWiseAllPocNames = array_intersect($bdmWiseNames, $companyWiseAllPocNames);
+            $employerWiseAllEmployeeNames = array_intersect($bdmWiseNames, $employerWiseAllEmployeeNames);
         }
-        $employeeNames = array_intersect($selectedEmployerNames, $companyWiseAllPocNames);
+        $employeeNames = array_intersect($selectedEmployerNames, $employerWiseAllEmployeeNames);
 
         if(!$employeeNames || !count($employeeNames)){
             return [];
