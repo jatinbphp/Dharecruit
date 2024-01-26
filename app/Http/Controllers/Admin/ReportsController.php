@@ -54,6 +54,16 @@ class ReportsController extends Controller
                     return $this->getEmployerData($request);
                 }
                 break;
+            case "employee_report":
+                $data['menu'] = 'Employee Report';
+                $data['subType'] = '';
+                $data['hideColumns'] = $this->getEmployeeHideColumns();
+                $data['totalShowCompanyColumn'] = $this->getTotalShowEmployeeColumns();
+
+                if(!empty($request->all())){
+                    return $this->getEmployeeData($request);
+                }
+                break;
             default:
                 $data = $this->getEfficiencyData($request, $subType);
         }
@@ -104,6 +114,14 @@ class ReportsController extends Controller
     {
         $employerData['employerFilterData'] = $this->getEmployerFilterData($request);
         $data['content']                    = view('admin.reports.employer_report_data', $employerData)->render();
+
+        return $data;
+    }
+
+    public function getEmployeeData($request)
+    {
+        $employerData['employerFilterData'] = $this->getEmployeeFilterData($request);
+        $data['content']                    = view('admin.reports.employee_report_data', $employerData)->render();
 
         return $data;
     }

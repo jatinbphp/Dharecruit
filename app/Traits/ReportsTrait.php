@@ -12,6 +12,7 @@ trait ReportsTrait {
     use PVCompanyTrait;
     use POCTrait;
     use EmployerTrait;
+    use EmployeeTrait;
     public function getAllBdmsData($request): array
     {
         $bdms = $request->bdm;
@@ -171,16 +172,45 @@ trait ReportsTrait {
             $employers = array_keys(Admin::getActiveEmployers()->toArray());
         }
 
+        $employeeData = [];
         foreach ($employers as $employer){
             $employerKey = $this->getKey($employer);
-            $pvData['employer_company_data'][$employerKey] = $this->getEmployerWiseData($employer, $employers, $request);
-            $pvData['employee_data'][$employerKey]        = $this->getEmployerWiseEmployeeData($employer, $request);
+            $employeeData['employer_company_data'][$employerKey] = $this->getEmployerWiseData($employer, $employers, $request);
+            $employeeData['employee_data'][$employerKey]        = $this->getEmployerWiseEmployeeData($employer, $request);
         }
-        $pvData['heading']    = $this->getEmployerHeadingData();
-        $pvData['class_data'] = $this->getTextClass();
-        $pvData['empty_employer_rows'] = $this->getEmptyEmployerRows();
-        $pvData['empty_poc_rows'] = $this->getEmptyPOCRows();
+        $employeeData['heading']    = $this->getEmployerHeadingData();
+        $employeeData['class_data'] = $this->getTextClass();
+        $employeeData['empty_employer_rows'] = $this->getEmptyEmployerRows();
+        $employeeData['empty_poc_rows'] = $this->getEmptyPOCRows();
 
-        return  $pvData;
+        return  $employeeData;
+    }
+
+    public function getEmployeeFilterData($request): array
+    {
+        $employerNames = $request->employer_name;
+        $employeeNames = $request->employee_name;
+
+        if(!$employerNames || !count($employerNames)){
+            $employerNames = array_keys(Admin::getActiveEmployers()->toArray());
+        }
+
+        if(!$employeeNames || !count($employeeNames)){
+            $employeeNames = array_keys(Admin::getActiveEmployees()->toArray());
+        }
+//        if(!$employerNames || !count($employerNames) || !$employeeNames || !count($employeeNames)){
+//            return  [];
+//        }
+
+        $employeData['heading'] = $this->getEmployeeHeadingData();
+        foreach ($employerNames as $employeName){
+            $employeNameKey = $this->getKey($employeName);
+            $employeData['emp_poc_data'][$employeNameKey] = $this->getEmployeeWiseData($employeName, $employerNames, $employeeNames, $request);
+        }
+        $employeData['class_data']     = $this->getTextClass();
+        $employeData['empty_poc_rows'] = $this->getEmptyPOCRows();
+        $employeData['hide_columns']   = $this->getEmployeeHideColumns();
+
+        return  $employeData;
     }
 }

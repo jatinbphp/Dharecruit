@@ -29,8 +29,8 @@ trait CommonTrait {
     protected $_employerWiseEmployeeCategories = [];
     protected $_employerWiseEmployeeRec = [];
 
-//    protected $_pvCompanyWisePocEmail = [];
-//    protected $_pvCompanyWisePocPhone = [];
+    protected $_employerWiseEmployeeEmail = [];
+    protected $_employerWiseEmployeePhone = [];
     protected $_isEmptyPOCRow = 0;
     protected $_emptyPOCRows = [];
 
@@ -689,7 +689,6 @@ trait CommonTrait {
 
             $employeeData = $collection->groupBy('submissions.employee_name')->get();
 
-            \Log::info($employeeData);
             if($employeeData){
                 foreach ($employeeData as $data){
                     $dataEmplyeeName = $data->employee_name;
@@ -763,39 +762,39 @@ trait CommonTrait {
         return [];
     }
 
-//    public function getEmployerWiseEmployeeEmail($pvCompanyName, $pocName, $pocNames, $date)
-//    {
-//        $pvCompanyKey = $this->getKey($pvCompanyName);
-//        if(!$this->_pvCompanyWisePocEmail || !isset($this->_pvCompanyWisePocEmail[$pvCompanyKey])){
-//            $collection = PVCompany::select('poc_name', 'email')
-//                ->whereIn('poc_name', $pocNames)
-//                ->where('name', $pvCompanyName)
-//                ->groupBy('poc_name');
-//            $this->_pvCompanyWisePocEmail[$pvCompanyKey] = $collection->pluck('email', 'poc_name')->toArray();
-//        }
-//
-//        if(isset($this->_pvCompanyWisePocEmail[$pvCompanyKey][$pocName])){
-//            return $this->_pvCompanyWisePocEmail[$pvCompanyKey][$pocName];
-//        }
-//
-//        return '';
-//    }
+    public function getEmployerWiseEmployeeEmail($employerName, $employeeName, $allEmployeeName, $date)
+    {
+        $employerNameKey = $this->getKey($employerName);
+        if(!$this->_employerWiseEmployeeEmail || !isset($this->_employerWiseEmployeeEmail[$employerNameKey])){
+            $collection = Admin::select('employee_name', 'email')
+                ->whereIn('employee_name', $allEmployeeName)
+                ->where('name', $employerName)
+                ->groupBy('employee_name');
+            $this->_employerWiseEmployeeEmail[$employerNameKey] = $collection->pluck('email', 'employee_name')->toArray();
+        }
 
-//    public function getEmployerWiseEmployeePhone($pvCompanyName, $pocName, $pocNames, $date)
-//    {
-//        $pvCompanyKey = $this->getKey($pvCompanyName);
-//        if(!$this->_pvCompanyWisePocPhone || !isset($this->_pvCompanyWisePocPhone[$pvCompanyKey])){
-//            $collection = PVCompany::select('poc_name', 'phone')
-//                ->whereIn('poc_name', $pocNames)
-//                ->where('name', $pvCompanyName)
-//                ->groupBy('poc_name');
-//            $this->_pvCompanyWisePocPhone[$pvCompanyKey] = $collection->pluck('phone', 'poc_name')->toArray();
-//        }
-//
-//        if(isset($this->_pvCompanyWisePocPhone[$pvCompanyKey][$pocName])){
-//            return $this->_pvCompanyWisePocPhone[$pvCompanyKey][$pocName];
-//        }
-//
-//        return '';
-//    }
+        if(isset($this->_employerWiseEmployeeEmail[$employerNameKey][$employeeName])){
+            return $this->_employerWiseEmployeeEmail[$employerNameKey][$employeeName];
+        }
+
+        return '';
+    }
+
+    public function getEmployerWiseEmployeePhone($employerName, $employeeName, $allEmployeeName, $date)
+    {
+        $employerNameKey = $this->getKey($employerName);
+        if(!$this->_employerWiseEmployeePhone || !isset($this->_employerWiseEmployeePhone[$employerNameKey])){
+            $collection = Admin::select('employee_name', 'phone')
+                ->whereIn('employee_name', $allEmployeeName)
+                ->where('name', $employerName)
+                ->groupBy('employee_name');
+            $this->_employerWiseEmployeePhone[$employerNameKey] = $collection->pluck('phone', 'employee_name')->toArray();
+        }
+
+        if(isset($this->_employerWiseEmployeePhone[$employerNameKey][$employeeName])){
+            return $this->_employerWiseEmployeePhone[$employerNameKey][$employeeName];
+        }
+
+        return '';
+    }
 }
