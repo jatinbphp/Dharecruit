@@ -64,27 +64,27 @@ class CronController extends Controller
 
     public function sendMails()
     {
-        Log::info("Cron SendMail Start ----> ".Carbon::now()->format('m-d-y h:i:s'));
-        $mailsData = MailSent::where('status', 0)->get();
-        if(!empty($mailsData)){
-            foreach ($mailsData as $mailData){
-                $data = json_decode($mailData->data);
-                $responce = $this->sendMail($data, $mailData->type);
-                if($responce){
-                    $mailData->status = 1;
-                    $mailData->save();
-                }
-            }
-        }
-        Log::info("Cron SendMail End ----> ".Carbon::now()->format('m-d-y h:i:s'));
-        return '';
+//        Log::info("Cron SendMail Start ----> ".Carbon::now()->format('m-d-y h:i:s'));
+//        $mailsData = MailSent::where('status', 0)->get();
+//        if(!empty($mailsData)){
+//            foreach ($mailsData as $mailData){
+//                $data = json_decode($mailData->data);
+//                $responce = $this->sendMail($data, $mailData->type);
+//                if($responce){
+//                    $mailData->status = 1;
+//                    $mailData->save();
+//                }
+//            }
+//        }
+//        Log::info("Cron SendMail End ----> ".Carbon::now()->format('m-d-y h:i:s'));
+//        return '';
     }
 
     public function clearMailData()
     {
-        Log::info("Cron SendMail Clean Start ----> ".Carbon::now()->format('m-d-y h:i:s'));
-        MailSent::where('status', 1)->delete();
-        Log::info("Cron SendMail Clean End ----> ".Carbon::now()->format('m-d-y h:i:s'));
-        return '';
+//        Log::info("Cron SendMail Clean Start ----> ".Carbon::now()->format('m-d-y h:i:s'));
+//        MailSent::where('status', 1)->delete();
+//        Log::info("Cron SendMail Clean End ----> ".Carbon::now()->format('m-d-y h:i:s'));
+//        return '';
     }
 }
