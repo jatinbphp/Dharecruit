@@ -10,6 +10,7 @@ class SettingController extends Controller
 {
     public function __construct(){
         $this->middleware('auth');
+        $this->middleware('accessright:manage_settings');
     }
 
     public function index()
@@ -36,7 +37,7 @@ class SettingController extends Controller
         foreach ($requestData as $key => $value) {
             if(in_array($key,$storedData)){
                 $settingData = Setting::where('name', $key)->first();
-                
+
                 if(!empty($settingData)){
                     $settingData->value = $value;
                     $settingData->save();

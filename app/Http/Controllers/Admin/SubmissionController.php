@@ -133,6 +133,13 @@ class SubmissionController extends Controller
 
         if($submission){
             $this->addEmployeeDetails($submission);
+
+            $submissionData = Submission::with('Requirement')
+                ->with('Requirement.BDM')
+                ->with('Recruiters')
+                ->where('id', $submission->id)
+                ->first();
+            $this->createDataForSentMail($submissionData, 'submission_add');
         }
 
         \Session::flash('success', 'New submission has been inserted successfully!');

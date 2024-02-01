@@ -316,6 +316,19 @@ class InterviewController extends Controller
         $input['user_id'] = Auth::user()->id;
         $interview = Interview::create($input);
 
+        if(in_array($interview->status, ['scheduled', 're_scheduled', 'selected_for_next_round', 'rejected', 'confirmed_position'])){
+            $statusText = Interview::$interviewStatusOptions;
+            $interviewData = Interview::with('Submission')
+                ->with('Submission.Requirement')
+                ->with('Submission.Requirement.BDM')
+                ->with('Submission.Recruiters')
+                ->where('id',$interview->id)
+                ->first();
+            $interviewData->status_text = isset($statusText[$input['status']]) ? $statusText[$input['status']] : '';
+            $interviewData->status_type = 'interview_status';
+            $this->createDataForSentMail($interviewData, 'interview');
+        }
+
         if(!empty($interview)){
             if(!empty($request['document'])){
                 if($files = $request->file('document')){
@@ -371,6 +384,19 @@ class InterviewController extends Controller
         $interview = Interview::where('id',$id)->first();
         $interview->update($request->all());
 
+        if(in_array($interview->status, ['scheduled', 're_scheduled', 'selected_for_next_round', 'rejected', 'confirmed_position'])){
+            $statusText = Interview::$interviewStatusOptions;
+            $interviewData = Interview::with('Submission')
+                ->with('Submission.Requirement')
+                ->with('Submission.Requirement.BDM')
+                ->with('Submission.Recruiters')
+                ->where('id',$id)
+                ->first();
+            $interviewData->status_text = isset($statusText[$input['status']]) ? $statusText[$input['status']] : '';
+            $interviewData->status_type = 'interview_status';
+            $this->createDataForSentMail($interviewData, 'interview');
+        }
+
         if($interview){
             if(!empty($request['document'])){
                 if($files = $request->file('document')){
@@ -400,6 +426,19 @@ class InterviewController extends Controller
         }
         $input['status'] = $request['status'];
         $interview->update($input);
+
+        if(in_array($interview->status, ['scheduled', 're_scheduled', 'selected_for_next_round', 'rejected', 'confirmed_position'])){
+            $statusText = Interview::$interviewStatusOptions;
+            $interviewData = Interview::with('Submission')
+                ->with('Submission.Requirement')
+                ->with('Submission.Requirement.BDM')
+                ->with('Submission.Recruiters')
+                ->where('id',$id)
+                ->first();
+            $interviewData->status_text = isset($statusText[$input['status']]) ? $statusText[$input['status']] : '';
+            $interviewData->status_type = 'interview_status';
+            $this->createDataForSentMail($interviewData, 'interview');
+        }
 
         $entityTypeInterviewStatus = EntityHistory::ENTITY_TYPE_INTERVIEW_STATUS;
 

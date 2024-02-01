@@ -529,6 +529,14 @@
                             </a>
                         </li>
                     @endif
+                    @if(\Illuminate\Support\Facades\Auth::user()->role == 'admin')
+                        <li class="nav-item">
+                            <a href="{{ route('mail_template.index') }}" class="nav-link @if($menu=='Mail Template') active @endif">
+                                <i class="nav-icon fa fa-envelope"></i>
+                                <p>Email Template</p>
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </nav>
         </div>

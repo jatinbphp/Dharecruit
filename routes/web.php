@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\ImageController;
 use App\Http\Controllers\Admin\InterviewController;
+use App\Http\Controllers\Admin\MailTemplateController;
 use App\Http\Controllers\Admin\MoiController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ProfileUpdateController;
@@ -165,6 +166,9 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('pv_transfer/transferPoc', [PVTransferController::class, 'transferPoc'])->name('pv_transfer.transferPoc');
     Route::resource('pv_transfer', PVTransferController::class);
 
+    /* MAIL TEMPLATE MANAGEMENT */
+    Route::resource('mail_template', MailTemplateController::class);
+
     Auth::routes();
 });
 
@@ -172,3 +176,5 @@ Route::get('/',[LoginController::class,'showAdminLoginForm'])->name('admin.login
 Route::get('/admin',[LoginController::class,'showAdminLoginForm'])->name('admin.login-view');
 Route::post('/admin',[LoginController::class,'adminLogin'])->name('admin.login');
 Route::get('/expireRequirements',[\App\Http\Controllers\CronController::class, 'expireRequirement']);
+Route::get('/sendMail',[\App\Http\Controllers\CronController::class, 'sendMails']);
+Route::get('/clearMailData',[\App\Http\Controllers\CronController::class, 'clearMailData']);

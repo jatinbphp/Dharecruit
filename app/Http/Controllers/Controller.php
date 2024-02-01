@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\submissionMail;
 use App\Models\AssignToRecruiter;
+use App\Models\MailSent;
+use App\Models\MailTemplate;
 use App\Models\POCTransfer;
 use App\Models\Requirement;
 use App\Models\Submission;
@@ -2089,4 +2092,65 @@ class Controller extends BaseController
 
         return $this;
     }
+
+    public function createDataForSentMail($data, $type)
+    {
+        if(empty($data) || !$type){
+            return $this;
+        }
+
+        MailSent::create([
+            'data' => json_encode($data),
+            'type' => $type,
+        ]);
+
+        return $this;
+
+    }
+    public function sendMail($data, $type)
+    {
+        $bdmEmail = $recEmail = '';
+        if($type == 'submission'){
+            $bdmEmail = $data->requirement->b_d_m->email;
+            $recEmail = $data->recruiters->email;
+        }else if($type == 'interview'){
+            $bdmEmail = $data->submission->requirement->b_d_m->email;
+            $recEmail = $data->submission->recruiters->email;
+
+            $mailTemplate = MailTemplate::where('type', $data->status)->first();
+            if(empty($mailTemplate)){
+                return 0;
+            }
+            $data->subject = $mailTemplate->subject;
+            $content = $mailTemplate->content;
+            $replacements = [
+                "candidate_name" => $data->submission->name,
+                "job_id" => $data->submission->requirement->job_id,
+                "job_title" => $data->submission->requirement->job_title,
+                "client_name" => $data->client,
+                "feedback" => $data->feedback,
+                "interview_date" => $data->interview_date,
+                "interview_time" => $data->interview_time,
+                "time_zone" => $data->time_zone,
+                "[" => '',
+                "]" => '',
+            ];
+
+            $newContent = str_replace(array_keys($replacements), array_values($replacements), $content);
+            $data->content = $newContent;
+        } elseif($type == 'submission_add'){
+            $bdmEmail = $data->requirement->b_d_m->email;
+            $recEmail = $data->recruiters->email;
+            $data->type = $type;
+        }
+
+
+        if(!$bdmEmail || !$recEmail){
+            return 0;
+        }
+
+        Mail::to([$bdmEmail, $recEmail])->cc('daman@dhaliteinc.com')->send(new submissionMail($data));
+        return 1;
+    }
 }
+

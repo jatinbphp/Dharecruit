@@ -89,6 +89,62 @@
                                         </div>
                                     </div>
                                 </div>
+{{--                                <div class="col-md-4">--}}
+{{--                                    <div class="form-group">--}}
+{{--                                        <label class="control-label" for="mail_mailor">Mail Mailor</label>--}}
+{{--                                        <div class="col-md-12">--}}
+{{--                                            {!! Form::text('mail_mailor', (isset($settingData['mail_mailor']) && $settingData['mail_mailor']) ? $settingData['mail_mailor'] : '', ['class' => 'form-control', 'placeholder' => 'Enter Mail Mailor', 'id' => 'mail_mailor']) !!}--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
+{{--                                <div class="col-md-4">--}}
+{{--                                    <div class="form-group">--}}
+{{--                                        <label class="control-label" for="mail_host">Mail Host</label>--}}
+{{--                                        <div class="col-md-12">--}}
+{{--                                            {!! Form::text('mail_host', (isset($settingData['mail_host']) && $settingData['mail_host']) ? $settingData['mail_host'] : '', ['class' => 'form-control', 'placeholder' => 'Enter Mail Host', 'id' => 'mail_host']) !!}--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
+{{--                                <div class="col-md-4">--}}
+{{--                                    <div class="form-group">--}}
+{{--                                        <label class="control-label" for="mail_port">Mail Port</label>--}}
+{{--                                        <div class="col-md-12">--}}
+{{--                                            {!! Form::text('mail_port', (isset($settingData['mail_port']) && $settingData['mail_port']) ? $settingData['mail_port'] : '', ['class' => 'form-control', 'placeholder' => 'Enter Mail Port', 'id' => 'mail_port']) !!}--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
+{{--                                <div class="col-md-4">--}}
+{{--                                    <div class="form-group">--}}
+{{--                                        <label class="control-label" for="mail_user_name">Mail User Name</label>--}}
+{{--                                        <div class="col-md-12">--}}
+{{--                                            {!! Form::text('mail_user_name', (isset($settingData['mail_user_name']) && $settingData['mail_user_name']) ? $settingData['mail_user_name'] : '', ['class' => 'form-control', 'placeholder' => 'Enter Mail User Name', 'id' => 'mail_user_name']) !!}--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
+{{--                                <div class="col-md-4">--}}
+{{--                                    <div class="form-group">--}}
+{{--                                        <label class="control-label" for="mail_password">Mail Password</label>--}}
+{{--                                        <div class="col-md-12">--}}
+{{--                                            {!! Form::text('mail_password', (isset($settingData['mail_password']) && $settingData['mail_password']) ? $settingData['mail_password'] : '', ['class' => 'form-control', 'placeholder' => 'Enter Mail User Password', 'id' => 'mail_password']) !!}--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
+{{--                                <div class="col-md-4">--}}
+{{--                                    <div class="form-group">--}}
+{{--                                        <label class="control-label" for="mail_encryption">Mail Encryption</label>--}}
+{{--                                        <div class="col-md-12">--}}
+{{--                                            {!! Form::text('mail_encryption', (isset($settingData['mail_encryption']) && $settingData['mail_encryption']) ? $settingData['mail_encryption'] : '', ['class' => 'form-control', 'placeholder' => 'Enter Mail Encryption', 'id' => 'mail_encryption']) !!}--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
+{{--                                <div class="col-md-4">--}}
+{{--                                    <div class="form-group">--}}
+{{--                                        <label class="control-label" for="mail_from_address">Mail From Address</label>--}}
+{{--                                        <div class="col-md-12">--}}
+{{--                                            {!! Form::email('mail_from_address', (isset($settingData['mail_from_address']) && $settingData['mail_from_address']) ? $settingData['mail_from_address'] : '', ['class' => 'form-control', 'placeholder' => 'Enter Mail From Address', 'id' => 'mail_from_address']) !!}--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
                             </div>
                         </div>
                         <div class="card-footer">

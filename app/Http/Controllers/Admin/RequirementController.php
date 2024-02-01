@@ -33,7 +33,6 @@ class RequirementController extends Controller
 
         if ($request->ajax()) {
             $query = $this->Filter($request,'all');
-//            return $query->count();
             return $this->getListHtml($query, $request, 'all_requirement');
         }
         $data['type'] = 1;
@@ -390,7 +389,9 @@ class RequirementController extends Controller
         }
         $input = $request->all();
 
+        $bdmStatusUpdate = 0;
         if(isset($input['status']) && $input['status'] != $submission->status) {
+            $bdmStatusUpdate = 1;
             $input['bdm_status_updated_at'] = \Carbon\Carbon::now();
 
             $inputData['submission_id']  = $submission->id;
@@ -401,13 +402,15 @@ class RequirementController extends Controller
             EntityHistory::create($inputData);
         }
 
+        $pvStatusUpdate = 0;
         if(isset($input['pv_status']) && $input['pv_status'] != $submission->pv_status) {
+            $pvStatusUpdate = 1;
             $input['pv_status_updated_at'] = \Carbon\Carbon::now();
 
             $inputData['submission_id']  = $submission->id;
             $inputData['requirement_id'] = $submission->requirement_id;
             $inputData['entity_type']    = EntityHistory::ENTITY_TYPE_PV_STATUS;
-            $inputData['entity_value']   = $submission->status;
+            $inputData['entity_value']   = $submission->pv_status;
 
             EntityHistory::create($inputData);
         }
@@ -421,6 +424,31 @@ class RequirementController extends Controller
         }
 
         $submission->update($input);
+
+        if($bdmStatusUpdate){
+            $statusText = Submission::$status;
+            $submissionData = Submission::with('Requirement')
+                ->with('Requirement.BDM')
+                ->with('Recruiters')
+                ->where('id',$request['candidatesubmissionId'])
+                ->first();
+
+            $submissionData->status_text = isset($statusText[$input['status']]) ? $statusText[$input['status']] : '';
+            $submissionData->status_type = 'bdm_status';
+            $this->createDataForSentMail($submissionData, 'submission');
+        }
+
+        if($pvStatusUpdate) {
+            $pvStatusText = Submission::$pvStatus;
+            $submissionData = Submission::with('Requirement')
+                ->with('Requirement.BDM')
+                ->with('Recruiters')
+                ->where('id',$request['candidatesubmissionId'])
+                ->first();
+            $submissionData->status_text = isset($pvStatusText[$input['pv_status']]) ? $pvStatusText[$input['pv_status']] : '';
+            $submissionData->status_type = 'pv_status';
+            $this->createDataForSentMail($submissionData, 'submission');
+        }
 
         \Session::flash('success', 'Candidate status has been updated successfully!');
         return redirect()->back();

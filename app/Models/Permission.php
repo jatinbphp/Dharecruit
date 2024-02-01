@@ -29,6 +29,8 @@ class Permission extends Model
     const MODULE_VISA = 'manage_visa';
     const MODULE_EMPLOYEE = 'manage_employee';
     const MODULE_REPORTS = 'manage_reports';
+    const MODULE_SETTINGS = 'manage_settings';
+    const MODULE_MAIL_TEMPLATE = 'manage_mail_template';
 
     public static $permission = [
         self::MODULE_PERMISSION => 'Manage Permission',
@@ -47,5 +49,7 @@ class Permission extends Model
         self::MODULE_VISA => 'Manage Visa',
         self::MODULE_EMPLOYEE => 'Manage Employee',
         self::MODULE_REPORTS => 'Manage Reports',
+        self::MODULE_SETTINGS => 'Manage Settings',
+        self::MODULE_MAIL_TEMPLATE => 'Manage Mail Template',
     ];
 }
