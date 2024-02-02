@@ -43,8 +43,8 @@
                         @if($pvCompanyData && count($pvCompanyData))
                             @foreach($pvCompanyData as $heading => $data)
                                 @php
-                                    $class = (isset($classData[$heading])) ? $classData[$heading] : '';
-                                    //$data = ($data) ? $data : '-';
+                                    $data = ($data) ? $data : '';
+                                    $class = (isset($classData[$heading]) && $data) ? $classData[$heading] : '';
                                     $topBorder = ($key == 'heading') ? 'border-top' : '';
                                     $bottomBorder = (in_array($key, ['heading'])) ? 'border-bottom' : '';
                                     $bottomRight = (in_array($heading, ['company_name', 'unique_req_count', 'status_unviewed', 'status_position_closed', 'client_status_total', 'bdm_count', 'bdm_wise_count'])) ? 'border-right' : '';
@@ -81,8 +81,8 @@
                                 @if($pocData && count($pocData))
                                     @foreach($pocData as $heading => $data)
                                         @php
-                                            $class = (isset($classData[$heading])) ? $classData[$heading] : '';
-                                            //$data = ($data) ? $data : '-';
+                                            $data = ($data) ? $data : '';
+                                            $class = (isset($classData[$heading]) && $data) ? $classData[$heading] : '';
                                             $topBorder = ($key == 'heading') ? 'border-top' : '';
                                             $bottomBorder = ($key == 'heading' || $i == $totalCount) ? 'border-bottom' : '';
                                             $bottomRight = (in_array($heading, ['company_name', 'unique_req_count', 'status_unviewed', 'status_position_closed', 'client_status_total', 'bdm_count', 'bdm_wise_count'])) ? 'border-right' : '';

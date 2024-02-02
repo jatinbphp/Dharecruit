@@ -290,7 +290,7 @@ trait RequirementTrait
     public function getTotalPOC($date, $bdms, $userId, $type)
     {
         if(!$this->_userIdWiseTotalPOC  || !isset($this->_userIdWiseTotalPOC[$type])){
-            $collection = Requirement::select('user_id', \DB::raw('COUNT(DISTINCT(poc_name)) as count'))
+            $collection = Requirement::select('user_id', \DB::raw('COUNT(DISTINCT(CONCAT(poc_name, "-", pv_company_name))) as count'))
                 ->whereIn('user_id', $bdms)
                 ->whereBetween('created_at', $date)
                 ->groupBy('user_id');
@@ -324,7 +324,7 @@ trait RequirementTrait
     public function getTotalNewPOC($date, $bdms, $userId, $type)
     {
         if(!$this->_userIdWiseNewPoc  || !isset($this->_userIdWiseNewPoc[$type])){
-            $collection = PVCompany::select('user_id', \DB::raw('COUNT(DISTINCT(poc_name)) as count'))
+            $collection = PVCompany::select('user_id', \DB::raw('COUNT(DISTINCT(CONCAT(poc_name, "-", name))) as count'))
                 ->whereIn('user_id', $bdms)
                 ->whereBetween('created_at', $date)
                 ->groupBy('user_id');

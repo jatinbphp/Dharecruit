@@ -107,6 +107,13 @@ class RequirementController extends Controller
             //'client_name' => 'required',
         ]);
 
+        $pvCompanyData = PVCompany::where('email', $request->poc_email)->first();
+
+        if(!empty($pvCompanyData) && $pvCompanyData->assigned_user_id != getLoggedInUserId()){
+            \Session::flash('danger', "POC Already Added With BDM: ".Admin::getUserNameBasedOnId($pvCompanyData->assigned_user_id));
+            return redirect()->back();
+        }
+
         $input = $request->all();
         $input['user_id'] = Auth::user()->id;
         $input['job_id'] = 0;
@@ -410,7 +417,7 @@ class RequirementController extends Controller
             $inputData['submission_id']  = $submission->id;
             $inputData['requirement_id'] = $submission->requirement_id;
             $inputData['entity_type']    = EntityHistory::ENTITY_TYPE_PV_STATUS;
-            $inputData['entity_value']   = $submission->pv_status;
+                $inputData['entity_value']   = $submission->pv_status;
 
             EntityHistory::create($inputData);
         }
@@ -644,10 +651,7 @@ class RequirementController extends Controller
         $clientName    = $requirement->client_name;
         $userId        = Auth::user()->id;
 
-        $oldPvCompanyData = PVCompany::where('email',$requirement->poc_email)
-            ->where('name', $pvCompanyName)
-            ->where('poc_name', $pocName)
-            ->first();
+        $oldPvCompanyData = PVCompany::where('email',$requirement->poc_email)->first();
 
         if($oldPvCompanyData){
             return $this;

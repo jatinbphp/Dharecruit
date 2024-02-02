@@ -1755,7 +1755,6 @@ class Controller extends BaseController
 
     public function isLinkRequirement($pocEmail)
     {
-        return 1;
         if(!$pocEmail){
             return 0;
         }

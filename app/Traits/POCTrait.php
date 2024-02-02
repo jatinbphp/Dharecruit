@@ -195,4 +195,31 @@ trait POCTrait {
             'poc_name'
         ];
     }
+
+    public function getPVCompanyWiseOrgReqCount()
+    {
+        return Requirement::select('pv_company_name', \DB::raw("COUNT(DISTINCT id) as count"))
+            ->where(function ($query) {
+                $query->where('id' ,\DB::raw('parent_requirement_id'));
+                $query->orwhere('parent_requirement_id', '=', '0');
+            })
+            ->groupBy('pv_company_name')
+            ->pluck('count', 'pv_company_name')->toArray();
+    }
+
+    public function getPocWiseOrgReqCount()
+    {
+        return  Requirement::select(
+            'poc_name',
+            'pv_company_name',
+            \DB::raw("COUNT(DISTINCT id) as count")
+        )
+            ->groupBy('poc_name', 'pv_company_name')
+            ->get()
+            ->groupBy('poc_name')
+            ->map(function ($group) {
+                return $group->sum('count');
+            })
+            ->toArray();
+    }
 }

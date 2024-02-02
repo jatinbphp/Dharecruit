@@ -259,7 +259,7 @@ trait SubmissionTrait{
     public function getUserIdWiseTotalEmployee($date, $userId, $recruiters, $type)
     {
         if(!$this->_userIdWiseTotalEmployeeCount || !isset($this->_userIdWiseTotalEmployeeCount[$type])){
-            $this->_userIdWiseTotalEmployeeCount[$type] = Submission::select('user_id', \DB::raw('COUNT(DISTINCT LOWER(employee_name)) as count'))
+            $this->_userIdWiseTotalEmployeeCount[$type] = Submission::select('user_id', \DB::raw('COUNT(DISTINCT(CONCAT(employee_name, "-", employer_name))) as count'))
                 ->whereIn('user_id', $recruiters)
                 ->whereBetween('created_at', $date)
                 ->groupBy('user_id')
@@ -312,7 +312,7 @@ trait SubmissionTrait{
     public function getuserIdWiseTotalNewEmployee($date, $userId, $recruiters, $type)
     {
         if(!$this->_userIdWiseTotalNewEmployeeCount || !isset($this->_userIdWiseTotalNewEmployeeCount[$type])){
-            $this->_userIdWiseTotalNewEmployeeCount[$type] = Admin::select('added_by', \DB::raw('COUNT(DISTINCT LOWER(employee_name)) as count'))
+            $this->_userIdWiseTotalNewEmployeeCount[$type] = Admin::select('added_by', \DB::raw('COUNT(DISTINCT (CONCAT(employee_name, "-", name))) as count'))
                 ->whereIn('added_by', $recruiters)
                 ->where('role', 'employee')
                 ->whereBetween('created_at', $date)

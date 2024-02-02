@@ -134,6 +134,26 @@ class SubmissionController extends Controller
         if($submission){
             $this->addEmployeeDetails($submission);
 
+            //Update Employer Data is Already Added
+            $submissionEmployerName = $submission->employer_name;
+            $submissionEmployeeName = $submission->employee_name;
+            $submissionEmployeePhone = $submission->employee_phone;
+
+            $employeeDetail = Admin::where('email', $submission->employee_email)->where('role', 'employee')->first();
+
+            if(!empty($employeeDetail)){
+                if($submission->employer_name != $employeeDetail->name){
+                    $submission->employer_name = $employeeDetail->name;
+                }
+                if($submission->employee_name != $employeeDetail->employee_name){
+                    $submission->employee_name = $employeeDetail->employee_name;
+                }
+                if($submission->employee_phone != $employeeDetail->phone){
+                    $submission->employee_phone = $employeeDetail->phone;
+                }
+                $submission->save();
+            }
+
             $submissionData = Submission::with('Requirement')
                 ->with('Requirement.BDM')
                 ->with('Recruiters')
@@ -373,8 +393,6 @@ class SubmissionController extends Controller
         $phone        = $submission->employee_phone;
 
         $oldemployeeData = Admin::where('email', $email)
-            ->where('name', $employerName)
-            ->where('employee_name', $employeeName)
             ->where('role','employee')->first();
 
         if($oldemployeeData){

@@ -39,8 +39,8 @@
                                 <tr class=" {{$employeeName}} @if(in_array($companyKey.'_'.$employeeName, $emptyPOCRows)) empty-row @endif">
                                     @foreach($employeeData as $heading => $data)
                                         @php
-                                            $class = (isset($classData[$heading])) ? $classData[$heading] : '';
-                                            //$data = ($data) ? $data : '-'
+                                            $data = ($data) ? $data : '';
+                                            $class = (isset($classData[$heading]) && $data) ? $classData[$heading] : '';
                                             $bottomRight = (in_array($heading, ['poc_name', 'unique_req_count', 'status_unviewed', 'status_position_closed', 'client_status_total', 'bdm_wise_count'])) ? 'border-right' : '';
                                             $borderLeft = $heading == 'who_added' ? 'border-left' : '';
                                         @endphp

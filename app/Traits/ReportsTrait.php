@@ -160,6 +160,8 @@ trait ReportsTrait {
         $pocData['class_data']     = $this->getTextClass();
         $pocData['empty_poc_rows'] = $this->getEmptyPOCRows();
         $pocData['hide_columns']   = $this->getPocHideColumns();
+        $pocData['pv_company_org_req_count']   = $this->getPVCompanyWiseOrgReqCount();
+        $pocData['poc_org_req_count']   = $this->getPocWiseOrgReqCount();
 
         return  $pocData;
     }

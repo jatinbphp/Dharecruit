@@ -3,6 +3,8 @@
         $classData    = isset($pocFilterData['class_data']) ? $pocFilterData['class_data'] : [];
         $emptyPOCRows = isset($pocFilterData['empty_poc_rows']) ? $pocFilterData['empty_poc_rows'] : [];
         $hideColumns  = isset($pocFilterData['hide_columns']) ? $pocFilterData['hide_columns'] : [];
+        $pvCompanyWiseOrgReqCount  = isset($pocFilterData['pv_company_org_req_count']) ? $pocFilterData['pv_company_org_req_count'] : [];
+        $pocWiseOrgReqCount  = isset($pocFilterData['poc_org_req_count']) ? $pocFilterData['poc_org_req_count'] : [];
     @endphp
     <div class="col-md-12 p-3 border border-with-label" data-label="">
         <div class="table-responsive m-lg-n2">
@@ -39,8 +41,8 @@
                                     <tr class=" {{$pocName}} @if(in_array($companyKey.'_'.$pocName, $emptyPOCRows)) empty-row @endif">
                                         @foreach($pocData as $heading => $data)
                                             @php
-                                                $class = (isset($classData[$heading])) ? $classData[$heading] : '';
-                                                //$data = ($data) ? $data : '-'
+                                                $data = ($data) ? $data : '';
+                                                $class = (isset($classData[$heading]) && $data) ? $classData[$heading] : '';
                                                 $bottomRight = (in_array($heading, ['poc_name', 'unique_req_count', 'status_unviewed', 'status_position_closed', 'client_status_total', 'bdm_wise_count'])) ? 'border-right' : '';
                                                 $borderLeft = $heading == 'who_added' ? 'border-left' : '';
                                             @endphp
@@ -61,7 +63,19 @@
                                                     @continue;
                                                 @endif--}}
                                                 <td {{--@if($rowSpan) rowspan="{{$rowSpan}}" @endif--}} class="{{"$borderLeft $bottomRight  $heading"}} border-bottom">
-                                                    <span class="{{$class}}">{{$data}}</span>
+                                                    @if($heading == 'vendor_company_name')
+                                                        <div class="pr-3 text-right">
+                                                            <span class="badge bg-indigo position-absolute top-0 end-0 show-count" style="margin-top: -6px">{{isset($pvCompanyWiseOrgReqCount[$data]) ? $pvCompanyWiseOrgReqCount[$data] : 0}}</span>
+                                                            <p class="{{$class}} text-left">{{$data}}</p>
+                                                        </div>
+                                                    @elseif($heading == 'poc_name')
+                                                        <div class="pr-3 text-right">
+                                                            <span class="badge bg-indigo position-absolute top-0 end-0 show-count" style="margin-top: -6px">{{isset($pocWiseOrgReqCount[$data]) ? $pocWiseOrgReqCount[$data] : 0}}</span>
+                                                            <p class="{{$class}} text-left">{{$data}}</p>
+                                                        </div>
+                                                    @else
+                                                        <span class="{{$class}}">{{$data}}</span>
+                                                    @endif
                                                 </td>
                                             @endif
                                         @endforeach

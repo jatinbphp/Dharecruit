@@ -62,12 +62,10 @@
                                         <label class="form-check-label pl-2" for="showLink">Show POC</label>
                                     </div>
                                 @endif
-                                @if(in_array(Auth::user()->role, ['bdm', 'recruiter']))
-                                    <div class="col-md-3 mt-2">
-                                        {!! Form::checkbox('', '', null, ['id' => 'toggle_job_keyword', 'class' => 'toggle-checkbox toggle-change', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
-                                        <label class="form-check-label pl-2" for="toggle_job_keyword">Show Job Keyword</label>
-                                    </div>
-                                @endif
+                                <div class="col-md-3 mt-2">
+                                    {!! Form::checkbox('', '', null, ['id' => 'toggle_job_keyword', 'class' => 'toggle-checkbox toggle-change', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
+                                    <label class="form-check-label pl-2" for="toggle_job_keyword">Show Job Keyword</label>
+                                </div>
                             </div>
                         </div>
                         <div class="card-body table-responsive">

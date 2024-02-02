@@ -72,8 +72,6 @@ trait EmployeeTrait {
 
         $employerWiseAllEmployeeNames = $collection->distinct()->pluck('employee_name')->toArray();
 
-        \Log::info($employerWiseAllEmployeeNames);
-
         if(!empty($request->recruiter_names)){
             $collection = Submission::whereIn('user_id', $request->recruiter_names)->where('employer_name', $employerName);
             if($date && isset($date['from']) && $date['to']){
