@@ -155,13 +155,14 @@ trait ReportsTrait {
         $pocData['heading'] = $this->getPOCHeadingData();
         foreach ($pvCompanies as $pvCompany){
             $pvCompanyKey = $this->getKey($pvCompany);
-            $pocData['poc_data'][$pvCompanyKey] = $this->getPocWiseData($pvCompany, $pvCompanies, $pocNames, $request);
+            $allData = $this->getPocWiseData($pvCompany, $pvCompanies, $pocNames, $request);
+            $pocData['poc_data'][$pvCompanyKey] = isset($allData['data']) ? $allData['data'] : [];
+            $pocData['poc_org_req_count'][$pvCompanyKey] = isset($allData['poc_org_req_count']) ? $allData['poc_org_req_count'] : [];
         }
         $pocData['class_data']     = $this->getTextClass();
         $pocData['empty_poc_rows'] = $this->getEmptyPOCRows();
         $pocData['hide_columns']   = $this->getPocHideColumns();
         $pocData['pv_company_org_req_count']   = $this->getPVCompanyWiseOrgReqCount();
-        $pocData['poc_org_req_count']   = $this->getPocWiseOrgReqCount();
 
         return  $pocData;
     }
@@ -207,11 +208,14 @@ trait ReportsTrait {
         $employeData['heading'] = $this->getEmployeeHeadingData();
         foreach ($employerNames as $employeName){
             $employeNameKey = $this->getKey($employeName);
-            $employeData['emp_poc_data'][$employeNameKey] = $this->getEmployeeWiseData($employeName, $employerNames, $employeeNames, $request);
+            $allData = $this->getEmployeeWiseData($employeName, $employerNames, $employeeNames, $request);
+            $employeData['emp_poc_data'][$employeNameKey] = isset($allData['data']) ? $allData['data'] : [];
+            $employeData['employee_uni_sub_count'][$employeNameKey] = isset($allData['employee_uni_sub_count']) ? $allData['employee_uni_sub_count'] : [];
         }
         $employeData['class_data']     = $this->getTextClass();
         $employeData['empty_poc_rows'] = $this->getEmptyPOCRows();
         $employeData['hide_columns']   = $this->getEmployeeHideColumns();
+        $employeData['employer_uni_sub_count']   = $this->getEmployerWiseUniSubmissionCount();
 
         return  $employeData;
     }

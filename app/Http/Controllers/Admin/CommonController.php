@@ -304,85 +304,87 @@ class CommonController extends Controller
             $requirementContent .= '
             <div class="row">
                 <div class="col-md-6">
-                    <strong>Job Title:</strong> <span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("job_title",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->job_title.'</span>
-                </div>
-                <div class="col-md-6">
-                    <strong>No # Position:</strong> <span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("no_of_position",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->no_of_position.'</span>
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-md-6">
-                    <strong>Experience:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("experience",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->experience.'</span>
-                </div>
-                <div class="col-md-6">
-                    <strong>Location:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("location",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->location.'</span>
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-md-6">
-                    <strong>Onsite/Hybrid/Remote:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("work_type",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->work_type.'</span>
-                </div>
-                <div class="col-md-6">
-                    <strong>Duration:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("duration",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->duration.'</span>
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-md-6">
-                    <strong>Visa:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("visa",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.Requirement::getVisaNames($requirement->visa) .'</span>
-                </div>
-                <div class="col-md-6">
-                    <strong>Client:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("client",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->client.'</span>
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-md-6">
-                    <strong>Priority:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("priority",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->priority.'</span>
-                </div>
-                <div class="col-md-6">
-                    <strong>Term:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("term",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->term.'</span>
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-md-6">
-                    <strong>Category:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("category",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->Category->name.'</span>
-                </div>
-                <div class="col-md-6">
-                    <strong>MOI:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("moi",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.Requirement::getMoiNames($requirement->moi).'</span>
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-md-6">
-                    <strong>Job Keyword:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("job_keyword",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->job_keyword.'</span>
-                </div>
-                <div class="col-md-6">
-                    <strong>Special Notes:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("notes",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->notes.'</span>
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-md-12">
-                    <strong>Download Attachments:</strong><br>';
-                    if(!empty($requirementDocuments) && count($requirementDocuments)){
-                        $requirementContent .= '
-                        <div class="border border-primary">';
-                            foreach($requirementDocuments as $id => $document){
-                                $requirementContent .=
-                                '<div class="col-md-12 mt-2">
-                                    <div class="text-center">';
-                                        $documentNameArray = explode('/',$document);
-                                        $documentName = isset($documentNameArray[2]) ? $documentNameArray[2] : '';
-                                        $requirementContent .=
-                                        '<a href="'. asset('storage/'.$document).'" target="_blank"><p class="text-left">'.$documentName.'</p></a>
-                                    </div>
-                                </div>';
+                    <div class="row border border-dark rounded mr-1 first-div equalHeight">
+                        <div class="col-md-12">
+                            <strong>Category:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("category",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->Category->name.'</span>
+                        </div>
+                        <div class="col-md-12">
+                            <strong>No # Position:</strong> <span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("no_of_position",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->no_of_position.'</span>
+                        </div>
+                        <div class="col-md-12">
+                            <strong>Client:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("client",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->client.'</span>
+                        </div>
+                        <div class="col-md-12">
+                            <strong>Priority:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("priority",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->priority.'</span>
+                        </div>
+                        <div class="col-md-12">
+                            <strong>Download Attachments:</strong><br>';
+                            if(!empty($requirementDocuments) && count($requirementDocuments)){
+                                $requirementContent .= '
+                                        <div class="border border-primary mb-2">';
+                                            foreach($requirementDocuments as $id => $document){
+                                                $requirementContent .=
+                                                    '<div class="col-md-12 mt-2">
+                                                                <div class="text-center">';
+                                                $documentNameArray = explode('/',$document);
+                                                $documentName = isset($documentNameArray[2]) ? $documentNameArray[2] : '';
+                                                $requirementContent .=
+                                                    '<a href="'. asset('storage/'.$document).'" target="_blank"><p class="text-left">'.$documentName.'</p></a>
+                                                                </div>
+                                                            </div>';
+                                            }
+                                $requirementContent .= '
+                                        </div>';
                             }
-                        $requirementContent .= '
-                        </div>';
-                    }
-                    $requirementContent .= '
+                $requirementContent .= '
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="row border border-dark rounded second-div equalHeight">
+                        <div class="col-md-12">
+                            <strong>Job Keyword:</strong> <span<span id="jobKeyword" class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("job_keyword",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->job_keyword.'</span>
+                        </div>
+                        <button type="button" class="btn btn-primary btn-sm"  style="position: absolute; bottom: 0; right: 0;" onclick="showJobData(\'Job keyword\')">Click To Pop Out</button>
                     </div>
                 </div>
             </div>
-            <div class="row mt-2">
+            <div class="row border mt-2 border-dark rounded" id="copy-req-data">
+                <div class="col-md-12">
+                    <strong>Job Title:</strong> <span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("job_title",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->job_title.'</span>
+                </div>
+                <div class="col-md-12">
+                    <strong>Experience:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("experience",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->experience.'</span>
+                </div>
+                <div class="col-md-12">
+                    <strong>Location:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("location",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->location.'</span>
+                </div>
+                <div class="col-md-12">
+                    <strong>Onsite/Hybrid/Remote:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("work_type",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->work_type.'</span>
+                </div>
+                <div class="col-md-12">
+                    <strong>Duration:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("duration",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->duration.'</span>
+                </div>
+                <div class="col-md-12">
+                    <strong>Visa:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("visa",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.Requirement::getVisaNames($requirement->visa) .'</span>
+                </div>
+                <div class="col-md-12">
+                    <strong>Priority:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("priority",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->priority.'</span>
+                </div>
+                <div class="col-md-12">
+                    <strong>Term:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("term",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->term.'</span>
+                </div>
+                <div class="col-md-12">
+                    <strong>Category:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("category",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->Category->name.'</span>
+                </div>
+                <div class="col-md-12">
+                    <strong>MOI:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("moi",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.Requirement::getMoiNames($requirement->moi).'</span>
+                </div>
+                <div class="col-md-12">
+                    <strong>Special Notes:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("notes",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->notes.'</span>
+                </div>
+            </div>
+            <div class="row mt-2 border border-dark rounded" id="copy-desc-data">
                 <div class="col-md-12">
                     <strong>Job Description:</strong>
                 </div>
@@ -390,6 +392,23 @@ class CommonController extends Controller
                     <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("description",$updatedFileds) ? "text-primary font-weight-bold" : "").'">
                         '.$requirement->description.'
                     </span>
+                </div>
+            </div>
+            <div class="modal" tabindex="-1" role="dialog" id="showAllDataModal">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modelTitle"></h5>
+                            <button type="button" class="close" data-dismiss="modal" onclick="closeShowAllDataModal()" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body" id="modalContent">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeShowAllDataModal()">Close</button>
+                        </div>
+                    </div>
                 </div>
             </div>';
         }

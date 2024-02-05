@@ -3,6 +3,8 @@
         $classData    = isset($employerFilterData['class_data']) ? $employerFilterData['class_data'] : [];
         $emptyPOCRows = isset($employerFilterData['empty_poc_rows']) ? $employerFilterData['empty_poc_rows'] : [];
         $hideColumns  = isset($employerFilterData['hide_columns']) ? $employerFilterData['hide_columns'] : [];
+        $employerWiseUniSubCount  = isset($employerFilterData['employer_uni_sub_count']) ? $employerFilterData['employer_uni_sub_count'] : [];
+        $employeeWiseUniSubCount  = isset($employerFilterData['employee_uni_sub_count']) ? $employerFilterData['employee_uni_sub_count'] : [];
     @endphp
     <div class="col-md-12 p-3 border border-with-label" data-label="">
         <div class="table-responsive m-lg-n2">
@@ -61,7 +63,19 @@
                                                 @continue;
                                             @endif--}}
                                             <td {{--@if($rowSpan) rowspan="{{$rowSpan}}" @endif--}} class="{{"$borderLeft $bottomRight  $heading"}} border-bottom">
-                                                <span class="{{$class}}">{{$data}}</span>
+                                                @if($heading == 'employer_company_name')
+                                                    <div class="pr-3 text-right">
+                                                        <span class="badge bg-indigo position-absolute top-0 end-0 show-count" style="margin-top: -6px">{{isset($employerWiseUniSubCount[$data]) ? $employerWiseUniSubCount[$data] : 0}}</span>
+                                                        <p class="{{$class}} text-left">{{$data}}</p>
+                                                    </div>
+                                                @elseif($heading == 'employee_name')
+                                                    <div class="pr-3 text-right">
+                                                        <span class="badge bg-indigo position-absolute top-0 end-0 show-count" style="margin-top: -6px">{{isset($employeeWiseUniSubCount[$companyKey]) ? $employeeWiseUniSubCount[$companyKey] : 0}}</span>
+                                                        <p class="{{$class}} text-left">{{$data}}</p>
+                                                    </div>
+                                                @else
+                                                    <span class="{{$class}}">{{$data}}</span>
+                                                @endif
                                             </td>
                                         @endif
                                     @endforeach

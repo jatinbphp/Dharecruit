@@ -4,7 +4,7 @@
         $emptyPOCRows = isset($pocFilterData['empty_poc_rows']) ? $pocFilterData['empty_poc_rows'] : [];
         $hideColumns  = isset($pocFilterData['hide_columns']) ? $pocFilterData['hide_columns'] : [];
         $pvCompanyWiseOrgReqCount  = isset($pocFilterData['pv_company_org_req_count']) ? $pocFilterData['pv_company_org_req_count'] : [];
-        $pocWiseOrgReqCount  = isset($pocFilterData['poc_org_req_count']) ? $pocFilterData['poc_org_req_count'] : [];
+        $pocWiseOrgReqCount        = isset($pocFilterData['poc_org_req_count']) ? $pocFilterData['poc_org_req_count'] : [];
     @endphp
     <div class="col-md-12 p-3 border border-with-label" data-label="">
         <div class="table-responsive m-lg-n2">
@@ -70,7 +70,7 @@
                                                         </div>
                                                     @elseif($heading == 'poc_name')
                                                         <div class="pr-3 text-right">
-                                                            <span class="badge bg-indigo position-absolute top-0 end-0 show-count" style="margin-top: -6px">{{isset($pocWiseOrgReqCount[$data]) ? $pocWiseOrgReqCount[$data] : 0}}</span>
+                                                            <span class="badge bg-indigo position-absolute top-0 end-0 show-count" style="margin-top: -6px">{{isset($pocWiseOrgReqCount[$companyKey][$data]) ? $pocWiseOrgReqCount[$companyKey][$data] : 0}}</span>
                                                             <p class="{{$class}} text-left">{{$data}}</p>
                                                         </div>
                                                     @else

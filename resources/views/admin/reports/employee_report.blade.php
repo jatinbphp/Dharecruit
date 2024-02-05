@@ -117,6 +117,12 @@
                                                 {!! Form::checkbox('', '', null, ['id' => 'toggle_categorties', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggl', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
                                             </div>
                                         </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label" for="toggle_counts">Show Counts</label><br>
+                                                {!! Form::checkbox('', '', null, ['id' => 'toggle_counts', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggl', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                            </div>
+                                        </div>
                                     </div>
                                     <button class="btn btn-info float-right" onclick="searchReportData()">Search</button>
                                     <button class="btn btn-default float-right mr-2" onclick="clearReportData()">Clear</button>
@@ -150,6 +156,7 @@
             $('#data_toggle').trigger('change');
             $('#toggle_columns').trigger('change');
             $('#toggle_categorties').trigger('change');
+            $('#toggle_counts').trigger('change');
         }
 
         function searchReportData()
@@ -173,6 +180,7 @@
                         $('#data_toggle').trigger('change');
                         $('#toggle_columns').trigger('change');
                         $('#toggle_categorties').trigger('change');
+                        $('#toggle_counts').trigger('change');
                         $('#poc_report').DataTable({
                             "order": [],
                             "bPaginate": false,
@@ -251,6 +259,14 @@
                 $('.category_wise_count').show();
             }else{
                 $('.category_wise_count').hide();
+            }
+        });
+
+        $('#toggle_counts').change(function (){
+            if($(this).is(':checked')){
+                $('.show-count').show();
+            }else{
+                $('.show-count').hide();
             }
         });
     </script>

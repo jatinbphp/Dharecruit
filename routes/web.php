@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\BDMSubmissionController;
 use App\Http\Controllers\Admin\BDMUserController;
+use App\Http\Controllers\Admin\CandidateController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CommonController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -168,6 +169,9 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
 
     /* MAIL TEMPLATE MANAGEMENT */
     Route::resource('mail_template', MailTemplateController::class);
+
+    /* CANDIDATE MANAGEMENT */
+    Route::resource('manage_candidate', CandidateController::class);
 
     Auth::routes();
 });

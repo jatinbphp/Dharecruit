@@ -193,6 +193,13 @@
         .rm-left-border {
             border-left: none !important;
         }
+        .equalHeight {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .scrollable {
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body class="hold-transition sidebar-mini sidebar-collapse" id="bodyid">
@@ -398,6 +405,15 @@
                             <a href="{{ route('employee.index') }}" class="nav-link @if($menu=='Employee') active @endif">
                                 <i class="nav-icon fa fa-user"></i>
                                 <p>Manage Employee</p>
+                            </a>
+                        </li>
+                    @endif
+
+                    @if($loginRole == 'admin' || $check19)
+                        <li class="nav-item">
+                            <a href="{{ route('manage_candidate.index') }}" class="nav-link @if($menu=='Candidate') active @endif">
+                                <i class="nav-icon fa fa-user-plus"></i>
+                                <p>Manage Candidate</p>
                             </a>
                         </li>
                     @endif
@@ -888,6 +904,34 @@
             });
         });
 
+        $('#candidateModal').on('shown.bs.modal', function () {
+            var div1 = $('.first-div');
+            var div2 = $('.second-div');
+            var scrollableClass = 'scrollable';
+
+            var outerHeightDiv1 = div1.outerHeight();
+            div2.height(outerHeightDiv1);
+
+            // Check if content height exceeds the set height
+            if (div2[0].scrollHeight > outerHeightDiv1) {
+                div2.addClass(scrollableClass);
+            } else {
+                div2.removeClass(scrollableClass);
+            }
+        });
+
+        function setHeight() {
+            var outerHeightDiv1 = div1.outerHeight();
+            div2.height(outerHeightDiv1);
+
+            // Check if content height exceeds the set height
+            if (div2[0].scrollHeight > outerHeightDiv1) {
+                div2.addClass(scrollableClass);
+            } else {
+                div2.removeClass(scrollableClass);
+            }
+        }
+
         $('#showDate').change(function(){
             if($('#showDate').is(":checked")){
                 $(".submission-date").show();
@@ -1315,6 +1359,39 @@
         }
         $(el).find("i").toggleClass("fa-plus fa-minus");
     }
+
+    function showJobData(title)
+    {
+        $('#modelTitle').html(title);
+        $('#modelTitle').prop('outerHTML');
+        $('#modalContent').html($('#jobKeyword').prop('outerHTML'));
+        $("#showAllDataModal").modal("show");
+    }
+
+    function closeShowAllDataModal() {
+        $('#showAllDataModal').modal('hide');
+        event.stopPropagation();
+    }
+
+    // function copyRequirementData()
+    // {
+    //     <div class="col-md-2 mt-1 text-right">
+    //          <button id="copyButton" onclick="copyRequirementData()" type="button">Copy Content</button>
+    //    </div>
+    //     var firstDivContent = $('#copy-req-data').prop('outerHTML');
+    //     var secondDivContent = $('#copy-desc-data').prop('outerHTML');
+    //
+    //     // Combine the content
+    //     var combinedContent = firstDivContent + '\n' + secondDivContent;
+    //
+    //     // navigator.clipboard.writeText(combinedContent)
+    //     //     .then(function() {
+    //     //         console.log('Text successfully copied to clipboard');
+    //     //     })
+    //     //     .catch(function(err) {
+    //     //         console.error('Unable to copy text to clipboard', err);
+    //     //     });
+    // }
 </script>
 @yield('jquery')
 </body>

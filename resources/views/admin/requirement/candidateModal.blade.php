@@ -24,7 +24,7 @@
                 <div class="modal-body">
                     <div class="row">
                         @if($hide == 0)
-                            <div class="col-md-12 border-bottom mb-2 pb-2" id="requirementData"></div>
+                            <div class="col-md-12 mb-2 pb-2" id="requirementData"></div>
                             <div class="col-md-12 border-bottom mb-2 pb-2" id="candidateData"></div>
                             <div class="col-md-12 border-bottom d-none" id="candidateSubmissionMessage">
                                 <div class="alert alert-danger" role="alert">
@@ -95,7 +95,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-12 border-top mb-2 pb-2 table-responsive" id="historyData"></div>
+                    <div class="col-md-12 mb-2 pb-2 table-responsive" id="historyData"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary model-close" data-dismiss="modal">Close</button>

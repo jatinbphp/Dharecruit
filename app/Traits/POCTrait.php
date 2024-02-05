@@ -136,7 +136,8 @@ trait POCTrait {
                 $this->setEmptyPOCRows($pvCompanyKey.'_'.$pocName);
             }
 
-            $pocNameWiseData[$pocName] = $pocData;
+            $pocNameWiseData['data'][$pocName] = $pocData;
+            $pocNameWiseData['poc_org_req_count'][$pocName] = $this->getPocWiseOrgReqCount($pvCompany, $pocName);
         }
         return $pocNameWiseData;
     }
@@ -207,19 +208,14 @@ trait POCTrait {
             ->pluck('count', 'pv_company_name')->toArray();
     }
 
-    public function getPocWiseOrgReqCount()
+    public function getPocWiseOrgReqCount($pvCompanyName, $pocName)
     {
-        return  Requirement::select(
-            'poc_name',
-            'pv_company_name',
-            \DB::raw("COUNT(DISTINCT id) as count")
-        )
-            ->groupBy('poc_name', 'pv_company_name')
-            ->get()
-            ->groupBy('poc_name')
-            ->map(function ($group) {
-                return $group->sum('count');
+        return  Requirement::where(function ($query) {
+                $query->where('id' ,\DB::raw('parent_requirement_id'));
+                $query->orwhere('parent_requirement_id', '=', '0');
             })
-            ->toArray();
+            ->where('pv_company_name', $pvCompanyName)
+            ->where('poc_name', $pocName)
+            ->count();
     }
 }

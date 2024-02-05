@@ -130,7 +130,8 @@ trait EmployeeTrait {
                 $this->setEmptyPOCRows($employerNameKey.'_'.$employeeName);
             }
 
-            $employeeNameWiseData[$employeeName] = $pocData;
+            $employeeNameWiseData['data'][$employeeName] = $pocData;
+            $employeeNameWiseData['employee_uni_sub_count'] = $this->getEmployeeWiseUniSubmissionCount($employerName, $employeeName);
         }
         return $employeeNameWiseData;
     }
@@ -169,5 +170,22 @@ trait EmployeeTrait {
             'employer_company_total_sub',
             'employee_name',
         ];
+    }
+
+    public function getEmployerWiseUniSubmissionCount()
+    {
+        return Submission::select('employer_name', \DB::raw("COUNT(DISTINCT id) as count"))
+            ->where('id' ,\DB::raw('candidate_id'))
+            ->groupBy('employer_name')
+            ->pluck('count', 'employer_name')->toArray();
+    }
+
+    public function getEmployeeWiseUniSubmissionCount($employerName, $employeeName)
+    {
+        return  Submission::where('id' ,\DB::raw('candidate_id'))
+            ->groupBy('employee_name')
+            ->where('employer_name', $employerName)
+            ->where('employee_name', $employeeName)
+            ->count();
     }
 }
