@@ -2141,15 +2141,47 @@ class Controller extends BaseController
             $bdmEmail = $data->requirement->b_d_m->email;
             $recEmail = $data->recruiters->email;
             $data->type = $type;
+        } elseif($type == 'requirement_update'){
+            $bdmEmail = $data->b_d_m->email;
+            $recEmail = $this->getAllRecEmail($data->recruiter);
+            if(!$recEmail){
+                return 1;
+            }
+            $data->type = $type;
         }
 
 
         if(!$bdmEmail || !$recEmail){
             return 0;
+        } else {
+            $joinedString = implode(',', array($bdmEmail, $recEmail));
+            $mailToData = explode(',', $joinedString);
         }
 
-        Mail::to([$bdmEmail, $recEmail])->cc('daman@dhaliteinc.com')->send(new submissionMail($data));
+        Mail::to($mailToData)->cc('daman@dhaliteinc.com')->send(new submissionMail($data));
         return 1;
+    }
+
+    public function getAllRecEmail($recuiters)
+    {
+        if(!$recuiters){
+            return '';
+        }
+
+        $recArray = explode(',', $recuiters);
+        if(!$recArray || !count($recArray)){
+            return '';
+        }
+
+        $recArray = array_unique(array_filter($recArray));
+        $emailArray = [];
+        foreach ($recArray as $rec){
+            $email = Admin::where('id', $rec)->value('email');
+            if($email){
+                $emailArray[] = $email;
+            }
+        }
+        return implode(',', $emailArray);
     }
 }
 

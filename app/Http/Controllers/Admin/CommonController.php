@@ -369,13 +369,7 @@ class CommonController extends Controller
                     <strong>Visa:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("visa",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.Requirement::getVisaNames($requirement->visa) .'</span>
                 </div>
                 <div class="col-md-12">
-                    <strong>Priority:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("priority",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->priority.'</span>
-                </div>
-                <div class="col-md-12">
                     <strong>Term:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("term",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->term.'</span>
-                </div>
-                <div class="col-md-12">
-                    <strong>Category:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("category",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.$requirement->Category->name.'</span>
                 </div>
                 <div class="col-md-12">
                     <strong>MOI:</strong> <span<span class="'.($isRecruiter == 1 && $isShowRecruiterAfterUpdate == 1 && in_array("moi",$updatedFileds) ? "text-primary font-weight-bold" : "").'">'.Requirement::getMoiNames($requirement->moi).'</span>

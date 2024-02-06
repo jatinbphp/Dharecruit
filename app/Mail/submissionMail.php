@@ -37,7 +37,10 @@ class submissionMail extends Mailable
             $subject = isset($this->data->subject) ? $this->data->subject : $this->data->status->text;
         } else if($this->data->type == 'submission_add'){
             $subject = 'Submission Add';
+        }  else if($this->data->type == 'requirement_update'){
+            $subject = "JobID: ".$this->data->job_id." details have been changed";
         }
+
         return $this->markdown('admin.mail_template.status_mail')->subject($subject);
     }
 }

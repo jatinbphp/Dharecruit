@@ -835,23 +835,39 @@
         $( "#sortable" ).disableSelection();
 
         /*SUMMER NOTE CODE*/
-        $(".description").summernote({
-            height: 250,
-            toolbar: [
-                ['style', ['bold', 'italic', 'underline', 'clear']],
-                ['font', ['strikethrough', 'superscript', 'subscript']],
-                ['fontsize', ['fontsize', 'height']],
-                ['color', ['color']],
-                ['para', ['ul', 'ol', 'paragraph']],
-                ['insert', ['table','picture','link','map','minidiag']],
-                ['misc', ['codeview']],
-            ],
-            callbacks: {
-                onImageUpload: function(files) {
-                    for (var i = 0; i < files.length; i++)
-                        upload_image(files[i], this);
+        $(".description").each(function() {
+            var textarea = $(this);
+            textarea.summernote({
+                height: 250,
+                placeholder: textarea.attr('placeholder'),
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['font', ['strikethrough', 'superscript', 'subscript']],
+                    ['fontsize', ['fontsize', 'height']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['insert', ['table','picture','link','map','minidiag']],
+                    ['misc', ['codeview']],
+                ],
+                callbacks: {
+                    onImageUpload: function(files) {
+                        for (var i = 0; i < files.length; i++)
+                            upload_image(files[i], this);
+                    }
+                },
+                onInit: function() {
+                    var placeholderText = textarea.attr('placeholder');
+                    placeholderText = placeholderText.replace(/\n/g, "<br>");
+                    textarea.summernote('option', 'placeholder', placeholderText);
+                },
+                onChange: function(contents) {
+                    if (contents.trim() === '') {
+                        var placeholderText = textarea.attr('placeholder');
+                        placeholderText = placeholderText.replace(/\n/g, "<br>");
+                        textarea.summernote('option', 'placeholder', placeholderText);
+                    }
                 }
-            },
+            });
         });
 
         /* TOOLTIP CODE */

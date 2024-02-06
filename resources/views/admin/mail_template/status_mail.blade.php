@@ -147,6 +147,13 @@
                                             <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black; border-radius: 10px;"><strong style="padding-left: 6px">{{$data->recruiter_rate}}</strong></td>
                                         </tr>
                                     </table>
+                                @elseif($data->type == 'requirement_update')
+                                    <p>
+                                        Hi Recruiter,
+
+                                        JOBID: {{$data->job_id}} details have been changed. Please login to the portal and look for changes highlighted in
+                                        “Blue” Color.
+                                    </p>
                                 @endif
                                 <br>
                                 <br>

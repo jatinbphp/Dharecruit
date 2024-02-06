@@ -402,27 +402,25 @@
                 {data: 'client_status', "width": "10%", name: 'interview_status_updated_at', searchable: false},
                 // {data: 'action', "width": "9%", name: 'action', orderable: false, searchable: false},
             ],
-            initComplete: function(settings, json) {
-                $('#mySubmissionTable thead th.toggle-column').each(function() {
-                    var columnIndex = $(this).index();
-                    table.column(columnIndex).nodes().to$().addClass('toggle-column');
-                });
-                $('#toggle-poc').trigger('change');
-                $('#show_employer_name').trigger('change');
-                $('#emp_poc').trigger('change');
-                $("#mySubmissionTable_length").detach().appendTo("#pageLendthSection");
-                $("#mySubmissionTable_filter").addClass('float-right').detach().appendTo("#searchSection");
-                $('select[name="mySubmissionTable_length"]').css({
-                    'width': 'auto',
-                });
-                $('#mySubmissionTable_length').css({
-                    'display': 'flex',
-                }).addClass('mt-4');
-            },
         });
 
         $('#mySubmissionTable').on('draw.dt', function () {
+            $('#mySubmissionTable thead th.toggle-column').each(function() {
+                var columnIndex = $(this).index();
+                table.column(columnIndex).nodes().to$().addClass('toggle-column');
+            });
             $('.toggle-change').trigger('change');
+            $('#toggle-poc').trigger('change');
+            $('#show_employer_name').trigger('change');
+            $('#emp_poc').trigger('change');
+            $("#mySubmissionTable_length").detach().appendTo("#pageLendthSection");
+            $("#mySubmissionTable_filter").addClass('float-right').detach().appendTo("#searchSection");
+            $('select[name="mySubmissionTable_length"]').css({
+                'width': 'auto',
+            });
+            $('#mySubmissionTable_length').css({
+                'display': 'flex',
+            }).addClass('mt-4');
         });
     }
 

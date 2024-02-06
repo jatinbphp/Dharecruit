@@ -97,7 +97,7 @@ class RequirementController extends Controller
             'term' => 'required',
             'category' => 'required',
             'moi' => 'required',
-            'job_keyword' => 'required',
+//            'job_keyword' => 'required',
             'description' => 'required',
             //'document' => 'required',
             'pv_company_name' => 'required',
@@ -256,7 +256,7 @@ class RequirementController extends Controller
             'term' => 'required',
             'category' => 'required',
             'moi' => 'required',
-            'job_keyword' => 'required',
+//            'job_keyword' => 'required',
             'description' => 'required',
             'pv_company_name' => 'required',
             'poc_name' => 'required',
@@ -333,6 +333,9 @@ class RequirementController extends Controller
                 $moi['moi'] = $this->getCommaSeperatedValues($request['moi']);
                 $requirement->update($moi);
             }
+
+            $requirementData = Requirement::with('BDM')->where('id', $requirement->id)->first();
+            $this->createDataForSentMail($requirementData, 'requirement_update');
         }
 
         \Session::flash('success','Requirement has been updated successfully!');

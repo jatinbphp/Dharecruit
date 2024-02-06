@@ -171,6 +171,7 @@ class PVTransferController extends Controller
             ->where('poc_name', $pvCompany->poc_name)
             ->where('pv_company_name', $pvCompany->name)
             ->where('poc_email', $pvCompany->email)
+            ->orderBy('id', 'desc')
             ->first();
 
         if(!empty($requirement)){
