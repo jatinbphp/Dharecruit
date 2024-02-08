@@ -191,7 +191,8 @@ trait PVCompanyTrait {
                 $this->setEmptyPOCRows($pvCompanyKey.'_'.$pocName);
             }
 
-            $pocNameWiseData[$pocName] = $pocData;
+            $pocNameWiseData['poc_data'][$pocName]         = $pocData;
+            $pocNameWiseData['is_new_poc_data'][$pocName]  = $this->isNewAsPerConfiguration('poc_name', $pocName);
         }
 
         return $pocNameWiseData;

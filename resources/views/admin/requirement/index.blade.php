@@ -206,7 +206,7 @@
                             columnData += '<p>'+ month +'/'+ day +'/'+ year +'</p>';
                             return columnData;
                         }},
-                    {data: 'job_id', 'width': '8%', name: 'job_id'},
+                    {data: 'job_id', 'width': '4%', name: 'job_id'},
                     {data: 'job_title', 'width': '20%', name: 'job_title', sortable : true},
                     {data: 'location', name: 'location'},
                         @if((Auth::user()->role == 'admin') || (Auth::user()->role == 'bdm' && $menu == 'My Requirements'))
@@ -220,7 +220,7 @@
                     {data: 'work_type', name: 'work_type'},
                     {data: 'duration', name: 'duration'},
                     {data: 'job_keyword', 'width': '20%', name: 'job_keyword'},
-                    {data: 'category_name', name: 'category.name'},
+                    {data: 'category_name', "width": "6%", name: 'category.name'},
                     {data: 'bdm_name', name: 'bdm.name'},
                     {data: 'my_rate', name: 'my_rate'},
                     // {data: 'created_at', 'width': '18%', name: 'created_at'},
@@ -231,11 +231,11 @@
                             return '';
                         }
                     },
-                    {data: 'recruiter', name: 'recruiter', orderable: false},
-                    {data: 'status', 'width': '10%', name: 'status'},
+                    {data: 'recruiter', 'width': '10%', name: 'recruiter', orderable: false},
+                    {data: 'status', 'width': '6%', name: 'status'},
                     // {data: 'color', name: 'color'},
-                    {data: 'candidate', name: 'candidate', orderable: false,},
-                    {data: 'action', "width": "15%", name: 'action', orderable: false, searchable: false},
+                    {data: 'candidate', 'width': '10%', name: 'candidate', orderable: false,},
+                    {data: 'action', "width": "8%", name: 'action', orderable: false, searchable: false},
                 ],
                 order: [[1, 'desc']],
                 drawCallback: function() {

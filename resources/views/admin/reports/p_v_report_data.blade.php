@@ -4,6 +4,8 @@
         $headings  = isset($pvFilterData['heading']) ? $pvFilterData['heading'] : [];
         $emptyPVRows = isset($pvFilterData['empty_pv_rows']) ? $pvFilterData['empty_pv_rows'] : [];
         $emptyPOCRows = isset($pvFilterData['empty_poc_rows']) ? $pvFilterData['empty_poc_rows'] : [];
+        $isNewPVCompany = isset($pvFilterData['is_new_pv_data']) ? $pvFilterData['is_new_pv_data'] : [];
+        $isNewPoc = isset($pvFilterData['is_new_poc_data']) ? $pvFilterData['is_new_poc_data'] : [];
     @endphp
     <div class="col-md-12 p-3 border border-with-label" data-label="">
         <div class="table-responsive m-lg-n2">
@@ -20,12 +22,14 @@
                 </tr>
                 @if($headings && count($headings))
                     <tr>
+                        @php $i=0 @endphp
                         @foreach($headings as $key => $data)
                             @php
                                 $bottomRight = (in_array($key, ['company_name', 'unique_req_count', 'status_unviewed', 'status_position_closed', 'client_status_total', 'bdm_count', 'bdm_wise_count'])) ? 'border-right' : '';
                                 $borderLeft = ($key == 'company_name') ? 'border-left' : '';
                             @endphp
-                            <th class="border-bottom {{"$borderLeft $bottomRight $key"}}">{{$data}}</th>
+                            <th onclick="sortTable({{$i}})" class="border-bottom {{"$borderLeft $bottomRight $key"}}">{{$data}}</th>
+                            @php $i++ @endphp
                         @endforeach
                     </tr>
                 @endif
@@ -39,7 +43,7 @@
                     @php
                         $key = strtolower(str_replace([' ', '.'], ['_', ''], $key));
                     @endphp
-                    <tr class="pv-company-{{$key}} @if(in_array($key, $emptyPVRows)) empty-row @endif">
+                    <tr class="pv-company-{{$key}} @if(in_array($key, $emptyPVRows)) empty-row @endif parent-row">
                         @if($pvCompanyData && count($pvCompanyData))
                             @foreach($pvCompanyData as $heading => $data)
                                 @php
@@ -58,16 +62,22 @@
                                     </td>
                                 @else
                                     <td class="{{"$topBorder $borderLeft $bottomRight $heading"}} border-bottom pv-company-group-{{$key}}">
-                                        <div class="data">
-                                            <span class="{{$class}}">
-                                                {{$data}}
-                                            </span>
-                                        </div>
                                         @if(strtolower($heading) == 'company_name')
+                                            <div class="data">
+                                                <span class="{{$class}} @if(isset($isNewPVCompany[$key]) && $isNewPVCompany[$key]) text-primary @endif">
+                                                    {{$data}}
+                                                </span>
+                                            </div>
                                             <div class="expand-toggle mt-3">
                                                 <button class="btn btn-sm btn-default hide-rows" title="Show POC of {{$data}}" data-company-id="{{$key}}" onclick="toggleButton(this, 'pv-company')" data-toggle="collapse" data-target=".collapse-{{$key}}">
                                                     <i class="fa fa-plus" aria-hidden="true"></i>
                                                 </button>
+                                            </div>
+                                        @else
+                                            <div class="data">
+                                                <span class="{{$class}}">
+                                                    {{$data}}
+                                                </span>
                                             </div>
                                         @endif
                                     </td>
@@ -98,7 +108,7 @@
                                                     @endforeach
                                                 </td>
                                             @else
-                                                <td class="{{"$topBorder $bottomBorder $borderLeft $bottomRight $heading"}} pv-company-group-{{$key}}"><span class="{{$class}}">{{$data}}</span></td>
+                                                <td class="{{"$topBorder $bottomBorder $borderLeft $bottomRight $heading"}} pv-company-group-{{$key}}"><span class="{{$class}} @if($heading == 'company_name' && isset($isNewPoc[$key][$data]) && $isNewPoc[$key][$data] == 1) text-primary @endif">{{$data}}</span></td>
                                             @endif
                                         @endif
                                     @endforeach

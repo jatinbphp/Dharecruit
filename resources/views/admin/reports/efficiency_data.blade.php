@@ -20,7 +20,7 @@
                             <th scope="col" class="text-center element-border rm-left-border">Submission</th>
                             <th scope="col" colspan="4" class="text-center element-border rm-left-border">BDM Status</th>
                             <th scope="col" colspan="5" class="text-center element-border rm-left-border">Vendor Status</th>
-                            <th scope="col" colspan="6" class="text-center element-border rm-left-border">Client Status</th>
+                            <th scope="col" colspan="7" class="text-center element-border rm-left-border">Client Status</th>
                         </tr>
                         @if($headings && count($headings))
                             <tr>
@@ -83,7 +83,7 @@
                         <th scope="col" colspan="2" class="text-center element-border rm-left-border">Submission</th>
                         <th scope="col" colspan="4" class="text-center element-border rm-left-border">BDM Status</th>
                         <th scope="col" colspan="5" class="text-center element-border rm-left-border">Vendor Status</th>
-                        <th scope="col" colspan="6" class="text-center element-border rm-left-border">Client Status</th>
+                        <th scope="col" colspan="7" class="text-center element-border rm-left-border">Client Status</th>
                     </tr>
                     @if($headings && count($headings))
                         <tr>
@@ -144,7 +144,7 @@
                             <th scope="col" class="text-center element-border rm-left-border">Submission</th>
                             <th scope="col" colspan="4" class="text-center element-border rm-left-border">BDM Status</th>
                             <th scope="col" colspan="5" class="text-center element-border rm-left-border">Vendor Status</th>
-                            <th scope="col" colspan="6" class="text-center element-border rm-left-border">Client Status</th>
+                            <th scope="col" colspan="7" class="text-center element-border rm-left-border">Client Status</th>
                         </tr>
                         @if($headings && count($headings))
                             <tr>
@@ -206,7 +206,7 @@
                     <th scope="col" colspan="2" class="text-center element-border rm-left-border">Submission</th>
                     <th scope="col" colspan="4" class="text-center element-border rm-left-border">BDM Status</th>
                     <th scope="col" colspan="5" class="text-center element-border rm-left-border">Vendor Status</th>
-                    <th scope="col" colspan="6" class="text-center element-border rm-left-border">Client Status</th>
+                    <th scope="col" colspan="7" class="text-center element-border rm-left-border">Client Status</th>
                 </tr>
                 @if($headings && count($headings))
                     <tr>

@@ -261,7 +261,7 @@ class Controller extends BaseController
             $submission = Submission::where('user_id',$recruiterId)->where('requirement_id',$row->id)->count();
             if($submission > 0){
                 $recName .= '<div class="border border-dark floar-left p-1 mt-2" style="
-                border-radius: 5px; width: auto; background-color:'.$bgColor.'"><span>'. $submission.' '.$recruterUser['name']. '</span></div>';
+                border-radius: 5px; background-color:'.$bgColor.'; width: fit-content;"><span>'. $submission.' '.$recruterUser['name']. '</span></div>';
             } else {
                 $textBold = '';
                 $textUnderLine = '';
@@ -1170,7 +1170,7 @@ class Controller extends BaseController
             $textColor = '';
             $css = '';
             $divClass = 'a-center pt-2 pl-2 pb-2 pr-2 mt-2 ';
-            $divCss = '';
+            $divCss = 'width: fit-content';
             $userId = $row->user_id;
             if($page == 'submission') {
                 $userId = $submission->user_id;
@@ -1261,7 +1261,7 @@ class Controller extends BaseController
                             <span class="candidate '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'
                     .($isSamePvCandidate ? "<i class='fa fa-info'></i>  ": "").$candidateFirstName.'-'.$submission->candidate_id.'</span>
                         </div>
-                        <div class="p-1 ml-2 mt-1 border border-dark" style="width: fit-content;">
+                        <div class="p-1 mt-1 border border-dark" style="width: fit-content;">
                             <span class="text-secondary font-weight-bold">'.$timeSpan.'</span>
                         </div>
                         <span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date ml-2">'.$candidateLastDate.'</span>
@@ -1281,7 +1281,7 @@ class Controller extends BaseController
                             <span class="'.$class.' '.$textColor.' candidate-'.$submission->id.'" id="candidate-'.$submission->id.'" style="'.$css.'" data-cid="'.$submission->id.'">'
                     .($isSamePvCandidate ? "<i class='fa fa-info'></i> " :"").$candidateFirstName.'-'.$submission->candidate_id.'</span>
                         </div>
-                        <div class="p-1 ml-2 mt-1 border border-dark" style="width: fit-content;">
+                        <div class="p-1 mt-1 border border-dark" style="width: fit-content;">
                             <span class="text-secondary font-weight-bold">'.$timeSpan.'</span>
                         </div>
                         <span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date ml-2">'.$candidateLastDate.'</span>
@@ -1846,7 +1846,7 @@ class Controller extends BaseController
     public function isNewAsPerConfiguration($columnName, $value)
     {
         if(!$columnName || !$value){
-            return 0;
+            return false;
         }
 
         $newPocCountConfiguration = 0;
@@ -2131,6 +2131,11 @@ class Controller extends BaseController
                 "interview_date" => $data->interview_date,
                 "interview_time" => $data->interview_time,
                 "time_zone" => $data->time_zone,
+                "job_type" => $data->submission->requirement->work_type,
+                "job_term" => $data->submission->requirement->term,
+                "job_location" => $data->submission->requirement->location,
+                "job_duration" => $data->submission->requirement->duration,
+                "end_client" => $data->client,
                 "[" => '',
                 "]" => '',
             ];

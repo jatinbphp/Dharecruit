@@ -41,6 +41,13 @@ class submissionMail extends Mailable
             $subject = "JobID: ".$this->data->job_id." details have been changed";
         }
 
-        return $this->markdown('admin.mail_template.status_mail')->subject($subject);
+        $mail = $this->markdown('admin.mail_template.status_mail')->subject($subject);
+        if(isset($this->data->type) && $this->data->type == 'submission_add'){
+            $resumePath = storage_path('app/public').'/'.$this->data->documents;
+            if(file_exists($resumePath)){
+                $mail->attach($resumePath);
+            }
+        }
+        return $mail;
     }
 }

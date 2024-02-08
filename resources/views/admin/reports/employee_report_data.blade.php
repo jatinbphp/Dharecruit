@@ -1,4 +1,5 @@
 @if(isset($employerFilterData) && $employerFilterData && count($employerFilterData) && isset($employerFilterData['emp_poc_data']) && count($employerFilterData['emp_poc_data']))
+
     @php
         $classData    = isset($employerFilterData['class_data']) ? $employerFilterData['class_data'] : [];
         $emptyPOCRows = isset($employerFilterData['empty_poc_rows']) ? $employerFilterData['empty_poc_rows'] : [];
@@ -70,7 +71,7 @@
                                                     </div>
                                                 @elseif($heading == 'employee_name')
                                                     <div class="pr-3 text-right">
-                                                        <span class="badge bg-indigo position-absolute top-0 end-0 show-count" style="margin-top: -6px">{{isset($employeeWiseUniSubCount[$companyKey]) ? $employeeWiseUniSubCount[$companyKey] : 0}}</span>
+                                                        <span class="badge bg-indigo position-absolute top-0 end-0 show-count" style="margin-top: -6px">{{isset($employeeWiseUniSubCount[$companyKey][$data]) ? $employeeWiseUniSubCount[$companyKey][$data] : 0}}</span>
                                                         <p class="{{$class}} text-left">{{$data}}</p>
                                                     </div>
                                                 @else

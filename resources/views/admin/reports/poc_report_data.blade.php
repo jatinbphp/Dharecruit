@@ -5,6 +5,8 @@
         $hideColumns  = isset($pocFilterData['hide_columns']) ? $pocFilterData['hide_columns'] : [];
         $pvCompanyWiseOrgReqCount  = isset($pocFilterData['pv_company_org_req_count']) ? $pocFilterData['pv_company_org_req_count'] : [];
         $pocWiseOrgReqCount        = isset($pocFilterData['poc_org_req_count']) ? $pocFilterData['poc_org_req_count'] : [];
+        $isNewPvCompany            = isset($pocFilterData['is_new_pv_company']) ? $pocFilterData['is_new_pv_company'] : [];
+        $isNewPoc                  = isset($pocFilterData['is_new_poc']) ? $pocFilterData['is_new_poc'] : [];
     @endphp
     <div class="col-md-12 p-3 border border-with-label" data-label="">
         <div class="table-responsive m-lg-n2">
@@ -66,12 +68,12 @@
                                                     @if($heading == 'vendor_company_name')
                                                         <div class="pr-3 text-right">
                                                             <span class="badge bg-indigo position-absolute top-0 end-0 show-count" style="margin-top: -6px">{{isset($pvCompanyWiseOrgReqCount[$data]) ? $pvCompanyWiseOrgReqCount[$data] : 0}}</span>
-                                                            <p class="{{$class}} text-left">{{$data}}</p>
+                                                            <p class="{{$class}} text-left @if(isset($isNewPvCompany[$companyKey]) && $isNewPvCompany[$companyKey] == 1) text-primary @endif">{{$data}}</p>
                                                         </div>
                                                     @elseif($heading == 'poc_name')
                                                         <div class="pr-3 text-right">
                                                             <span class="badge bg-indigo position-absolute top-0 end-0 show-count" style="margin-top: -6px">{{isset($pocWiseOrgReqCount[$companyKey][$data]) ? $pocWiseOrgReqCount[$companyKey][$data] : 0}}</span>
-                                                            <p class="{{$class}} text-left">{{$data}}</p>
+                                                            <p class="{{$class}} text-left @if(isset($isNewPoc[$companyKey][$data]) && $isNewPoc[$companyKey][$data] == 1) text-primary @endif">{{$data}}</p>
                                                         </div>
                                                     @else
                                                         <span class="{{$class}}">{{$data}}</span>

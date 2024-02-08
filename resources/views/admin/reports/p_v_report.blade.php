@@ -156,5 +156,22 @@
                 }
             });
         }
+
+        function sortTable(columnIndex) {
+            console.log(columnIndex);
+            var table = $('#pv_company_report');
+            console.log(table);
+            var rows = $('tbody tr', table).get(); // Get all rows in tbody
+
+            rows.sort(function(a, b) {
+                var textA = $(a).find('td').eq(columnIndex).text().toUpperCase(); // Get text content of specified column
+                var textB = $(b).find('td').eq(columnIndex).text().toUpperCase();
+                return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+            });
+
+            $.each(rows, function(index, row) {
+                $('tbody').append(row); // Append sorted rows back to tbody
+            });
+        }
     </script>
 @endsection

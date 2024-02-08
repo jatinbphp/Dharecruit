@@ -53,38 +53,55 @@
                         <div class="col-md-4">
                             <li class="font-weight-bold"><span class="text-success ">[feedback]</span> represents the feedback of the interview.</li>
                         </div>
+                        <div class="col-md-4">
+                            <li class="font-weight-bold"><span class="text-success ">[job_type]</span> represents the type of the job.</li>
+                        </div>
+                        <div class="col-md-4">
+                            <li class="font-weight-bold"><span class="text-success ">[job_term]</span> represents the term of the job.</li>
+                        </div>
+                        <div class="col-md-4">
+                            <li class="font-weight-bold"><span class="text-success ">[job_location]</span> represents the location of the job.</li>
+                        </div>
+                        <div class="col-md-4">
+                            <li class="font-weight-bold"><span class="text-success ">[job_duration]</span> represents the duration of the job.</li>
+                        </div>
+                        <div class="col-md-4">
+                            <li class="font-weight-bold"><span class="text-success ">[end_client]</span> represents the client of the interview.</li>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-12">
-                <div class="card card-info card-tabs">
-                    <div class="card-header p-0 pt-1">
-                        @if(isset($templateData) && $templateData && count($templateData))
-                            <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
+                    <div class="card card-info card-tabs">
+                        <div class="card-header p-0 pt-1">
+                            @if(isset($templateData) && $templateData && count($templateData))
+                                <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
+                                    @php $i = 1; @endphp
+                                    @foreach($templateData as $template)
+                                        <li class="nav-item" onclick="loadTemplate('{{$template->id}}')">
+                                            <a class="nav-link tab-link @if($i == 1) active @endif" data-id="{{$template->id}}" data-action="test" id="custom-tabs-one-{{$template->id}}-tab" data-toggle="pill" href="#custom-tabs-one-{{$template->id}}" role="tab" aria-controls="custom-tabs-one-{{$template->id}}" aria-selected="true">{{$template->template_name}}</a>
+                                        </li>
+                                        @php $i++; @endphp
+                                    @endforeach
+                                </ul>
+                            @else
+                                <p class="pl-3 pt-2">No Template Data Found.</p>
+                            @endif
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="tab-content" id="custom-tabs-one-tabContent">
                                 @php $i = 1; @endphp
                                 @foreach($templateData as $template)
-                                    <li class="nav-item" onclick="loadTemplate('{{$template->id}}')">
-                                        <a class="nav-link tab-link @if($i == 1) active @endif" data-id="{{$template->id}}" data-action="test" id="custom-tabs-one-{{$template->id}}-tab" data-toggle="pill" href="#custom-tabs-one-{{$template->id}}" role="tab" aria-controls="custom-tabs-one-{{$template->id}}" aria-selected="true">{{$template->template_name}}</a>
-                                    </li>
+                                    <div class="tab-pane fade show @if($i == 1) active @endif" id="custom-tabs-one-{{$template->id}}" role="tabpanel" aria-labelledby="custom-tabs-one-{{$template->id}}-tab">
+                                    </div>
                                     @php $i++; @endphp
                                 @endforeach
-                            </ul>
-                        @else
-                            <p class="pl-3 pt-2">No Template Data Found.</p>
-                        @endif
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="tab-content" id="custom-tabs-one-tabContent">
-                            @php $i = 1; @endphp
-                            @foreach($templateData as $template)
-                                <div class="tab-pane fade show @if($i == 1) active @endif" id="custom-tabs-one-{{$template->id}}" role="tabpanel" aria-labelledby="custom-tabs-one-{{$template->id}}-tab">
-                                </div>
-                                @php $i++; @endphp
-                            @endforeach
+                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
         </section>
     </div>
 @endsection

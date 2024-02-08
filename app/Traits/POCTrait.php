@@ -138,6 +138,7 @@ trait POCTrait {
 
             $pocNameWiseData['data'][$pocName] = $pocData;
             $pocNameWiseData['poc_org_req_count'][$pocName] = $this->getPocWiseOrgReqCount($pvCompany, $pocName);
+            $pocNameWiseData['is_new_poc'][$pocName]        = $this->isNewAsPerConfiguration('poc_name', $pocName);
         }
         return $pocNameWiseData;
     }

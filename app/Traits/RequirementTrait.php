@@ -50,6 +50,7 @@ trait RequirementTrait
             'heading_client_rejected'    => 'Client Rejected',
             'heading_sub_to_end_client'  => 'Sub To End Client',
             'heading_position_closed'    => 'position Closed',
+            'heading_scheduled'          => 'Scheduled',
             'heading_re_scheduled'       => 'Re Scheduled',
             'heading_another_round'      => 'Another Round',
             'heading_waiting_feedback'   => 'Waiting FeedBack',
@@ -84,6 +85,7 @@ trait RequirementTrait
             'heading_client_rejected'    => 'Client Rejected',
             'heading_sub_to_end_client'  => 'Sub To End Client',
             'heading_position_closed'    => 'position Closed',
+            'heading_scheduled'          => 'Scheduled',
             'heading_re_scheduled'       => 'Re Scheduled',
             'heading_another_round'      => 'Another Round',
             'heading_waiting_feedback'   => 'Waiting FeedBack',
@@ -131,6 +133,7 @@ trait RequirementTrait
             'vendor_rejected_by_client'      => $this->getTotalStatusCount('pv_status', $submissionModel::STATUS_REJECTED_BY_END_CLIENT, $date, $bdms, $userId, $type),
             'vendor_submitted_to_end_client' => $this->getTotalStatusCount('pv_status', $submissionModel::STATUS_SUBMITTED_TO_END_CLIENT, $date, $bdms, $userId, $type),
             'vendor_position_closed'         => $this->getTotalStatusCount('pv_status', $submissionModel::STATUS_POSITION_CLOSED, $date, $bdms, $userId, $type),
+            'client_scheduled'               => $this->getTotalClientStatusCount($interviewModel::STATUS_SCHEDULED, $date, $bdms, $userId, $type),
             'client_rescheduled'             => $this->getTotalClientStatusCount($interviewModel::STATUS_RE_SCHEDULED, $date, $bdms, $userId, $type),
             'client_selected_for_next_round' => $this->getTotalClientStatusCount($interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND, $date, $bdms, $userId, $type),
             'client_waiting_feedback'        => $this->getTotalClientStatusCount($interviewModel::STATUS_WAITING_FEEDBACK, $date, $bdms, $userId, $type),
@@ -261,8 +264,21 @@ trait RequirementTrait
                 ->selectRaw('requirements.user_id, COUNT(interviews.id) as count')
                 ->pluck('count', 'user_id')
                 ->toArray();
+
+            \Log::info('new called');
+            \log::info($status);
+            \log::info($date);
+            \log::info($bdms);
+            \Log::info(Requirement::leftJoin('submissions', 'requirements.id', '=', 'submissions.requirement_id')
+                ->leftJoin('interviews', 'submissions.id', '=', 'interviews.submission_id')
+                ->where('interviews.status', $status)
+                ->whereBetween('interviews.updated_at', $date)
+                ->whereIn('requirements.user_id', $bdms)
+                ->groupBy('requirements.user_id')
+                ->selectRaw('requirements.user_id, COUNT(interviews.id) as count')->toSql());
         }
 
+        \Log::info($this->_userIdWiseClientStatusCount);
         if(isset($this->_userIdWiseClientStatusCount[$type][$status][$userId])){
             return $this->_userIdWiseClientStatusCount[$type][$status][$userId];
         }

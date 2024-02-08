@@ -125,6 +125,7 @@ trait CommonTrait {
             'vendor_submitted_to_end_client' => 'font-weight-bold text-success',
             'vendor_position_closed'         => 'text-secondary',
             'client_rescheduled'             => 'text-warning',
+            'client_scheduled'               => 'text-warning',
             'client_selected_for_next_round' => 'font-weight-bold text-warning',
             'client_waiting_feedback'        => '',
             'client_confirmed_position'      => 'font-weight-bold text-success',

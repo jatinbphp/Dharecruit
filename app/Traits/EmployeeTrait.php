@@ -131,7 +131,7 @@ trait EmployeeTrait {
             }
 
             $employeeNameWiseData['data'][$employeeName] = $pocData;
-            $employeeNameWiseData['employee_uni_sub_count'] = $this->getEmployeeWiseUniSubmissionCount($employerName, $employeeName);
+            $employeeNameWiseData['employee_uni_sub_count'][$employeeName] = $this->getEmployeeWiseUniSubmissionCount($employerName, $employeeName);
         }
         return $employeeNameWiseData;
     }
@@ -182,8 +182,7 @@ trait EmployeeTrait {
 
     public function getEmployeeWiseUniSubmissionCount($employerName, $employeeName)
     {
-        return  Submission::where('id' ,\DB::raw('candidate_id'))
-            ->groupBy('employee_name')
+        return Submission::where('id' ,\DB::raw('candidate_id'))
             ->where('employer_name', $employerName)
             ->where('employee_name', $employeeName)
             ->count();

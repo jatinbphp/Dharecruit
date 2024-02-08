@@ -126,7 +126,10 @@ trait ReportsTrait {
         foreach ($pvCompanies as $pvCompany){
             $pvCompanyKey = $this->getKey($pvCompany);
             $pvData['pv_company_data'][$pvCompanyKey] = $this->getCompanyWisePVCompanyData($pvCompany, $pvCompanies, $request);
-            $pvData['poc_data'][$pvCompanyKey]        = $this->getCompanyWisePocData($pvCompany, $request);
+            $pvData['is_new_pv_data'][$pvCompanyKey]  = $this->isNewAsPerConfiguration('pv_company_name', $pvCompany);
+            $allData = $this->getCompanyWisePocData($pvCompany, $request);
+            $pvData['poc_data'][$pvCompanyKey]        = isset($allData['poc_data']) ? $allData['poc_data'] : [];
+            $pvData['is_new_poc_data'][$pvCompanyKey]  = isset($allData['is_new_poc_data']) ? $allData['is_new_poc_data'] : [];
         }
         $pvData['heading']    = $this->getPvHeadingData();
         $pvData['class_data'] = $this->getTextClass();
@@ -158,6 +161,8 @@ trait ReportsTrait {
             $allData = $this->getPocWiseData($pvCompany, $pvCompanies, $pocNames, $request);
             $pocData['poc_data'][$pvCompanyKey] = isset($allData['data']) ? $allData['data'] : [];
             $pocData['poc_org_req_count'][$pvCompanyKey] = isset($allData['poc_org_req_count']) ? $allData['poc_org_req_count'] : [];
+            $pocData['is_new_pv_company'][$pvCompanyKey] = $this->isNewAsPerConfiguration('pv_company_name', $pvCompany);
+            $pocData['is_new_poc'][$pvCompanyKey] = isset($allData['is_new_poc']) ? $allData['is_new_poc'] : [];
         }
         $pocData['class_data']     = $this->getTextClass();
         $pocData['empty_poc_rows'] = $this->getEmptyPOCRows();
