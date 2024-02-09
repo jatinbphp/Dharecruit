@@ -41,6 +41,7 @@
     <link rel="stylesheet" href="{{ URL::asset('assets/plugins/ladda/ladda-themeless.min.css')}}">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
     <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.2.0/css/bootstrap-colorpicker.min.css">
     <style>
         .candidate, .job-title {cursor: pointer}
         a.disabled {
@@ -304,9 +305,9 @@
                         </a>
                     </li>
 
-                    @if($loginRole == 'admin' || $check1 || $check2 || $check3 || $check4 || $check5 || $check6)
-                        <li class="nav-item @if(in_array($menu, ['Permission','Admin User','BDM User','Recruiter User','TL Recruiter User','TL BDM User'])) menu-open @endif">
-                            <a href="#" class="nav-link @if(in_array($menu, ['Permission','Admin User','BDM User','Recruiter User','TL Recruiter User','TL BDM User'])) active @endif">
+                    @if($loginRole == 'admin' || $check1 || $check2 || $check3 || $check4 || $check5 || $check6 || $check20)
+                        <li class="nav-item @if(in_array($menu, ['Permission','Admin User','BDM User','Recruiter User','TL Recruiter User','TL BDM User','Manage Team'])) menu-open @endif">
+                            <a href="#" class="nav-link @if(in_array($menu, ['Permission','Admin User','BDM User','Recruiter User','TL Recruiter User','TL BDM User','Manage Team'])) active @endif">
                                 <i class="nav-icon fas fa-users"></i>
                                 <p>Manage Users <i class="right fas fa-angle-left"></i>
                                 </p>
@@ -344,7 +345,7 @@
                                         </a>
                                     </li>
                                 @endif
-                                @if($loginRole == 'admin' || $check5)
+                                {{--@if($loginRole == 'admin' || $check5)
                                     <li class="nav-item">
                                         <a href="{{ route('tl_recruiter_user.index') }}" class="nav-link @if($menu=='TL Recruiter User') active @endif">
                                             <i class="far fa-circle nav-icon"></i>
@@ -357,6 +358,14 @@
                                         <a href="{{ route('tl_bdm_user.index') }}" class="nav-link @if($menu=='TL BDM User') active @endif">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>Manage TL BDM</p>
+                                        </a>
+                                    </li>
+                                @endif--}}
+                                @if($loginRole == 'admin' || $check20)
+                                    <li class="nav-item">
+                                        <a href="{{ route('manage_team.index') }}" class="nav-link @if($menu=='Manage Team') active @endif">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Manage Team</p>
                                         </a>
                                     </li>
                                 @endif
@@ -600,6 +609,8 @@
 <script src="{{ URL::asset('assets/plugins/jSignature/libs/jSignature.min.js')}}"></script>
 <script src="{{ URL::asset('assets/plugins/jSignature/libs/modernizr.js')}}"></script>
 <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.2.0/js/bootstrap-colorpicker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
 
 <script>Ladda.bind( 'input[type=submit]' );</script>
 <script>
@@ -869,6 +880,12 @@
                 }
             });
         });
+
+        /* COLOR PICKER CODE */
+        $('.colorpicker-element').colorpicker();
+        $('.my-colorpicker2').on('colorpickerChange', function(event) {
+            $('.my-colorpicker2 .fa-square').css('color', event.color.toString());
+        })
 
         /* TOOLTIP CODE */
         $('[data-toggle="tooltip"]').tooltip();

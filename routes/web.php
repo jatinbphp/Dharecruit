@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\ImageController;
 use App\Http\Controllers\Admin\InterviewController;
 use App\Http\Controllers\Admin\MailTemplateController;
+use App\Http\Controllers\Admin\ManageTeamController;
 use App\Http\Controllers\Admin\MoiController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ProfileUpdateController;
@@ -172,6 +173,16 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
 
     /* CANDIDATE MANAGEMENT */
     Route::resource('manage_candidate', CandidateController::class);
+
+    /* TEAM MANAGEMENT */
+    Route::resource('manage_team', ManageTeamController::class);
+    Route::post('fetch_users', [ManageTeamController::class, 'fetchUsers'])->name('fetchUsers');
+    Route::post('fetch_team_member', [ManageTeamController::class, 'fetchTeamMember'])->name('fetchTeamMember');
+    Route::get('/check-team-name/{teamName}', [ManageTeamController::class, 'checkTeamName']);
+    Route::post('update_user_team', [ManageTeamController::class, 'updateUserTeam'])->name('update_user_team');
+    Route::post('update_team_name', [ManageTeamController::class, 'updateTeamName'])->name('update_team_name');
+    Route::post('update_team_lead_name', [ManageTeamController::class, 'updateTeamLeadName'])->name('update_team_lead_name');
+    Route::post('update_team_lead', [ManageTeamController::class, 'updateTeamLead'])->name('update_team_lead');
 
     Auth::routes();
 });

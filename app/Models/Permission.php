@@ -32,6 +32,7 @@ class Permission extends Model
     const MODULE_SETTINGS = 'manage_settings';
     const MODULE_MAIL_TEMPLATE = 'manage_mail_template';
     const MODULE_CANDIDATE = 'manage_candidate';
+    const MODULE_TEAM = 'manage_team';
 
     public static $permission = [
         self::MODULE_PERMISSION => 'Manage Permission',
@@ -53,5 +54,6 @@ class Permission extends Model
         self::MODULE_SETTINGS => 'Manage Settings',
         self::MODULE_MAIL_TEMPLATE => 'Manage Mail Template',
         self::MODULE_CANDIDATE => 'Manage Candidate',
+        self::MODULE_TEAM => 'Manage Team',
     ];
 }
