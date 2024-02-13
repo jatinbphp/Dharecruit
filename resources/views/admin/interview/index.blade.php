@@ -62,6 +62,9 @@
                                             continue;
                                         }
                                     }
+                                    if($type == 3 && in_array($key, ['candidate_phone', 'candidate_email', 'show_employer_name', 'emp_poc'])){
+                                        continue;
+                                    }
                                 @endphp
                                 <div class="col-md-3 mt-2">
                                     {!! Form::checkbox('', $key, null, ['id' => "$key", 'onChange' => 'toggleOptions("'.$key.'")', 'class' => 'toggle-checkbox toggle-change', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
@@ -76,7 +79,7 @@
                                 {!! Form::checkbox('', 'show-feedback', null, ['id' => "showFeedback", 'class' => 'toggle-checkbox toggle-change', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
                                 <label class="form-check-label pl-2" for="showTime">Show FeedBack</label>
                             </div>
-                            @if(in_array(Auth::user()->role, ['admin', 'bdm']))
+                            @if(in_array(Auth::user()->role, ['admin', 'bdm']) && $type != 3)
                                 <div class="col-md-3 mt-2">
                                     {!! Form::checkbox('', '', null, ['id' => 'toggle-poc', 'class' => 'toggle-checkbox toggle-change', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
                                     <label class="form-check-label pl-2" for="showLink">Show POC</label>
@@ -92,14 +95,16 @@
                                     <th>Id</th>
                                     <th>Job Id</th>
                                     <th>Candidate Name</th>
-                                    <th>Candidate Phone</th>
-                                    <th>Candidate Email</th>
+                                    @if($type != 3)
+                                        <th>Candidate Phone</th>
+                                        <th>Candidate Email</th>
+                                    @endif
                                     <th>Client Location</th>
                                     <th>Candidate Location</th>
                                     @if(in_array($userType,['admin','recruiter']))
                                         <th>BDM</th>
                                     @endif
-                                    @if(in_array($userType,['admin','bdm']))
+                                    @if(in_array($userType,['admin','bdm']) && $type != 3)
                                         <th class='toggle-column'>PV</th>
                                         <th class='toggle-column'>POC</th>
                                     @endif
@@ -108,8 +113,10 @@
                                     @endif
                                     <th>B Rate</th>
                                     <th>R Rate</th>
-                                    <th>Employer</th>
-                                    @if(in_array($userType,['admin','recruiter']))
+                                    @if(in_array($userType,['admin','recruiter']) && $type != 3)
+                                        <th>Employer</th>
+                                    @endif
+                                    @if(in_array($userType,['admin','recruiter']) && $type != 3)
                                         <th>EmpPOC</th>
                                     @endif
                                     <th>Hiring Manager</th>
@@ -204,7 +211,7 @@
             lengthMenu: [ 100, 200, 300, 400, 500 ],
             order: [[ 1, 'desc' ],],
             ajax: {
-                url: "{{ route('interview.index') }}",
+                url: "{{ ($type == 1) ? route('interview.index') : route('interview.teamLeadInterviews') }}",
                 data: function (d) {
                     var formDataArray = $('#filterForm').find(':input:not(select[multiple])').serializeArray();
 
@@ -228,14 +235,16 @@
                 {data: 'id', 'width': '2%', name: 'interviews.id' },
                 {data: 'job_id', name: 'job_id'},
                 {data: 'candidate_name', name: 'candidate_name', orderable: false, searchable: false},
-                {data: 'candidate_phone_number', name: 'candidate_phone_number'},
-                {data: 'candidate_email', name: 'candidate_email'},
+                @if($type != 3)
+                    {data: 'candidate_phone_number', name: 'candidate_phone_number'},
+                    {data: 'candidate_email', name: 'candidate_email'},
+                @endif
                 {data: 'client_location', name: 'requirements.location'},
                 {data: 'candidate_location', name: 'submissions.location'},
                 @if(in_array($userType,['admin','recruiter']))
                     {data: 'bdm', name: 'admins.name'},
                 @endif
-                @if(in_array($userType,['admin','bdm']))
+                @if(in_array($userType,['admin','bdm']) && $type != 3)
                     {data: 'pv_name', name: 'requirements.pv_company_name'},
                     {data: 'poc_name', name: 'requirements.poc_name'},
                 @endif
@@ -244,8 +253,10 @@
                 @endif
                 {data: 'br', name: 'requirements.my_rate'},
                 {data: 'rr', name: 'submissions.recruiter_rate'},
-                {data: 'employer_name', name: 'submissions.employer_name'},
-                @if(in_array($userType,['admin','recruiter']))
+                @if(in_array($userType,['admin','recruiter']) && $type != 3)
+                    {data: 'employer_name', name: 'submissions.employer_name'},
+                @endif
+                @if(in_array($userType,['admin','recruiter']) && $type != 3)
                     {data: 'employee_name', name: 'submissions.employee_name'},
                 @endif
                 {data: 'hiring_manager', name: 'hiring_manager'},

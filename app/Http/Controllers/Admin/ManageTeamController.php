@@ -241,4 +241,23 @@ class ManageTeamController extends Controller
         $data['html'] = view('admin.team.teamData', $this->getAllListData())->toHtml();
         return $data;
     }
+
+    public function removeTeam(Request $request)
+    {
+        $data['status'] = 0;
+        if(empty($request->team_id)){
+            $data['html'] = view('admin.team.teamData', $this->getAllListData())->toHtml();
+            return $data;
+        }
+
+        $team = Team::find($request->team_id);
+
+        if($team->id){
+            TeamMember::where('team_id', $request->team_id)->delete();
+            $team->delete();
+            $data['status'] = 1;
+        }
+        $data['html'] = view('admin.team.teamData', $this->getAllListData())->toHtml();
+        return $data;
+    }
 }

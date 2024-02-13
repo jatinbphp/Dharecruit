@@ -259,6 +259,34 @@
                     </a>
                 </li>
             @endif
+
+            @if(isLeadUser())
+                @if(\Illuminate\Support\Facades\Auth::user()->role == 'recruiter')
+                    <li class="nav-item d-none d-sm-inline-block ml-2" class="nav-item">
+                        <a href="{{ route('submission.teamSubmissions') }}">
+                            <button class="btn btn-block btn-outline-primary btn-sm @if($menu=='Team Requirements') active @endif">Team Requirements</button>
+                        </a>
+                    </li>
+                @else
+                    <li class="nav-item d-none d-sm-inline-block ml-2">
+                        <a href="{{ route('requirement.teamLeadRequirement') }}">
+                            <button class="btn btn-block btn-outline-primary btn-sm  @if($menu=='Team Requirements') active @endif">Team Requirement</button>
+                        </a>
+                    </li>
+                @endif
+
+                <li class="nav-item d-none d-sm-inline-block ml-2">
+                    <a href="{{ route('bdm_submission.teamLeadSubmissions') }}">
+                        <button class="btn btn-block btn-outline-primary btn-sm  @if($menu=='Team Submission') active @endif">Team Submission</button>
+                    </a>
+                </li>
+
+                <li class="nav-item d-none d-sm-inline-block ml-2">
+                    <a href="{{ route('interview.teamLeadInterviews') }}">
+                        <button class="btn btn-block btn-outline-primary btn-sm  @if($menu=='Team Interviews') active @endif">Team Interviews</button>
+                    </a>
+                </li>
+            @endif
         </ul>
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">

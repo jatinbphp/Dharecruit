@@ -50,6 +50,25 @@ class SubmissionController extends Controller
         return view('admin.submission.index', $data);
     }
 
+    public function teamSubmissions(Request $request)
+    {
+        if(!isLeadUser()){
+            return redirect('/');
+        }
+
+        $data['menu'] = "Team Requirements";
+        $data['search'] = $request['search'];
+
+        if ($request->ajax()) {
+            $data = $this->Filter($request);
+            $request['user_type'] = 'lead_user';
+            return $this->getListHtml($data, $request, 'submission');
+        }
+        $data['type'] = 3;
+        $data['filterFile'] = 'common_filter';
+        return view('admin.submission.index', $data);
+    }
+
     public function create()
     {
         //

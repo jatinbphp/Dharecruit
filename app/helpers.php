@@ -6,6 +6,7 @@ use App\Models\Requirement;
 use App\Models\EntityHistory;
 use App\Models\Interview;
 use App\Http\Controllers\Controller;
+use App\Models\Team;
 use Illuminate\Support\Facades\Auth;
 
 if(!function_exists('getLoggedInUserId')){
@@ -66,5 +67,26 @@ if(!function_exists('getTimeInReadableFormate')){
             }
         }
         return $timeSpan;
+    }
+
+    if(!function_exists('isLeadUser')){
+        function isLeadUser()
+        {
+           return (Team::where('team_lead_id', getLoggedInUserId())->exists()) ? true : false;
+        }
+    }
+
+    if(!function_exists('getTeamMembers')){
+        function getTeamMembers()
+        {
+            return Team::with('teamMembers')
+                ->where('team_lead_id', getLoggedInUserId())
+                ->get()
+                ->pluck('teamMembers.*.member_id')
+                ->flatten()
+                ->unique()
+                ->values()
+                ->toArray();
+        }
     }
 }

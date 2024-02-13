@@ -87,8 +87,8 @@ class Controller extends BaseController
             ->addColumn('candidate', function ($row) use (&$page, &$request){
                 return $this->getCandidateListData($row, $page, $request);
             })
-            ->addColumn('action', function ($row) use (&$page){
-                return $this->getActionHtml($row, $page);
+            ->addColumn('action', function ($row) use (&$page, &$request){
+                return $this->getActionHtml($row, $page, $request);
             })
             ->editColumn('job_keyword', function($row) {
                 return $this->getJobKeywordHtml($row);
@@ -236,6 +236,18 @@ class Controller extends BaseController
         if(!empty($request->fifilterlter_employee_email)){
             $employeeEmailIds = Submission::where('employee_email', $request->filter_employee_email)->where('requirement_id', $row->id)->pluck('user_id')->toArray();
             $filterRecIds[] = $employeeEmailIds;
+        }
+
+        if($this->getCurrentUserRole() == 'recruiter' && $request->user_type == 'lead_user' && isLeadUser()){
+            if(getTeamMembers()){
+                if($request->team_users){
+                    $filterRecIds[] = $request->team_users;
+                } else {
+                    $filterRecIds[] = getTeamMembers();
+                }
+            } else {
+                $filterRecIds[] = [];
+            }
         }
 
         if($filterRecIds && count($filterRecIds)){
@@ -448,15 +460,31 @@ class Controller extends BaseController
             }
 
             if($userRole == 'recruiter'){
-                $loggedInRecruterSubmission->where('submissions.user_id', $userId)->where('submissions.requirement_id',$row->id);
-                $loggedInsubmissions->where('submissions.user_id', $userId)->where('submissions.requirement_id',$row->id);
+                \Log::info($request->user_type);
+                if($request->user_type == 'lead_user' && isLeadUser()){
+                    if(getTeamMembers()){
+                        if($request->team_users){
+                            $loggedInRecruterSubmission->whereIn('submissions.user_id', $request->team_users)->where('submissions.requirement_id',$row->id);
+                            $loggedInsubmissions->whereIn('submissions.user_id', $request->team_users)->where('submissions.requirement_id',$row->id);
+                        } else {
+                            $loggedInRecruterSubmission->whereIn('submissions.user_id', getTeamMembers())->where('submissions.requirement_id',$row->id);
+                            $loggedInsubmissions->whereIn('submissions.user_id', getTeamMembers())->where('submissions.requirement_id',$row->id);
+                        }
+                    } else {
+                        $loggedInRecruterSubmission->where('submissions.user_id', 0);
+                        $loggedInsubmissions->where('submissions.user_id', 0);
+                    }
+                } else {
+                    $loggedInRecruterSubmission->where('submissions.user_id', $userId)->where('submissions.requirement_id',$row->id);
+                    $loggedInsubmissions->where('submissions.user_id', $userId)->where('submissions.requirement_id',$row->id);
+                }
             } else {
                 if(!empty($request->recruiter)){
                     $loggedInRecruterSubmission->where('submissions.user_id', $request->recruiter)->where('submissions.requirement_id',$row->id);
                     $loggedInsubmissions->where('submissions.user_id', $request->recruiter)->where('submissions.requirement_id',$row->id);
                 } else {
                     $loggedInRecruterSubmission->where('submissions.requirement_id',$row->id);
-                    $loggedInsubmissions->where('submissions.user_id', $request->recruiter)->where('submissions.requirement_id',$row->id);
+                    $loggedInsubmissions->where('submissions.requirement_id',$row->id);
 
                 }
             }
@@ -470,7 +498,7 @@ class Controller extends BaseController
                 ->orderByDesc('subquery.count')
                 ->get();
 
-            if(empty($request->filter_employer_name) && empty($request->filter_employee_name) && empty($request->filter_employee_phone_number) && empty($request->filter_employee_email) && empty($request->bdm_feedback) && empty($request->pv_feedback) && empty($request->client_feedback) && empty($request->candidate_name) && empty($request->candidate_id) && empty($request->recruiter)){
+            if(empty($request->filter_employer_name) && empty($request->filter_employee_name) && empty($request->filter_employee_phone_number) && empty($request->filter_employee_email) && empty($request->bdm_feedback) && empty($request->pv_feedback) && empty($request->client_feedback) && empty($request->candidate_name) && empty($request->candidate_id) && empty($request->recruiter) && empty($request->team_users) && $request->user_type != 'lead_user'){
                 $notLoggedInsubmissions = Submission::select('requirement_id', 'user_id', \DB::raw('COUNT(user_id) as count'))->where('user_id', '!=',$userId)->where('requirement_id',$row->id)->groupBy('user_id');
                 $notLogeedInRecruitersData = $notLoggedInRecruterSubmission->joinSub($notLoggedInsubmissions, 'subquery', function ($join) {
                     $join->on('subquery.user_id', '=', 'submissions.user_id');
@@ -509,7 +537,7 @@ class Controller extends BaseController
         return $candidate;
     }
 
-    public function getActionHtml($row, $page='requirement'){
+    public function getActionHtml($row, $page='requirement', $request){
         $exprieStatus = Requirement::$exprieStatus;
         $loggedInUserId = $this->getCurrentUserId();
         $userRole       = $this->getCurrentUserRole();
@@ -528,11 +556,12 @@ class Controller extends BaseController
                     }
                     $btn .= '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-default tip ml-2" data-toggle="tooltip" title="Waiting" data-trigger="hover" '.(($isDisable) ? 'disabled' : '').' type="button" onclick="addWaiting('.$row->id.')"><img src="'.url('assets/dist/img/waiting.png').'" height="25"></img></button></div>';
                 }else{
-                    $btn = '';
                     if($row->status != "hold" && !array_key_exists($row->status,$exprieStatus)){
-                        $btn = '<span data-toggle="tooltip" title="Assign Requirement" data-trigger="hover">
+                        if(empty($request->user_type) || $request->user_type != 'lead_user'){
+                            $btn = '<span data-toggle="tooltip" title="Assign Requirement" data-trigger="hover">
                                     <button class="btn btn-sm btn-default assignRequirement mr-2" data-id="'.$row->id.'" type="button"><i class="fa fa-plus-square"></i></button>
                                 </span>';
+                        }
                     }
                 }
             }else{
@@ -621,13 +650,14 @@ class Controller extends BaseController
         return $this->_user;
     }
 
-    public function Filter($request, $page=''){
+    public function Filter($request, $page='')
+    {
         $user = Auth::user();
         $requirementIds = [];
 
         $newPocCountConfiguration = 1;
-        $settingRow =  Setting::where('name', 'show_poc_count_days')->first();
-        if(!empty($settingRow) && $settingRow->value){
+        $settingRow = Setting::where('name', 'show_poc_count_days')->first();
+        if (!empty($settingRow) && $settingRow->value) {
             $newPocCountConfiguration = $settingRow->value;
         }
         $createdAtDateAsPerConfiguration = \Carbon\Carbon::now()->subDays($newPocCountConfiguration);
@@ -661,21 +691,49 @@ class Controller extends BaseController
             'bdm.name as bdm_name',
             'category.name as category_name',
             \DB::raw('(SELECT COUNT(*) FROM requirements r2 WHERE r2.poc_email = requirements.poc_email and r2.poc_name = requirements.poc_name and (r2.id = r2.parent_requirement_id or r2.parent_requirement_id = 0)) as poc_count'),
-            \DB::raw('(SELECT COUNT(*) FROM requirements r2 WHERE r2.poc_email = requirements.poc_email and r2.poc_name = requirements.poc_name and (r2.id = r2.parent_requirement_id or r2.parent_requirement_id = 0) and r2.created_at >= "'.$createdAtDateAsPerConfiguration.'") as poc_count_in_days'),
+            \DB::raw('(SELECT COUNT(*) FROM requirements r2 WHERE r2.poc_email = requirements.poc_email and r2.poc_name = requirements.poc_name and (r2.id = r2.parent_requirement_id or r2.parent_requirement_id = 0) and r2.created_at >= "' . $createdAtDateAsPerConfiguration . '") as poc_count_in_days'),
 
         )
             ->join('admins as bdm', 'bdm.id', '=', 'requirements.user_id')
             ->join('categories as category', 'category.id', '=', 'requirements.category');
 
-        $expStatus = [Requirement::STATUS_EXP_HOLD , Requirement::STATUS_EXP_NEED];
-        if($user['role'] == 'bdm' && isset($request->authId) && $request->authId > 0){
-            $query = $query->where('requirements.user_id',$request->authId);
-        }elseif($user['role'] == 'recruiter' && isset($request->authId) && $request->authId > 0){
+        $expStatus = [Requirement::STATUS_EXP_HOLD, Requirement::STATUS_EXP_NEED];
+        if ($user['role'] == 'bdm' && isset($request->authId) && $request->authId > 0) {
+            $query = $query->where('requirements.user_id', $request->authId);
+        } elseif ($user['role'] == 'recruiter' && isset($request->authId) && $request->authId > 0) {
             $query = $query->whereRaw("find_in_set($request->authId,recruiter)");
+        } elseif ($user['role'] == 'bdm'&& isLeadUser()) {
+            if (getTeamMembers()){
+                if($request->team_users){
+                    $query = $query->whereIn('requirements.user_id', $request->team_users);
+                } else {
+                    $query = $query->whereIn('requirements.user_id', getTeamMembers());
+                }
+            } else {
+                $query = $query->where('requirements.user_id', 0);
+            }
+        } elseif ($user['role'] == 'recruiter' && isLeadUser()){
+            if (getTeamMembers()){
+                if($request->team_users){
+                    $query = $query->where(function ($query) use ($request) {
+                        foreach ($request->team_users as $recruiterId) {
+                            $query->orWhereRaw("FIND_IN_SET($recruiterId, recruiter)");
+                        }
+                    });
+                } else {
+                    $query = $query->where(function ($query) {
+                        foreach (getTeamMembers() as $recruiterId) {
+                            $query->orWhereRaw("FIND_IN_SET($recruiterId, recruiter)");
+                        }
+                    });
+                }
+            } else {
+                $query = $query->whereRaw("find_in_set(0, recruiter)");
+            }
         }
 
         // As Per Client Requirement Not Show Expired Req on all page for bdm and req but they can search it.
-        if(in_array(Auth::user()->role, ['bdm', 'recruiter']) && $page == 'all' && empty($request->fromDate) && empty($request->toDate)){
+        if(in_array(Auth::user()->role, ['bdm', 'recruiter']) && $page == 'all' && $request->user_type != 'lead_user' && empty($request->fromDate) && empty($request->toDate)){
             if(!in_array($request->status, ['exp_hold','exp_need'])){
                 $query->whereNotIn('requirements.status',$expStatus);
             }
@@ -1182,7 +1240,7 @@ class Controller extends BaseController
 
             $isSamePvCandidate = $this->isSamePvCandidate($submission->email, $submission->requirement_id, $submission->id);
             $otherCandidate = 'other-candidate';
-            if($loggedInUserId == $userId || $userRole == 'admin'){
+            if($loggedInUserId == $userId || $userRole == 'admin' || isLeadUser()){
                 $otherCandidate = '';
                 if($submission->is_show == 0){
                     $textColor = 'text-primary';

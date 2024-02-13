@@ -28,6 +28,9 @@
                                             </div>
                                         </div>
                                     @endforeach
+                                    <div class="col-md-12 text-right">
+                                        <span><i class="fas fa-trash-alt" onclick="removeTeam('{{$team->id}}')" data-toggle="tooltip" title="Remove Team" data-trigger="hover"></i></span>
+                                    </div>
                                 @endif
                             </div>
                         </div>
@@ -73,6 +76,9 @@
                                             </div>
                                         </div>
                                     @endforeach
+                                    <div class="col-md-12 text-right">
+                                        <span><i class="fas fa-trash-alt" onclick="removeTeam('{{$team->id}}')" data-toggle="tooltip" title="Remove Team" data-trigger="hover"></i></span>
+                                    </div>
                                 @endif
                             </div>
                         </div>

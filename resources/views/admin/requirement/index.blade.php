@@ -174,7 +174,7 @@
                     processing: 'Loading...'
                 },
                 ajax: {
-                    url: "{{ $type == 1 ? route('requirement.index') : route('my_requirement') }}",
+                    url: "{{ $type == 1 ? route('requirement.index') : ($type == 3 ? route('requirement.teamLeadRequirement') : route('my_requirement')) }}",
                     data: function (d) {
                         var formDataArray = $('#filterForm').find(':input:not(select[multiple])').serializeArray();
 

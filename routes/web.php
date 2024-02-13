@@ -98,6 +98,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
 
 
     /* REQUIREMENTS MANAGEMENT */
+    Route::get('requirement/teamLeadRequirement', [RequirementController::class, 'teamLeadRequirement'])->name('requirement.teamLeadRequirement');
     Route::post('requirement/changeStatus/{id}', [RequirementController::class,'changeStatus'])->name('requirement.changeStatus');
     Route::post('requirement/assign', [RequirementController::class,'assign'])->name('requirement.assign');
     Route::post('requirement/unassign', [RequirementController::class,'unassign'])->name('requirement.unassign');
@@ -131,6 +132,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('submission/saveEmpLinkingData',  [SubmissionController::class,'saveEmpLinkingData'])->name('submission.saveEmpLinkingData');
     Route::post('submission/check_emp', [SubmissionController::class, 'checkEmp'])->name('submission.checkEmp');
     Route::get('submission/waiting/{id}', [SubmissionController::class,'submissionWaiting'])->name('submission.waiting');
+    Route::get('team_submission', [SubmissionController::class,'teamSubmissions'])->name('submission.teamSubmissions');
 
     /* BDM SUBMISSION MANAGEMENT */
     Route::resource('bdm_submission', BDMSubmissionController::class);
@@ -138,6 +140,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('pv_reject_reason_update', [BDMSubmissionController::class,'pvRejectReasonUpdate'])->name('pv_reject_reason_update.update');
     Route::post('get_update_submission_data', [BDMSubmissionController::class,'getUpdateSubmissionData'])->name('get_update_submission_data');
     Route::post('update_submission_data', [BDMSubmissionController::class,'updateSubmissionData'])->name('update_submission_data');
+    Route::get('teamLeadSubmissions', [BDMSubmissionController::class,'teamLeadSubmissions'])->name('bdm_submission.teamLeadSubmissions');
 
     /* INTERVIEW MANAGEMENT */
     Route::resource('interview', InterviewController::class);
@@ -145,6 +148,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('interview/getCandidatesName/', [InterviewController::class,'getCandidatesName'])->name('interview.getCandidatesName');
     Route::post('interciew/getCandidateData', [InterviewController::class,'getCandidateData'])->name('interview.getCandidateData');
     Route::post('interview/removeDocument/{id}', [InterviewController::class,'removeDocument'])->name('interview.removeDocument');
+    Route::get('teamLeadInterviews', [InterviewController::class,'teamLeadInterviews'])->name('interview.teamLeadInterviews');
 
     /* VISa MANAGEMENT */
     Route::post('visa/assign', [VisaController::class,'assign'])->name('visa.assign');
@@ -183,6 +187,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('update_team_name', [ManageTeamController::class, 'updateTeamName'])->name('update_team_name');
     Route::post('update_team_lead_name', [ManageTeamController::class, 'updateTeamLeadName'])->name('update_team_lead_name');
     Route::post('update_team_lead', [ManageTeamController::class, 'updateTeamLead'])->name('update_team_lead');
+    Route::post('remove_team', [ManageTeamController::class, 'removeTeam'])->name('remove_team');
 
     Auth::routes();
 });

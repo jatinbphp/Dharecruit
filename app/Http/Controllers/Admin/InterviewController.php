@@ -22,243 +22,305 @@ class InterviewController extends Controller
     public function index(Request $request)
     {
         $data['menu'] = "Manage Interview";
-
+        $data['type'] = 1;
+        $request['user_type'] = 'bdm_user';
         if ($request->ajax()) {
-            $loggedinUser = Auth::user()->id;
-            $interviews = Interview::join('submissions', 'submissions.id', '=', 'interviews.submission_id')
-                ->join('requirements', 'requirements.id', '=', 'submissions.requirement_id')
-                ->join('admins', 'admins.id', '=', 'requirements.user_id')
-                ->join('admins as recruiter', 'recruiter.id', '=', 'submissions.user_id')
-                ->select(
-                    'interviews.*',
-                    'admins.name as bdm_name',
-                    'recruiter.name as recruiter_name',
-                );
-            $submissionIds = [];
-
-            if(!empty($request->fromDate)){
-                $fromDate = date('Y-m-d', strtotime($request->fromDate));
-                $interviews->where('interviews.created_at', '>=' ,$fromDate." 00:00:00");
-            }
-
-            if(!empty($request->toDate)){
-                $toDate = date('Y-m-d', strtotime($request->toDate));
-                $interviews->where('interviews.created_at', '<=' ,$toDate." 23:59:59");
-            }
-
-            if(!empty($request->client_feedback)){
-                $interviews->whereIn('interviews.status', $request->client_feedback);
-            }
-
-            if(!empty($request->filter_employer_name)){
-                $employerSubIds = $this->getSubmissionIdBasedOnData('employer_name', $request->filter_employer_name, 'like','submission');
-                $submissionIds[] = $employerSubIds;
-            }
-
-            if(!empty($request->filter_employee_name)){
-                $employeeSubIds = $this->getSubmissionIdBasedOnData('employee_name', $request->filter_employee_name, 'like', 'submission');
-                $submissionIds[] = $employeeSubIds;
-            }
-
-            if(!empty($request->filter_employee_phone_number)){
-                $employeePhoneSubIds = $this->getSubmissionIdBasedOnData('employee_phone', $request->filter_employee_phone_number, 'equal','submission');
-                $submissionIds[] = $employeePhoneSubIds;
-            }
-
-            if(!empty($request->filter_employee_email)){
-                $employeeEmailSubIds = $this->getSubmissionIdBasedOnData('employee_email', $request->filter_employee_email, 'equal', 'submission');
-                $submissionIds[] = $employeeEmailSubIds;
-            }
-
-            if(!empty($request->candidate_name)){
-                $candidateNameSubIds = $this->getSubmissionIdBasedOnData('name', $request->candidate_name, 'like', 'submission');
-                $submissionIds[] = $candidateNameSubIds;
-            }
-
-            if(!empty($request->candidate_id)){
-                $candidateIdSubIds = $this->getSubmissionIdBasedOnData('candidate_id', $request->candidate_id, 'equal', 'submission');
-                $submissionIds[] = $candidateIdSubIds;
-            }
-
-            if(!empty($request->job_title)){
-                $jobTitleSubIds = $this->getSubmissionIdBasedOnData('job_title', $request->job_title, 'like');
-                $submissionIds[] = $jobTitleSubIds;
-            }
-
-            if(!empty($request->bdm)){
-                $bdmSubIds = $this->getSubmissionIdBasedOnData('user_id', $request->bdm, 'equal');
-                $submissionIds[] = $bdmSubIds;
-            }
-
-            if(!empty($request->recruiter)){
-                $bdmSubIds = $this->getSubmissionIdBasedOnData('user_id', $request->recruiter, 'equal', 'submission');
-                $submissionIds[] = $bdmSubIds;
-            }
-
-            if(!empty($request->job_id)){
-                $jobIdSubIds = $this->getSubmissionIdBasedOnData('job_id', $request->job_id, 'equal');
-                $submissionIds[] = $jobIdSubIds;
-            }
-
-            if(!empty($request->client)){
-                $interviews->where('interviews.client', 'like', '%'.$request->client.'%');
-            }
-
-            if(!empty($request->job_location)){
-                $jobLocationSubIds = $this->getSubmissionIdBasedOnData('location', $request->job_location, 'like');
-                $submissionIds[] = $jobLocationSubIds;
-            }
-
-            if(!empty($request->pv_email)){
-                $pvEmailReqIds = $this->getSubmissionIdBasedOnData('poc_email', $request->pv_email, 'equal');
-                $submissionIds[] = $pvEmailReqIds;
-            }
-
-            if(!empty($request->pv_company)){
-                $pvCompanyReqIds = $this->getSubmissionIdBasedOnData('pv_company_name', $request->pv_company, 'like');
-                $submissionIds[] = $pvCompanyReqIds;
-            }
-
-            if(!empty($request->pv_name)){
-                $pvNameReqIds = $this->getSubmissionIdBasedOnData('poc_name', $request->pv_name, 'like');
-                $submissionIds[] = $pvNameReqIds;
-            }
-
-            if(!empty($request->pv_phone)){
-                $pvPhoneReqIds = $this->getSubmissionIdBasedOnData('poc_phone_number', $request->pv_phone, 'equal');
-                $submissionIds[] = $pvPhoneReqIds;
-            }
-
-            if($submissionIds && count($submissionIds)){
-                $commonSubmissiontIds = call_user_func_array('array_intersect', $submissionIds);
-
-                if($commonSubmissiontIds && count($commonSubmissiontIds)){
-                    $interviews->whereIn('interviews.submission_id', $commonSubmissiontIds);
-                } else {
-                    $interviews->whereIn('interviews.submission_id', []);
-                }
-            }
-
-            if(Auth::user()->role == 'recruiter'){
-                $interviews->where('submissions.user_id', $loggedinUser);
-            }elseif(Auth::user()->role == 'bdm'){
-                $interviews->where('requirements.user_id', $loggedinUser);
-            }
-
-            return Datatables::of($interviews)
-                ->addIndexColumn()
-                ->editColumn('status', function($row){
-                    $status = '<select name="interviewStatus" class="form-control select2 interviewStatus" data-id="'.$row->id.'">';
-                    $interviewStatus = Interview::$interviewStatusOptions;
-                    foreach ($interviewStatus as $key => $val){
-                        $selected = $row->status == $key ? 'selected' : '';
-                        $status .= '<option value="'.$key.'" '.$selected.'>'.$val.'</option>';
-                    }
-                    $status .= '</select>';
-                    $status .= getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_INTERVIEW_STATUS,$row->submission_id);
-                    $status .= "<span class='feedback' style='display:none'>".$this->getTooltipHtml($row->feedback)."</span>";
-                    return $status;
-                })
-                ->addColumn('action', function($row){
-                    return '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/interview/'.$row->id.'/edit').'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Edit Interview" data-trigger="hover" type="submit" ><i class="fa fa-edit"></i></button></a></div>';
-                })
-                ->editColumn('candidate_phone_number', function($row){
-                    return '<i class="fa fa-eye candidate_phone-icon candidate-phone-icon-'.$row->id.'" onclick="showData('.$row->id.',\'candidate-phone-\')" aria-hidden="true"></i><span class="candidate_phone candidate-phone-'.$row->id.'" style="display:none">'.$row->candidate_phone_number.'</span>';
-                })
-                ->editColumn('candidate_email', function($row){
-                    return '<i class="fa fa-eye candidate_email-icon candidate-email-icon-'.$row->id.'" onclick="showData('.$row->id.',\'candidate-email-\')" aria-hidden="true"></i><span class="candidate_email candidate-email-'.$row->id.'" style="display:none">'.$row->candidate_email.'</span>';
-                })
-                ->addColumn('candidate_name', function($row){
-                    return $this->getCandidateStatusWiseHtml($row);
-                })
-                ->addColumn('created_at', function($row){
-                    return date('m/d/Y', strtotime($row->created_at));
-                })
-                ->addColumn('client_location', function($row){
-                    return $row->Submission->Requirement->location;
-                })
-                ->addColumn('candidate_location', function($row){
-                    return $row->Submission->location;
-                })
-                ->addColumn('recruiter', function($row){
-                    return $row->Submission->Recruiters->name;
-                })
-                ->addColumn('bdm', function($row){
-                    return $row->Submission->Requirement->BDM->name;
-                })
-                ->addColumn('br', function($row){
-                    return $row->Submission->Requirement->my_rate;
-                })
-                ->addColumn('rr', function($row){
-                    return $row->Submission->recruiter_rate;
-                })
-                ->editColumn('employer_name', function($row){
-                    if(Auth::user()->role != 'admin'){
-                        return '<i class="fa fa-eye show_employer_name-icon employer-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'employer-name-\')" aria-hidden="true"></i><span class="show_employer_name employer-name-'.$row->id.'" style="display:none">'.$row->Submission->employer_name.'</span>';
-                    }
-                    $employerNameCount = $this->getAllEmpDataCount('employer_name', $row->Submission->employer_name);
-                    return '<i class="fa fa-eye show_employer_name-icon employer-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'employer-name-\')" aria-hidden="true"></i><div class="container"><span class="show_employer_name employer-name-'.$row->id.'" style="display:none">'.$row->Submission->employer_name.(($employerNameCount) ? "<span class='badge bg-indigo position-absolute top-0 end-0' style='margin-top: -6px'>$employerNameCount</span>" : "").'</span></div>';
-                    // return '<i class="fa fa-eye show_employer_name-icon show-employer-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'show-employer-name-\')" aria-hidden="true"></i><span class="show_employer_name show-employer-name-'.$row->id.'" style="display:none">'.$row->Submission->employer_name.'</span>';
-                })
-                ->editColumn('employee_name', function($row){
-                    $empPocNameArray = explode(' ', $row->Submission->employee_name);
-                    $empPocFirstName = isset($empPocNameArray[0]) ? $empPocNameArray[0] : '';
-
-                    if(Auth::user()->role != 'admin'){
-                        return '<i class="fa fa-eye emp_poc-icon emp_poc-icon-'.$row->id.'" onclick="showData('.$row->id.',\'emp_poc-\')" aria-hidden="true"></i><span class="emp_poc emp_poc-'.$row->id.'" style="display:none">'.$empPocFirstName.'</span>';
-
-                    }
-                    $empPocCount = $this->getAllEmpDataCount('employee_name', $row->Submission->employee_name);
-                    return '<i class="fa fa-eye emp_poc-icon emp_poc-icon-'.$row->id.'" onclick="showData('.$row->id.',\'emp_poc-\')" aria-hidden="true"></i><div><span class="emp_poc emp_poc-'.$row->id.'" style="display:none">'.$empPocFirstName.(($empPocCount) ? "<span class='badge bg-indigo position-absolute top-0 end-0' style='margin-top: -6px'>$empPocCount</span>" : "").'</span></div>';
-                    // return '<i class="fa fa-eye emp_poc-icon emp-poc-icon-'.$row->id.'" onclick="showData('.$row->id.',\'emp-poc-\')" aria-hidden="true"></i><span class="emp_poc emp-poc-'.$row->id.'" style="display:none">'.$empPocFirstName.'</span>';
-                })
-                ->addColumn('poc_name', function($row){
-                    $pocNameArray = explode(' ', $row->Submission->Requirement->poc_name);
-                    $pocFirstName = isset($pocNameArray[0]) ? $pocNameArray[0] : '';
-
-                    if(Auth::user()->role != 'admin'){
-                        return $pocFirstName;
-                    }
-                    $isNewPoc           = $this->isNewAsPerConfiguration('poc_name', $row->Submission->Requirement->poc_name);
-                    $totalOrigReqInDays = $this->getTotalOrigReqBasedOnPocData($row->Submission->Requirement->poc_name, $row->Submission->Requirement->poc_email);
-
-                    return '<div class="container"><p class="'.(($isNewPoc) ? "text-primary" : "").'">'.$row->Submission->Requirement->poc_name. (($totalOrigReqInDays) ? "<span class='badge bg-indigo position-absolute top-0 end-0' style='margin-top: -6px'>$totalOrigReqInDays</span>" : "").'</p></div>';
-
-                    // return '<i class="fa fa-eye poc_name-icon poc-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'poc-name-\')" aria-hidden="true"></i><span class="poc_name poc-name-'.$row->id.'" style="display:none">'.$pocFirstName.'</span>';
-                })
-                ->addColumn('pv_name', function($row){
-                    if(Auth::user()->role != 'admin'){
-                        return $row->Submission->Requirement->pv_company_name;
-                    }
-                    $totalPvCount  = $this->getAllPvCompanyCount($row->Submission->Requirement->pv_company_name);
-                    $isNewPoc      = $this->isNewAsPerConfiguration('pv_company_name', $row->Submission->Requirement->pv_company_name);
-
-                    $pocHtml = '<span class="font-weight-bold '.(($isNewPoc) ? "text-primary" : "").'">'.$row->Submission->Requirement->pv_company_name;
-                    $pocHtml .= '<br><br><span class="border pt-1 pl-1 pr-1 pb-1 '.(($isNewPoc) ? "border-primary" : "border-secondary").'">'.$totalPvCount.'</span></span>';
-                    return $pocHtml;
-
-                    //return '<i class="fa fa-eye pv_name-icon pv-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'pv-name-\')" aria-hidden="true"></i><span class="pv_name pv-name-'.$row->id.'" style="display:none">'.$row->Submission->Requirement->pv_company_name.'</span>';
-                })
-                ->editColumn('hiring_manager', function($row){
-                    return '<i class="fa fa-eye hiring_manager-icon hiring-manager-icon-'.$row->id.'" onclick="showData('.$row->id.',\'hiring-manager-\')" aria-hidden="true"></i><span class="hiring_manager hiring-manager-'.$row->id.'" style="display:none">'.$row->hiring_manager.'</span>';
-                })
-                ->editColumn('client', function($row){
-                    return '<i class="fa fa-eye client_data-icon client_data-icon-'.$row->id.'" onclick="showData('.$row->id.',\'client_data-\')" aria-hidden="true"></i><span class="client_data client_data-'.$row->id.'" style="display:none">'.$row->client.'</span>';
-                })
-                ->addColumn('interview_time', function($row){
-                    return '<br><span style="font-weight:bold">'.date('m/d l', strtotime($row->interview_date)).'</span><br>
-                    <span>'.date('H:i:s', strtotime($row->interview_time)) .' '. $row->time_zone.'</span>';
-                })
-                ->addColumn('job_id', function($row){
-                    return '<span class=" job-title" data-id="'.$row->Submission->requirement_id.'">'.$row->job_id.'</span>';;
-                })
-                ->rawColumns(['status','candidate_name','action','candidate_phone_number','emp_poc','candidate_email','employer_name','employee_name','poc_name','pv_name','hiring_manager','client','interview_time','job_id'])
-                ->make(true);
+            $interviews = $this->getInterviewFilterData($request);
+            return $this->getInterviewHtml($interviews, $request);
         }
 
         $data['filterFile'] = 'common_filter';
 
         return view('admin.interview.index', $data);
+    }
+
+    public function teamLeadInterviews(Request $request)
+    {
+        if(!isLeadUser()){
+            return redirect('/');
+        }
+
+        $data['menu'] = "Team Interviews";
+        $data['type'] = 3;
+        $request['user_type'] = 'lead_user';
+        if ($request->ajax()) {
+            $interviews = $this->getInterviewFilterData($request);
+            return $this->getInterviewHtml($interviews, $request);
+        }
+
+        $data['filterFile'] = 'common_filter';
+
+        return view('admin.interview.index', $data);
+    }
+
+    public function getInterviewFilterData($request)
+    {
+        $loggedinUser = Auth::user()->id;
+        $interviews = Interview::join('submissions', 'submissions.id', '=', 'interviews.submission_id')
+            ->join('requirements', 'requirements.id', '=', 'submissions.requirement_id')
+            ->join('admins', 'admins.id', '=', 'requirements.user_id')
+            ->join('admins as recruiter', 'recruiter.id', '=', 'submissions.user_id')
+            ->select(
+                'interviews.*',
+                'admins.name as bdm_name',
+                'recruiter.name as recruiter_name',
+            );
+        $submissionIds = [];
+
+        if(!empty($request->fromDate)){
+            $fromDate = date('Y-m-d', strtotime($request->fromDate));
+            $interviews->where('interviews.created_at', '>=' ,$fromDate." 00:00:00");
+        }
+
+        if(!empty($request->toDate)){
+            $toDate = date('Y-m-d', strtotime($request->toDate));
+            $interviews->where('interviews.created_at', '<=' ,$toDate." 23:59:59");
+        }
+
+        if(!empty($request->client_feedback)){
+            $interviews->whereIn('interviews.status', $request->client_feedback);
+        }
+
+        if(!empty($request->filter_employer_name)){
+            $employerSubIds = $this->getSubmissionIdBasedOnData('employer_name', $request->filter_employer_name, 'like','submission');
+            $submissionIds[] = $employerSubIds;
+        }
+
+        if(!empty($request->filter_employee_name)){
+            $employeeSubIds = $this->getSubmissionIdBasedOnData('employee_name', $request->filter_employee_name, 'like', 'submission');
+            $submissionIds[] = $employeeSubIds;
+        }
+
+        if(!empty($request->filter_employee_phone_number)){
+            $employeePhoneSubIds = $this->getSubmissionIdBasedOnData('employee_phone', $request->filter_employee_phone_number, 'equal','submission');
+            $submissionIds[] = $employeePhoneSubIds;
+        }
+
+        if(!empty($request->filter_employee_email)){
+            $employeeEmailSubIds = $this->getSubmissionIdBasedOnData('employee_email', $request->filter_employee_email, 'equal', 'submission');
+            $submissionIds[] = $employeeEmailSubIds;
+        }
+
+        if(!empty($request->candidate_name)){
+            $candidateNameSubIds = $this->getSubmissionIdBasedOnData('name', $request->candidate_name, 'like', 'submission');
+            $submissionIds[] = $candidateNameSubIds;
+        }
+
+        if(!empty($request->candidate_id)){
+            $candidateIdSubIds = $this->getSubmissionIdBasedOnData('candidate_id', $request->candidate_id, 'equal', 'submission');
+            $submissionIds[] = $candidateIdSubIds;
+        }
+
+        if(!empty($request->job_title)){
+            $jobTitleSubIds = $this->getSubmissionIdBasedOnData('job_title', $request->job_title, 'like');
+            $submissionIds[] = $jobTitleSubIds;
+        }
+
+        if(!empty($request->bdm)){
+            $bdmSubIds = $this->getSubmissionIdBasedOnData('user_id', $request->bdm, 'equal');
+            $submissionIds[] = $bdmSubIds;
+        }
+
+        if(!empty($request->recruiter)){
+            $bdmSubIds = $this->getSubmissionIdBasedOnData('user_id', $request->recruiter, 'equal', 'submission');
+            $submissionIds[] = $bdmSubIds;
+        }
+
+        if(!empty($request->job_id)){
+            $jobIdSubIds = $this->getSubmissionIdBasedOnData('job_id', $request->job_id, 'equal');
+            $submissionIds[] = $jobIdSubIds;
+        }
+
+        if(!empty($request->client)){
+            $interviews->where('interviews.client', 'like', '%'.$request->client.'%');
+        }
+
+        if(!empty($request->job_location)){
+            $jobLocationSubIds = $this->getSubmissionIdBasedOnData('location', $request->job_location, 'like');
+            $submissionIds[] = $jobLocationSubIds;
+        }
+
+        if(!empty($request->pv_email)){
+            $pvEmailReqIds = $this->getSubmissionIdBasedOnData('poc_email', $request->pv_email, 'equal');
+            $submissionIds[] = $pvEmailReqIds;
+        }
+
+        if(!empty($request->pv_company)){
+            $pvCompanyReqIds = $this->getSubmissionIdBasedOnData('pv_company_name', $request->pv_company, 'like');
+            $submissionIds[] = $pvCompanyReqIds;
+        }
+
+        if(!empty($request->pv_name)){
+            $pvNameReqIds = $this->getSubmissionIdBasedOnData('poc_name', $request->pv_name, 'like');
+            $submissionIds[] = $pvNameReqIds;
+        }
+
+        if(!empty($request->pv_phone)){
+            $pvPhoneReqIds = $this->getSubmissionIdBasedOnData('poc_phone_number', $request->pv_phone, 'equal');
+            $submissionIds[] = $pvPhoneReqIds;
+        }
+
+        if($submissionIds && count($submissionIds)){
+            $commonSubmissiontIds = call_user_func_array('array_intersect', $submissionIds);
+
+            if($commonSubmissiontIds && count($commonSubmissiontIds)){
+                $interviews->whereIn('interviews.submission_id', $commonSubmissiontIds);
+            } else {
+                $interviews->whereIn('interviews.submission_id', []);
+            }
+        }
+
+        if(Auth::user()->role == 'recruiter'){
+            if($request->user_type == 'lead_user' && isLeadUser()){
+                if(getTeamMembers()){
+                    if($request->team_users){
+                        $interviews->whereIn('submissions.user_id', $request->team_users);
+                    } else {
+                        $interviews->whereIn('submissions.user_id', getTeamMembers());
+                    }
+                } else {
+                    $interviews->where('submissions.user_id', 0);
+                }
+            }else {
+                $interviews->where('submissions.user_id', $loggedinUser);
+            }
+        }elseif(Auth::user()->role == 'bdm'){
+            if($request->user_type == 'lead_user' && isLeadUser()){
+                if(getTeamMembers()){
+                    if($request->team_users){
+                        $interviews->whereIn('requirements.user_id', $request->team_users);
+                    } else {
+                        $interviews->whereIn('requirements.user_id', getTeamMembers());
+                    }
+                } else {
+                    $interviews->where('requirements.user_id', 0);
+                }
+            }else{
+                $interviews->where('requirements.user_id', $loggedinUser);
+            }
+        }
+
+        return $interviews;
+    }
+
+    public function getInterviewHtml($interviews, $request)
+    {
+        return Datatables::of($interviews)
+            ->addIndexColumn()
+            ->editColumn('status', function($row) use(&$request){
+                $interviewStatus = Interview::$interviewStatusOptions;
+                if($request->user_type == 'lead_user' && isLeadUser()){
+                    return isset($interviewStatus[$row->status]) ? $interviewStatus[$row->status] : '';
+                }
+                $status = '<select name="interviewStatus" class="form-control select2 interviewStatus" data-id="'.$row->id.'">';
+                $interviewStatus = Interview::$interviewStatusOptions;
+                foreach ($interviewStatus as $key => $val){
+                    $selected = $row->status == $key ? 'selected' : '';
+                    $status .= '<option value="'.$key.'" '.$selected.'>'.$val.'</option>';
+                }
+                $status .= '</select>';
+                $status .= getEntityLastUpdatedAtHtml(EntityHistory::ENTITY_TYPE_INTERVIEW_STATUS,$row->submission_id);
+                $status .= "<span class='feedback' style='display:none'>".$this->getTooltipHtml($row->feedback)."</span>";
+                return $status;
+            })
+            ->addColumn('action', function($row) use($request){
+                if($request->user_type == 'lead_user' && isLeadUser()){
+                    return '';
+                }
+                return '<div class="btn-group btn-group-sm mr-2"><a href="'.url('admin/interview/'.$row->id.'/edit').'"><button class="btn btn-sm btn-default tip" data-toggle="tooltip" title="Edit Interview" data-trigger="hover" type="submit" ><i class="fa fa-edit"></i></button></a></div>';
+            })
+            ->editColumn('candidate_phone_number', function($row){
+                return '<i class="fa fa-eye candidate_phone-icon candidate-phone-icon-'.$row->id.'" onclick="showData('.$row->id.',\'candidate-phone-\')" aria-hidden="true"></i><span class="candidate_phone candidate-phone-'.$row->id.'" style="display:none">'.$row->candidate_phone_number.'</span>';
+            })
+            ->editColumn('candidate_email', function($row){
+                return '<i class="fa fa-eye candidate_email-icon candidate-email-icon-'.$row->id.'" onclick="showData('.$row->id.',\'candidate-email-\')" aria-hidden="true"></i><span class="candidate_email candidate-email-'.$row->id.'" style="display:none">'.$row->candidate_email.'</span>';
+            })
+            ->addColumn('candidate_name', function($row){
+                return $this->getCandidateStatusWiseHtml($row);
+            })
+            ->addColumn('created_at', function($row){
+                return date('m/d/Y', strtotime($row->created_at));
+            })
+            ->addColumn('client_location', function($row){
+                return $row->Submission->Requirement->location;
+            })
+            ->addColumn('candidate_location', function($row){
+                return $row->Submission->location;
+            })
+            ->addColumn('recruiter', function($row){
+                return $row->Submission->Recruiters->name;
+            })
+            ->addColumn('bdm', function($row){
+                return $row->Submission->Requirement->BDM->name;
+            })
+            ->addColumn('br', function($row){
+                return $row->Submission->Requirement->my_rate;
+            })
+            ->addColumn('rr', function($row){
+                return $row->Submission->recruiter_rate;
+            })
+            ->editColumn('employer_name', function($row){
+                if(Auth::user()->role != 'admin'){
+                    return '<i class="fa fa-eye show_employer_name-icon employer-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'employer-name-\')" aria-hidden="true"></i><span class="show_employer_name employer-name-'.$row->id.'" style="display:none">'.$row->Submission->employer_name.'</span>';
+                }
+                $employerNameCount = $this->getAllEmpDataCount('employer_name', $row->Submission->employer_name);
+                return '<i class="fa fa-eye show_employer_name-icon employer-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'employer-name-\')" aria-hidden="true"></i><div class="container"><span class="show_employer_name employer-name-'.$row->id.'" style="display:none">'.$row->Submission->employer_name.(($employerNameCount) ? "<span class='badge bg-indigo position-absolute top-0 end-0' style='margin-top: -6px'>$employerNameCount</span>" : "").'</span></div>';
+                // return '<i class="fa fa-eye show_employer_name-icon show-employer-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'show-employer-name-\')" aria-hidden="true"></i><span class="show_employer_name show-employer-name-'.$row->id.'" style="display:none">'.$row->Submission->employer_name.'</span>';
+            })
+            ->editColumn('employee_name', function($row){
+                $empPocNameArray = explode(' ', $row->Submission->employee_name);
+                $empPocFirstName = isset($empPocNameArray[0]) ? $empPocNameArray[0] : '';
+
+                if(Auth::user()->role != 'admin'){
+                    return '<i class="fa fa-eye emp_poc-icon emp_poc-icon-'.$row->id.'" onclick="showData('.$row->id.',\'emp_poc-\')" aria-hidden="true"></i><span class="emp_poc emp_poc-'.$row->id.'" style="display:none">'.$empPocFirstName.'</span>';
+
+                }
+                $empPocCount = $this->getAllEmpDataCount('employee_name', $row->Submission->employee_name);
+                return '<i class="fa fa-eye emp_poc-icon emp_poc-icon-'.$row->id.'" onclick="showData('.$row->id.',\'emp_poc-\')" aria-hidden="true"></i><div><span class="emp_poc emp_poc-'.$row->id.'" style="display:none">'.$empPocFirstName.(($empPocCount) ? "<span class='badge bg-indigo position-absolute top-0 end-0' style='margin-top: -6px'>$empPocCount</span>" : "").'</span></div>';
+                // return '<i class="fa fa-eye emp_poc-icon emp-poc-icon-'.$row->id.'" onclick="showData('.$row->id.',\'emp-poc-\')" aria-hidden="true"></i><span class="emp_poc emp-poc-'.$row->id.'" style="display:none">'.$empPocFirstName.'</span>';
+            })
+            ->addColumn('poc_name', function($row){
+                $pocNameArray = explode(' ', $row->Submission->Requirement->poc_name);
+                $pocFirstName = isset($pocNameArray[0]) ? $pocNameArray[0] : '';
+
+                if(Auth::user()->role != 'admin'){
+                    return $pocFirstName;
+                }
+                $isNewPoc           = $this->isNewAsPerConfiguration('poc_name', $row->Submission->Requirement->poc_name);
+                $totalOrigReqInDays = $this->getTotalOrigReqBasedOnPocData($row->Submission->Requirement->poc_name, $row->Submission->Requirement->poc_email);
+
+                return '<div class="container"><p class="'.(($isNewPoc) ? "text-primary" : "").'">'.$row->Submission->Requirement->poc_name. (($totalOrigReqInDays) ? "<span class='badge bg-indigo position-absolute top-0 end-0' style='margin-top: -6px'>$totalOrigReqInDays</span>" : "").'</p></div>';
+
+                // return '<i class="fa fa-eye poc_name-icon poc-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'poc-name-\')" aria-hidden="true"></i><span class="poc_name poc-name-'.$row->id.'" style="display:none">'.$pocFirstName.'</span>';
+            })
+            ->addColumn('pv_name', function($row){
+                if(Auth::user()->role != 'admin'){
+                    return $row->Submission->Requirement->pv_company_name;
+                }
+                $totalPvCount  = $this->getAllPvCompanyCount($row->Submission->Requirement->pv_company_name);
+                $isNewPoc      = $this->isNewAsPerConfiguration('pv_company_name', $row->Submission->Requirement->pv_company_name);
+
+                $pocHtml = '<span class="font-weight-bold '.(($isNewPoc) ? "text-primary" : "").'">'.$row->Submission->Requirement->pv_company_name;
+                $pocHtml .= '<br><br><span class="border pt-1 pl-1 pr-1 pb-1 '.(($isNewPoc) ? "border-primary" : "border-secondary").'">'.$totalPvCount.'</span></span>';
+                return $pocHtml;
+
+                //return '<i class="fa fa-eye pv_name-icon pv-name-icon-'.$row->id.'" onclick="showData('.$row->id.',\'pv-name-\')" aria-hidden="true"></i><span class="pv_name pv-name-'.$row->id.'" style="display:none">'.$row->Submission->Requirement->pv_company_name.'</span>';
+            })
+            ->editColumn('hiring_manager', function($row){
+                return '<i class="fa fa-eye hiring_manager-icon hiring-manager-icon-'.$row->id.'" onclick="showData('.$row->id.',\'hiring-manager-\')" aria-hidden="true"></i><span class="hiring_manager hiring-manager-'.$row->id.'" style="display:none">'.$row->hiring_manager.'</span>';
+            })
+            ->editColumn('client', function($row){
+                return '<i class="fa fa-eye client_data-icon client_data-icon-'.$row->id.'" onclick="showData('.$row->id.',\'client_data-\')" aria-hidden="true"></i><span class="client_data client_data-'.$row->id.'" style="display:none">'.$row->client.'</span>';
+            })
+            ->addColumn('interview_time', function($row){
+                return '<br><span style="font-weight:bold">'.date('m/d l', strtotime($row->interview_date)).'</span><br>
+                    <span>'.date('H:i:s', strtotime($row->interview_time)) .' '. $row->time_zone.'</span>';
+            })
+            ->addColumn('job_id', function($row){
+                return '<span class=" job-title" data-id="'.$row->Submission->requirement_id.'">'.$row->job_id.'</span>';;
+            })
+            ->rawColumns(['status','candidate_name','action','candidate_phone_number','emp_poc','candidate_email','employer_name','employee_name','poc_name','pv_name','hiring_manager','client','interview_time','job_id'])
+            ->make(true);
     }
 
     public function getSubmissionIdBasedOnData($column, $data, $operator = '', $tableName = 'requirement')
@@ -557,12 +619,17 @@ class InterviewController extends Controller
         $timeSpan = $this->getSubmissionTimeSpan($interview->Submission->Requirement->created_at, $interview->Submission->created_at);
         $isSamePvCandidate = $this->isSamePvCandidate($interview->Submission->email, $interview->Submission->requirement_id, $interview->Submission->id);
 
+        $candidate = '';
+        if(getLoggedInUserRole() == 'admin' || ($interview->Submission->user_id == getLoggedInUserId()) || ($interview->Submission->Requirement->user_id == getLoggedInUserId())){
+            $candidate = 'candidate';
+        }
+
         return ($candidateCount ? "<span class='badge bg-indigo position-absolute top-0 start-100 translate-middle'>$candidateCount</span>" : "")
                 .(($isCandidateHasLog) ? "<span class='badge badge-pill badge-primary ml-4 position-absolute top-0 start-100 translate-middle'>L</span>" : "")
                 .(($isEmployerNameChanged) ? "<span class='badge bg-red ml-5'>2 Emp</span>" : "")
                 .'<div class="candidate-'. $interview->id .'">
                     <div class="'.$divClass.'  pt-2 pl-2 pb-2 pr-2" style="'.$divCss.'">
-                        <span class="candidate '.$textColor.'" data-cid='.$interview->submission_id.'>'.($isSamePvCandidate ? "<i class='fa fa-info'></i>  ": "").$candidateName.'-'.$interview->Submission->candidate_id.'</span>
+                        <span class="'.$candidate.'  '.$textColor.'" data-cid='.$interview->submission_id.'>'.($isSamePvCandidate ? "<i class='fa fa-info'></i>  ": "").$candidateName.'-'.$interview->Submission->candidate_id.'</span>
                     </div>
                     <div class="p-1 mt-1 border border-dark" style="width: fit-content;">
                         <span class="text-secondary font-weight-bold">'.$timeSpan.'</span>

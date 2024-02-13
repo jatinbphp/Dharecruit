@@ -111,7 +111,7 @@
             {!! Form::select('category', \App\Models\Category::getActiveCategories(), null, ['class' => 'form-control select2','id'=>'category']) !!}
         </div>
     </div>
-    @if(in_array(Auth::user()->role, ['admin','bdm']))
+    @if(in_array(Auth::user()->role, ['admin','bdm']) && $type != 3)
         <div class="col-md-3">
             <div class="form-group">
                 <label class="control-label" for="pv_email">Pv Email</label>
@@ -192,6 +192,14 @@
             <div class="form-group">
                 <label class="control-label" for="client_feedback">Client Feedback</label>
                 {!! Form::select('client_feedback[]', \App\Models\Interview::$interviewStatusFilterOptions, null, ['class' => 'form-control select2','id'=>'client_feedback', 'multiple' => true, 'data-placeholder' => 'Please Select Client Feedback']) !!}
+            </div>
+        </div>
+    @endif
+    @if($type == 3)
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="control-label" for="client_feedback">Select From Team</label>
+                {!! Form::select('team_users[]', \App\Models\TeamMember::getTeamUsers(), null, ['class' => 'form-control select2','id'=>'team_users', 'multiple' => true, 'data-placeholder' => 'Please Select From Team']) !!}
             </div>
         </div>
     @endif

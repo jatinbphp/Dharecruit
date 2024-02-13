@@ -56,6 +56,23 @@ class RequirementController extends Controller
         return view('admin.requirement.index', $data);
     }
 
+    public function teamLeadRequirement(Request $request)
+    {
+        if(!isLeadUser()){
+            return redirect('/');
+        }
+        $data['menu'] = "Team Requirements";
+        $data['search'] = $request['search'];
+        $request->user_type = 'lead_user';
+        if ($request->ajax()) {
+            $query = $this->Filter($request,'all');
+            return $this->getListHtml($query, $request, 'all_requirement');
+        }
+        $data['type'] = 3;
+        $data['filterFile'] = 'requirement_filter';
+        return view('admin.requirement.index', $data);
+    }
+
     public function create()
     {
         $data['menu'] = "Requirements";

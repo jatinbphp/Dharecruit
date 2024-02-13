@@ -123,7 +123,7 @@
             pageLength: 100,
             lengthMenu: [ 100, 200, 300, 400, 500 ],
             ajax: {
-                url: "{{ $type == 1 ? route('submission.index') : route('my_submission') }}",
+                url: "{{ $type == 1 ? route('submission.index') : ($type == 3 ? route('submission.teamSubmissions') : route('my_submission')) }}",
                 data: function (d) {
                     var formDataArray = $('#filterForm').find(':input:not(select[multiple])').serializeArray();
 

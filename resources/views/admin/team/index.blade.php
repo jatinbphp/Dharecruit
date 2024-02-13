@@ -235,5 +235,46 @@
                 }
             });
         }
+        function removeTeam(teamId){
+            if(!teamId){
+                return;
+            }
+            swal({
+                title: "Are you sure?",
+                text: "You want Update This Group.",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#f8bb86',
+                confirmButtonText: 'Yes, Update',
+                cancelButtonText: "No, cancel",
+                closeOnConfirm: false,
+                closeOnCancel: false
+            },
+            function(isConfirm) {
+                if (isConfirm) {
+                    $.ajax({
+                        url: "{{ route('remove_team') }}",
+                        method: 'POST',
+                        data: {
+                            '_token'    : '{{ csrf_token() }}',
+                            'team_id'   : teamId,
+                        },
+                        success: function(response) {
+                            $('#teamMembers').html(response.html);
+                            if(response.status == 1){
+                                swal("Success", "Team Removed Successfully!", "success");
+                            } else {
+                                swal("Error", "Something Went Wrong!", "error");
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error fetching data:', error);
+                        }
+                    });
+                } else {
+                    swal("Cancelled", "Your data safe!", "error");
+                }
+            });
+        }
     </script>
 @endsection

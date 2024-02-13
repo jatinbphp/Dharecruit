@@ -41,7 +41,7 @@
             </div>
         </div>
     @endif
-    @if(in_array(Auth::user()->role, ['admin', 'bdm']))
+    @if(in_array(Auth::user()->role, ['admin', 'bdm']) && $type != 3)
         <div class="col-md-3">
             <div class="form-group">
                 <label class="control-label" for="recruiter">Recruiter</label>
@@ -121,7 +121,7 @@
         </div>
     </div>
     @endif
-    @if(in_array(Auth::user()->role, ['admin', 'recruiter']))
+    @if(in_array(Auth::user()->role, ['admin', 'recruiter']) && $type != 3)
         <div class="col-md-3">
             <div class="form-group">
                 <label class="control-label" for="filter_employer_name">Employer Name</label>
@@ -147,7 +147,7 @@
             </div>
         </div>
     @endif
-    @if(in_array(Auth::user()->role, ['admin', 'bdm']))
+    @if(in_array(Auth::user()->role, ['admin', 'bdm']) && $type != 3)
         <div class="col-md-3">
             <div class="form-group">
                 <label class="control-label" for="pv_email">Pv Email</label>
@@ -181,7 +181,7 @@
             </div>
         </div>
     @endif
-    @if(in_array($menu,['My Requirements', 'Manage Submission']))
+    @if(in_array($menu,['My Requirements', 'Manage Submission', 'Team Submission']))
         <div class="col-md-3">
             <div class="form-group">
                 <label class="control-label" for="bdm_feedback">BDM FeedBack</label>
@@ -189,7 +189,7 @@
             </div>
         </div>
     @endif
-    @if(in_array($menu,['My Requirements', 'Manage Submission']))
+    @if(in_array($menu,['My Requirements', 'Manage Submission', 'Team Submission']))
         <div class="col-md-3">
             <div class="form-group">
                 <label class="control-label" for="pv_feedback">PV Feedback</label>
@@ -203,6 +203,14 @@
             {!! Form::select('client_feedback[]', \App\Models\Interview::$interviewStatusFilterOptions, null, ['class' => 'form-control select2','id'=>'client_feedback', 'multiple' => true, 'data-placeholder' => 'Please Select Client Feedback']) !!}
         </div>
     </div>
+    @if($type == 3)
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="control-label" for="client_feedback">Select From Team</label>
+                {!! Form::select('team_users[]', \App\Models\TeamMember::getTeamUsers(), null, ['class' => 'form-control select2','id'=>'team_users', 'multiple' => true, 'data-placeholder' => 'Please Select From Team']) !!}
+            </div>
+        </div>
+    @endif
 </div>
 <button class="btn btn-info float-right" onclick="showRequirementFilterData()">Search</button>
 <button class="btn btn-default float-right mr-2" onclick="clearRequirementData()">Clear</button>

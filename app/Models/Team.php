@@ -29,6 +29,10 @@ class Team extends Model
             self::TEAM_TYPE_RECRUITER => self::TEAM_TYPE_RECRUITER_TEXT,
         ];
     }
+    public function teamMembers()
+    {
+        return $this->hasMany(TeamMember::class);
+    }
 
     public function TeanLead(){
         return $this->belongsTo('App\Models\Admin','team_lead_id');

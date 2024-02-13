@@ -59,6 +59,9 @@
                                                         continue;
                                                     }
                                                 }
+                                                if($type == 3 && in_array($key, ['show_employer_name', 'emp_poc'])){
+                                                    continue;
+                                                }
                                             @endphp
                                             <div class="col-md-3 mt-2">
                                                 {!! Form::checkbox('', $key, null, ['id' => "$key", 'onChange' => 'toggleOptions("'.$key.'")', 'class' => 'toggle-checkbox toggle-change', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
@@ -73,7 +76,7 @@
                                             {!! Form::checkbox('', 'show-feedback', null, ['id' => "showFeedback", 'class' => 'toggle-checkbox toggle-change', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
                                             <label class="form-check-label pl-2" for="showFeedback">Show FeedBack</label>
                                         </div>
-                                        @if(in_array(Auth::user()->role, ['admin', 'bdm']))
+                                        @if(in_array(Auth::user()->role, ['admin', 'bdm']) && $type != 3)
                                             <div class="col-md-3 mt-2">
                                                 {!! Form::checkbox('', '', null, ['id' => 'toggle-poc', 'class' => 'toggle-checkbox toggle-change', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
                                                 <label class="form-check-label pl-2" for="showLink">Show POC</label>
@@ -109,7 +112,7 @@
                                         @if(in_array($userType,['admin','recruiter']))
                                             <th>BDM</th>
                                         @endif
-                                        @if(in_array($userType,['admin','bdm']))
+                                        @if(in_array($userType,['admin','bdm']) && $type != 3)
                                             <th class='toggle-column'>PV</th>
                                             <th class='toggle-column'>POC</th>
                                             <th>Recruiter</th>
@@ -117,8 +120,10 @@
                                         <th>B Rate</th>
                                         <th>R Rate</th>
                                         <th>Candidate Name</th>
-                                        <th>Emp Name</th>
-                                        @if(in_array($userType,['admin','recruiter']))
+                                        @if($type != 3)
+                                            <th>Emp Name</th>
+                                        @endif
+                                        @if(in_array($userType,['admin','recruiter']) && $type != 3)
                                             <th>EmpPOC</th>
                                         @endif
                                         <th class='bdm_status'>BDM Status</th>
@@ -312,7 +317,7 @@
                 }
             },
             ajax: {
-                url: "{{ route('bdm_submission.index') }}",
+                url: "{{ $type == 1 ? route('bdm_submission.index') : route('bdm_submission.teamLeadSubmissions') }}",
                 data: function (d) {
                     // d.filter_status = selectedFilter;
                     // d._token = '{{ csrf_token() }}';
@@ -376,7 +381,7 @@
                     }
                 },
                 @endif
-                @if(in_array($userType,['admin','bdm']))
+                @if(in_array($userType,['admin','bdm']) && $type != 3)
                     {data: 'pv',  name: 'requirements.pv_company_name'},
                     {data: 'poc',  name: 'requirements.poc_name'},
                     {data: 'recruiter_name', name: 'recruiter.name', render: function(data, type, row){
@@ -393,8 +398,10 @@
                     }
                 },
                 {data: 'candidate_name',  name: 'candidate_name', 'orderable': false, searchable: false},
-                {data: 'employer_name',  name: 'employer_name'},
-                @if(in_array($userType,['admin','recruiter']))
+                @if($type != 3)
+                    {data: 'employer_name',  name: 'employer_name'},
+                @endif
+                @if(in_array($userType,['admin','recruiter']) && $type != 3)
                     {data: 'employee_name',  name: 'employee_name'},
                 @endif
                 {data: 'bdm_status', "width": "9%", name: 'bdm_status_updated_at', searchable: false},
