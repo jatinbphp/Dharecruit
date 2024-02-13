@@ -460,7 +460,6 @@ class Controller extends BaseController
             }
 
             if($userRole == 'recruiter'){
-                \Log::info($request->user_type);
                 if($request->user_type == 'lead_user' && isLeadUser()){
                     if(getTeamMembers()){
                         if($request->team_users){

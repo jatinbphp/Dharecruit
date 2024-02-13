@@ -216,7 +216,7 @@
             @if($loginRole == 'admin' || $check9)
                 <li class="nav-item d-none d-sm-inline-block ml-2">
                     <a href="{{ route('requirement.index') }}">
-                        <button class="btn btn-block btn-outline-primary btn-sm @if($menu=='Requirements') active @endif">All</button>
+                        <button class="btn btn-block btn-outline-primary btn-sm mt-1 @if($menu=='Requirements') active @endif">All</button>
                     </a>
                 </li>
             @endif
@@ -224,7 +224,7 @@
             @if(\Illuminate\Support\Facades\Auth::user()->role == 'bdm')
                 <li class="nav-item d-none d-sm-inline-block ml-2">
                     <a href="{{ route('my_requirement') }}">
-                        <button class="btn btn-block btn-outline-primary btn-sm @if($menu=='My Requirements') active @endif">My Requirements</button>
+                        <button class="btn btn-block btn-outline-primary btn-sm mt-1 @if($menu=='My Requirements') active @endif">My Requirements</button>
                     </a>
                 </li>
             @endif
@@ -232,7 +232,7 @@
             @if($check11)
                 <li class="nav-item d-none d-sm-inline-block ml-2">
                     <a href="{{ route('submission.index') }}">
-                        <button class="btn btn-block btn-outline-primary btn-sm @if($menu=='Requirements') active @endif">All</button>
+                        <button class="btn btn-block btn-outline-primary btn-sm mt-1 @if($menu=='Requirements') active @endif">All</button>
                     </a>
                 </li>
             @endif
@@ -240,7 +240,7 @@
             @if(\Illuminate\Support\Facades\Auth::user()->role == 'recruiter')
                 <li class="nav-item d-none d-sm-inline-block ml-2" class="nav-item">
                     <a href="{{ route('my_submission') }}">
-                        <button class="btn btn-block btn-outline-primary btn-sm @if($menu=='My Requirements') active @endif">My Requirements</button>
+                        <button class="btn btn-block btn-outline-primary btn-sm mt-1 @if($menu=='My Requirements') active @endif">My Requirements</button>
                     </a>
                 </li>
             @endif
@@ -248,14 +248,14 @@
             @if($loginRole == 'admin' || $check12)
                 <li class="nav-item d-none d-sm-inline-block ml-2">
                     <a href="{{ route('bdm_submission.index') }}">
-                        <button class="btn btn-block btn-outline-primary btn-sm @if($menu=='Manage Submission') active @endif">Submission</button>
+                        <button class="btn btn-block btn-outline-primary btn-sm mt-1 @if($menu=='Manage Submission') active @endif">Submission</button>
                     </a>
                 </li>
             @endif
             @if($loginRole == 'admin' || $check13)
                 <li class="nav-item d-none d-sm-inline-block ml-2">
                     <a href="{{ route('interview.index') }}">
-                        <button class="btn btn-block btn-outline-primary btn-sm  @if($menu=='Manage Interview') active @endif">Interview</button>
+                        <button class="btn btn-block btn-outline-primary btn-sm mt-1 @if($menu=='Manage Interview') active @endif">Interview</button>
                     </a>
                 </li>
             @endif
@@ -264,26 +264,26 @@
                 @if(\Illuminate\Support\Facades\Auth::user()->role == 'recruiter')
                     <li class="nav-item d-none d-sm-inline-block ml-2" class="nav-item">
                         <a href="{{ route('submission.teamSubmissions') }}">
-                            <button class="btn btn-block btn-outline-primary btn-sm @if($menu=='Team Requirements') active @endif">Team Requirements</button>
+                            <button class="btn btn-block btn-outline-primary btn-sm mt-1 @if($menu=='Team Requirements') active @endif">Team Requirements</button>
                         </a>
                     </li>
                 @else
                     <li class="nav-item d-none d-sm-inline-block ml-2">
                         <a href="{{ route('requirement.teamLeadRequirement') }}">
-                            <button class="btn btn-block btn-outline-primary btn-sm  @if($menu=='Team Requirements') active @endif">Team Requirement</button>
+                            <button class="btn btn-block btn-outline-primary btn-sm mt-1 @if($menu=='Team Requirements') active @endif">Team Requirement</button>
                         </a>
                     </li>
                 @endif
 
                 <li class="nav-item d-none d-sm-inline-block ml-2">
                     <a href="{{ route('bdm_submission.teamLeadSubmissions') }}">
-                        <button class="btn btn-block btn-outline-primary btn-sm  @if($menu=='Team Submission') active @endif">Team Submission</button>
+                        <button class="btn btn-block btn-outline-primary btn-sm mt-1 @if($menu=='Team Submission') active @endif">Team Submission</button>
                     </a>
                 </li>
 
                 <li class="nav-item d-none d-sm-inline-block ml-2">
                     <a href="{{ route('interview.teamLeadInterviews') }}">
-                        <button class="btn btn-block btn-outline-primary btn-sm  @if($menu=='Team Interviews') active @endif">Team Interviews</button>
+                        <button class="btn btn-block btn-outline-primary btn-sm mt-1 @if($menu=='Team Interviews') active @endif">Team Interviews</button>
                     </a>
                 </li>
             @endif

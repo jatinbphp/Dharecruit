@@ -383,13 +383,9 @@
             })
 
             $('#showLink').change(function(){
-                console.log('in method');
-                console.log($('#showLink').is(':checked'));
                 if($('#showLink').is(':checked')){
-                    console.log('in if');
                     $(".link-data").show();
                 }else{
-                    console.log('in else');
                     $(".link-data").hide();
                 }
             });

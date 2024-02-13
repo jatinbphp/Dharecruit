@@ -264,21 +264,8 @@ trait RequirementTrait
                 ->selectRaw('requirements.user_id, COUNT(interviews.id) as count')
                 ->pluck('count', 'user_id')
                 ->toArray();
-
-            \Log::info('new called');
-            \log::info($status);
-            \log::info($date);
-            \log::info($bdms);
-            \Log::info(Requirement::leftJoin('submissions', 'requirements.id', '=', 'submissions.requirement_id')
-                ->leftJoin('interviews', 'submissions.id', '=', 'interviews.submission_id')
-                ->where('interviews.status', $status)
-                ->whereBetween('interviews.updated_at', $date)
-                ->whereIn('requirements.user_id', $bdms)
-                ->groupBy('requirements.user_id')
-                ->selectRaw('requirements.user_id, COUNT(interviews.id) as count')->toSql());
         }
 
-        \Log::info($this->_userIdWiseClientStatusCount);
         if(isset($this->_userIdWiseClientStatusCount[$type][$status][$userId])){
             return $this->_userIdWiseClientStatusCount[$type][$status][$userId];
         }
