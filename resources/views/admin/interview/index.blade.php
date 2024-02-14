@@ -94,10 +94,10 @@
                                     <th>Date</th>
                                     <th>Id</th>
                                     <th>Job Id</th>
-                                    @if(in_array($userType,['admin','recruiter']) || $type == 3))
+                                    @if(in_array($userType,['admin','recruiter']) || $type == 3)
                                         <th>BDM</th>
                                     @endif
-                                    @if(in_array($userType,['admin','bdm']) || $type == 3))
+                                    @if(in_array($userType,['admin','bdm']) || $type == 3)
                                         <th>Recruiter</th>
                                     @endif
                                     <th>Candidate Name</th>
@@ -234,7 +234,7 @@
                 {data: 'created_at', name: 'created_at'},
                 {data: 'id', 'width': '2%', name: 'interviews.id' },
                 {data: 'job_id', name: 'job_id'},
-                @if((in_array($userType,['admin','recruiter']) || $type == 3))
+                @if(in_array($userType,['admin','recruiter']) || $type == 3)
                     {data: 'bdm', name: 'admins.name'},
                 @endif
                 @if(in_array($userType,['admin','bdm']) || $type == 3)
