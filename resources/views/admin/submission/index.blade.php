@@ -41,10 +41,16 @@
                                     {!! Form::checkbox('', '', null, ['id' => 'showDate', 'class' => 'toggle-checkbox toggle-change', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
                                     <label class="form-check-label pl-2" for="showDate">Show Date</label>
                                 </div>
-                                @if(Auth::user()->role == 'recruiter')
+                                @if(Auth::user()->role == 'recruiter' && $type != 3)
                                     <div class="col-md-3 mt-2">
                                         {!! Form::checkbox('', '', null, ['id' => 'show_my_candidate', 'class' => 'toggle-checkbox toggle-change', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
                                         <label class="form-check-label pl-2" for=show_my_candidate">Show My Candidates Only</label>
+                                    </div>
+                                @endif
+                                @if(Auth::user()->role == 'recruiter' && $type == 3)
+                                    <div class="col-md-3 mt-2">
+                                        {!! Form::checkbox('', '', null, ['id' => 'show_my_team_candidate', 'class' => 'toggle-checkbox toggle-change', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
+                                        <label class="form-check-label pl-2" for=show_my_team_candidate">Show My Team Candidates Only</label>
                                     </div>
                                 @endif
                                 @if(in_array(Auth::user()->role, ['bdm', 'recruiter']))
@@ -100,6 +106,7 @@
 @section('jquery')
 <script type="text/javascript">
     $(document).ready(function () {
+        $('#show_my_team_candidate').bootstrapToggle('on');
         datatables();
     });
 

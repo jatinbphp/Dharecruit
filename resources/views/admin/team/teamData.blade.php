@@ -21,10 +21,13 @@
                                             @continue
                                         @endif
                                         @php $activeMembers = isset($teamWiseData[$team->id]) ? $teamWiseData[$team->id] : [] @endphp
+                                        @if(!in_array($id, $activeMembers) && in_array($id, array_merge(...$teamWiseData)) || in_array($id, $allLeadData))
+                                            @continue
+                                        @endif
                                         <div class="col-6">
                                             <div class="custom-control custom-checkbox">
                                                 <input class="custom-control-input user-checkbox" onChange="updateMember('{{$id}}','{{$team->id}}')" type="checkbox" id="{{$team->id}}_{{$id}}" @if(in_array($id, $activeMembers)) checked @elseif(in_array($id, array_merge(...$teamWiseData)) || in_array($id, $allLeadData)) disabled @endif>
-                                                <label for="{{$team->id}}_{{$id}}" class="custom-control-label" style="color: @if(in_array($id, $activeMembers))  {{$team->team_color}} @elseif(in_array($id, array_merge(...$teamWiseData)) || in_array($id, $allLeadData)) #C6C6C6 @endif">{{$user}}</label>
+                                                <label for="{{$team->id}}_{{$id}}" class="custom-control-label" style="color: @if(in_array($id, $activeMembers))  {{$team->team_color}} @endif">{{$user}}</label>
                                             </div>
                                         </div>
                                     @endforeach
@@ -63,16 +66,19 @@
                         <h5 class="card-title mb-2">Team Members:</h5>
                         <div class="card-text">
                             <div class="row">
-                                @if($allRecUsers->count())
+                                @if($allRecUsers)
                                     @foreach($allRecUsers as $id => $user)
                                         @if($id == $team->team_lead_id)
                                             @continue
                                         @endif
                                         @php $activeMembers = isset($teamWiseData[$team->id]) ? $teamWiseData[$team->id] : [] @endphp
+                                        @if(!in_array($id, $activeMembers) && in_array($id, array_merge(...$teamWiseData)) || in_array($id, $allLeadData))
+                                            @continue
+                                        @endif
                                         <div class="col-6">
                                             <div class="custom-control custom-checkbox">
-                                                <input class="custom-control-input user-checkbox" onChange="updateMember('{{$id}}','{{$team->id}}')" type="checkbox" id="{{$team->id}}_{{$id}}" @if(in_array($id, $activeMembers)) checked @elseif(in_array($id, array_merge(...$teamWiseData)) || in_array($id, $allLeadData)) disabled @endif>
-                                                <label for="{{$team->id}}_{{$id}}" class="custom-control-label" style="color: @if(in_array($id, $activeMembers))  {{$team->team_color}} @elseif(in_array($id, array_merge(...$teamWiseData)) || in_array($id, $allLeadData)) #C6C6C6 @endif">{{$user}}</label>
+                                                <input class="custom-control-input user-checkbox" onChange="updateMember('{{$id}}','{{$team->id}}')" type="checkbox" id="{{$team->id}}_{{$id}}" @if(in_array($id, $activeMembers)) checked @endif>
+                                                <label for="{{$team->id}}_{{$id}}" class="custom-control-label" style="color: @if(in_array($id, $activeMembers))  {{$team->team_color}} @endif">{{$user}}</label>
                                             </div>
                                         </div>
                                     @endforeach

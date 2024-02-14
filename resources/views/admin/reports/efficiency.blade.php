@@ -26,7 +26,7 @@
                     <div class="card card-info card-outline">
                         <div class="card-header">
                             <div class="row">
-                                @if($menu == 'Efficiency Report')
+                                @if(in_array($menu, ['Performance Report', 'Team Performance Report']))
                                     <div class="col-md-12 border mt-3 p-3" id="reportsFilterDiv">
                                         {!! Form::open(['id' => 'filterReportForm', 'class' => 'form-horizontal','files'=>true,'onsubmit' => 'return false;']) !!}
                                         <div class="row">
@@ -56,19 +56,37 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            @if(isset($subType) && $subType == 'sub_received')
+                                            @if(isset($subType) && in_array($subType, ['sub_received', 'lead_sub_received']))
                                                 <div class="col-md-4">
                                                     <div class="form-group">
-                                                        <label class="control-label" for="bdm">BDM</label>
-                                                        {!! Form::select('bdm[]', \App\Models\Admin::getActiveBDM(), null, ['class' => 'form-control select2', 'id'=>'bdm', 'multiple' => true, 'data-placeholder' => 'Select BDM Users']) !!}
+                                                        @if(isLeadUser() && $subType == 'lead_sub_received')
+                                                            @php
+                                                                $allBdm  = \App\Models\Admin::getActiveBDM();
+                                                                $teamBdm = array_intersect_key($allBdm, array_flip(getTeamMembers()));
+                                                            @endphp
+                                                            <label class="control-label" for="bdm">BDM</label>
+                                                            {!! Form::select('bdm[]', $teamBdm, null, ['class' => 'form-control select2', 'id'=>'bdm', 'multiple' => true, 'data-placeholder' => 'Select BDM Users']) !!}
+                                                        @elseif(getLoggedInUserRole() == 'admin')
+                                                            <label class="control-label" for="bdm">BDM</label>
+                                                            {!! Form::select('bdm[]', \App\Models\Admin::getActiveBDM(), null, ['class' => 'form-control select2', 'id'=>'bdm', 'multiple' => true, 'data-placeholder' => 'Select BDM Users']) !!}
+                                                        @endif
                                                     </div>
                                                 </div>
                                             @endif
-                                            @if(isset($subType) && $subType == 'sub_sent')
+                                            @if(isset($subType) && in_array($subType, ['sub_sent', 'lead_sub_sent']))
                                                 <div class="col-md-4">
                                                     <div class="form-group">
-                                                        <label class="control-label" for="recruiter">Recruiter</label>
-                                                        {!! Form::select('recruiter[]', \App\Models\Admin::getActiveRecruiter(), null, ['class' => 'form-control select2', 'id'=>'recruiter', 'multiple' => true, 'data-placeholder' => 'Select Recruiter Users']) !!}
+                                                        @if(isLeadUser() && $subType == 'lead_sub_sent')
+                                                            @php
+                                                                $allRec  = \App\Models\Admin::getActiveRecruiter();
+                                                                $teamRec = array_intersect_key($allRec, array_flip(getTeamMembers()));
+                                                            @endphp
+                                                            <label class="control-label" for="recruiter">Recruiter</label>
+                                                            {!! Form::select('recruiter[]', $teamRec, null, ['class' => 'form-control select2', 'id'=>'recruiter', 'multiple' => true, 'data-placeholder' => 'Select Recruiter Users']) !!}
+                                                        @elseif(getLoggedInUserRole() == 'admin')
+                                                            <label class="control-label" for="recruiter">Recruiter</label>
+                                                            {!! Form::select('recruiter[]', \App\Models\Admin::getActiveRecruiter(), null, ['class' => 'form-control select2', 'id'=>'recruiter', 'multiple' => true, 'data-placeholder' => 'Select Recruiter Users']) !!}
+                                                        @endif
                                                     </div>
                                                 </div>
                                             @endif

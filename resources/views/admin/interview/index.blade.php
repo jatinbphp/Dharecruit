@@ -94,6 +94,12 @@
                                     <th>Date</th>
                                     <th>Id</th>
                                     <th>Job Id</th>
+                                    @if(in_array($userType,['admin','recruiter']) || $type == 3))
+                                        <th>BDM</th>
+                                    @endif
+                                    @if(in_array($userType,['admin','bdm']) || $type == 3))
+                                        <th>Recruiter</th>
+                                    @endif
                                     <th>Candidate Name</th>
                                     @if($type != 3)
                                         <th>Candidate Phone</th>
@@ -101,15 +107,9 @@
                                     @endif
                                     <th>Client Location</th>
                                     <th>Candidate Location</th>
-                                    @if(in_array($userType,['admin','recruiter']))
-                                        <th>BDM</th>
-                                    @endif
                                     @if(in_array($userType,['admin','bdm']) && $type != 3)
                                         <th class='toggle-column'>PV</th>
                                         <th class='toggle-column'>POC</th>
-                                    @endif
-                                    @if(in_array($userType,['admin','bdm']))
-                                    <th>Recruiter</th>
                                     @endif
                                     <th>B Rate</th>
                                     <th>R Rate</th>
@@ -234,6 +234,12 @@
                 {data: 'created_at', name: 'created_at'},
                 {data: 'id', 'width': '2%', name: 'interviews.id' },
                 {data: 'job_id', name: 'job_id'},
+                @if((in_array($userType,['admin','recruiter']) || $type == 3))
+                    {data: 'bdm', name: 'admins.name'},
+                @endif
+                @if(in_array($userType,['admin','bdm']) || $type == 3)
+                    {data: 'recruiter', name: 'recruiter.name'},
+                @endif
                 {data: 'candidate_name', name: 'candidate_name', orderable: false, searchable: false},
                 @if($type != 3)
                     {data: 'candidate_phone_number', name: 'candidate_phone_number'},
@@ -241,15 +247,9 @@
                 @endif
                 {data: 'client_location', name: 'requirements.location'},
                 {data: 'candidate_location', name: 'submissions.location'},
-                @if(in_array($userType,['admin','recruiter']))
-                    {data: 'bdm', name: 'admins.name'},
-                @endif
                 @if(in_array($userType,['admin','bdm']) && $type != 3)
                     {data: 'pv_name', name: 'requirements.pv_company_name'},
                     {data: 'poc_name', name: 'requirements.poc_name'},
-                @endif
-                @if(in_array($userType,['admin','bdm']))
-                    {data: 'recruiter', name: 'recruiter.name'},
                 @endif
                 {data: 'br', name: 'requirements.my_rate'},
                 {data: 'rr', name: 'submissions.recruiter_rate'},

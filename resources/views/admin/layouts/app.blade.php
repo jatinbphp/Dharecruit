@@ -259,7 +259,8 @@
                     </a>
                 </li>
             @endif
-
+        </ul>
+        <ul class="navbar-nav ml-auto mb-1">
             @if(isLeadUser())
                 @if(\Illuminate\Support\Facades\Auth::user()->role == 'recruiter')
                     <li class="nav-item d-none d-sm-inline-block ml-2" class="nav-item">
@@ -286,6 +287,22 @@
                         <button class="btn btn-block btn-outline-primary btn-sm mt-1 @if($menu=='Team Interviews') active @endif">Team Interviews</button>
                     </a>
                 </li>
+
+                @if(\Illuminate\Support\Facades\Auth::user()->role == 'bdm')
+                    <li class="nav-item d-none d-sm-inline-block ml-2">
+                        <a href="{{ route('reports',['type' => 'efficiency', 'subType' => 'lead_sub_received']) }}">
+                            <button class="btn btn-block btn-outline-primary btn-sm mt-1 @if(isset($subType) && $subType=='lead_sub_received') active @endif">Report</button>
+                        </a>
+                    </li>
+                @endif
+
+                @if(\Illuminate\Support\Facades\Auth::user()->role == 'recruiter')
+                    <li class="nav-item d-none d-sm-inline-block ml-2">
+                        <a href="{{ route('reports',['type' => 'efficiency', 'subType' => 'lead_sub_sent']) }}">
+                            <button class="btn btn-block btn-outline-primary btn-sm mt-1 @if(isset($subType) && $subType=='lead_sub_sent') active @endif">Report</button>
+                        </a>
+                    </li>
+                @endif
             @endif
         </ul>
         <ul class="navbar-nav ml-auto">
@@ -517,61 +534,67 @@
                             </a>
                         </li>
                     @endif
-                    @if($loginRole == 'admin')
-                        <li class="nav-item @if(in_array($menu, ['Efficiency Report', 'PV Company Report', 'POC Report', 'Employer Report', 'Employee Report'])) menu-open @endif">
-                            <a href="#" class="nav-link @if(in_array($menu, ['Efficiency Report', 'PV Company Report', 'POC Report', 'Employer Report', 'Employee Report'])) active @endif">
+                    @if($loginRole == 'admin' || $check16)
+                        <li class="nav-item @if(in_array($menu, ['Performance Report', 'PV Company Report', 'POC Report', 'Employer Report', 'Employee Report'])) menu-open @endif">
+                            <a href="#" class="nav-link @if(in_array($menu, ['Performance Report', 'PV Company Report', 'POC Report', 'Employer Report', 'Employee Report'])) active @endif">
                                 <i class="nav-icon fas fa-tasks"></i>
                                 <p>Manage Reports <i class="right fas fa-angle-left"></i>
                                 </p>
                             </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('reports',['type' => 'efficiency', 'subType' => 'sub_received']) }}" class="nav-link @if(isset($subType) && $subType=='sub_received') active @endif">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Sub Received(BDM)</p>
-                                    </a>
-                                </li>
-                            </ul>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('reports',['type' => 'efficiency', 'subType' => 'sub_sent']) }}" class="nav-link @if(isset($subType) && $subType=='sub_sent') active @endif">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Sub Sent(Recruiter)</p>
-                                    </a>
-                                </li>
-                            </ul>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('reports',['type' => 'p_v_report']) }}" class="nav-link @if($menu == 'PV Company Report') active @endif">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Prime Vendor Report</p>
-                                    </a>
-                                </li>
-                            </ul>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('reports',['type' => 'poc_report']) }}" class="nav-link @if($menu == 'POC Report') active @endif">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>POC Report</p>
-                                    </a>
-                                </li>
-                            </ul>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('reports',['type' => 'employer_report']) }}" class="nav-link @if($menu == 'Employer Report') active @endif">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Employer Report</p>
-                                    </a>
-                                </li>
-                            </ul>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('reports',['type' => 'employee_report']) }}" class="nav-link @if($menu == 'Employee Report') active @endif">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Employee Report</p>
-                                    </a>
-                                </li>
-                            </ul>
+                            @if($loginRole == 'bdm')
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="{{ route('reports',['type' => 'efficiency', 'subType' => 'sub_received']) }}" class="nav-link @if(isset($subType) && $subType=='sub_received') active @endif">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Sub Received(BDM)</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            @endif
+                            @if($loginRole == 'recruiter')
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="{{ route('reports',['type' => 'efficiency', 'subType' => 'sub_sent']) }}" class="nav-link @if(isset($subType) && $subType=='sub_sent') active @endif">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Sub Sent(Recruiter)</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            @endif
+                            @if($loginRole == 'admin')
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="{{ route('reports',['type' => 'p_v_report']) }}" class="nav-link @if($menu == 'PV Company Report') active @endif">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Prime Vendor Report</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="{{ route('reports',['type' => 'poc_report']) }}" class="nav-link @if($menu == 'POC Report') active @endif">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>POC Report</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="{{ route('reports',['type' => 'employer_report']) }}" class="nav-link @if($menu == 'Employer Report') active @endif">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Employer Report</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="{{ route('reports',['type' => 'employee_report']) }}" class="nav-link @if($menu == 'Employee Report') active @endif">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Employee Report</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            @endif
                         </li>
                     @endif
                     @if(\Illuminate\Support\Facades\Auth::user()->role == 'bdm')
@@ -1310,6 +1333,14 @@
             $('.other-candidate').hide();
         }else{
             $('.other-candidate').show();
+        }
+    });
+
+    $('#show_my_team_candidate').on('change', function(){
+        if($('#show_my_team_candidate').is(':checked')){
+            $('.other-team-candidate').hide();
+        }else{
+            $('.other-team-candidate').show();
         }
     });
 

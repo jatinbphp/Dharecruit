@@ -18,7 +18,12 @@ trait ReportsTrait {
         $bdms = $request->bdm;
 
         if(empty($bdms) || !count($bdms)){
-            $bdms = array_keys(Admin::getActiveBDM()->toArray());
+            $bdms = array_keys(Admin::getActiveBDM());
+            if(isLeadUser() && $request->sub_type == 'lead_sub_received'){
+                $bdms = getTeamMembers();
+            } elseif (getLoggedInUserRole() == 'bdm'){
+                $bdms = [getLoggedInUserId()];
+            }
         }
 
         $bdmUserData = [];
@@ -45,7 +50,12 @@ trait ReportsTrait {
         $recruiters = $request->recruiter;
 
         if(empty($recruiters) || !count($recruiters)){
-            $recruiters = array_keys(Admin::getActiveRecruiter()->toArray());
+            $recruiters = array_keys(Admin::getActiveRecruiter());
+            if(isLeadUser() && $request->sub_type == 'lead_sub_sent'){
+                $recruiters = getTeamMembers();
+            } elseif (getLoggedInUserRole() == 'recruiter'){
+                $recruiters = [getLoggedInUserId()];
+            }
         }
 
         $recruiterUserData = [];
@@ -78,7 +88,12 @@ trait ReportsTrait {
         }
 
         if(empty($bdms) || !count($bdms)){
-            $bdms = array_keys(Admin::getActiveBDM()->toArray());
+            $bdms = array_keys(Admin::getActiveBDM());
+            if(isLeadUser() && $request->sub_type == 'lead_sub_received'){
+                $bdms = getTeamMembers();
+            } elseif (getLoggedInUserRole() == 'bdm'){
+                $bdms = [getLoggedInUserId()];
+            }
         }
 
         foreach ($bdms as $bdm){
@@ -102,7 +117,12 @@ trait ReportsTrait {
         }
 
         if(empty($recruiters) || !count($recruiters)){
-            $recruiters = array_keys(Admin::getActiveRecruiter()->toArray());
+            $recruiters = array_keys(Admin::getActiveRecruiter());
+            if(isLeadUser() && $request->sub_type == 'lead_sub_sent'){
+                $recruiters = getTeamMembers();
+            } elseif (getLoggedInUserRole() == 'recruiter'){
+                $recruiters = [getLoggedInUserId()];
+            }
         }
 
         foreach ($recruiters as $recruiter){

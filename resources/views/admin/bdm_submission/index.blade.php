@@ -109,16 +109,18 @@
                                         {{-- <th>Job Keyword</th>
                                         <th>Duration</th> --}}
                                         <th>Client</th>
-                                        @if(in_array($userType,['admin','recruiter']))
-                                            <th>BDM</th>
-                                        @endif
                                         @if(in_array($userType,['admin','bdm']) && $type != 3)
                                             <th class='toggle-column'>PV</th>
                                             <th class='toggle-column'>POC</th>
-                                            <th>Recruiter</th>
                                         @endif
                                         <th>B Rate</th>
                                         <th>R Rate</th>
+                                        @if(in_array($userType,['admin','recruiter']) || $type == 3)
+                                            <th>BDM</th>
+                                        @endif
+                                        @if(in_array($userType,['admin','bdm']) || $type == 3)
+                                            <th>Recruiter</th>
+                                        @endif
                                         <th>Candidate Name</th>
                                         @if($type != 3)
                                             <th>Emp Name</th>
@@ -375,19 +377,9 @@
                         return '<i class="fa fa-eye client_data-icon client_data-icon-'+row.id+'" onclick="showData('+row.id+',\'client_data-\')" aria-hidden="true"></i><span class="client_data client_data-'+row.id+'" style="display:none">'+((row.display_client &&  row.client_name) ? row.client_name : '')+'</span>';
                     },
                 },
-                @if(in_array($userType,['admin','recruiter']))
-                    {data: 'bdm_name', name: 'admins.name', render: function(data, type, row){
-                        return row.bdm_name;
-                    }
-                },
-                @endif
                 @if(in_array($userType,['admin','bdm']) && $type != 3)
                     {data: 'pv',  name: 'requirements.pv_company_name'},
                     {data: 'poc',  name: 'requirements.poc_name'},
-                    {data: 'recruiter_name', name: 'recruiter.name', render: function(data, type, row){
-                            return row.recruiter_name;
-                        }
-                    },
                 @endif
                 {data: 'my_rate', name: 'requirements.my_rate', render: function(data, type, row){
                         return row.my_rate;
@@ -397,6 +389,18 @@
                         return row.recruiter_rate;
                     }
                 },
+                @if(in_array($userType,['admin','recruiter']) || $type == 3)
+                    {data: 'bdm_name', name: 'admins.name', render: function(data, type, row){
+                            return row.bdm_name;
+                        }
+                    },
+                @endif
+                @if(in_array($userType,['admin','bdm']) || $type == 3)
+                    {data: 'recruiter_name', name: 'recruiter.name', render: function(data, type, row){
+                            return row.recruiter_name;
+                        }
+                    },
+                @endif
                 {data: 'candidate_name',  name: 'candidate_name', 'orderable': false, searchable: false},
                 @if($type != 3)
                     {data: 'employer_name',  name: 'employer_name'},

@@ -20,13 +20,16 @@ class ReportsController extends Controller
     public function index(Request  $request, $type = 'efficiency', $subType = 'sub_received')
     {
         $data = [];
-        $data['menu'] = 'Efficiency Report';
+        $data['menu'] = 'Performance Report';
         $data['subType'] = $subType;
         $data['type'] = $type;
 
         switch ($type) {
             case "efficiency":
-                $data['menu'] = 'Efficiency Report';
+                $data['menu'] = 'Performance Report';
+                if(in_array($subType, ['lead_sub_received', 'lead_sub_sent'])){
+                    $data['menu'] = "Team Performance Report";
+                }
                 if(!empty($request->all())){
                     return $this->getEfficiencyData($request, $subType);
                 }
@@ -72,7 +75,8 @@ class ReportsController extends Controller
 
     public function getEfficiencyData ($request, $subType): array
     {
-        if($subType == 'sub_sent'){
+        $request->sub_type = $subType;
+        if(in_array($subType, ['sub_sent', 'lead_sub_sent'])){
             $efficiencyData['recruitersData'] = $this->getAllRecruitersData($request);
             $efficiencyData['recruiterTimeFrame'] = $this->getRecruiterTimeFrameData($request);
         } else {

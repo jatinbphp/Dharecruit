@@ -54,17 +54,55 @@ class Admin extends Authenticatable
     }
 
     public static function getActiveBDM($defaltOption = false){
+        $userData = [];
+
         if($defaltOption){
-            return Admin::where('role','bdm')->where('status','active')->orderBy('name')->pluck('name','id')->prepend('Please Select','');
+            $userData[''] = 'Please Select';
         }
-        return Admin::where('role','bdm')->where('status','active')->orderBy('name')->pluck('name','id');
+
+        $admins = Admin::leftJoin('team_members', 'admins.id', '=', 'team_members.member_id')
+            ->leftJoin('teams', 'team_members.team_id', '=', 'teams.id')
+            ->select('admins.id', 'admins.name as admin_name', 'teams.team_name as team_name')
+            ->where('role','bdm')
+            ->where('status','active')
+            ->orderBy('name')
+            ->get();
+
+        foreach ($admins as $admin) {
+            if ($admin->team_name) {
+                $userData[$admin->id] = $admin->admin_name .' ('. $admin->team_name.') ';
+            } else {
+                $userData[$admin->id] = $admin->admin_name;
+            }
+        }
+
+        return $userData;
     }
 
     public static function getActiveRecruiter($defaltOption = false){
+        $userData = [];
+
         if($defaltOption){
-            return Admin::where('role','recruiter')->where('status','active')->orderBy('name')->pluck('name','id')->prepend('Please Select','');
+            $userData[''] = 'Please Select';
         }
-        return Admin::where('role','recruiter')->where('status','active')->orderBy('name')->pluck('name','id');
+
+        $admins = Admin::leftJoin('team_members', 'admins.id', '=', 'team_members.member_id')
+            ->leftJoin('teams', 'team_members.team_id', '=', 'teams.id')
+            ->select('admins.id', 'admins.name as admin_name', 'teams.team_name as team_name')
+            ->where('role','recruiter')
+            ->where('status','active')
+            ->orderBy('name')
+            ->get();
+
+        foreach ($admins as $admin) {
+            if ($admin->team_name) {
+                $userData[$admin->id] = $admin->admin_name .' ('. $admin->team_name.') ';
+            } else {
+                $userData[$admin->id] = $admin->admin_name;
+            }
+        }
+
+        return $userData;
     }
 
     public static function getActiveEmployers(){

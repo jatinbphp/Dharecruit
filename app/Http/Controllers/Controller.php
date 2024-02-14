@@ -167,7 +167,6 @@ class Controller extends BaseController
         if(!count($recruiterIds)){
             return '';
         }
-        $recName = '';
 
         $user = $this->getUser();
         $loggedInUserId = $this->getCurrentUserId();
@@ -238,18 +237,6 @@ class Controller extends BaseController
             $filterRecIds[] = $employeeEmailIds;
         }
 
-        if($this->getCurrentUserRole() == 'recruiter' && $request->user_type == 'lead_user' && isLeadUser()){
-            if(getTeamMembers()){
-                if($request->team_users){
-                    $filterRecIds[] = $request->team_users;
-                } else {
-                    $filterRecIds[] = getTeamMembers();
-                }
-            } else {
-                $filterRecIds[] = [];
-            }
-        }
-
         if($filterRecIds && count($filterRecIds)){
             $commonRequirementIds = call_user_func_array('array_intersect', $filterRecIds);
             if($commonRequirementIds && count($commonRequirementIds)){
@@ -258,6 +245,8 @@ class Controller extends BaseController
                 $recruiterIds = [];
             }
         }
+
+        $recName = '';
 
         foreach ($recruiterIds as $recruiterId){
             $recruterUser = Admin::where('id',$recruiterId)->first();
@@ -271,6 +260,16 @@ class Controller extends BaseController
                 $fontClass = 'text-primary';
             }
             $submission = Submission::where('user_id',$recruiterId)->where('requirement_id',$row->id)->count();
+            $isTeamCandidateClass = '';
+            if($this->getCurrentUserRole() == 'recruiter' && $request->user_type == 'lead_user' && isLeadUser()){
+                if(getTeamMembers() && in_array($recruiterId, getTeamMembers())){
+                    $isTeamCandidateClass = 'team-candidate';
+                } else {
+                    $isTeamCandidateClass = 'other-team-candidate';
+                }
+            }
+
+            $recName .= '<div class="'.$isTeamCandidateClass.'">';
             if($submission > 0){
                 $recName .= '<div class="border border-dark floar-left p-1 mt-2" style="
                 border-radius: 5px; background-color:'.$bgColor.'; width: fit-content;"><span>'. $submission.' '.$recruterUser['name']. '</span></div>';
@@ -289,6 +288,7 @@ class Controller extends BaseController
                 }
                 $recName .= '<div class="floar-left p-1 mt-2"><span class="'.$fontClass . ' ' . $textUnderLine . ' ' . $textBold.'">'. $submission.' '.$recruterUser['name']. '</span></div>';
             }
+            $recName .= '</div>';
         }
         return $recName;
     }
@@ -460,23 +460,8 @@ class Controller extends BaseController
             }
 
             if($userRole == 'recruiter'){
-                if($request->user_type == 'lead_user' && isLeadUser()){
-                    if(getTeamMembers()){
-                        if($request->team_users){
-                            $loggedInRecruterSubmission->whereIn('submissions.user_id', $request->team_users)->where('submissions.requirement_id',$row->id);
-                            $loggedInsubmissions->whereIn('submissions.user_id', $request->team_users)->where('submissions.requirement_id',$row->id);
-                        } else {
-                            $loggedInRecruterSubmission->whereIn('submissions.user_id', getTeamMembers())->where('submissions.requirement_id',$row->id);
-                            $loggedInsubmissions->whereIn('submissions.user_id', getTeamMembers())->where('submissions.requirement_id',$row->id);
-                        }
-                    } else {
-                        $loggedInRecruterSubmission->where('submissions.user_id', 0);
-                        $loggedInsubmissions->where('submissions.user_id', 0);
-                    }
-                } else {
-                    $loggedInRecruterSubmission->where('submissions.user_id', $userId)->where('submissions.requirement_id',$row->id);
-                    $loggedInsubmissions->where('submissions.user_id', $userId)->where('submissions.requirement_id',$row->id);
-                }
+                $loggedInRecruterSubmission->where('submissions.user_id', $userId)->where('submissions.requirement_id',$row->id);
+                $loggedInsubmissions->where('submissions.user_id', $userId)->where('submissions.requirement_id',$row->id);
             } else {
                 if(!empty($request->recruiter)){
                     $loggedInRecruterSubmission->where('submissions.user_id', $request->recruiter)->where('submissions.requirement_id',$row->id);
@@ -497,7 +482,7 @@ class Controller extends BaseController
                 ->orderByDesc('subquery.count')
                 ->get();
 
-            if(empty($request->filter_employer_name) && empty($request->filter_employee_name) && empty($request->filter_employee_phone_number) && empty($request->filter_employee_email) && empty($request->bdm_feedback) && empty($request->pv_feedback) && empty($request->client_feedback) && empty($request->candidate_name) && empty($request->candidate_id) && empty($request->recruiter) && empty($request->team_users) && $request->user_type != 'lead_user'){
+            if(empty($request->filter_employer_name) && empty($request->filter_employee_name) && empty($request->filter_employee_phone_number) && empty($request->filter_employee_email) && empty($request->bdm_feedback) && empty($request->pv_feedback) && empty($request->client_feedback) && empty($request->candidate_name) && empty($request->candidate_id)){
                 $notLoggedInsubmissions = Submission::select('requirement_id', 'user_id', \DB::raw('COUNT(user_id) as count'))->where('user_id', '!=',$userId)->where('requirement_id',$row->id)->groupBy('user_id');
                 $notLogeedInRecruitersData = $notLoggedInRecruterSubmission->joinSub($notLoggedInsubmissions, 'subquery', function ($join) {
                     $join->on('subquery.user_id', '=', 'submissions.user_id');
@@ -527,7 +512,7 @@ class Controller extends BaseController
 
         $candidate = '';
         if($allSubmission && count($allSubmission) > 0){
-            $candidate .= $this->getCandidateHtml($allSubmission, $row, $page);
+            $candidate .= $this->getCandidateHtml($allSubmission, $row, $page, $request);
         } else {
             if(!empty($row->recruiter)){
                 $candidate .= '<div style="width:50px; background-color: yellow;">&nbsp;</div>';
@@ -701,7 +686,7 @@ class Controller extends BaseController
             $query = $query->where('requirements.user_id', $request->authId);
         } elseif ($user['role'] == 'recruiter' && isset($request->authId) && $request->authId > 0) {
             $query = $query->whereRaw("find_in_set($request->authId,recruiter)");
-        } elseif ($user['role'] == 'bdm'&& isLeadUser()) {
+        } elseif ($user['role'] == 'bdm'&& isLeadUser() && $request->user_type == 'lead_user') {
             if (getTeamMembers()){
                 if($request->team_users){
                     $query = $query->whereIn('requirements.user_id', $request->team_users);
@@ -1213,7 +1198,7 @@ class Controller extends BaseController
         return $query->where($whereInfo);
     }
 
-    public function getCandidateHtml($submissions, $row, $page = 'requirement'): string
+    public function getCandidateHtml($submissions, $row, $page = 'requirement', $request): string
     {
         $loggedInUserId = $this->getCurrentUserId();
         $userRole = $this->getCurrentUserRole();
@@ -1239,7 +1224,7 @@ class Controller extends BaseController
 
             $isSamePvCandidate = $this->isSamePvCandidate($submission->email, $submission->requirement_id, $submission->id);
             $otherCandidate = 'other-candidate';
-            if($loggedInUserId == $userId || $userRole == 'admin' || isLeadUser()){
+            if($loggedInUserId == $userId || $userRole == 'admin' || (isLeadUser() && $request->user_type == 'lead_user')){
                 $otherCandidate = '';
                 if($submission->is_show == 0){
                     $textColor = 'text-primary';
@@ -1308,6 +1293,17 @@ class Controller extends BaseController
                 }
             }
 
+            $isTeamCandidateClass = '';
+            if($this->getCurrentUserRole() == 'recruiter' && $request->user_type == 'lead_user' && isLeadUser()){
+                if(getTeamMembers() && in_array($userId, getTeamMembers())){
+                    $isTeamCandidateClass = 'team-candidate';
+                } else {
+                    $isTeamCandidateClass = 'other-team-candidate';
+                }
+            }
+
+            $candidate .= '<div class="'.$isTeamCandidateClass.'">';
+
             if($loggedInUserId == $userId && $userRole == 'recruiter'){
                 $candidate .=
                     "<div class='$otherCandidate'>"
@@ -1344,6 +1340,7 @@ class Controller extends BaseController
                         <span style="color:#AC5BAD; font-weight:bold; display:none" class="submission-date ml-2">'.$candidateLastDate.'</span>
                     </div><br>';
             }
+            $candidate .= '</div>';
         }
         return $candidate;
     }
