@@ -1224,7 +1224,7 @@ class Controller extends BaseController
 
             $isSamePvCandidate = $this->isSamePvCandidate($submission->email, $submission->requirement_id, $submission->id);
             $otherCandidate = 'other-candidate';
-            if($loggedInUserId == $userId || $userRole == 'admin' || (isLeadUser() && $request->user_type == 'lead_user')){
+            if($loggedInUserId == $userId || $userRole == 'admin' || (isLeadUser() && $request->user_type == 'lead_user') && in_array($userId, getTeamMembers())){
                 $otherCandidate = '';
                 if($submission->is_show == 0){
                     $textColor = 'text-primary';

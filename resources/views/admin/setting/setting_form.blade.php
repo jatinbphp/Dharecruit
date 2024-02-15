@@ -30,7 +30,7 @@
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        <label class="control-label" for="name">Fill Employer Name :</label>
+                                        <label class="control-label" for="name">Show Employer Name :</label>
                                         <div class="col-md-12">
                                             @foreach ($yesNoOptions as $key => $value)
                                                     <?php $checked = (isset($settingData['is_fill_employer_name']) && $settingData['is_fill_employer_name'] == $key) ? 'checked' : '';?>
@@ -145,6 +145,19 @@
 {{--                                        </div>--}}
 {{--                                    </div>--}}
 {{--                                </div>--}}
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="control-label" for="name">Show Search By Candidate On Submission Form :</label>
+                                        <div class="col-md-12">
+                                            @foreach ($yesNoOptions as $key => $value)
+                                                    <?php $checked = (isset($settingData['is_show_search_by_candidate_id']) && $settingData['is_show_search_by_candidate_id'] == $key) ? 'checked' : '';?>
+                                                <label>
+                                                    {!! Form::radio('is_show_search_by_candidate_id', $key, null, ['class' => 'flat-red',$checked]) !!} <span style="margin-right: 10px">{{ $value }}</span>
+                                                </label>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="card-footer">

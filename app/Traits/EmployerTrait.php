@@ -48,6 +48,7 @@ trait EmployerTrait {
     {
         return [
             'company_name'                      => 'Name',
+            'employee_count'                    => 'Employee#',
             'added_date'                        => 'Date Added',
             'last_sub_date'                     => 'Last Sub.',
             'total_submission_count'            => 'Total Sub. #',
@@ -70,7 +71,6 @@ trait EmployerTrait {
             'status_rejected_by_client'         => 'Rejected By Client',
             'status_backout'                    => 'Backout',
             'client_status_total'               => 'Total',
-            'employee_count'                    => 'Employee#',
             'avg'                               => 'Avg',
             'sub_h'                             => 'ESUBH',
             'rec_count'                         => 'Recruiter #',
@@ -96,6 +96,7 @@ trait EmployerTrait {
         $this->setIsEmptyEmployerRow(1);
         $employerData = [
             'company_name'                      => $employer,
+            'employee_count'                    => $totalEmployee,
             'added_date'                        => $this->getEmployerAddedDateBasedOnId($employer, $employers, $date),
             'last_sub_date'                     => $this->getEmployerLastSubmissionDateBasedOnId($employer, $employers, $date),
             'total_submission_count'            => $this->getSubmissionCountsBasedOnEmployer($employer, $employers, $date),
@@ -118,7 +119,6 @@ trait EmployerTrait {
             'status_client_rejected'            => $this->getEmployerTotalClientStatusCount($interviewModel::STATUS_REJECTED, $employer, $employers, $date),
             'status_backout'                    => $this->getEmployerTotalClientStatusCount($interviewModel::STATUS_BACKOUT, $employer, $employers, $date),
             'client_status_total'               => $this->getEmployerTotalClientStatusCount('all', $employer, $employers, $date),
-            'employee_count'                    => $totalEmployee,
             'avg'                               => $avg,
             'highest_uni_sub_by_employee'       => $this->getEmployerWiseHighestUniqueSubmissionByEmployee($employer, $employers, $date),
             'rec_count'                         => $this->getEmployerWiseTotalRecruiterCount($employer, $employers, $date),
@@ -157,6 +157,7 @@ trait EmployerTrait {
 
             $pocData = [
                 'company_name'                      => $employeeName,
+                'employee_count'                    => '',
                 'added_date'                        => $this->getEmployerWiseEmployeeAddedDate($employer, $employeeName, $employeeNames, $date),
                 'last_sub_date'                     => $this->getEmployerWiseEmployeeLastSubmissionDate($employer, $employeeName, $employeeNames, $date),
                 'total_submission_count'            => $this->getEmployerWiseEmployeeSubmissionCounts($employer, $employeeName, $employeeNames, $date),
@@ -179,7 +180,6 @@ trait EmployerTrait {
                 'status_client_rejected'            => $this->getEmployerWiseEmployeeClientStatusCount($employer,$interviewModel::STATUS_REJECTED, $employeeName, $employeeNames, $date),
                 'status_backout'                    => $this->getEmployerWiseEmployeeClientStatusCount($employer,$interviewModel::STATUS_BACKOUT, $employeeName, $employeeNames, $date),
                 'client_status_total'               => $this->getEmployerWiseEmployeeClientStatusCount($employer,'all', $employeeName, $employeeNames, $date),
-                'employee_count'                    => '',
                 'avg'                               => '',
                 'highest_uni_sub_by_employee'       => '',
                 'rec_count'                         => $this->getEmployerWiseEmployeeTotalRecruiterCount($employer, $employeeName, $employeeNames, $date),

@@ -541,7 +541,7 @@
                                 <p>Manage Reports <i class="right fas fa-angle-left"></i>
                                 </p>
                             </a>
-                            @if($loginRole == 'bdm')
+                            @if(in_array($loginRole, ['admin', 'bdm']))
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
                                         <a href="{{ route('reports',['type' => 'efficiency', 'subType' => 'sub_received']) }}" class="nav-link @if(isset($subType) && $subType=='sub_received') active @endif">
@@ -551,7 +551,7 @@
                                     </li>
                                 </ul>
                             @endif
-                            @if($loginRole == 'recruiter')
+                            @if(in_array($loginRole, ['admin', 'recruiter']))
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
                                         <a href="{{ route('reports',['type' => 'efficiency', 'subType' => 'sub_sent']) }}" class="nav-link @if(isset($subType) && $subType=='sub_sent') active @endif">
@@ -610,6 +610,14 @@
                             <a href="{{ route('mail_template.index') }}" class="nav-link @if($menu=='Mail Template') active @endif">
                                 <i class="nav-icon fa fa-envelope"></i>
                                 <p>Email Template</p>
+                            </a>
+                        </li>
+                    @endif
+                    @if(\Illuminate\Support\Facades\Auth::user()->role == 'admin')
+                        <li class="nav-item">
+                            <a href="{{ route('manage_candidate_view.index') }}" class="nav-link @if($menu=='Mail Template') active @endif">
+                                <i class="nav-icon fa fa-binoculars"></i>
+                                <p>Manage Candidate View</p>
                             </a>
                         </li>
                     @endif

@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\ImageController;
 use App\Http\Controllers\Admin\InterviewController;
 use App\Http\Controllers\Admin\MailTemplateController;
+use App\Http\Controllers\Admin\ManageCandidateViewController;
 use App\Http\Controllers\Admin\ManageTeamController;
 use App\Http\Controllers\Admin\MoiController;
 use App\Http\Controllers\Admin\PermissionController;
@@ -188,6 +189,10 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('update_team_lead_name', [ManageTeamController::class, 'updateTeamLeadName'])->name('update_team_lead_name');
     Route::post('update_team_lead', [ManageTeamController::class, 'updateTeamLead'])->name('update_team_lead');
     Route::post('remove_team', [ManageTeamController::class, 'removeTeam'])->name('remove_team');
+    Route::post('update_team_manager', [ManageTeamController::class, 'updateTeamManager'])->name('update_team_manager');
+
+    /* RECRUITER CANDIDATE VIEW MANAGEMENT*/
+    Route::resource('manage_candidate_view', ManageCandidateViewController::class);
 
     Auth::routes();
 });

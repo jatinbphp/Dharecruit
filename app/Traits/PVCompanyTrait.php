@@ -47,6 +47,7 @@ trait PVCompanyTrait {
     {
         return [
             'company_name'                      => 'Name',
+            'poc_count'                         => 'POC#',
             'added_date'                        => 'Date Added',
             'last_req_date'                     => 'Last Req.',
             'original_req_count'                => 'Total Req. #',
@@ -69,7 +70,6 @@ trait PVCompanyTrait {
             'status_rejected_by_client'         => 'Rejected By Client',
             'status_backout'                    => 'Backout',
             'client_status_total'               => 'Total',
-            'poc_count'                         => 'POC#',
             'avg'                               => 'Avg',
             'req_h'                             => 'PREQH',
             'bdm_count'                         => 'BDM #',
@@ -95,6 +95,7 @@ trait PVCompanyTrait {
         $this->setIsEmptyPVRow(1);
         $pvCompanyData = [
             'company_name'                      => $pvCompany,
+            'poc_count'                         => $totalPoc,
             'added_date'                        => $this->getCompanyAddedDateBasedOnId($pvCompany, $pvCompanies, $date),
             'last_req_date'                     => $this->getLastRequestDateBasedOnId($pvCompany, $pvCompanies, $date),
             'original_req_count'                => $this->getRequirementCounts($pvCompany, $pvCompanies, $date),
@@ -117,7 +118,6 @@ trait PVCompanyTrait {
             'status_client_rejected'            => $this->getCompanyWiseTotalClientStatusCount($interviewModel::STATUS_REJECTED, $pvCompany, $pvCompanies, $date),
             'status_backout'                    => $this->getCompanyWiseTotalClientStatusCount($interviewModel::STATUS_BACKOUT, $pvCompany, $pvCompanies, $date),
             'client_status_total'               => $this->getCompanyWiseTotalClientStatusCount('all', $pvCompany, $pvCompanies, $date),
-            'poc_count'                         => $totalPoc,
             'avg'                               => $avg,
             'highest_uni_req_by_poc'            => $this->getCompanyWiseHighestUniqueRequirementByPoc($pvCompany, $pvCompanies, $date),
             'bdm_count'                         => $this->getCompanyWiseTotalBDMCount($pvCompany, $pvCompanies, $date),
@@ -156,6 +156,7 @@ trait PVCompanyTrait {
 
             $pocData = [
                 'company_name'                      => $pocName,
+                'poc_count'                         => '',
                 'added_date'                        => $this->getPVCompanyWisePocAddedDate($pvCompany, $pocName, $pocNames, $date),
                 'last_req_date'                     => $this->getPVCompanyWisePocLastRequestDate($pvCompany, $pocName, $pocNames, $date),
                 'original_req_count'                => $this->getPVCompanyWisePocRequirementCounts($pvCompany, $pocName, $pocNames, $date),
@@ -178,7 +179,6 @@ trait PVCompanyTrait {
                 'status_client_rejected'            => $this->getPVCompanyWisePocClientStatusCount($pvCompany,$interviewModel::STATUS_REJECTED, $pocName, $pocNames, $date),
                 'status_backout'                    => $this->getPVCompanyWisePocClientStatusCount($pvCompany,$interviewModel::STATUS_BACKOUT, $pocName, $pocNames, $date),
                 'client_status_total'               => $this->getPVCompanyWisePocClientStatusCount($pvCompany,'all', $pocName, $pocNames, $date),
-                'poc_count'                         => '',
                 'avg'                               => '',
                 'highest_uni_req_by_poc'            => '',
                 'bdm_count'                         => $this->getPVCompanyWisePocTotalBDMCount($pvCompany, $pocName, $pocNames, $date),

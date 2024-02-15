@@ -14,6 +14,7 @@ trait EmployeeTrait {
     {
         return [
             'who_added'                         => 'Who Added',
+            'rec_wise_count'                    => 'Recruiter (Count)',
             'employer_company_name'             => 'Employer Name',
             'employer_company_total_sub'        => 'Employer Total Sub.',
             'employee_name'                     => 'Employee Name',
@@ -42,7 +43,6 @@ trait EmployeeTrait {
             'status_backout'                    => 'Backout',
             'client_status_total'               => 'Total',
             'category_wise_count'               => 'Category (Count)',
-            'rec_wise_count'                    => 'Recruiter (Count)',
         ];
     }
 
@@ -94,6 +94,7 @@ trait EmployeeTrait {
 
             $pocData = [
                 'who_added'                         => $this->getWhoAddedEmployeeName($employerName, $employeeName, $employeeNames),
+                'rec_wise_count'                    => $this->getEmployerWiseEmployeeRecruiter($employerName, $employeeName, $employeeNames, $date),
                 'employer_company_name'             => $employerName,
                 'employer_company_total_sub'        => $this->getSubmissionCountsBasedOnEmployer($employerName, $employerNames, $date),
                 'employee_name'                     => $employeeName,
@@ -121,9 +122,7 @@ trait EmployeeTrait {
                 'status_client_rejected'            => $this->getEmployerWiseEmployeeClientStatusCount($employerName,$interviewModel::STATUS_REJECTED, $employeeName, $employeeNames, $date),
                 'status_backout'                    => $this->getEmployerWiseEmployeeClientStatusCount($employerName,$interviewModel::STATUS_BACKOUT, $employeeName, $employeeNames, $date),
                 'client_status_total'               => $this->getEmployerWiseEmployeeClientStatusCount($employerName,'all', $employeeName, $employeeNames, $date),
-                'category_wise_count'               => $this->getEmployerWiseEmployeeCategories($employerName, $employeeName, $employeeNames, $date),
-                'bdm_wise_count'                    => $this->getEmployerWiseEmployeeRecruiter($employerName, $employeeName, $employeeNames, $date),
-            ];
+                'category_wise_count'               => $this->getEmployerWiseEmployeeCategories($employerName, $employeeName, $employeeNames, $date),];
 
             if($this->getIsEmptyPOCRow()){
                 $employerNameKey = $this->getKey($employerName);
@@ -166,6 +165,7 @@ trait EmployeeTrait {
     {
         return [
             'who_added',
+            'rec_wise_count',
             'employer_company_name',
             'employer_company_total_sub',
             'employee_name',

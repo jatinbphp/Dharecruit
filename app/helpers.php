@@ -7,6 +7,7 @@ use App\Models\EntityHistory;
 use App\Models\Interview;
 use App\Http\Controllers\Controller;
 use App\Models\Team;
+use App\Models\TeamMember;
 use Illuminate\Support\Facades\Auth;
 
 if(!function_exists('getLoggedInUserId')){
@@ -87,6 +88,53 @@ if(!function_exists('getTimeInReadableFormate')){
                 ->unique()
                 ->values()
                 ->toArray();
+        }
+    }
+
+    if(!function_exists('isManager')){
+        function isManager()
+        {
+            return (Team::where('manager_id', getLoggedInUserId())->exists()) ? true : false;
+        }
+    }
+
+    if(!function_exists('getManagerAllUsers')){
+        function getManagerAllUsers()
+        {
+            if(!isManager()){
+                return [];
+            }
+            return Team::with('teamMembers')
+                ->where('manager_id', getLoggedInUserId())
+                ->get()
+                ->pluck('teamMembers.*.member_id')
+                ->flatten()
+                ->unique()
+                ->values()
+                ->toArray();
+        }
+    }
+
+    if(!function_exists('getUserIdWiseTeamName')){
+        function getUserIdWiseTeamName()
+        {
+            $userData = [];
+
+            $admins = Admin::leftJoin('team_members', 'admins.id', '=', 'team_members.member_id')
+                ->leftJoin('teams', 'team_members.team_id', '=', 'teams.id')
+                ->select('admins.id', 'admins.name as admin_name', 'teams.team_name as team_name')
+                ->where('status','active')
+                ->whereNotNull('teams.team_name')
+                ->orderBy('name')
+                ->get();
+
+            foreach ($admins as $admin) {
+                if ($admin->team_name) {
+                    $userData[$admin->id] =  $admin->team_name;
+                }
+            }
+
+            return $userData;
         }
     }
 }

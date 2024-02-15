@@ -60,10 +60,17 @@
                                                 <div class="col-md-4">
                                                     <div class="form-group">
                                                         @if(isLeadUser() && $subType == 'lead_sub_received')
-                                                            @php
-                                                                $allBdm  = \App\Models\Admin::getActiveBDM();
-                                                                $teamBdm = array_intersect_key($allBdm, array_flip(getTeamMembers()));
-                                                            @endphp
+                                                            @if(isManager())
+                                                                @php
+                                                                    $allBdm  = \App\Models\Admin::getActiveBDM();
+                                                                    $teamBdm = array_intersect_key($allBdm, array_flip(getManagerAllUsers()));
+                                                                @endphp
+                                                            @else
+                                                                @php
+                                                                    $allBdm  = \App\Models\Admin::getActiveBDM();
+                                                                    $teamBdm = array_intersect_key($allBdm, array_flip(getTeamMembers()));
+                                                                @endphp
+                                                            @endif
                                                             <label class="control-label" for="bdm">BDM</label>
                                                             {!! Form::select('bdm[]', $teamBdm, null, ['class' => 'form-control select2', 'id'=>'bdm', 'multiple' => true, 'data-placeholder' => 'Select BDM Users']) !!}
                                                         @elseif(getLoggedInUserRole() == 'admin')
@@ -77,10 +84,17 @@
                                                 <div class="col-md-4">
                                                     <div class="form-group">
                                                         @if(isLeadUser() && $subType == 'lead_sub_sent')
-                                                            @php
-                                                                $allRec  = \App\Models\Admin::getActiveRecruiter();
-                                                                $teamRec = array_intersect_key($allRec, array_flip(getTeamMembers()));
-                                                            @endphp
+                                                            @if(isManager())
+                                                                @php
+                                                                    $allRec  = \App\Models\Admin::getActiveRecruiter();
+                                                                    $teamRec = array_intersect_key($allRec, array_flip(getManagerAllUsers()));
+                                                                @endphp
+                                                            @else
+                                                                @php
+                                                                    $allRec  = \App\Models\Admin::getActiveRecruiter();
+                                                                    $teamRec = array_intersect_key($allRec, array_flip(getTeamMembers()));
+                                                                @endphp
+                                                            @endif
                                                             <label class="control-label" for="recruiter">Recruiter</label>
                                                             {!! Form::select('recruiter[]', $teamRec, null, ['class' => 'form-control select2', 'id'=>'recruiter', 'multiple' => true, 'data-placeholder' => 'Select Recruiter Users']) !!}
                                                         @elseif(getLoggedInUserRole() == 'admin')

@@ -13,12 +13,12 @@
             <table class="table table-bordered table-striped" id="poc_report">
                 <thead>
                 <tr>
-                    <th scope="col" class="text-center element-border company-name" colspan="5">Company Name</th>
+                    <th scope="col" class="text-center element-border company-name" colspan="6">Company Name</th>
                     <th scope="col" colspan="4" class="text-center element-border rm-left-border">Requirement</th>
                     <th scope="col" colspan="5" class="text-center element-border rm-left-border">BDM Status</th>
                     <th scope="col" colspan="5" class="text-center element-border rm-left-border">Vendor Status</th>
                     <th scope="col" colspan="8" class="text-center element-border rm-left-border">Client Status</th>
-                    <th scope="col" colspan="2" class="text-center element-border rm-left-border">BDM / Category</th>
+                    <th scope="col" colspan="1" class="text-center element-border rm-left-border category_wise_count">Category</th>
                 </tr>
                 @if(isset($pocFilterData['heading']) && count($pocFilterData['heading']))
                     <tr>
@@ -45,7 +45,7 @@
                                             @php
                                                 $data = ($data) ? $data : '';
                                                 $class = (isset($classData[$heading]) && $data) ? $classData[$heading] : '';
-                                                $bottomRight = (in_array($heading, ['poc_name', 'unique_req_count', 'status_unviewed', 'status_position_closed', 'client_status_total', 'bdm_wise_count'])) ? 'border-right' : '';
+                                                $bottomRight = (in_array($heading, ['poc_name', 'unique_req_count', 'status_unviewed', 'status_position_closed', 'client_status_total', 'category_wise_count'])) ? 'border-right' : '';
                                                 $borderLeft = $heading == 'who_added' ? 'border-left' : '';
                                             @endphp
                                             @if(is_array($data))

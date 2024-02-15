@@ -19,6 +19,7 @@ class Team extends Model
         'team_name',
         'team_type',
         'team_color',
+        'manager_id',
     ];
 
     public static function getTeamType()

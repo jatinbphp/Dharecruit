@@ -477,13 +477,13 @@ trait CommonTrait {
             'highest_uni_req_by_poc'            => 'font-weight-bold',
             'bdm_count'                         => 'font-weight-bold',
             'category_wise_count'               => 'font-weight-bold',
-            'bdm_wise_count'                    => 'font-weight-bold',
+            'bdm_wise_count'                    => '',
             'last_sub_date'                     => 'font-weight-bold',
             'total_submission_count'            => 'font-weight-bold',
             'unique_sub_count'                  => 'font-weight-bold',
             'rec_count'                         => 'font-weight-bold',
-            'rec_wise_count'                    => 'font-weight-bold',
-            'employee_count'                    => 'font-weight-bold',
+            'rec_wise_count'                    => '',
+            'employee_count'                    => '',
             'highest_uni_sub_by_employee'       => 'font-weight-bold',
         ];
     }

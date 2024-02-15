@@ -15,6 +15,7 @@ trait POCTrait {
         return [
             'who_added'                         => 'Who Added',
             'reg_to'                            => 'Reg. To',
+            'bdm_wise_count'                    => 'BDM (Count)',
             'vendor_company_name'               => 'Vendor Company',
             'vendor_company_total_req'          => 'Vendor Company Total Req.',
             'poc_name'                          => 'POC Name',
@@ -43,7 +44,6 @@ trait POCTrait {
             'status_backout'                    => 'Backout',
             'client_status_total'               => 'Total',
             'category_wise_count'               => 'Category (Count)',
-            'bdm_wise_count'                    => 'BDM (Count)',
         ];
     }
 
@@ -100,6 +100,7 @@ trait POCTrait {
             $pocData = [
                 'who_added'                         => $this->getWhoAddedName($pvCompany, $pocName, $pocNames),
                 'reg_to'                            => $this->getRegisteredToName($pvCompany, $pocName, $pocNames),
+                'bdm_wise_count'                    => $this->getPVCompanyWisePocBDM($pvCompany, $pocName, $pocNames, $date),
                 'vendor_company_name'               => $pvCompany,
                 'vendor_company_total_req'          => $this->getRequirementCounts($pvCompany, $pvCompanies, $date),
                 'poc_name'                          => $pocName,
@@ -128,7 +129,6 @@ trait POCTrait {
                 'status_backout'                    => $this->getPVCompanyWisePocClientStatusCount($pvCompany,$interviewModel::STATUS_BACKOUT, $pocName, $pocNames, $date),
                 'client_status_total'               => $this->getPVCompanyWisePocClientStatusCount($pvCompany,'all', $pocName, $pocNames, $date),
                 'category_wise_count'               => $this->getPVCompanyWisePocCategories($pvCompany, $pocName, $pocNames, $date),
-                'bdm_wise_count'                    => $this->getPVCompanyWisePocBDM($pvCompany, $pocName, $pocNames, $date),
             ];
 
             if($this->getIsEmptyPOCRow()){
@@ -192,6 +192,7 @@ trait POCTrait {
         return [
             'who_added',
             'reg_to',
+            'bdm_wise_count',
             'vendor_company_name',
             'vendor_company_total_req',
             'poc_name'

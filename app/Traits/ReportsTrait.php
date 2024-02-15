@@ -21,6 +21,9 @@ trait ReportsTrait {
             $bdms = array_keys(Admin::getActiveBDM());
             if(isLeadUser() && $request->sub_type == 'lead_sub_received'){
                 $bdms = getTeamMembers();
+                if(isManager()){
+                    $bdms = getManagerAllUsers();
+                }
             } elseif (getLoggedInUserRole() == 'bdm'){
                 $bdms = [getLoggedInUserId()];
             }
@@ -53,6 +56,9 @@ trait ReportsTrait {
             $recruiters = array_keys(Admin::getActiveRecruiter());
             if(isLeadUser() && $request->sub_type == 'lead_sub_sent'){
                 $recruiters = getTeamMembers();
+                if(isManager()){
+                    $recruiters = getManagerAllUsers();
+                }
             } elseif (getLoggedInUserRole() == 'recruiter'){
                 $recruiters = [getLoggedInUserId()];
             }
@@ -91,6 +97,9 @@ trait ReportsTrait {
             $bdms = array_keys(Admin::getActiveBDM());
             if(isLeadUser() && $request->sub_type == 'lead_sub_received'){
                 $bdms = getTeamMembers();
+                if(isManager()){
+                    $bdms = getManagerAllUsers();
+                }
             } elseif (getLoggedInUserRole() == 'bdm'){
                 $bdms = [getLoggedInUserId()];
             }
@@ -120,6 +129,9 @@ trait ReportsTrait {
             $recruiters = array_keys(Admin::getActiveRecruiter());
             if(isLeadUser() && $request->sub_type == 'lead_sub_sent'){
                 $recruiters = getTeamMembers();
+                if(isManager()){
+                    $recruiters = getManagerAllUsers();
+                }
             } elseif (getLoggedInUserRole() == 'recruiter'){
                 $recruiters = [getLoggedInUserId()];
             }

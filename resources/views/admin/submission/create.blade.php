@@ -37,10 +37,18 @@
                                 </div>
                             {!! Form::close() !!}
                         </div>
+                        @php
+                            $settingRow =  \App\Models\Setting::where('name', 'is_show_search_by_candidate_id')->first();
+                        @endphp
                         <div class="search-emp-email">
                             <div class="row mb-2 mt-3 pl-3 pr-3">
                                 <div class="col-sm-6">
-                                    Search By Email Or Candidate Id
+                                    @if(!empty($settingRow) && $settingRow->value == 'yes')
+                                        Search By Email Or Candidate Id
+                                    @else
+                                        Search By Email
+                                    @endif
+
                                 </div>
                             </div>
                             <div class="row pl-3 pr-3">
@@ -49,11 +57,13 @@
                                         {!! Form::text('email', null, ['class' => 'form-control', 'placeholder' => 'Enter Email', 'id' => 'search_email']) !!}
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        {!! Form::text('name', null, ['class' => 'form-control', 'placeholder' => 'Enter Candidate Id', 'id' => 'search_id']) !!}
+                                @if(!empty($settingRow) && $settingRow->value == 'yes')
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            {!! Form::text('name', null, ['class' => 'form-control', 'placeholder' => 'Enter Candidate Id', 'id' => 'search_id']) !!}
+                                        </div>
                                     </div>
-                                </div>
+                                @endif
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <button class="btn btn-info float-left" id="search_fill" type="button">Search</button>

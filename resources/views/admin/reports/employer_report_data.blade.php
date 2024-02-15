@@ -10,19 +10,19 @@
             <table class="table table-bordered table-striped" id="pv_company_report">
                 <thead>
                 <tr>
-                    <th scope="col" class="text-center element-border">Company Name</th>
+                    <th scope="col" class="text-center element-border" colspan="2">Company Name</th>
                     <th scope="col" colspan="4" class="text-center element-border rm-left-border">Submission</th>
                     <th scope="col" colspan="5" class="text-center element-border rm-left-border">BDM Status</th>
                     <th scope="col" colspan="5" class="text-center element-border rm-left-border">Vendor Status</th>
                     <th scope="col" colspan="8" class="text-center element-border rm-left-border">Client Status</th>
-                    <th scope="col" colspan="4" class="text-center element-border rm-left-border">Employee</th>
+                    <th scope="col" colspan="3" class="text-center element-border rm-left-border">Employee</th>
                     <th scope="col" colspan="2" class="text-center element-border rm-left-border">Recruiter / Category</th>
                 </tr>
                 @if($headings && count($headings))
                     <tr>
                         @foreach($headings as $key => $data)
                             @php
-                                $bottomRight = (in_array($key, ['company_name', 'unique_sub_count', 'status_unviewed', 'status_position_closed', 'client_status_total', 'rec_count', 'rec_wise_count'])) ? 'border-right' : '';
+                                $bottomRight = (in_array($key, ['employee_count', 'unique_sub_count', 'status_unviewed', 'status_position_closed', 'client_status_total', 'rec_count', 'rec_wise_count'])) ? 'border-right' : '';
                                 $borderLeft = ($key == 'company_name') ? 'border-left' : '';
                             @endphp
                             <th class="border-bottom {{"$borderLeft $bottomRight $key"}}">{{$data}}</th>
@@ -47,7 +47,7 @@
                                     $class = (isset($classData[$heading]) && $data) ? $classData[$heading] : '';
                                     $topBorder = ($key == 'heading') ? 'border-top' : '';
                                     $bottomBorder = (in_array($key, ['heading'])) ? 'border-bottom' : '';
-                                    $bottomRight = (in_array($heading, ['company_name', 'unique_sub_count', 'status_unviewed', 'status_position_closed', 'client_status_total', 'rec_count', 'rec_wise_count'])) ? 'border-right' : '';
+                                    $bottomRight = (in_array($heading, ['employee_count', 'unique_sub_count', 'status_unviewed', 'status_position_closed', 'client_status_total', 'rec_count', 'rec_wise_count'])) ? 'border-right' : '';
                                     $borderLeft = ($heading == 'company_name') ? 'border-left' : '';
                                 @endphp
                                 @if(is_array($data))
@@ -85,7 +85,7 @@
                                             $class = (isset($classData[$heading]) && $data) ? $classData[$heading] : '';
                                             $topBorder = ($key == 'heading') ? 'border-top' : '';
                                             $bottomBorder = ($key == 'heading' || $i == $totalCount) ? 'border-bottom' : '';
-                                            $bottomRight = (in_array($heading, ['company_name', 'unique_sub_count', 'status_unviewed', 'status_position_closed', 'client_status_total', 'rec_count', 'rec_wise_count'])) ? 'border-right' : '';
+                                            $bottomRight = (in_array($heading, ['employee_count', 'unique_sub_count', 'status_unviewed', 'status_position_closed', 'client_status_total', 'rec_count', 'rec_wise_count'])) ? 'border-right' : '';
                                             $borderLeft = ($heading == 'company_name') ? 'border-left' : '';
                                         @endphp
                                         @if(strtolower($key) == 'heading')

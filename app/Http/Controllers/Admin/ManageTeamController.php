@@ -189,6 +189,8 @@ class ManageTeamController extends Controller
         $data['teamBdmData']  = Team::where('team_type', Team::TEAM_TYPE_BDM)->get();
         $data['teamRecData']  = Team::where('team_type', Team::TEAM_TYPE_RECRUITER)->get();
         $data['allLeadData']  = Team::pluck('team_lead_id')->toArray();
+        $data['bdmLeadData']  = Team::where('team_type', 'team_type_bdm')->pluck('team_lead_id')->toArray();
+        $data['recLeadData']  = Team::where('team_type', 'team_type_recruiter')->pluck('team_lead_id')->toArray();
         $data['allBdmUsers']  = Admin::getActiveBDM();
         $data['allRecUsers']  = Admin::getActiveRecruiter();
         $data['teamWiseData'] = TeamMember::select('team_id', 'member_id')
@@ -234,6 +236,12 @@ class ManageTeamController extends Controller
         $team = Team::find($request->team_id);
 
         if($team->id){
+            if($team->team_lead_id){
+                $oldManagerData = Team::where('manager_id', $team->team_lead_id)->first();
+                if($oldManagerData){
+                    $oldManagerData->update(['manager_id', 0]);
+                }
+            }
             $team->team_lead_id = $request->team_lead_id;
             $team->save();
             $data['status'] = 1;
@@ -255,6 +263,25 @@ class ManageTeamController extends Controller
         if($team->id){
             TeamMember::where('team_id', $request->team_id)->delete();
             $team->delete();
+            $data['status'] = 1;
+        }
+        $data['html'] = view('admin.team.teamData', $this->getAllListData())->toHtml();
+        return $data;
+    }
+
+    public function updateTeamManager(Request $request)
+    {
+        $data['status'] = 0;
+        if(empty($request->user_id) || empty($request->team_id)){
+            $data['html'] = view('admin.team.teamData', $this->getAllListData())->toHtml();
+            return $data;
+        }
+
+        $team = Team::find($request->team_id);
+
+        if($team->id){
+            $team->manager_id = $request->user_id;
+            $team->save();
             $data['status'] = 1;
         }
         $data['html'] = view('admin.team.teamData', $this->getAllListData())->toHtml();
