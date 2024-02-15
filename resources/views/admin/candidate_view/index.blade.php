@@ -27,6 +27,15 @@
                     <div class="card card-info card-outline">
                         <div class="card-header">
                             <div class="row">
+                                <div class="col-4">
+                                    <h5>Set Global View Limit:</h5>
+                                    <input type="number" class="form-control float-left" id="global-view-limit" style="width: 75%" placeholder="Select Global View Limit" value="{{$globalValue}}">
+                                    <button class="btn btn-success ml-2" type="button" onclick="saveRecruiterGlobalLimt()"><i class="fas fa-check-circle ml-1"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-header">
+                            <div class="row">
                                 @foreach($allRecruiter as $userId => $recruiter)
                                     <div class="col-md-3">
                                         <div class="card card-widget widget-user-2 shadow-sm">
@@ -41,8 +50,10 @@
                                                 <ul class="nav flex-column">
                                                     <li class="nav-item">
                                                         <a href="#" class="nav-link">
-                                                                 <span class="h5" onclick="editViewLimit('{{$userId}}')" id="{{$userId}}">Set Candidate View Limt</span>
-                                                                <span class="float-right badge bg-warning p-2 mb-2" style="font-size: 15px;" id="limit_{{$userId}}">{{isset($userWiseLimit[$userId]) ? $userWiseLimit[$userId] : ''}}</span>
+                                                            <span id="recruiter_label_{{$userId}}">
+                                                                <span class="h5" onclick="editViewLimit('{{$userId}}')" id="{{$userId}}">Set Candidate View Limt</span>
+                                                            </span><span id="button-group-{{$userId}}">
+                                                            <span class="float-right badge bg-warning p-2 mb-2" style="font-size: 15px;" id="limit_{{$userId}}">{{isset($userWiseLimit[$userId]) ? $userWiseLimit[$userId] : ''}}</span>
                                                         </a>
                                                     </li>
                                                 </ul>
@@ -61,20 +72,84 @@
 
 @section('jquery')
     <script type="text/javascript">
-        function editViewLimit(teamId){
-            var currentLimit = $("#limit_"+teamId).text();
+        function editViewLimit(recruiterId){
+            var currentLimit = $("#limit_"+recruiterId).text();
             var inputField = $('<input>').attr({
                 type: 'number',
-                id: 'nameInput_'+teamId,
+                id: 'nameInput_'+recruiterId,
                 style: 'width:80px',
                 value: currentLimit
             });
-            var buttonsHtml = '<i class="fas fa-check-circle text-success ml-1" id="save-team-name-'+teamId+'" onclick="saveTeamName('+teamId+')"></i>'+
-                '<i class="fas fa-times-circle text-danger ml-1" id="cancel-team-name-'+teamId+'" onclick="cancelButton('+teamId+')"></i>';
-            $('#button-group-'+teamId).append(buttonsHtml);
-            $('#'+teamId).hide();
-            $("#team-name-label-"+teamId).hide();
-            $("#tean_name_"+teamId).append(inputField);
+            var buttonsHtml = '<i class="fas fa-check-circle text-success ml-1" id="save-candidate-limit-'+recruiterId+'" onclick="saveRecruiterLimt('+recruiterId+')"></i>'+
+                '<i class="fas fa-times-circle text-danger ml-1" id="cancel-team-name-'+recruiterId+'" onclick="cancelButton('+recruiterId+')"></i>';
+            $('#button-group-'+recruiterId).append(buttonsHtml);
+            $('#'+recruiterId).hide();
+            $("#recruiter_label_"+recruiterId).append(inputField);
+        }
+
+        function cancelButton(recruiterId){
+            $('#save-candidate-limit-'+recruiterId).remove();
+            $('#cancel-team-name-'+recruiterId).remove();
+            $('#nameInput_'+recruiterId).remove();
+            $('#'+recruiterId).show();
+            $("#team-name-label-"+recruiterId).show();
+            var text = $('#nameInput_'+recruiterId).text();
+        }
+
+        function saveRecruiterLimt(recruiterId){
+            var limit = $('#nameInput_'+recruiterId).val();
+            if(!recruiterId || !limit){
+                return;
+            }
+            $.ajax({
+                url: "{{ route('update_recruiter_limit') }}",
+                method: 'POST',
+                data: {
+                    '_token'       : '{{ csrf_token() }}',
+                    'recruiter_id' : recruiterId,
+                    'limit'        : limit,
+                },
+                success: function(response) {
+                    if(response.status == 1){
+                        swal("Success", "Limit Updated Successfully!", "success");
+                        $('#limit_'+recruiterId).text(limit);
+                        cancelButton(recruiterId);
+                    } else {
+                        swal("Error", "Something Went Wrong!", "error");
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching data:', error);
+                }
+            });
+        }
+
+        function saveRecruiterGlobalLimt(){
+            var limit = $('#global-view-limit').val();
+            console.log(limit);
+            if(!limit){
+                return;
+            }
+            console.log(111);
+            $.ajax({
+                url: "{{ route('update_recruiter_global_limit') }}",
+                method: 'POST',
+                data: {
+                    '_token'       : '{{ csrf_token() }}',
+                    'limit'        : limit,
+                },
+                success: function(response) {
+                    if(response.status == 1){
+                        swal("Success", "Limit Updated Successfully!", "success");
+                        $('#global-view-limit').val(limit);
+                    } else {
+                        swal("Error", "Something Went Wrong!", "error");
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching data:', error);
+                }
+            });
         }
     </script>
 @endsection

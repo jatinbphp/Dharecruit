@@ -193,6 +193,8 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
 
     /* RECRUITER CANDIDATE VIEW MANAGEMENT*/
     Route::resource('manage_candidate_view', ManageCandidateViewController::class);
+    Route::post('update_recruiter_limit', [ManageCandidateViewController::class, 'updateRecruiterLimit'])->name('update_recruiter_limit');
+    Route::post('update_recruiter_global_limit', [ManageCandidateViewController::class, 'updateRecruiterGlobalLimit'])->name('update_recruiter_global_limit');
 
     Auth::routes();
 });
