@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\ImageController;
 use App\Http\Controllers\Admin\InterviewController;
 use App\Http\Controllers\Admin\MailTemplateController;
 use App\Http\Controllers\Admin\ManageCandidateViewController;
+use App\Http\Controllers\Admin\ManageManagerController;
 use App\Http\Controllers\Admin\ManageTeamController;
 use App\Http\Controllers\Admin\MoiController;
 use App\Http\Controllers\Admin\PermissionController;
@@ -47,6 +48,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::get('/', [DashboardController::class,'index'])->name('dashboard');*/
 
     Route::get('/dashboard', [DashboardController::class,'index'])->name('dashboard');
+    Route::post('/getChartData', [DashboardController::class, 'getTypeWiseChartData'])->name('getChartData');
 
     /*IMAGE UPLOAD IN SUMMER NOTE*/
     Route::post('image/upload', [ImageController::class,'upload_image']);
@@ -119,6 +121,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('requirement/check_poc', [RequirementController::class, 'checkPoc'])->name('requirement.checkPoc');
     Route::post('requirement/transfer_poc', [RequirementController::class, 'transferPoc'])->name('requirement.transfer_poc');
     Route::post('requirement/checkTransferKey', [RequirementController::class, 'checkTransferKey'])->name('requirement.checkTransferKey');
+    Route::post('requirement/update_is_red', [CommonController::class, 'updateIsRed'])->name('requirement.update_is_red');
 
     /* SUBMISSION MANAGEMENT */
     Route::get('submission/new/{id}', [SubmissionController::class,'submissionAdd'])->name('submission.newAdd');
@@ -189,12 +192,15 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('update_team_lead_name', [ManageTeamController::class, 'updateTeamLeadName'])->name('update_team_lead_name');
     Route::post('update_team_lead', [ManageTeamController::class, 'updateTeamLead'])->name('update_team_lead');
     Route::post('remove_team', [ManageTeamController::class, 'removeTeam'])->name('remove_team');
-    Route::post('update_team_manager', [ManageTeamController::class, 'updateTeamManager'])->name('update_team_manager');
 
     /* RECRUITER CANDIDATE VIEW MANAGEMENT*/
     Route::resource('manage_candidate_view', ManageCandidateViewController::class);
     Route::post('update_recruiter_limit', [ManageCandidateViewController::class, 'updateRecruiterLimit'])->name('update_recruiter_limit');
     Route::post('update_recruiter_global_limit', [ManageCandidateViewController::class, 'updateRecruiterGlobalLimit'])->name('update_recruiter_global_limit');
+
+    /*MANAGER MANAGEMENT*/
+    Route::resource('manage_manager', ManageManagerController::class);
+    Route::post('update_team_manager', [ManageManagerController::class, 'updateTeamManager'])->name('update_team_manager');
 
     Auth::routes();
 });

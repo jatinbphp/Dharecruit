@@ -287,7 +287,8 @@
                         <button class="btn btn-block btn-outline-primary btn-sm mt-1 @if($menu=='Team Interviews') active @endif">Team Interviews</button>
                     </a>
                 </li>
-
+            @endif
+            @if(isLeadUser() || isManager())
                 @if(\Illuminate\Support\Facades\Auth::user()->role == 'bdm')
                     <li class="nav-item d-none d-sm-inline-block ml-2">
                         <a href="{{ route('reports',['type' => 'efficiency', 'subType' => 'lead_sub_received']) }}">
@@ -351,8 +352,8 @@
                     </li>
 
                     @if($loginRole == 'admin' || $check1 || $check2 || $check3 || $check4 || $check5 || $check6 || $check20)
-                        <li class="nav-item @if(in_array($menu, ['Permission','Admin User','BDM User','Recruiter User','TL Recruiter User','TL BDM User','Manage Team'])) menu-open @endif">
-                            <a href="#" class="nav-link @if(in_array($menu, ['Permission','Admin User','BDM User','Recruiter User','TL Recruiter User','TL BDM User','Manage Team'])) active @endif">
+                        <li class="nav-item @if(in_array($menu, ['Permission','Admin User','BDM User','Recruiter User','TL Recruiter User','TL BDM User','Manage Team', 'Manage Manager'])) menu-open @endif">
+                            <a href="#" class="nav-link @if(in_array($menu, ['Permission','Admin User','BDM User','Recruiter User','TL Recruiter User','TL BDM User','Manage Team', 'Manage Manager'])) active @endif">
                                 <i class="nav-icon fas fa-users"></i>
                                 <p>Manage Users <i class="right fas fa-angle-left"></i>
                                 </p>
@@ -411,6 +412,14 @@
                                         <a href="{{ route('manage_team.index') }}" class="nav-link @if($menu=='Manage Team') active @endif">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>Manage Team</p>
+                                        </a>
+                                    </li>
+                                @endif
+                                @if($loginRole == 'admin' || $check21)
+                                    <li class="nav-item">
+                                        <a href="{{ route('manage_manager.index') }}" class="nav-link @if($menu=='Manage Manager') active @endif">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Manage Manager</p>
                                         </a>
                                     </li>
                                 @endif
@@ -613,14 +622,14 @@
                             </a>
                         </li>
                     @endif
-                    @if(\Illuminate\Support\Facades\Auth::user()->role == 'admin')
-                        <li class="nav-item">
-                            <a href="{{ route('manage_candidate_view.index') }}" class="nav-link @if($menu=='Mail Template') active @endif">
-                                <i class="nav-icon fa fa-binoculars"></i>
-                                <p>Manage Candidate View</p>
-                            </a>
-                        </li>
-                    @endif
+{{--                    @if(\Illuminate\Support\Facades\Auth::user()->role == 'admin')--}}
+{{--                        <li class="nav-item">--}}
+{{--                            <a href="{{ route('manage_candidate_view.index') }}" class="nav-link @if($menu=='Mail Template') active @endif">--}}
+{{--                                <i class="nav-icon fa fa-binoculars"></i>--}}
+{{--                                <p>Manage Candidate View</p>--}}
+{{--                            </a>--}}
+{{--                        </li>--}}
+{{--                    @endif--}}
                 </ul>
             </nav>
         </div>
@@ -1492,6 +1501,36 @@
     //     //         console.error('Unable to copy text to clipboard', err);
     //     //     });
     // }
+
+    function toggleRedRequirement(requirementId){
+        if(!requirementId){
+            return;
+        }
+
+        $.ajax({
+            url: "{{ route('requirement.update_is_red') }}",
+            method: 'POST',
+            data: {
+                '_token' : '{{ csrf_token() }}',
+                'id'     : requirementId,
+            },
+            success: function(response) {
+                if(response.status == 1){
+                    if($('#'+requirementId).is(':checked')){
+                        $('#row-'+requirementId).css('background-color', '#fb0000');
+                    } else {
+                        $('#row-'+requirementId).css('background-color', '');
+                    }
+                    swal("Success", "Data Updated Successfully!", "success");
+                } else {
+                    swal("Error", "Something Went Wrong!", "error");
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error fetching data:', error);
+            }
+        });
+    }
 </script>
 @yield('jquery')
 </body>

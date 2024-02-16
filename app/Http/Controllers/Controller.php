@@ -671,6 +671,7 @@ class Controller extends BaseController
             'requirements.is_show_recruiter_after_update',
             'requirements.is_update_requirement',
             'requirements.parent_requirement_id',
+            'requirements.is_red',
             'requirements.poc_email',
             'bdm.name as bdm_name',
             'category.name as category_name',
@@ -696,7 +697,7 @@ class Controller extends BaseController
             } else {
                 $query = $query->where('requirements.user_id', 0);
             }
-        } elseif ($user['role'] == 'recruiter' && isLeadUser()){
+        } elseif ($user['role'] == 'recruiter' && isLeadUser() && $request->user_type == 'lead_user'){
             if (getTeamMembers()){
                 if($request->team_users){
                     $query = $query->where(function ($query) use ($request) {

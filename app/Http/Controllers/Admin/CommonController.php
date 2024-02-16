@@ -562,4 +562,23 @@ class CommonController extends Controller
 
         return $data;
     }
+
+    public function updateIsRed(Request $request)
+    {
+        $data['status'] = 0;
+        if(empty($request->id)){
+            return $data;
+        }
+        $requirement = Requirement::findorFail($request['id']);
+        if(!empty($requirement)){
+            if($requirement->is_red){
+                $requirement->is_red = 0;
+            } else {
+                $requirement->is_red = 1;
+            }
+            $requirement->save();
+            $data['status'] = 1;
+        }
+        return $data;
+    }
 }

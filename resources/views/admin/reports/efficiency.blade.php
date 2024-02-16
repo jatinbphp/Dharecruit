@@ -59,13 +59,18 @@
                                             @if(isset($subType) && in_array($subType, ['sub_received', 'lead_sub_received']))
                                                 <div class="col-md-4">
                                                     <div class="form-group">
-                                                        @if(isLeadUser() && $subType == 'lead_sub_received')
-                                                            @if(isManager())
+                                                        @if((isManager() || isLeadUser()) && $subType == 'lead_sub_received')
+                                                            @if(isManager() && isLeadUser())
+                                                                @php
+                                                                    $allBdm  = \App\Models\Admin::getActiveBDM();
+                                                                    $teamBdm = array_intersect_key($allBdm, array_flip(array_merge(getManagerAllUsers(), getTeamMembers())));
+                                                                @endphp
+                                                            @elseif(isManager())
                                                                 @php
                                                                     $allBdm  = \App\Models\Admin::getActiveBDM();
                                                                     $teamBdm = array_intersect_key($allBdm, array_flip(getManagerAllUsers()));
                                                                 @endphp
-                                                            @else
+                                                            @elseif(isLeadUser())
                                                                 @php
                                                                     $allBdm  = \App\Models\Admin::getActiveBDM();
                                                                     $teamBdm = array_intersect_key($allBdm, array_flip(getTeamMembers()));
@@ -83,20 +88,25 @@
                                             @if(isset($subType) && in_array($subType, ['sub_sent', 'lead_sub_sent']))
                                                 <div class="col-md-4">
                                                     <div class="form-group">
-                                                        @if(isLeadUser() && $subType == 'lead_sub_sent')
-                                                            @if(isManager())
+                                                        @if($subType == 'lead_sub_sent' && (isManager() || isLeadUser()))
+                                                            @if(isManager() && isLeadUser())
+                                                                @php
+                                                                    $allRec  = \App\Models\Admin::getActiveRecruiter();
+                                                                    $teamRec = array_intersect_key($allRec, array_flip(array_merge(getManagerAllUsers(), getTeamMembers())));
+                                                                @endphp
+                                                            @elseif(isManager())
                                                                 @php
                                                                     $allRec  = \App\Models\Admin::getActiveRecruiter();
                                                                     $teamRec = array_intersect_key($allRec, array_flip(getManagerAllUsers()));
                                                                 @endphp
-                                                            @else
+                                                            @elseif(isLeadUser())
                                                                 @php
                                                                     $allRec  = \App\Models\Admin::getActiveRecruiter();
                                                                     $teamRec = array_intersect_key($allRec, array_flip(getTeamMembers()));
                                                                 @endphp
                                                             @endif
-                                                            <label class="control-label" for="recruiter">Recruiter</label>
-                                                            {!! Form::select('recruiter[]', $teamRec, null, ['class' => 'form-control select2', 'id'=>'recruiter', 'multiple' => true, 'data-placeholder' => 'Select Recruiter Users']) !!}
+{{--                                                            <label class="control-label" for="recruiter">Recruiter</label>--}}
+{{--                                                            {!! Form::select('recruiter[]', $teamRec, null, ['class' => 'form-control select2', 'id'=>'recruiter', 'multiple' => true, 'data-placeholder' => 'Select Recruiter Users']) !!}--}}
                                                         @elseif(getLoggedInUserRole() == 'admin')
                                                             <label class="control-label" for="recruiter">Recruiter</label>
                                                             {!! Form::select('recruiter[]', \App\Models\Admin::getActiveRecruiter(), null, ['class' => 'form-control select2', 'id'=>'recruiter', 'multiple' => true, 'data-placeholder' => 'Select Recruiter Users']) !!}

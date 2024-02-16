@@ -6,24 +6,12 @@
             <div class="col-4">
                 <div class="card m-3 card-outline" style="max-width: 40rem; border-top: 3px solid {{$team->team_color}};">
                     <div class="card-header">
-                        <div>
-                            <span>Select Manager:</span>
-                        </div>
-                        <div class="row">
-                            @foreach($bdmLeadData as $leadUser)
-                                <div class="col-3">
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" id="{{$team->id}}_{{$leadUser}}" @if($team->manager_id == $leadUser) checked @endif onchange="editManager('{{$team->id}}', '{{$leadUser}}')">
-                                        <label for="{{$team->id}}_{{$leadUser}}">{{(isset($allBdmUsers[$leadUser]) ? $allBdmUsers[$leadUser] : '')}}</label>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                    <div class="card-header">
                         <div style="display: flex; justify-content: space-between;">
-                            <span>Team Name: <span id="tean_name_{{$team->id}}" style="color: {{$team->team_color}}"><span id="team-name-label-{{$team->id}}">{{$team->team_name}}</span></span><span id="button-group-{{$team->id}}"><i class="fas fa-edit ml-1" id="{{$team->id}}" onclick="editTeamName('{{$team->id}}')" data-toggle="tooltip" title="Edit Team Name" data-trigger="hover"></i></span></span>
-                            <span>Lead Name: <span class="text-left" style="color: {{$team->team_color}}">{{$team->TeanLead->name}}</span><i class="fas fa-edit ml-1" id="{{$team->id}}" onclick="editTeamLeader('{{$team->id}}','{{$team->team_type}}', '{{$team->team_lead_id}}')" data-toggle="tooltip" title="Edit Team Leader" data-trigger="hover"></i></span>
+                            <span>Team Name: <span id="tean_name_{{$team->id}}" style="color: {{$team->team_color}}" class="font-weight-bold"><span id="team-name-label-{{$team->id}}">{{$team->team_name}}</span></span><span id="button-group-{{$team->id}}"><i class="fas fa-edit ml-1" id="{{$team->id}}" onclick="editTeamName('{{$team->id}}')" data-toggle="tooltip" title="Edit Team Name" data-trigger="hover"></i></span></span>
+                            <span>Lead Name: <span class="text-left font-weight-bold" style="color: {{$team->team_color}}">{{$team->TeanLead->name}}</span><i class="fas fa-edit ml-1" id="{{$team->id}}" onclick="editTeamLeader('{{$team->id}}','{{$team->team_type}}', '{{$team->team_lead_id}}')" data-toggle="tooltip" title="Edit Team Leader" data-trigger="hover"></i></span>
+                        </div>
+                        <div class="mt-2">
+                            <span>Manager Name: <span class="font-weight-bold">{{isset($allBdmUsers[$team->manager_id]) ? $allBdmUsers[$team->manager_id] : ''}}</span></span>
                         </div>
                     </div>
                     <div class="card-body">
@@ -73,24 +61,12 @@
             <div class="col-4">
                 <div class="card card-outline m-3" style="max-width: 40rem; border-top: 3px solid {{$team->team_color}};">
                     <div class="card-header">
-                        <div>
-                            <span>Select Manager:</span>
-                        </div>
-                        <div class="row">
-                            @foreach($recLeadData as $leadUser)
-                                <div class="col-3">
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" id="{{$team->id}}_{{$leadUser}}" @if($team->manager_id == $leadUser) checked @endif onchange="editManager('{{$team->id}}', '{{$leadUser}}')">
-                                        <label for="{{$team->id}}_{{$leadUser}}">{{(isset($allRecUsers[$leadUser]) ? $allRecUsers[$leadUser] : '')}}</label>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                    <div class="card-header">
                         <div style="display: flex; justify-content: space-between;">
-                            <span>Team Name: <span id="tean_name_{{$team->id}}" style="color: {{$team->team_color}}"><span id="team-name-label-{{$team->id}}">{{$team->team_name}}</span></span><span id="button-group-{{$team->id}}"><i class="fas fa-edit ml-1" id="{{$team->id}}" onclick="editTeamName('{{$team->id}}')" data-toggle="tooltip" title="Edit Team Name" data-trigger="hover"></i></span></span>
-                            <span>Lead Name: <span class="text-left" style="color: {{$team->team_color}}">{{$team->TeanLead->name}}</span><i class="fas fa-edit ml-1" id="{{$team->id}}" onclick="editTeamLeader('{{$team->id}}','{{$team->team_type}}', '{{$team->team_lead_id}}')" data-toggle="tooltip" title="Edit Team Leader" data-trigger="hover"></i></span>
+                            <span>Team Name: <span id="tean_name_{{$team->id}}" style="color: {{$team->team_color}}" class="font-weight-bold"><span id="team-name-label-{{$team->id}}">{{$team->team_name}}</span></span><span id="button-group-{{$team->id}}"><i class="fas fa-edit ml-1" id="{{$team->id}}" onclick="editTeamName('{{$team->id}}')" data-toggle="tooltip" title="Edit Team Name" data-trigger="hover"></i></span></span>
+                            <span>Lead Name: <span class="text-left font-weight-bold" style="color: {{$team->team_color}}">{{$team->TeanLead->name}}</span><i class="fas fa-edit ml-1" id="{{$team->id}}" onclick="editTeamLeader('{{$team->id}}','{{$team->team_type}}', '{{$team->team_lead_id}}')" data-toggle="tooltip" title="Edit Team Leader" data-trigger="hover"></i></span>
+                        </div>
+                        <div class="mt-2">
+                            <span>Manager Name: <span class="font-weight-bold">{{isset($allRecUsers[$team->manager_id]) ? $allRecUsers[$team->manager_id] : ''}}</span></span>
                         </div>
                     </div>
                     <div class="card-body">

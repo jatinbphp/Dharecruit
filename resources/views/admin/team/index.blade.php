@@ -276,33 +276,5 @@
                 }
             });
         }
-
-        function editManager(teamId, userId){
-            if(!teamId || !userId){
-                return;
-            }
-            $.ajax({
-                url: "{{ route('update_team_manager') }}",
-                method: 'POST',
-                data: {
-                    '_token'   : '{{ csrf_token() }}',
-                    'team_id' : teamId,
-                    'user_id'  : userId,
-                },
-                success: function(response) {
-                    $('#teamMembers').html(response.html);
-                    $('#teamMembers').html(response.html);
-                    $('#teamMembers').html(response.html);
-                    if(response.status == 1){
-                        swal("Success", "Team Removed Successfully!", "success");
-                    } else {
-                        swal("Error", "Something Went Wrong!", "error");
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error fetching data:', error);
-                }
-            });
-        }
     </script>
 @endsection

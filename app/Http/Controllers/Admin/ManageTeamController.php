@@ -268,23 +268,4 @@ class ManageTeamController extends Controller
         $data['html'] = view('admin.team.teamData', $this->getAllListData())->toHtml();
         return $data;
     }
-
-    public function updateTeamManager(Request $request)
-    {
-        $data['status'] = 0;
-        if(empty($request->user_id) || empty($request->team_id)){
-            $data['html'] = view('admin.team.teamData', $this->getAllListData())->toHtml();
-            return $data;
-        }
-
-        $team = Team::find($request->team_id);
-
-        if($team->id){
-            $team->manager_id = $request->user_id;
-            $team->save();
-            $data['status'] = 1;
-        }
-        $data['html'] = view('admin.team.teamData', $this->getAllListData())->toHtml();
-        return $data;
-    }
 }

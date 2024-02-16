@@ -160,7 +160,20 @@
                     columnData += '<p>'+ month +'/'+ day +'/'+ year +'</p>'
                     return columnData;
                 }},
-                {data: 'job_id', 'width': '6%', name: 'job_id'},
+                {data: 'job_id', 'width': '6%', name: 'job_id', render: function (data, type, full){
+                        @if(getLoggedInUserRole() == 'admin' || isManager())
+                            data += '<div class="icheck-danger d-inline">';
+                        data += ' <input type="checkbox" onclick="toggleRedRequirement('+full['id']+')" id="'+full['id']+'">';
+                        data += '<label for="'+full['id']+'">';
+                        data += '</label>';
+                        data += '</div>';
+                        @endif
+                        if(full['is_red'] == 1){
+                            jQuery('#'+full['id']).prop('checked', true);
+                        }
+                        return data;
+                    }
+                },
                 {data: 'job_title', 'width': '20%', name: 'job_title'},
                 {data: 'location', name: 'location'},
                 {data: 'work_type', name: 'work_type'},
@@ -184,6 +197,12 @@
                 {data: 'action', "width": "12%", name: 'action', orderable: false, searchable: false},
             ],
             order: [[1, 'desc']],
+            rowCallback: function( row, data, index ) {
+                $(row).attr('id', 'row-'+data.id);
+                if(data.is_red == 1){
+                    $(row).css('background-color', '#fb0000');
+                }
+            }
         });
         $('#requirementTable').on('draw.dt', function () {
             $('#requirementTable thead th.toggle-job-keyword-column').each(function() {

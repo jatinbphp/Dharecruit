@@ -60,8 +60,8 @@ class SubmissionController extends Controller
         $data['search'] = $request['search'];
 
         if ($request->ajax()) {
-            $data = $this->Filter($request);
             $request['user_type'] = 'lead_user';
+            $data = $this->Filter($request);
             return $this->getListHtml($data, $request, 'submission');
         }
         $data['type'] = 3;
