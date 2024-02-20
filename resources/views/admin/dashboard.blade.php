@@ -18,96 +18,41 @@
                             </div>
                         </div>
                     </div>
+                @endif
+                @if(getLoggedInUserRole() == 'admin' || isLeadUser() || isManager())
                     <div class="row">
-                        <div class="col-md-12" id="requirementChart">
-                            @include('admin.chart.requirement')
+                        @if(getLoggedInUserRole() == 'admin' || isLeadUser() || isManager())
+                            <div class="col-md-12 @if(isLeadUser() || isManager()) mt-5 @endif">
+                                @include('admin.chart.interview')
+                            </div>
+                        @endif
+                        @if(getLoggedInUserRole() == 'admin')
+                            <div class="col-md-12">
+                                @include('admin.chart.requirementvsserved')
+                            </div>
+                            <div class="col-md-12">
+                                @include('admin.chart.requirement')
+                            </div>
+                            <div class="col-4">
+                                @include('admin.chart.bdm_status')
+                            </div>
+                            <div class="col-4">
+                                @include('admin.chart.pv_status')
+                            </div>
+                            <div class="col-4">
+                                @include('admin.chart.interview_status')
+                            </div>
+                        @endif
+                    </div>
+                @endif
+                @if(in_array(getLoggedInUserRole(), ['bdm', 'recruiter']))
+                    <div class="row mt-5">
+                        <div class="col-md-12" id="monthly_interview">
+                            @include('admin.chart.monthly_interview')
                         </div>
                     </div>
                 @endif
             </div>
         </section>
     </div>
-@endsection
-@section('jquery')
-<script type="text/javascript">
-    $(document).ready(function () {
-        var data = {
-            labels: {!! json_encode($monthlyLabels) !!},
-            requirementCounts: {!! json_encode($monthlyRequiremtCounts) !!},
-            submissionCounts: {!! json_encode($monthlySubmissionCounts) !!},
-        };
-
-        var ctx = document.getElementById('barChart').getContext('2d');
-        var barChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: data.labels,
-                datasets: [{
-                    label: 'Requirement Count',
-                    data: data.requirementCounts,
-                    backgroundColor: '#688ade',
-                    borderColor: '#0013b0',
-                    borderWidth: 1
-                }, {
-                    label: 'Submission Count',
-                    data: data.submissionCounts,
-                    backgroundColor: '#dc7979',
-                    borderColor: '#ff0000',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                },
-                legend: {
-                    display: true,
-                    position: 'bottom', // Place legend at the bottom
-                },
-            }
-        });
-
-        $('input[type="radio"]').on('change', function() {
-            var type = $(this).attr('data-type');
-            if(!type){
-                return;
-            }
-
-            $.ajax({
-                url: "{{ route('getChartData') }}",
-                method: 'POST',
-                data: {
-                    '_token' : '{{ csrf_token() }}',
-                    'type'   : type,
-                },
-                success: function(response) {
-                    console.log(response);
-                    if(response.status == 1){
-                        barChart.data.labels = response.label;
-                        barChart.data.datasets[0].data = response.requiremtCounts;
-                        barChart.data.datasets[1].data = response.submissionCounts;
-                        barChart.update();
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error fetching data:', error);
-                }
-            });
-            // // Fetch updated data based on the selected option via Ajax
-            // var updatedData = fetchUpdatedData(selectedOption);
-            //
-            // // Update chart data
-            // barChart.data.labels = updatedData.labels;
-            // barChart.data.datasets[0].data = updatedData.requirementCounts;
-            // barChart.data.datasets[1].data = updatedData.submissionCounts;
-            //
-            // // Update chart options if needed
-            //
-            // // Update chart
-            // barChart.update();
-        });
-    });
-</script>
 @endsection

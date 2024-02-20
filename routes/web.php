@@ -49,6 +49,12 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class,'index'])->name('dashboard');
     Route::post('/getChartData', [DashboardController::class, 'getTypeWiseChartData'])->name('getChartData');
+    Route::post('/getInterviewChartData', [DashboardController::class, 'getInterviewChartData'])->name('getInterviewChartData');
+    Route::post('/getRequirementVsServed', [DashboardController::class, 'getRequirementVsServed'])->name('getRequirementVsServed');
+    Route::post('/getMonthlyInterviewChartData', [DashboardController::class, 'getMonthlyInterviewChartData'])->name('getMonthlyInterviewChartData');
+    Route::post('/getBdmStatusData', [DashboardController::class, 'getBdmStatusData'])->name('getBdmStatusData');
+    Route::post('/getPvStatusData', [DashboardController::class, 'getPvStatusData'])->name('getPvStatusData');
+    Route::post('/getInterviewStatusData', [DashboardController::class, 'getInterviewStatusData'])->name('getInterviewStatusData');
 
     /*IMAGE UPLOAD IN SUMMER NOTE*/
     Route::post('image/upload', [ImageController::class,'upload_image']);

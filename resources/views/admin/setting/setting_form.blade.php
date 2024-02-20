@@ -158,6 +158,14 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="control-label" for="interview_date_default_filter_for_chart">Interview Default Filter For Chart (in Days)</label>
+                                        <div class="col-md-12">
+                                            {!! Form::number('interview_date_default_filter_for_chart', (isset($settingData['interview_date_default_filter_for_chart']) && $settingData['interview_date_default_filter_for_chart']) ? $settingData['interview_date_default_filter_for_chart'] : '', ['class' => 'form-control', 'placeholder' => 'Enter Interview Default Filter For Chart (in Days)', 'id' => 'interview_date_default_filter_for_chart']) !!}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="card-footer">

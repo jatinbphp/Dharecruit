@@ -656,6 +656,7 @@
 <script src="{{ URL('assets/plugins/jszip/jszip.min.js')}}"></script>
 <script src="{{ URL::asset('assets/plugins/select2/select2.full.min.js')}}"></script>
 <script src="{{ URL('assets/plugins/chart.js/Chart.min.js')}}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{{ URL('assets/plugins/sparklines/sparkline.js')}}"></script>
 <script src="{{ URL('assets/plugins/jquery-knob/jquery.knob.min.js')}}"></script>
 <script src="{{ URL('assets/plugins/moment/moment.min.js')}}"></script>

@@ -82,7 +82,7 @@ trait CommonTrait {
                 break;
             case 'last_week':
                 $date['from'] = \Carbon\Carbon::now()->subWeek()->startOfWeek()->format('Y-m-d');;
-                $date['to']   = \Carbon\Carbon::now()->subWeek()->endOfWeek()->addDay()->format('Y-m-d');;
+                $date['to']   = \Carbon\Carbon::now()->subWeek()->endOfWeek()->addDay()->format('Y-m-d');
                 break;
             case 'this_month':
                 $date['from'] = \Carbon\Carbon::now()->startOfMonth()->format('Y-m-d');
