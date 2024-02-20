@@ -10,8 +10,8 @@
     <div class="card-body">
         <div class="chart"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
             <div class="row">
-                <div class="col-8"></div>
-                <div class="col-2 text-right">
+                <div class="col-7"></div>
+                <div class="col-3 text-right">
                     <div class="custom-control custom-switch custom-switch-off-default custom-switch-on-success">
                         <input type="checkbox" class="custom-control-input" id="unique_served_requirement">
                         <label class="custom-control-label" for="unique_served_requirement">Only Uniq Requirements</label>
