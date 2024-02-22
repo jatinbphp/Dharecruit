@@ -73,8 +73,8 @@
                 url: "{{ route('getInterviewStatusData') }}",
                 data: {
                     '_token' : '{{ csrf_token() }}',
-                    'fromDate' : $('#bdm_status_fromDate').val(),
-                    'toDate'   : $('#bdm_status_toDate').val(),
+                    'fromDate' : $('#interview_status_fromDate').val(),
+                    'toDate'   : $('#interview_status_toDate').val(),
                 },
                 method: 'POST',
                 success: function (response) {
