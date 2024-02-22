@@ -48,6 +48,10 @@ trait ReportsTrait {
         $bdmUserData['heading']    = $this->getBdmUserHeadingData();
         $bdmUserData['class_data'] = $this->getKeyWiseClass();
 
+        if(!empty($request->teams)){
+            $bdmUserData['team_data'] = $this->getBdmTeamData($request->teams);
+        }
+
         return $bdmUserData;
     }
 
@@ -85,6 +89,10 @@ trait ReportsTrait {
         }
         $recruiterUserData['heading']    = $this->getRecruiterUserHeadingData();
         $recruiterUserData['class_data'] = $this->getKeyWiseClass();
+
+        if(!empty($request->teams)){
+            $recruiterUserData['team_data'] = $this->getRecruiterTeamData($request->teams);
+        }
 
         return $recruiterUserData;
     }

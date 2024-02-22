@@ -370,23 +370,29 @@ class DashboardController extends Controller
         return $counts;
     }
 
-    public function getBdmStatusData()
+    public function getBdmStatusData(Request $request)
     {
+        $data['status'] = 0;
+        if(empty($request->fromDate) || empty($request->toDate)){
+            return $data;
+        }
         $data['labels'] = array_values(Submission::$status);
-        $data['counts'] = $this->getBdmStatusCounts();
+        $data['counts'] = $this->getBdmStatusCounts($request->fromDate, $request->toDate);
         $data['status'] = 1;
         return $data;
     }
 
-    public function getBdmStatusCounts()
+    public function getBdmStatusCounts($fromDate, $toDate)
     {
+        $fromDate = \Carbon\Carbon::createFromFormat('m/d/Y', $fromDate)->format('Y-m-d');
+        $toDate = \Carbon\Carbon::createFromFormat('m/d/Y', $toDate)->addDay()->format('Y-m-d');
         $bdmStatus = Submission::$status;
         $bdmStatus = array_fill_keys(array_keys($bdmStatus), 0);
 
         $submissionCounts = Submission::select('status', \DB::raw('count(*) as count'))
             ->whereIn('status', array_keys($bdmStatus))
+            ->whereBetween('bdm_status_updated_at', [$fromDate, $toDate])
             ->groupBy('status')
-            ->get()
             ->pluck('count', 'status')
             ->toArray();
 
@@ -399,21 +405,27 @@ class DashboardController extends Controller
         return array_values($bdmStatus);
     }
 
-    public function getPvStatusData()
+    public function getPvStatusData(Request $request)
     {
+        $data['status'] = 0;
+        if(empty($request->fromDate) || empty($request->toDate)){
+            return $data;
+        }
         $data['labels'] = array_values(Submission::$pvStatus);
-        $data['counts'] = $this->getPvStatusCount();
+        $data['counts'] = $this->getPvStatusCount($request->fromDate, $request->toDate);
         $data['status'] = 1;
         return $data;
     }
-    public function getPvStatusCount()
+    public function getPvStatusCount($fromDate, $toDate)
     {
+        $fromDate = \Carbon\Carbon::createFromFormat('m/d/Y', $fromDate)->format('Y-m-d');
+        $toDate = \Carbon\Carbon::createFromFormat('m/d/Y', $toDate)->addDay()->format('Y-m-d');
         $pvStatus = Submission::$pvStatus;
         $pvStatus = array_fill_keys(array_keys($pvStatus), 0);
         $submissionCounts = Submission::select('pv_status', \DB::raw('count(*) as count'))
             ->whereIn('pv_status', array_keys($pvStatus))
+            ->whereBetween('pv_status_updated_at', [$fromDate, $toDate])
             ->groupBy('pv_status')
-            ->get()
             ->pluck('count', 'pv_status')
             ->toArray();
 
@@ -426,27 +438,34 @@ class DashboardController extends Controller
         return array_values($pvStatus);
     }
 
-    public function getInterviewStatusData()
+    public function getInterviewStatusData(Request $request)
     {
+        $data['status'] = 0;
+        if(empty($request->fromDate) || empty($request->toDate)){
+            return $data;
+        }
         $interviewStatus = Interview::$interviewStatusOptions;
         unset($interviewStatus['']);
         $data['labels'] = array_values($interviewStatus);
-        $data['counts'] = $this->getInterviewStatusCounts();
+        $data['counts'] = $this->getInterviewStatusCounts($request->fromDate, $request->toDate);
         $data['status'] = 1;
         return $data;
     }
 
-    public function getInterviewStatusCounts()
+    public function getInterviewStatusCounts($fromDate, $toDate)
     {
+        $fromDate = \Carbon\Carbon::createFromFormat('m/d/Y', $fromDate)->format('Y-m-d');
+        $toDate = \Carbon\Carbon::createFromFormat('m/d/Y', $toDate)->addDay()->format('Y-m-d');
         $interviewStatus = Interview::$interviewStatusOptions;
         unset($interviewStatus['']);
         $interviewStatus = array_fill_keys(array_keys($interviewStatus), 0);
 
-        $intervewCounts = Interview::select('status', \DB::raw('count(*) as count'))
-            ->whereIn('status', array_keys($interviewStatus))
-            ->groupBy('status')
-            ->get()
-            ->pluck('count', 'status')
+        $intervewCounts = Submission::leftJoin('interviews', 'submissions.id', '=', 'interviews.submission_id')
+            ->selectRaw('interviews.status, COUNT(interviews.id) as count')
+            ->whereBetween('submissions.interview_status_updated_at', [$fromDate, $toDate])
+            ->whereIn('interviews.status', array_keys($interviewStatus))
+            ->groupBy('interviews.status')
+            ->pluck('count', 'interviews.status')
             ->toArray();
 
         foreach ($interviewStatus as $status => $count) {

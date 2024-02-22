@@ -33,13 +33,13 @@
                             <div class="col-md-12">
                                 @include('admin.chart.requirement')
                             </div>
-                            <div class="col-4">
+                            <div class="col-6">
                                 @include('admin.chart.bdm_status')
                             </div>
-                            <div class="col-4">
+                            <div class="col-6">
                                 @include('admin.chart.pv_status')
                             </div>
-                            <div class="col-4">
+                            <div class="col-6">
                                 @include('admin.chart.interview_status')
                             </div>
                         @endif

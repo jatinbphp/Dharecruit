@@ -28,7 +28,7 @@
                                     $defaultDays = $settingRow->value;
                                 }
                             @endphp
-                            {!! Form::text('fromDate', \Carbon\Carbon::now()->subDays($defaultDays)->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker form-control float-right', 'placeholder' => 'Select From Date', 'id' => 'fromDate']) !!}
+                            {!! Form::text('fromDate', \Carbon\Carbon::now()->subDays($defaultDays)->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker interview-datepicker form-control float-right', 'placeholder' => 'Select From Date', 'id' => 'fromDate']) !!}
                         </div>
                     </div>
                 </div>
@@ -41,7 +41,7 @@
                                     <i class="far fa-calendar-alt"></i>
                                 </span>
                             </div>
-                            {!! Form::text('toDate', \Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker form-control float-right', 'placeholder' => 'Select To Date', 'id' => 'toDate']) !!}
+                            {!! Form::text('toDate', \Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker interview-datepicker form-control float-right', 'placeholder' => 'Select To Date', 'id' => 'toDate']) !!}
                         </div>
                     </div>
                 </div>
@@ -170,7 +170,7 @@
             prepareInterviewChart();
         });
 
-        $('.datepicker').change(function (){
+        $('.interview-datepicker').change(function (){
             $('.day-type').parent().removeClass('active');
             prepareInterviewChart();
         });

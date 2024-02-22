@@ -6,6 +6,7 @@ use App\Models\AssignToRecruiter;
 use App\Models\Interview;
 use App\Models\Requirement;
 use App\Models\Submission;
+use App\Models\TeamMember;
 
 trait SubmissionTrait{
 
@@ -18,6 +19,7 @@ trait SubmissionTrait{
     protected $_userIdWiseRecruiterSubmissionSentCount = [];
     protected $_userIdWiseRecruiterStatusCount = [];
     protected $_userIdWiseRecruiterClientStatusCount = [];
+    protected $_userIdWiseRecruiterNewInterviewCount = [];
     protected $_userIdWisetotalReceivedSubmissionCount = [];
     protected $_userIdWiseTotalEmployeeCount = [];
     protected $_userIdWiseTotalEmployerCount = [];
@@ -47,6 +49,7 @@ trait SubmissionTrait{
             'heading_client_rejected'    => 'Client Rejected',
             'heading_sub_to_end_client'  => 'Sub To End Client',
             'heading_position_closed'    => 'position Closed',
+            'heading_interview_count'    => 'New Interview Count',
             'heading_scheduled'          => 'Scheduled',
             'heading_re_scheduled'       => 'Re Scheduled',
             'heading_another_round'      => 'Another Round',
@@ -80,6 +83,7 @@ trait SubmissionTrait{
             'heading_client_rejected'    => 'Client Rejected',
             'heading_sub_to_end_client'  => 'Sub To End Client',
             'heading_position_closed'    => 'position Closed',
+            'heading_interview_count'    => 'New Interview Count',
             'heading_scheduled'          => 'Scheduled',
             'heading_re_scheduled'       => 'Re Scheduled',
             'heading_another_round'      => 'Another Round',
@@ -126,6 +130,7 @@ trait SubmissionTrait{
             'vendor_rejected_by_client'      => $this->getTotalRecruiterStatusCount('pv_status', $submissionModel::STATUS_REJECTED_BY_END_CLIENT, $date, $userId, $recruiters, $type),
             'vendor_submitted_to_end_client' => $this->getTotalRecruiterStatusCount('pv_status', $submissionModel::STATUS_SUBMITTED_TO_END_CLIENT, $date, $userId, $recruiters, $type),
             'vendor_position_closed'         => $this->getTotalRecruiterStatusCount('pv_status', $submissionModel::STATUS_POSITION_CLOSED, $date, $userId, $recruiters, $type),
+            'interview_count'                => $this->getTotalRecruiterNewInterviewCount($date, $userId, $recruiters, $type),
             'client_scheduled'               => $this->getTotalRecruiterClientStatusCount($interviewModel::STATUS_SCHEDULED, $date, $userId, $recruiters, $type),
             'client_rescheduled'             => $this->getTotalRecruiterClientStatusCount($interviewModel::STATUS_RE_SCHEDULED, $date, $userId, $recruiters, $type),
             'client_selected_for_next_round' => $this->getTotalRecruiterClientStatusCount($interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND, $date, $userId, $recruiters, $type),
@@ -259,6 +264,25 @@ trait SubmissionTrait{
         return 0;
     }
 
+    public function getTotalRecruiterNewInterviewCount($date, $userId, $recruiters, $type): int
+    {
+        if(!$this->_userIdWiseRecruiterNewInterviewCount || !isset($this->_userIdWiseRecruiterNewInterviewCount[$type])){
+            $this->_userIdWiseRecruiterNewInterviewCount[$type] = Submission::leftJoin('interviews', 'submissions.id', '=', 'interviews.submission_id')
+                ->whereBetween('interviews.created_at', $date)
+                ->whereIn('submissions.user_id', $recruiters)
+                ->groupBy('submissions.user_id')
+                ->selectRaw('submissions.user_id, COUNT(interviews.id) as count')
+                ->pluck('count', 'user_id')
+                ->toArray();
+        }
+
+        if(isset($this->_userIdWiseRecruiterNewInterviewCount[$type][$userId])){
+            return $this->_userIdWiseRecruiterNewInterviewCount[$type][$userId];
+        }
+
+        return 0;
+    }
+
     public function getUserIdWiseTotalEmployee($date, $userId, $recruiters, $type)
     {
         if(!$this->_userIdWiseTotalEmployeeCount || !isset($this->_userIdWiseTotalEmployeeCount[$type])){
@@ -329,5 +353,53 @@ trait SubmissionTrait{
         }
 
         return 0;
+    }
+
+    public function getRecruiterTeamData($teams)
+    {
+        if(empty($teams)){
+            return [];
+        }
+
+        $teamWiseData = [];
+        $heading = [
+            'Team',
+            'Size',
+            'Avg Interview/Member',
+        ];
+        $teamWiseData['heading'] = $heading;
+        $teamIdWuswName = getTeamIdWiseTeamName();
+
+        foreach ($teams as $team){
+
+            $allTeamUsers = TeamMember::where('team_id', $team)->pluck('member_id')->toArray();
+            $allTeamUsers[] = $team;
+
+            $teamData = [];
+            $teamData['name'] = isset($teamIdWuswName[$team]) ? $teamIdWuswName[$team] : '';
+            $teamData['team_size'] = count($allTeamUsers);
+            $interviewCount = $this->getRecruiterInterviewCounts($allTeamUsers);
+            $teamData['percentage'] = round($interviewCount / (count($allTeamUsers)) ?? 1,2);
+
+            $teamWiseData['team_wise_data'][$team] = $teamData;
+        }
+
+        return $teamWiseData;
+    }
+
+    public function getRecruiterInterviewCounts($allTeamUsers)
+    {
+        if(empty($allTeamUsers)){
+            return 0;
+        }
+
+        $counts = Submission::leftJoin('interviews', 'submissions.id', '=', 'interviews.submission_id')
+            ->whereIn('submissions.user_id', $allTeamUsers)
+            ->groupBy('submissions.user_id')
+            ->selectRaw('submissions.user_id, COUNT(interviews.id) as count')
+            ->pluck('count', 'user_id')
+            ->toArray();
+
+        return array_sum($counts);
     }
 }

@@ -39,7 +39,15 @@
                                                             <i class="far fa-calendar-alt"></i>
                                                         </span>
                                                         </div>
-                                                        {!! Form::text('fromDate', null, ['autocomplete' => 'off', 'class' => 'datepicker form-control float-right', 'placeholder' => 'Select From Date', 'id' => 'fromDate']) !!}
+                                                        @php
+                                                            $defaultDays = 30;
+                                                            $settingRow =  \App\Models\Setting::where('name', 'show_bet_date_data_on_pv_and_poc_reports')->first();
+
+                                                            if(!empty($settingRow) && $settingRow->value){
+                                                                $defaultDays = $settingRow->value;
+                                                            }
+                                                        @endphp
+                                                        {!! Form::text('fromDate', \Carbon\Carbon::now()->subDays($defaultDays)->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker form-control float-right', 'placeholder' => 'Select From Date', 'id' => 'fromDate']) !!}
                                                     </div>
                                                 </div>
                                             </div>
@@ -52,7 +60,7 @@
                                                             <i class="far fa-calendar-alt"></i>
                                                         </span>
                                                         </div>
-                                                        {!! Form::text('toDate', null, ['autocomplete' => 'off', 'class' => 'datepicker form-control float-right', 'placeholder' => 'Select To Date', 'id' => 'toDate']) !!}
+                                                        {!! Form::text('toDate', \Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker form-control float-right', 'placeholder' => 'Select To Date', 'id' => 'toDate']) !!}
                                                     </div>
                                                 </div>
                                             </div>
@@ -84,6 +92,14 @@
                                                         @endif
                                                     </div>
                                                 </div>
+                                                @if(getLoggedInUserRole() == 'admin')
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label class="control-label" for="bdm_team">Select Team</label>
+                                                            {!! Form::select('teams[]', getTeamIdWiseTeamName(\App\Models\Team::TEAM_TYPE_BDM), null, ['class' => 'form-control select2', 'id'=>'bdm_team', 'multiple' => true, 'data-placeholder' => 'Select Team']) !!}
+                                                        </div>
+                                                    </div>
+                                                @endif
                                             @endif
                                             @if(isset($subType) && in_array($subType, ['sub_sent', 'lead_sub_sent']))
                                                 <div class="col-md-4">
@@ -113,7 +129,21 @@
                                                         @endif
                                                     </div>
                                                 </div>
+                                                @if(getLoggedInUserRole() == 'admin')
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label class="control-label" for="rec_team">Select Team</label>
+                                                            {!! Form::select('teams[]', getTeamIdWiseTeamName(\App\Models\Team::TEAM_TYPE_RECRUITER), null, ['class' => 'form-control select2', 'id'=>'rec_team', 'multiple' => true, 'data-placeholder' => 'Select Team']) !!}
+                                                        </div>
+                                                    </div>
+                                                @endif
                                             @endif
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label class="control-label" for="data_toggle">Show User Wise Data</label><br>
+                                                    {!! Form::checkbox('', '', null, ['id' => 'show_user_wise_data', 'class' => 'toggle-checkbox', 'checked' => true, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                                </div>
+                                            </div>
                                         </div>
                                         <button class="btn btn-info float-right" onclick="searchReportData()">Search</button>
                                         <button class="btn btn-default float-right mr-2" onclick="clearReportData()">Clear</button>
@@ -137,6 +167,7 @@
     <script type="text/javascript">
         $( document ).ready(function(){
             searchReportData();
+            $('#show_user_wise_data').bootstrapToggle('off');
         });
 
         function clearReportData()
@@ -145,6 +176,7 @@
             $('select').trigger('change');
             $('#reportContent').html("");
             searchReportData();
+            $('#show_user_wise_data').trigger('change');
         }
 
         function searchReportData()
@@ -169,7 +201,7 @@
                 success: function(responce){
                     if(responce.content){
                         $('#reportContent').html(responce.content);
-
+                        $('#show_user_wise_data').trigger('change');
                         $(".efficiency-report-table").each(function () {
                             const tableID = $(this).attr("id");
                             $('#'+tableID).DataTable({
@@ -188,5 +220,13 @@
                 }
             });
         }
+
+        $('#show_user_wise_data').change(function (){
+            if($(this).is(':checked')){
+                $('.user-wise-data').show();
+            }else{
+                $('.user-wise-data').hide();
+            }
+        });
     </script>
 @endsection

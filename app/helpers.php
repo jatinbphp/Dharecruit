@@ -137,4 +137,18 @@ if(!function_exists('getTimeInReadableFormate')){
             return $userData;
         }
     }
+
+    if(!function_exists('getTeamIdWiseTeamName')){
+        function getTeamIdWiseTeamName($type = '')
+        {
+            $collection = Team::select();
+                if($type) {
+                    $collection->where('team_type', $type);
+                }
+            $data = $collection->pluck('team_name', 'id')
+                ->toArray();
+
+            return $data;
+        }
+    }
 }

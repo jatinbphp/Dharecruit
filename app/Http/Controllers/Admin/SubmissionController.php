@@ -126,6 +126,11 @@ class SubmissionController extends Controller
 
         $submission = Submission::create($input);
 
+        if($submission){
+            $submission->bdm_status_updated_at = $submission->created_at;
+            $submission->save();
+        }
+
         if($submission && !empty($request->email)){
             $existingSubmission = Submission::where('email',$request->email)->first();
             if(!empty($existingSubmission) && $existingSubmission->id){

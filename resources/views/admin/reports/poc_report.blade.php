@@ -108,25 +108,25 @@
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label class="control-label" for="data_toggle">Show Only Row With Data</label><br>
-                                                {!! Form::checkbox('', '', null, ['id' => 'data_toggle', 'class' => 'toggle-checkbox', 'checked' => true, 'data-toggle' => 'toggl', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                                {!! Form::checkbox('', '', null, ['id' => 'data_toggle', 'class' => 'toggle-checkbox', 'checked' => true, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label class="control-label" for="toggle_columns">Show Email And Phone</label><br>
-                                                {!! Form::checkbox('', '', null, ['id' => 'toggle_columns', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggl', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                                {!! Form::checkbox('', '', null, ['id' => 'toggle_columns', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label class="control-label" for="toggle_categorties">Show Categories</label><br>
-                                                {!! Form::checkbox('', '', null, ['id' => 'toggle_categorties', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggl', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                                {!! Form::checkbox('', '', null, ['id' => 'toggle_categorties', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label class="control-label" for="toggle_counts">Show Counts</label><br>
-                                                {!! Form::checkbox('', '', null, ['id' => 'toggle_counts', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggl', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                                {!! Form::checkbox('', '', null, ['id' => 'toggle_counts', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
                                             </div>
                                         </div>
                                     </div>
