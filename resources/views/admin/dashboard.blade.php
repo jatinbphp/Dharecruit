@@ -33,15 +33,6 @@
                             <div class="col-md-12">
                                 @include('admin.chart.requirement')
                             </div>
-                            <div class="col-6">
-                                @include('admin.chart.bdm_status')
-                            </div>
-                            <div class="col-6">
-                                @include('admin.chart.pv_status')
-                            </div>
-                            <div class="col-6">
-                                @include('admin.chart.interview_status')
-                            </div>
                         @endif
                     </div>
                 @endif
@@ -52,6 +43,29 @@
                         </div>
                     </div>
                 @endif
+                @if(in_array(getLoggedInUserRole(), ['admin', 'recruiter']))
+                    <div class="row">
+                        <div class="col-md-12" id="req_assigned_vs_served">
+                            @include('admin.chart.requirementassignedvsserved')
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12" id="req_assigned_vs_submissions">
+                            @include('admin.chart.requirement_assigned_vs_submission')
+                        </div>
+                    </div>
+                @endif
+                <div class="row">
+                    <div class="col-6">
+                        @include('admin.chart.bdm_status')
+                    </div>
+                    <div class="col-6">
+                        @include('admin.chart.pv_status')
+                    </div>
+                    <div class="col-6">
+                        @include('admin.chart.interview_status')
+                    </div>
+                </div>
             </div>
         </section>
     </div>

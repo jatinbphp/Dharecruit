@@ -55,6 +55,8 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('/getBdmStatusData', [DashboardController::class, 'getBdmStatusData'])->name('getBdmStatusData');
     Route::post('/getPvStatusData', [DashboardController::class, 'getPvStatusData'])->name('getPvStatusData');
     Route::post('/getInterviewStatusData', [DashboardController::class, 'getInterviewStatusData'])->name('getInterviewStatusData');
+    Route::post('/getRequirementAssignedVsServed', [DashboardController::class, 'getRequirementAssignedVsServed'])->name('getRequirementAssignedVsServed');
+    Route::post('/getRequirementAssignedVsSubmissions', [DashboardController::class, 'getRequirementAssignedVsSubmissions'])->name('getRequirementAssignedVsSubmissions');
 
     /*IMAGE UPLOAD IN SUMMER NOTE*/
     Route::post('image/upload', [ImageController::class,'upload_image']);

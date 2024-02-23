@@ -57,6 +57,103 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-9">
+                <div class="interview-status-recruiter-list">
+                    <div class="row">
+                        <div class="col-2">
+                            <label class="control-label mt-1" for="recruiter">Recruiter</label>
+                        </div>
+                        <div class="col-10">
+                            @if(getLoggedInUserRole() == 'admin')
+                                {!! Form::select('recruiter[]', \App\Models\Admin::getActiveRecruiter(), true, ['class' => 'form-control select2', 'id'=>'interview-status-recruiter', 'multiple' => true, 'data-placeholder' => 'Select Recruiter Users']) !!}
+                            @elseif(getLoggedInUserRole() == 'recruiter')
+                                @if((isManager() || isLeadUser()))
+                                    @if(isManager() && isLeadUser())
+                                        @php
+                                            $allRec  = \App\Models\Admin::getActiveRecruiter();
+                                            $teamRec = array_intersect_key($allRec, array_flip(array_merge(getManagerAllUsers(), getTeamMembers())));
+                                        @endphp
+                                    @elseif(isManager())
+                                        @php
+                                            $allRec  = \App\Models\Admin::getActiveRecruiter();
+                                            $teamRec = array_intersect_key($allRec, array_flip(getManagerAllUsers()));
+                                        @endphp
+                                    @elseif(isLeadUser())
+                                        @php
+                                            $allRec  = \App\Models\Admin::getActiveRecruiter();
+                                            $teamRec = array_intersect_key($allRec, array_flip(getTeamMembers()));
+                                        @endphp
+                                    @endif
+                                    @php
+                                        $teamRec[getLoggedInUserId()] = Auth::user()->name;
+                                    @endphp
+                                    {!! Form::select('recruiter[]', $teamRec, true, ['class' => 'form-control select2', 'id'=>'interview-status-recruiter', 'multiple' => true, 'data-placeholder' => 'Select Recruiter Users']) !!}
+                                @else
+                                    @php
+                                        $recter[getLoggedInUserId()] = Auth::user()->name;
+                                    @endphp
+                                    {!! Form::select('recruiter[]', $recter, true, ['class' => 'form-control select2', 'id'=>'interview-status-recruiter', 'multiple' => true, 'data-placeholder' => 'Select Recruiter Users']) !!}
+                                @endif
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                <div class="interview-status-bdm-list">
+                    <div class="row">
+                        <div class="col-2">
+                            <label class="control-label mt-1" for="bdm">Bdm</label>
+                        </div>
+                        <div class="col-10">
+                            @if(getLoggedInUserRole() == 'admin')
+                                {!! Form::select('bdm[]', \App\Models\Admin::getActiveBDM(), true, ['class' => 'form-control select2', 'id'=>'interview-status-bdm', 'multiple' => true, 'data-placeholder' => 'Select Bdm Users']) !!}
+                            @elseif(getLoggedInUserRole() == 'bdm')
+                                @if((isManager() || isLeadUser()))
+                                    @if(isManager() && isLeadUser())
+                                        @php
+                                            $allRec  = \App\Models\Admin::getActiveBdm();
+                                            $teamRec = array_intersect_key($allRec, array_flip(array_merge(getManagerAllUsers(), getTeamMembers())));
+                                        @endphp
+                                    @elseif(isManager())
+                                        @php
+                                            $allRec  = \App\Models\Admin::getActiveBdm();
+                                            $teamRec = array_intersect_key($allRec, array_flip(getManagerAllUsers()));
+                                        @endphp
+                                    @elseif(isLeadUser())
+                                        @php
+                                            $allRec  = \App\Models\Admin::getActiveBdm();
+                                            $teamRec = array_intersect_key($allRec, array_flip(getTeamMembers()));
+                                        @endphp
+                                    @endif
+                                    @php
+                                        $teamRec[getLoggedInUserId()] = Auth::user()->name;
+                                    @endphp
+                                    {!! Form::select('bdm[]', $teamRec, true, ['class' => 'form-control select2', 'id'=>'interview-status-bdm', 'multiple' => true, 'data-placeholder' => 'Select Bdm Users']) !!}
+                                @else
+                                    @php
+                                        $recter[getLoggedInUserId()] = Auth::user()->name;
+                                    @endphp
+                                    {!! Form::select('bdm[]', $recter, true, ['class' => 'form-control select2', 'id'=>'interview-status-bdm', 'multiple' => true, 'data-placeholder' => 'Select Bdmz Users']) !!}
+                                @endif
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3 text-right">
+                <div class="btn-group btn-group-toggle mb-2" data-toggle="buttons">
+                    @if(in_array(getLoggedInUserRole(), ['admin', 'bdm']))
+                        <label class="btn btn-sm btn-outline-danger">
+                            <input type="radio" class="interview-status-user-type-bdm interview-status-user-type" name="interview-status-user-options" data-type="bdm" autocomplete="off">BDM
+                        </label>
+                    @endif
+                    @if(in_array(getLoggedInUserRole(), ['admin', 'recruiter']))
+                        <label class="btn btn-sm btn-outline-danger">
+                            <input type="radio" class="interview-status-user-type-recruiter interview-status-user-type" name="interview-status-user-options" data-type="recruiter" autocomplete="off">Recruiter
+                    @endif
+                </div>
+            </div>
+        </div>
         <div class="chart"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
             <canvas id="interviewStatus" width="400" height="400"></canvas>
         </div>
@@ -65,6 +162,39 @@
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function() {
         $(document).ready(function () {
+            $('#interview-status-recruiter').select2({
+                templateSelection: function(selection) {
+                    var selectedOptions = $('#bdm-status-recruiter').val();
+                    var text = selection.text.trim();
+                    if (selectedOptions.length > 2) {
+                        return '<span class="ellipsis">' + text.substring(0, 2) + '...</span>';
+                    }
+                    return selection.text;
+                },
+                escapeMarkup: function(markup) {
+                    return markup; // Allow HTML to be rendered
+                }
+            });
+
+            $('#interview-status-bdm').select2({
+                // Customize the display of selected elements
+                templateSelection: function(selection) {
+                    var selectedOptions = $('#bdm-status-bdm').val();
+                    var text = selection.text.trim();
+                    if (selectedOptions.length > 2) {
+                        return '<span class="ellipsis">' + text.substring(0, 2) + '...</span>';
+                    }
+                    return selection.text;
+                },
+                escapeMarkup: function(markup) {
+                    return markup; // Allow HTML to be rendered
+                }
+            });
+            @if(in_array(getLoggedInUserRole(), ['admin','bdm']))
+                $('.interview-status-user-type-bdm').click();
+            @else
+                $('.interview-status-user-type-recruiter').click();
+            @endif
             prepareinterviewStatus();
         });
 
@@ -75,6 +205,9 @@
                     '_token' : '{{ csrf_token() }}',
                     'fromDate' : $('#interview_status_fromDate').val(),
                     'toDate'   : $('#interview_status_toDate').val(),
+                    'bdmUser'  : $('#interview-status-bdm').val(),
+                    'recUser'  : $('#interview-status-recruiter').val(),
+                    'type'     : $(".interview-status-user-type:checked").attr("data-type"),
                 },
                 method: 'POST',
                 success: function (response) {
@@ -149,5 +282,21 @@
             var day = date.getDate().toString().padStart(2, '0');
             return month + '/' + day + '/' + year;
         }
+
+        $('.interview-status-user-type').change(function (){
+            var dayType = $(this).attr('data-type');
+            if(dayType == 'bdm'){
+                $('.interview-status-bdm-list').show();
+                $('.interview-status-recruiter-list').hide();
+            } else {
+                $('.interview-status-recruiter-list').show();
+                $('.interview-status-bdm-list').hide();
+            }
+            prepareinterviewStatus();
+        });
+
+        $('#interview-status-recruiter, #interview-status-bdm').change(function (){
+            prepareinterviewStatus();
+        });
     });
 </script>

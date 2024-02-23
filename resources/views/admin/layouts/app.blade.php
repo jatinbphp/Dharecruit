@@ -42,6 +42,7 @@
     <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
     <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.2.0/css/bootstrap-colorpicker.min.css">
+    <link href="https://cdn.syncfusion.com/ej2/material.css" rel="stylesheet">
     <style>
         .candidate, .job-title {cursor: pointer}
         a.disabled {
@@ -200,6 +201,11 @@
         }
         .scrollable {
             overflow-y: auto;
+        }
+        .ellipsis {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     </style>
 </head>

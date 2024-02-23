@@ -39,7 +39,7 @@
                             </div>
                         </div>
                     </div>
-                </div>                
+                </div>
             </div>
             <canvas id="reqVsSubChart" style="min-height: 250px; height: 250px; max-height: 360px; max-width: 100%; display: block; width: 570px;" width="570" height="250" class="chartjs-render-monitor"></canvas>
         </div>
