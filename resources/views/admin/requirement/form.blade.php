@@ -609,7 +609,6 @@
                                         data: {'poc_email' : pocEmail,_token: '{{csrf_token()}}' },
                                         success: function(data) {
                                             if(data.status == 1){
-                                                console.log(data);
                                                 fillPvData(data);
                                             }
                                         }

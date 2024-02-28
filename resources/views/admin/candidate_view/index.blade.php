@@ -126,11 +126,9 @@
 
         function saveRecruiterGlobalLimt(){
             var limit = $('#global-view-limit').val();
-            console.log(limit);
             if(!limit){
                 return;
             }
-            console.log(111);
             $.ajax({
                 url: "{{ route('update_recruiter_global_limit') }}",
                 method: 'POST',

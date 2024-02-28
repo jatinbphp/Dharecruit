@@ -158,9 +158,7 @@
         }
 
         function sortTable(columnIndex) {
-            console.log(columnIndex);
             var table = $('#pv_company_report');
-            console.log(table);
             var rows = $('tbody tr', table).get(); // Get all rows in tbody
 
             rows.sort(function(a, b) {

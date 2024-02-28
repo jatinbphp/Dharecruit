@@ -553,7 +553,6 @@
         }
         var employeeName = $(this).val();
         var employerName = $('#employer_name').val();
-        console.log('{{ route('submission.checkEmp') }}');
         $.ajax({
             type: 'POST',
             url: '{{ route('submission.checkEmp') }}',

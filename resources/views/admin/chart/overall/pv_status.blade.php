@@ -62,80 +62,20 @@
                 <div class="pv-status-recruiter-list">
                     <div class="row">
                         <div class="col-2">
-                            <label class="control-label mt-1" for="recruiter">Recruiter</label>
+                            <label class="control-label mt-1 h5" for="recruiter">Recruiter:</label>
                         </div>
                         <div class="col-10">
-                            @if(getLoggedInUserRole() == 'admin')
-                                {!! Form::select('recruiter[]', \App\Models\Admin::getActiveRecruiter(), true, ['class' => 'form-control select2', 'id'=>'pv-status-recruiter', 'multiple' => true, 'data-placeholder' => 'Select Recruiter Users']) !!}
-                            @elseif(getLoggedInUserRole() == 'recruiter')
-                                @if((isManager() || isLeadUser()))
-                                    @if(isManager() && isLeadUser())
-                                        @php
-                                            $allRec  = \App\Models\Admin::getActiveRecruiter();
-                                            $teamRec = array_intersect_key($allRec, array_flip(array_merge(getManagerAllUsers(), getTeamMembers())));
-                                        @endphp
-                                    @elseif(isManager())
-                                        @php
-                                            $allRec  = \App\Models\Admin::getActiveRecruiter();
-                                            $teamRec = array_intersect_key($allRec, array_flip(getManagerAllUsers()));
-                                        @endphp
-                                    @elseif(isLeadUser())
-                                        @php
-                                            $allRec  = \App\Models\Admin::getActiveRecruiter();
-                                            $teamRec = array_intersect_key($allRec, array_flip(getTeamMembers()));
-                                        @endphp
-                                    @endif
-                                    @php
-                                        $teamRec[getLoggedInUserId()] = Auth::user()->name;
-                                    @endphp
-                                    {!! Form::select('recruiter[]', $teamRec, true, ['class' => 'form-control select2', 'id'=>'pv-status-recruiter', 'multiple' => true, 'data-placeholder' => 'Select Recruiter Users']) !!}
-                                @else
-                                    @php
-                                        $recter[getLoggedInUserId()] = Auth::user()->name;
-                                    @endphp
-                                    {!! Form::select('recruiter[]', $recter, true, ['class' => 'form-control select2', 'id'=>'pv-status-recruiter', 'multiple' => true, 'data-placeholder' => 'Select Recruiter Users']) !!}
-                                @endif
-                            @endif
+                            {!! Form::text('', null, ['placeholder' => 'Please Select user', 'width' => '100%', 'id' => 'pv_status_recruiter']) !!}
                         </div>
                     </div>
                 </div>
                 <div class="pv-status-bdm-list">
                     <div class="row">
                         <div class="col-2">
-                            <label class="control-label mt-1" for="bdm">Bdm</label>
+                            <label class="control-label mt-1 h5" for="bdm">Bdm:</label>
                         </div>
                         <div class="col-10">
-                            @if(getLoggedInUserRole() == 'admin')
-                                {!! Form::select('bdm[]', \App\Models\Admin::getActiveBDM(), true, ['class' => 'form-control select2', 'id'=>'pv-status-bdm', 'multiple' => true, 'data-placeholder' => 'Select Bdm Users']) !!}
-                            @elseif(getLoggedInUserRole() == 'bdm')
-                                @if((isManager() || isLeadUser()))
-                                    @if(isManager() && isLeadUser())
-                                        @php
-                                            $allRec  = \App\Models\Admin::getActiveBdm();
-                                            $teamRec = array_intersect_key($allRec, array_flip(array_merge(getManagerAllUsers(), getTeamMembers())));
-                                        @endphp
-                                    @elseif(isManager())
-                                        @php
-                                            $allRec  = \App\Models\Admin::getActiveBdm();
-                                            $teamRec = array_intersect_key($allRec, array_flip(getManagerAllUsers()));
-                                        @endphp
-                                    @elseif(isLeadUser())
-                                        @php
-                                            $allRec  = \App\Models\Admin::getActiveBdm();
-                                            $teamRec = array_intersect_key($allRec, array_flip(getTeamMembers()));
-                                        @endphp
-                                    @endif
-                                    @php
-                                        $teamRec[getLoggedInUserId()] = Auth::user()->name;
-                                    @endphp
-                                    {!! Form::select('bdm[]', $teamRec, true, ['class' => 'form-control select2', 'id'=>'pv-status-bdm', 'multiple' => true, 'data-placeholder' => 'Select Bdm Users']) !!}
-                                @else
-                                    @php
-                                        $recter[getLoggedInUserId()] = Auth::user()->name;
-                                    @endphp
-                                    {!! Form::select('bdm[]', $recter, true, ['class' => 'form-control select2', 'id'=>'pv-status-bdm', 'multiple' => true, 'data-placeholder' => 'Select Bdmz Users']) !!}
-                                @endif
-                            @endif
+                            {!! Form::text('', null, ['placeholder' => 'Please Select user', 'id' => 'pv_status_bdm']) !!}
                         </div>
                     </div>
                 </div>
@@ -161,41 +101,33 @@
 </div>
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function() {
+        var bdmData = {!! $bdm_team_data !!};
+        var instanceBdm = $('#pv_status_bdm').comboTree({
+            source : bdmData,
+            isMultiple:true,
+            selectAll:true,
+            cascadeSelect:true,
+        });
+        var recData = {!! $rec_team_data !!};
+        var instanceRec = $('#pv_status_recruiter').comboTree({
+            source : recData,
+            isMultiple:true,
+            selectAll:true,
+            cascadeSelect:true,
+        });
         $(document).ready(function () {
-            $('#pv-status-recruiter').select2({
-                templateSelection: function(selection) {
-                    var selectedOptions = $('#bdm-status-recruiter').val();
-                    var text = selection.text.trim();
-                    if (selectedOptions.length > 2) {
-                        return '<span class="ellipsis">' + text.substring(0, 2) + '...</span>';
-                    }
-                    return selection.text;
-                },
-                escapeMarkup: function(markup) {
-                    return markup; // Allow HTML to be rendered
-                }
-            });
-
-            $('#pv-status-bdm').select2({
-                // Customize the display of selected elements
-                templateSelection: function(selection) {
-                    var selectedOptions = $('#bdm-status-bdm').val();
-                    var text = selection.text.trim();
-                    if (selectedOptions.length > 2) {
-                        return '<span class="ellipsis">' + text.substring(0, 2) + '...</span>';
-                    }
-                    return selection.text;
-                },
-                escapeMarkup: function(markup) {
-                    return markup; // Allow HTML to be rendered
-                }
-            });
+            instanceBdm.selectAll();
+            instanceRec.selectAll();
             @if(in_array(getLoggedInUserRole(), ['admin','bdm']))
                 $('.pv-status-user-type-bdm').click();
             @else
                 $('.pv-status-user-type-recruiter').click();
             @endif
             preparepvStatus();
+
+            $("#pv_status_bdm, #pv_status_recruiter").on('change', function () {
+                preparepvStatus();
+            });
         });
 
         function preparepvStatus() {
@@ -205,8 +137,8 @@
                     '_token' : '{{ csrf_token() }}',
                     'fromDate' : $('#pv_status_fromDate').val(),
                     'toDate'   : $('#pv_status_toDate').val(),
-                    'bdmUser'  : $('#pv-status-bdm').val(),
-                    'recUser'  : $('#pv-status-recruiter').val(),
+                    'bdmUser'  : instanceBdm.getSelectedIds(),
+                    'recUser'  : instanceRec.getSelectedIds(),
                     'type'     : $(".pv-status-user-type:checked").attr("data-type"),
                 },
                 method: 'POST',

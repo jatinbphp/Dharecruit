@@ -1,6 +1,6 @@
 <div class="card card-info">
     <div class="card-header">
-        <h3 class="card-title">Requirement and Submission Counts</h3>
+        <h3 class="card-title">Requirement, Submission And Served Counts</h3>
         <div class="card-tools">
             <button type="button" class="btn btn-tool" data-card-widget="collapse">
                 <i class="fas fa-minus"></i>
@@ -36,6 +36,9 @@
                                 <label class="btn btn-sm btn-outline-danger">
                                     <input type="radio" class="type" name="options" data-type="daily" autocomplete="off">Daily
                                 </label>
+                                <label class="btn btn-sm btn-outline-danger">
+                                    <input type="radio" class="type" name="options" data-type="time_frame" autocomplete="off">Time Frame
+                                </label>
                             </div>
                         </div>
                     </div>
@@ -52,6 +55,7 @@
                 labels: {!! json_encode($monthlyLabels) !!},
                 requirementCounts: {!! json_encode($monthlyRequiremtCounts) !!},
                 submissionCounts: {!! json_encode($monthlySubmissionCounts) !!},
+                servedCounts: {!! json_encode($monthlyServedCounts) !!},
             };
 
             var ctx = document.getElementById('reqVsSubChart').getContext('2d');
@@ -62,15 +66,23 @@
                     datasets: [{
                         label: 'Requirement Count',
                         data: data.requirementCounts,
-                        backgroundColor: '#688ade',
-                        borderColor: '#0013b0',
-                        borderWidth: 1
+                        backgroundColor: '#7eb0d5',
+                        borderColor: '#375975',
+                        borderWidth: 1,
+                        hidden: true,
                     }, {
                         label: 'Submission Count',
                         data: data.submissionCounts,
-                        backgroundColor: '#dc7979',
-                        borderColor: '#ff0000',
+                        backgroundColor: '#fd7f6f',
+                        borderColor: '#ee3e28',
                         borderWidth: 1
+                    }, {
+                        label: 'Served Count',
+                        data: data.servedCounts,
+                        backgroundColor: '#8bd3c7',
+                        borderColor: '#000000',
+                        borderWidth: 1,
+                        hidden: true,
                     }]
                 },
                 options: {
@@ -107,29 +119,6 @@
                             }
                         },
                     },
-                    onClick: function(event, elements) {
-                        if(elements.length > 0) {
-                            var clickedDatasetIndex = elements[0].datasetIndex;
-                            var chart = this;
-
-                            // Iterate over each dataset and show/hide based on the clicked series
-                            chart.data.datasets.forEach(function(dataset, datasetIndex) {
-                                if (datasetIndex === clickedDatasetIndex) {
-                                    dataset.hidden = false;
-                                } else {
-                                    dataset.hidden = true;
-                                }
-                            });
-                            chart.update();
-
-                            // Update yAxis if the clicked series is "Submission"
-                            if (clickedDatasetIndex === 1) {
-                                chart.options.scales.y.reversed = true;
-                            } else {
-                                chart.options.scales.y.reversed = false;
-                            }
-                        }
-                    }
                 }
             });
 
@@ -178,6 +167,7 @@
                             barChart.data.labels = response.label;
                             barChart.data.datasets[0].data = response.requiremtCounts;
                             barChart.data.datasets[1].data = response.submissionCounts;
+                            barChart.data.datasets[2].data = response.servedCounts;
                             barChart.update();
                         }
                     },

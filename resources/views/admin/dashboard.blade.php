@@ -19,51 +19,73 @@
                         </div>
                     </div>
                 @endif
-                @if(getLoggedInUserRole() == 'admin' || isLeadUser() || isManager())
-                    <div class="row">
-                        @if(getLoggedInUserRole() == 'admin' || isLeadUser() || isManager())
-                            <div class="col-md-12 @if(isLeadUser() || isManager()) mt-5 @endif">
-                                @include('admin.chart.interview')
+            </div>
+            <div class="col-12 @if(getLoggedInUserRole() != 'admin') mt-3 @endif">
+                <div class="card card-primary card-tabs">
+                    <div class="card-header p-0 pt-1">
+                        <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="custom-tabs-one-home-tab" data-toggle="pill" href="#custom-tabs-one-home" role="tab" aria-controls="custom-tabs-one-home" aria-selected="false">Overall</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="custom-tabs-one-profile-tab" data-toggle="pill" href="#custom-tabs-one-profile" role="tab" aria-controls="custom-tabs-one-profile" aria-selected="false">Individual</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content" id="custom-tabs-one-tabContent">
+                            <div class="tab-pane active" id="custom-tabs-one-home" role="tabpanel" aria-labelledby="custom-tabs-one-home-tab">
+                                    <div class="row">
+                                        @if(getLoggedInUserRole() == 'admin')
+                                            <div class="col-md-12">
+                                                @include('admin.chart.overall.requirement_submission_served')
+                                            </div>
+                                        @endif
+                                        <div class="col-md-12" id="interviews">
+                                            @include('admin.chart.overall.interviews')
+                                        </div>
+                                    </div>
+                                @if(in_array(getLoggedInUserRole(), ['admin', 'recruiter']))
+                                    <div class="row">
+                                        <div class="col-md-12" id="req_assigned_served_submission">
+                                            @include('admin.chart.overall.requirementassigned_served_submission')
+                                        </div>
+                                    </div>
+                                @endif
+                                @if(in_array(getLoggedInUserRole(), ['admin', 'bdm']))
+                                    <div class="row">
+                                        <div class="col-md-12" id="req_assigned_served_submission">
+                                            @include('admin.chart.overall.requirementcount_served_submission')
+                                        </div>
+                                    </div>
+                                @endif
+                                <div class="row">
+                                    <div class="col-md-12" id="bdm_accept_vs_submitted_end_client">
+                                        @include('admin.chart.overall.bdm_accept_submitted')
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        @include('admin.chart.overall.bdm_status')
+                                    </div>
+                                    <div class="col-6">
+                                        @include('admin.chart.overall.pv_status')
+                                    </div>
+                                    <div class="col-6">
+                                        @include('admin.chart.overall.interview_status')
+                                    </div>
+                                </div>
                             </div>
-                        @endif
-                        @if(getLoggedInUserRole() == 'admin')
-                            <div class="col-md-12">
-                                @include('admin.chart.requirementvsserved')
+                            <div class="tab-pane fade" id="custom-tabs-one-profile" role="tabpanel" aria-labelledby="custom-tabs-one-profile-tab">
+                                @if(getLoggedInUserRole() == 'admin' || isLeadUser() || isManager())
+                                    <div class="row">
+                                        <div class="col-md-12 @if(isLeadUser() || isManager()) mt-5 @endif">
+                                            @include('admin.chart.individual.interview')
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
-                            <div class="col-md-12">
-                                @include('admin.chart.requirement')
-                            </div>
-                        @endif
-                    </div>
-                @endif
-                @if(in_array(getLoggedInUserRole(), ['bdm', 'recruiter']))
-                    <div class="row mt-5">
-                        <div class="col-md-12" id="monthly_interview">
-                            @include('admin.chart.monthly_interview')
                         </div>
-                    </div>
-                @endif
-                @if(in_array(getLoggedInUserRole(), ['admin', 'recruiter']))
-                    <div class="row">
-                        <div class="col-md-12" id="req_assigned_vs_served">
-                            @include('admin.chart.requirementassignedvsserved')
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12" id="req_assigned_vs_submissions">
-                            @include('admin.chart.requirement_assigned_vs_submission')
-                        </div>
-                    </div>
-                @endif
-                <div class="row">
-                    <div class="col-6">
-                        @include('admin.chart.bdm_status')
-                    </div>
-                    <div class="col-6">
-                        @include('admin.chart.pv_status')
-                    </div>
-                    <div class="col-6">
-                        @include('admin.chart.interview_status')
                     </div>
                 </div>
             </div>

@@ -117,8 +117,8 @@
                                 datasets: [{
                                     label: 'Interview Count',
                                     data: response.interviewCounts,
-                                    backgroundColor: '#688ade',
-                                    borderColor: '#0013b0',
+                                    backgroundColor: '#7eb0d5',
+                                    borderColor: '#375975',
                                     borderWidth: 1
                                 }]
                             },

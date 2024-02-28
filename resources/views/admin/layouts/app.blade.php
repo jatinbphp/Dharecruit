@@ -39,6 +39,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
     <link rel="stylesheet" href="{{ URL::asset('assets/dist/css/custom.css') }}">
     <link rel="stylesheet" href="{{ URL::asset('assets/plugins/ladda/ladda-themeless.min.css')}}">
+    <link rel="stylesheet" href="{{ URL::asset('assets/plugins/comboTree/comboTreeStyle.css')}}">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
     <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.2.0/css/bootstrap-colorpicker.min.css">
@@ -683,6 +684,7 @@
 <script src="{{ URL('assets/dist/js/jquery.validate.js')}}"></script>
 <script src="{{ URL::asset('assets/plugins/jSignature/libs/jSignature.min.js')}}"></script>
 <script src="{{ URL::asset('assets/plugins/jSignature/libs/modernizr.js')}}"></script>
+<script src="{{ URL::asset('assets/plugins/comboTree/comboTreePlugin.js')}}"></script>
 <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.2.0/js/bootstrap-colorpicker.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>

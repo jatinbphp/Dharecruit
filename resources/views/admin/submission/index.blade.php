@@ -162,11 +162,11 @@
                 }},
                 {data: 'job_id', 'width': '6%', name: 'job_id', render: function (data, type, full){
                         @if(getLoggedInUserRole() == 'admin' || isManager())
-                            data += '<div class="icheck-danger d-inline">';
-                        data += ' <input type="checkbox" onclick="toggleRedRequirement('+full['id']+')" id="'+full['id']+'">';
-                        data += '<label for="'+full['id']+'">';
-                        data += '</label>';
-                        data += '</div>';
+                            // data += '<div class="icheck-danger d-inline">';
+                            // data += ' <input type="checkbox" onclick="toggleRedRequirement('+full['id']+')" id="'+full['id']+'">';
+                            // data += '<label for="'+full['id']+'">';
+                            // data += '</label>';
+                            // data += '</div>';
                         @endif
                         if(full['is_red'] == 1){
                             jQuery('#'+full['id']).prop('checked', true);
