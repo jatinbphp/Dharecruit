@@ -58,6 +58,9 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('/getAcceptSbumittedCount', [DashboardController::class, 'getAcceptSbumittedCount'])->name('getAcceptSbumittedCount');
 
     Route::post('/getInterviewChartData', [DashboardController::class, 'getInterviewChartData'])->name('getInterviewChartData');
+    Route::post('/getIndividualRequirementAssigned', [DashboardController::class, 'getIndividualRequirementAssigned'])->name('getIndividualRequirementAssigned');
+    Route::post('/getIndividualSubmission', [DashboardController::class, 'getIndividualSubmission'])->name('getIndividualSubmission');
+    Route::post('/getIndividualserved', [DashboardController::class, 'getIndividualserved'])->name('getIndividualserved');
 
 
     /*IMAGE UPLOAD IN SUMMER NOTE*/

@@ -286,74 +286,6 @@ class DashboardController extends Controller
         return $counts;
     }
 
-    public function getInterviewChartData(Request $request)
-    {
-        $data['status'] = 0;
-        if(empty($request->type) || empty($request->fromDate) || empty($request->toDate)){
-            return $data;
-        }
-
-        $data['interviewCounts'] = $this->getInterviewCounts($request->fromDate, $request->toDate, $request->type);
-        $data['status'] = 1;
-        return $data;
-    }
-
-    public function getInterviewCounts($fromDate, $toDate, $type)
-    {
-        $fromDate = \Carbon\Carbon::createFromFormat('m/d/Y', $fromDate)->format('Y-m-d');
-        $toDate = \Carbon\Carbon::createFromFormat('m/d/Y', $toDate)->addDay()->format('Y-m-d');
-        $userWiseInterviewData = [];
-        if($type == 'bdm'){
-            $collection = Requirement::leftJoin('submissions', 'requirements.id', '=', 'submissions.requirement_id')
-                ->leftJoin('interviews', 'submissions.id', '=', 'interviews.submission_id')
-                ->leftJoin('admins', 'admins.id', '=', 'requirements.user_id')
-                ->where('admins.role', 'bdm')
-                ->where('admins.status', 'active')
-                ->whereBetween('interviews.created_at', [$fromDate, $toDate])
-                ->groupBy('requirements.user_id')
-                ->selectRaw('admins.id as id, COUNT(interviews.id) as count');
-                if(isManager()){
-                    $collection->whereIn('admins.id', getManagerAllUsers());
-                } elseif (isLeadUser()){
-                    $collection->whereIn('admins.id', getTeamMembers());
-                }
-            $interviewCount = $collection->pluck('count', 'id')
-                ->toArray();
-        } else {
-            $collection = Submission::leftJoin('interviews', 'submissions.id', '=', 'interviews.submission_id')
-                ->leftJoin('admins', 'admins.id', '=', 'submissions.user_id')
-                ->where('admins.role', 'recruiter')
-                ->where('admins.status', 'active')
-                ->whereBetween('interviews.created_at', [$fromDate, $toDate])
-                ->groupBy('submissions.user_id')
-                ->selectRaw('admins.id as id, COUNT(interviews.id) as count');
-                if(isManager()){
-                    $collection->whereIn('admins.id', getManagerAllUsers());
-                } elseif (isLeadUser()){
-                    $collection->whereIn('admins.id', getTeamMembers());
-                }
-            $interviewCount = $collection->pluck('count', 'id')
-                ->toArray();
-        }
-
-        asort($interviewCount);
-
-        if($interviewCount && count($interviewCount)){
-            foreach ($interviewCount as $userId => $count){
-                if($type == 'bdm'){
-                    $withTeamNameData = Admin::getActiveBDM();
-                } else {
-                    $withTeamNameData = Admin::getActiveRecruiter();
-                }
-                if(array_key_exists($userId, $withTeamNameData)){
-                    $userWiseInterviewData[$withTeamNameData[$userId]] = $count;
-                }
-            }
-        }
-
-        return $userWiseInterviewData;
-    }
-
     public function getservedRequirementCount($type, $isUni)
     {
         $currentDate = now();
@@ -441,8 +373,17 @@ class DashboardController extends Controller
         if(empty($request->fromDate) || empty($request->toDate) || empty($request->type)){
             return $data;
         }
+        $bdmUser = $request->bdmUser;
+        $recUser = $request->recUser;
+        if(empty($bdmUser)){
+            $bdmUser = [0];
+        }
+
+        if(empty($recUser)){
+            $recUser = [0];
+        }
         $data['labels'] = array_values(Submission::$status);
-        $data['counts'] = $this->getBdmStatusCounts($request->fromDate, $request->toDate, $request->type, $request->bdmUser, $request->recUser);
+        $data['counts'] = $this->getBdmStatusCounts($request->fromDate, $request->toDate, $request->type, $bdmUser, $recUser);
         $data['status'] = 1;
         return $data;
     }
@@ -489,8 +430,18 @@ class DashboardController extends Controller
         if(empty($request->fromDate) || empty($request->toDate) || empty($request->type)){
             return $data;
         }
+        $bdmUser = $request->bdmUser;
+        $recUser = $request->recUser;
+        if(empty($bdmUser)){
+            $bdmUser = [0];
+        }
+
+        if(empty($recUser)){
+            $recUser = [0];
+        }
+
         $data['labels'] = array_values(Submission::$pvStatus);
-        $data['counts'] = $this->getPvStatusCount($request->fromDate, $request->toDate, $request->type, $request->bdmUser, $request->recUser);
+        $data['counts'] = $this->getPvStatusCount($request->fromDate, $request->toDate, $request->type, $bdmUser, $recUser);
         $data['status'] = 1;
         return $data;
     }
@@ -537,10 +488,19 @@ class DashboardController extends Controller
         if(empty($request->fromDate) || empty($request->toDate) || empty($request->type)){
             return $data;
         }
+        $bdmUser = $request->bdmUser;
+        $recUser = $request->recUser;
+        if(empty($bdmUser)){
+            $bdmUser = [0];
+        }
+
+        if(empty($recUser)){
+            $recUser = [0];
+        }
         $interviewStatus = Interview::$interviewStatusOptions;
         unset($interviewStatus['']);
         $data['labels'] = array_values($interviewStatus);
-        $data['counts'] = $this->getInterviewStatusCounts($request->fromDate, $request->toDate, $request->type, $request->bdmUser, $request->recUser);
+        $data['counts'] = $this->getInterviewStatusCounts($request->fromDate, $request->toDate, $request->type, $bdmUser, $recUser);
         $data['status'] = 1;
         return $data;
     }
@@ -629,6 +589,9 @@ class DashboardController extends Controller
 
     public function getRecruiterServedCount($labels, $fromDate, $toDate, $type, $recruiters, $isUniq)
     {
+        if(!$recruiters){
+            return [];
+        }
         $startDate = Carbon::createFromFormat('m/d/Y', $fromDate);
         $endDate = Carbon::createFromFormat('m/d/Y', $toDate);
 
@@ -690,7 +653,7 @@ class DashboardController extends Controller
         $endDate = Carbon::createFromFormat('m/d/Y', $toDate);
 
         if(!$recruiters){
-            $recruiters[] = getLoggedInUserId();
+            return [];
         }
 
         $collection = Submission::whereIn('user_id', $recruiters)
@@ -749,13 +712,16 @@ class DashboardController extends Controller
 
     public function getBdmServedCount($labels, $fromDate, $toDate, $type, $selectedUser, $isUniq)
     {
+        if(!$selectedUser){
+            return [];
+        }
         $startDate = Carbon::createFromFormat('m/d/Y', $fromDate);
         $endDate = Carbon::createFromFormat('m/d/Y', $toDate);
 
         $collection = Requirement::leftJoin('submissions', 'requirements.id', '=', 'submissions.requirement_id')
-            ->whereBetween('requirements.created_at', [$startDate, $endDate])
-            ->select(\DB::raw('DATE(requirements.created_at) AS date'), \DB::raw('COUNT(DISTINCT(submissions.requirement_id)) AS count'))
-            ->whereIn('requirements.user_id', ($selectedUser ) ?? [0]);
+            ->whereBetween('submissions.created_at', [$startDate, $endDate])
+            ->select(\DB::raw('DATE(submissions.created_at) AS date'), \DB::raw('COUNT(DISTINCT(submissions.requirement_id)) AS count'))
+            ->whereIn('requirements.user_id', $selectedUser);
 
         if($isUniq){
 //            $collection->where(function ($query) {
@@ -799,6 +765,7 @@ class DashboardController extends Controller
         if(empty($request->type)){
             return $data;
         }
+
         $labels = $this->getTypeWiseDateLabels($request->type, $request->fromDate, $request->toDate);
         $data['label'] = $labels;
         $data['totalInterviewCount'] = array_values($this->getTotalInterviewsCounts($labels, $request->fromDate, $request->toDate, $request->user_type, $request->bdmUser, $request->recUser, $request->type));
@@ -812,25 +779,24 @@ class DashboardController extends Controller
         $toDate = \Carbon\Carbon::createFromFormat('m/d/Y', $toDate)->addDay()->format('Y-m-d');
 
         $interviewCounts = [];
-        if($userType == 'bdm'){
+        if($userType == 'bdm' && $bdmUser){
             $interviewCounts = Requirement::leftJoin('submissions', 'requirements.id', '=', 'submissions.requirement_id')
                 ->leftJoin('interviews', 'submissions.id', '=', 'interviews.submission_id')
-                ->whereIn('requirements.user_id', ($bdmUser) ?? [0])
+                ->whereIn('requirements.user_id', $bdmUser)
                 ->whereBetween('interviews.created_at', [$fromDate, $toDate])
                 ->select(\DB::raw('DATE(interviews.created_at) AS date'), \DB::raw('COUNT((interviews.id)) AS count'))
                 ->groupBy('date')
                 ->pluck('count','date')
                 ->toArray();
-        } else {
+        } elseif($userType == 'recruiter' && $recruiterUser) {
             $interviewCounts = Submission::leftJoin('interviews', 'submissions.id', '=', 'interviews.submission_id')
-                ->whereIn('submissions.user_id', ($recruiterUser ) ?? [0])
+                ->whereIn('submissions.user_id', $recruiterUser)
                 ->whereBetween('interviews.created_at', [$fromDate, $toDate])
                 ->select(\DB::raw('DATE(interviews.created_at) AS date'), \DB::raw('COUNT((interviews.id)) AS count'))
                 ->groupBy('date')
                 ->pluck('count','date')
                 ->toArray();
         }
-
         return $this->getLabelWiseData($type, $labels, $interviewCounts);
     }
 
@@ -840,6 +806,7 @@ class DashboardController extends Controller
         if(empty($request->type)){
             return $data;
         }
+
         $labels                             = $this->getTypeWiseDateLabels($request->type, $request->fromDate, $request->toDate);
         $data['label']                      = $labels;
         $data['acceptCounts']               = array_values($this->getTotalBdmStatusCounts('status', Submission::STATUS_ACCEPT, $labels, $request->fromDate, $request->toDate, $request->user_type, $request->bdmUser, $request->recUser, $request->type));
@@ -854,17 +821,17 @@ class DashboardController extends Controller
         $toDate = \Carbon\Carbon::createFromFormat('m/d/Y', $toDate)->addDay()->format('Y-m-d');
 
         $statusCounts = [];
-        if($userType == 'bdm'){
+        if($userType == 'bdm' && $bdmUser){
             $statusCounts = Requirement::leftJoin('submissions', 'requirements.id', '=', 'submissions.requirement_id')
-                ->whereIn('requirements.user_id', ($bdmUser) ?? [0])
+                ->whereIn('requirements.user_id', $bdmUser)
                 ->where('submissions.'.$filedName, $status)
                 ->whereBetween('submissions.bdm_status_updated_at', [$fromDate, $toDate])
                 ->select(\DB::raw('DATE(submissions.bdm_status_updated_at) AS date'), \DB::raw('COUNT((submissions.id)) AS count'))
                 ->groupBy('date')
                 ->pluck('count','date')
                 ->toArray();
-        } else {
-            $statusCounts = Submission::whereIn('user_id', ($recruiterUser ) ?? [0])
+        } elseif($userType == 'recruiter' && $recruiterUser) {
+            $statusCounts = Submission::whereIn('user_id', $recruiterUser)
                 ->whereBetween('bdm_status_updated_at', [$fromDate, $toDate])
                 ->where($filedName, $status)
                 ->select(\DB::raw('DATE(bdm_status_updated_at) AS date'), \DB::raw('COUNT((id)) AS count'))
@@ -876,4 +843,257 @@ class DashboardController extends Controller
         return $this->getLabelWiseData($type, $labels, $statusCounts);
     }
 
+    public function getUserAndDateWiseCounts($type, $labels, $countData, $userType, $bdmUser, $recruiterUser){
+        if($userType == 'bdm'){
+            $userArray = Admin::where('role', 'bdm')->where('status', 'active')->whereIn('id', $bdmUser)->pluck('name', 'id')->toArray();
+        } else {
+            $userArray = Admin::where('role', 'recruiter')->where('status', 'active')->whereIn('id', $recruiterUser)->pluck('name', 'id')->toArray();
+        }
+
+        $preparedData  = [];
+
+        foreach ($userArray as  $userId => $name){
+            foreach ($labels as $value) {
+                $preparedData[$userId.'-'.$name][$value] = 0;
+            }
+        }
+
+        \Log::info($countData);
+
+        foreach ($countData as $data) {
+            $date   = isset($data['date']) ? $data['date'] : '';
+            $value  = isset($data['count']) ? $data['count'] : '';
+            $user   = isset($data['user']) ? $data['user'] : '';
+
+            if(!$date){
+                continue;
+            }
+            switch ($type) {
+                case 'monthly':
+                    $monthYear = Carbon::createFromFormat('Y-m-d', $date)->format('M-Y');
+                    if (!isset($preparedData[$user][$monthYear])) {
+                        $preparedData[$user][$monthYear] = 0;
+                    }
+                    $preparedData[$user][$monthYear] += $value;
+                    break;
+
+                case 'weekly':
+                    $weekKey = Carbon::createFromFormat('Y-m-d', $date)->startOfWeek()->format('m/d/y') .' to '. Carbon::createFromFormat('Y-m-d', $date)->endOfWeek()->format('m/d/y');
+                    if (!isset($preparedData[$user][$weekKey])) {
+                        $preparedData[$user][$weekKey] = 0;
+                    }
+                    $preparedData[$user][$weekKey] += $value;
+                    break;
+                case 'daily':
+                default:
+                    $dayKey = Carbon::createFromFormat('Y-m-d', $date)->format('d-M');
+                    if (!isset($preparedData[$user][$dayKey])) {
+                        $preparedData[$user][$dayKey] = 0;
+                    }
+                    $preparedData[$user][$dayKey] += $value;
+                    break;
+            }
+        }
+
+        return $preparedData;
+    }
+    public function getInterviewChartData(Request $request)
+    {
+        $data['status'] = 0;
+        if(empty($request->type) || empty($request->fromDate) || empty($request->toDate)){
+            return $data;
+        }
+
+        $bdmUser = $request->bdmUser;
+        $recUser = $request->recUser;
+        if(empty($bdmUser)){
+            $bdmUser = [0];
+        }
+
+        if(empty($recUser)){
+            $recUser = [0];
+        }
+
+        $labels = $this->getTypeWiseDateLabels($request->type, $request->fromDate, $request->toDate);
+        $data['labels'] = $labels;
+        $data['interviewCounts'] = $this->getIndividualInterviewCounts($request->fromDate, $request->toDate, $request->type, $labels, $request->user_type, $bdmUser, $recUser);
+        $data['status'] = 1;
+        return $data;
+    }
+
+    public function getIndividualInterviewCounts($fromDate, $toDate, $type, $labels, $userType, $bdmUser, $recruiterUser)
+    {
+        $fromDate = \Carbon\Carbon::createFromFormat('m/d/Y', $fromDate)->format('Y-m-d');
+        $toDate = \Carbon\Carbon::createFromFormat('m/d/Y', $toDate)->addDay()->format('Y-m-d');
+
+        if($userType == 'bdm'){
+            $collection = Requirement::leftJoin('submissions', 'requirements.id', '=', 'submissions.requirement_id')
+                ->leftJoin('interviews', 'submissions.id', '=', 'interviews.submission_id')
+                ->leftJoin('admins', 'admins.id', '=', 'requirements.user_id')
+                ->where('admins.role', 'bdm')
+                ->where('admins.status', 'active')
+                ->whereIn('admins.id', $bdmUser)
+                ->whereBetween('interviews.created_at', [$fromDate, $toDate])
+                ->groupBy('interview_date', 'id')
+                ->select(\DB::raw('DATE(interviews.created_at) as date'),\DB::raw('CONCAT(admins.id, "-", admins.name) AS user'), 'admins.id', \DB::raw('COUNT(*) as count'));
+            if(isManager()){
+                $collection->whereIn('admins.id', getManagerAllUsers());
+            } elseif (isLeadUser()){
+                $collection->whereIn('admins.id', getTeamMembers());
+            }
+            $interviewCount = $collection->get();
+        } else {
+            $collection = Submission::leftJoin('interviews', 'submissions.id', '=', 'interviews.submission_id')
+                ->leftJoin('admins', 'admins.id', '=', 'submissions.user_id')
+                ->where('admins.role', 'recruiter')
+                ->where('admins.status', 'active')
+                ->whereIn('admins.id', $recruiterUser)
+                ->whereBetween('interviews.created_at', [$fromDate, $toDate])
+                ->groupBy('interview_date', 'id')
+                ->select(\DB::raw('DATE(interviews.created_at) as date'), \DB::raw('CONCAT(admins.id, "-", admins.name) AS user'), 'admins.id', \DB::raw('COUNT(*) as count'));
+            if(isManager()){
+                $collection->whereIn('admins.id', getManagerAllUsers());
+            } elseif (isLeadUser()){
+                $collection->whereIn('admins.id', getTeamMembers());
+            }
+            $interviewCount = $collection->get();
+        }
+
+        return $this->getUserAndDateWiseCounts($type, $labels, $interviewCount, $userType, $bdmUser, $recruiterUser);
+    }
+
+    public function getIndividualRequirementAssigned(Request $request)
+    {
+        $data['status'] = 0;
+        if(empty($request->type) || empty($request->fromDate) || empty($request->toDate)){
+            return $data;
+        }
+
+        $labels                           = $this->getTypeWiseDateLabels($request->type, $request->fromDate, $request->toDate);
+        $data['labels']                   = $labels;
+        $data['requirementAssigneeCount'] = $this->getIndividualRequirementAssignCounts($request->fromDate, $request->toDate, $request->type, $labels, $request->selected_user, $request->isUniReq);
+        $data['status']                   = 1;
+        return $data;
+    }
+
+    public function getIndividualRequirementAssignCounts($fromDate, $toDate, $type, $labels, $recruiters, $isUniq)
+    {
+        $startDate = Carbon::createFromFormat('m/d/Y', $fromDate);
+        $endDate = Carbon::createFromFormat('m/d/Y', $toDate);
+
+        if(!$recruiters){
+            return [];
+        }
+
+        $collection = AssignToRecruiter::join('requirements', 'requirements.id', '=', 'assign_to_recruiters.requirement_id')
+            ->leftJoin('admins', 'admins.id', '=', 'assign_to_recruiters.recruiter_id')
+            ->whereIN('recruiter_id', $recruiters)
+            ->whereBetween('assign_to_recruiters.created_at', [$startDate, $endDate])
+            ->select(\DB::raw('DATE(assign_to_recruiters.created_at) AS date'), \DB::raw('CONCAT(admins.id, "-", admins.name) AS user'), \DB::raw('COUNT(assign_to_recruiters.requirement_id) as count'), 'admins.id');
+
+        if($isUniq) {
+            $collection->where(function ($query) {
+                $query->where('requirements.id', '=', \DB::raw('requirements.parent_requirement_id'));
+                $query->orwhere('requirements.parent_requirement_id', '=', '0');
+            });
+        }
+        $countsQuery = $collection->groupBy('date', 'recruiter_id')
+            ->get();
+
+        return $this->getUserAndDateWiseCounts($type, $labels, $countsQuery, 'recruiter', [], $recruiters);
+    }
+
+    public function getIndividualSubmission(Request $request)
+    {
+        $data['status'] = 0;
+        if(empty($request->type) || empty($request->fromDate) || empty($request->toDate)){
+            return $data;
+        }
+
+        $labels                   = $this->getTypeWiseDateLabels($request->type, $request->fromDate, $request->toDate);
+        $data['labels']           = $labels;
+        $data['submissionsCount'] = $this->getIndividualSubmissionCounts($request->fromDate, $request->toDate, $request->type, $labels, $request->bdmUser, $request->recUser, $request->isUniSub, $request->user_type);
+        $data['status']           = 1;
+        return $data;
+    }
+
+    public function getIndividualSubmissionCounts($fromDate, $toDate, $type, $labels, $bdmUser, $recruiters, $isUniSub, $userType)
+    {
+        $fromDate = \Carbon\Carbon::createFromFormat('m/d/Y', $fromDate)->format('Y-m-d');
+        $toDate = \Carbon\Carbon::createFromFormat('m/d/Y', $toDate)->addDay()->format('Y-m-d');
+        $submissionCounts = [];
+
+        if($userType == 'recruiter' && $recruiters){
+            $collection = Submission::leftJoin('admins', 'admins.id', '=', 'submissions.user_id')
+                ->select(\DB::raw('DATE(submissions.created_at) AS date'), \DB::raw('CONCAT(admins.id, "-", admins.name) AS user'), \DB::raw('COUNT(submissions.id) as count'), 'admins.id')
+                ->whereIn('user_id', $recruiters)
+                ->whereBetween('submissions.created_at', [$fromDate, $toDate]);
+
+            if($isUniSub){
+                $collection->where('submissions.id' ,\DB::raw('submissions.candidate_id'));
+            }
+            $submissionCounts = $collection->groupBy('date', 'submissions.user_id')
+                ->get();
+        } elseif ($userType == 'bdm' && $bdmUser){
+            $collection = Requirement::leftjoin('submissions', 'submissions.requirement_id', '=', 'requirements.id')
+                ->leftJoin('admins', 'admins.id', '=', 'requirements.user_id')
+                ->select(\DB::raw('DATE(submissions.created_at) AS date'), \DB::raw('CONCAT(admins.id, "-", admins.name) AS user'), \DB::raw('COUNT(submissions.id) as count'), 'admins.id')
+                ->whereIn('requirements.user_id', $bdmUser)
+                ->whereBetween('submissions.created_at', [$fromDate, $toDate]);
+            if($isUniSub){
+                $collection->where('submissions.id' ,\DB::raw('submissions.candidate_id'));
+            }
+            $submissionCounts = $collection->groupBy('date', 'requirements.user_id')
+                ->get();
+        }
+
+        return $this->getUserAndDateWiseCounts($type, $labels, $submissionCounts, $userType, $bdmUser, $recruiters);
+    }
+
+    public function getIndividualserved(Request $request)
+    {
+        $data['status'] = 0;
+        if(empty($request->type) || empty($request->fromDate) || empty($request->toDate)){
+            return $data;
+        }
+
+        $labels              = $this->getTypeWiseDateLabels($request->type, $request->fromDate, $request->toDate);
+        $data['labels']      = $labels;
+        $data['servedCount'] = $this->getIndividualServedCounts($request->fromDate, $request->toDate, $request->type, $labels, $request->bdmUser, $request->recUser, $request->isUniSub, $request->user_type);
+        $data['status']      = 1;
+        return $data;
+    }
+
+    public function getIndividualServedCounts($fromDate, $toDate, $type, $labels, $bdmUser, $recruiters, $isUniSub, $userType)
+    {
+        $fromDate = \Carbon\Carbon::createFromFormat('m/d/Y', $fromDate)->format('Y-m-d');
+        $toDate = \Carbon\Carbon::createFromFormat('m/d/Y', $toDate)->addDay()->format('Y-m-d');
+        $submissionCounts = [];
+
+        if($userType == 'recruiter' && $recruiters){
+            $collection = Submission::leftJoin('admins', 'admins.id', '=', 'submissions.user_id')
+                ->select(\DB::raw('DATE(submissions.created_at) AS date'), \DB::raw('CONCAT(admins.id, "-", admins.name) AS user'), \DB::raw('COUNT(DISTINCT submissions.requirement_id) as count'), 'admins.id')
+                ->whereIn('user_id', $recruiters)
+                ->whereBetween('submissions.created_at', [$fromDate, $toDate]);
+
+            if($isUniSub){
+                $collection->where('submissions.id' ,\DB::raw('submissions.candidate_id'));
+            }
+            $submissionCounts = $collection->groupBy('date', 'submissions.user_id')
+                ->get();
+        } elseif ($userType == 'bdm' && $bdmUser){
+            $collection = Requirement::leftjoin('submissions', 'submissions.requirement_id', '=', 'requirements.id')
+                ->leftJoin('admins', 'admins.id', '=', 'requirements.user_id')
+                ->select(\DB::raw('DATE(submissions.created_at) AS date'), \DB::raw('CONCAT(admins.id, "-", admins.name) AS user'), \DB::raw('COUNT(DISTINCT submissions.requirement_id) as count'), 'admins.id')
+                ->whereIn('requirements.user_id', $bdmUser)
+                ->whereBetween('submissions.created_at', [$fromDate, $toDate]);
+            if($isUniSub){
+                $collection->where('submissions.id' ,\DB::raw('submissions.candidate_id'));
+            }
+            $submissionCounts = $collection->groupBy('date', 'requirements.user_id')
+                ->get();
+        }
+
+        return $this->getUserAndDateWiseCounts($type, $labels, $submissionCounts, $userType, $bdmUser, $recruiters);
+    }
 }

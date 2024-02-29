@@ -1,4 +1,4 @@
-<div class="card card-info">
+<div class="card card-info card-outline">
     <div class="card-header">
         <h3 class="card-title">Interview Status</h3>
         <div class="card-tools">

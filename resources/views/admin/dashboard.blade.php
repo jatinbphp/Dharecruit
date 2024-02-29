@@ -77,13 +77,26 @@
                                 </div>
                             </div>
                             <div class="tab-pane fade" id="custom-tabs-one-profile" role="tabpanel" aria-labelledby="custom-tabs-one-profile-tab">
-                                @if(getLoggedInUserRole() == 'admin' || isLeadUser() || isManager())
+                                <div class="row">
+                                    <div class="col-md-12 @if(isLeadUser() || isManager()) mt-5 @endif">
+                                        @include('admin.chart.individual.interview')
+                                    </div>
+                                </div>
+                                @if(in_array(getLoggedInUserRole(), ['admin', 'recruiter']))
                                     <div class="row">
-                                        <div class="col-md-12 @if(isLeadUser() || isManager()) mt-5 @endif">
-                                            @include('admin.chart.individual.interview')
+                                        <div class="col-md-12">
+                                            @include('admin.chart.individual.individual_requirement_assigned')
                                         </div>
                                     </div>
                                 @endif
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        @include('admin.chart.individual.individual_submission')
+                                    </div>
+                                    <div class="col-md-12">
+                                        @include('admin.chart.individual.individual_served')
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

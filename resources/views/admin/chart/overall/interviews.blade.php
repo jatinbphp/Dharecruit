@@ -1,4 +1,4 @@
-<div class="card card-info">
+<div class="card card-info card-outline">
     <div class="card-header">
         <h3 class="card-title">Interview Count</h3>
         <div class="card-tools">
@@ -154,13 +154,13 @@
             $.ajax({
                 url: "{{ route('getInterviewsCount') }}",
                 data: {
-                    '_token' : '{{ csrf_token() }}',
-                    'fromDate' : $('#interview_count_fromDate').val(),
-                    'toDate'   : $('#interview_count_toDate').val(),
-                    'type'    : $(".interview-count-served-submission-type:checked").attr("data-type"),
-                    'bdmUser'  : instanceBdm.getSelectedIds(),
-                    'recUser'  : instanceRec.getSelectedIds(),
-                    'user_type'     : $(".interview-count-user-type:checked").attr("data-type"),
+                    '_token'    : '{{ csrf_token() }}',
+                    'fromDate'  : $('#interview_count_fromDate').val(),
+                    'toDate'    : $('#interview_count_toDate').val(),
+                    'type'      : $(".interview-count-served-submission-type:checked").attr("data-type"),
+                    'bdmUser'   : instanceBdm.getSelectedIds(),
+                    'recUser'   : instanceRec.getSelectedIds(),
+                    'user_type' : $(".interview-count-user-type:checked").attr("data-type"),
 
                 },
                 method: 'POST',

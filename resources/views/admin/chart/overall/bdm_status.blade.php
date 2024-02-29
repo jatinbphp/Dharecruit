@@ -1,4 +1,4 @@
-<div class="card card-info">
+<div class="card card-info card-outline">
     <div class="card-header">
         <h3 class="card-title">Bdm Status</h3>
         <div class="card-tools">
@@ -14,9 +14,9 @@
                     <div class="input-group">
                         <label class="control-label mr-3 mt-1 h5" for="date">From: </label>
                         <div class="input-group-prepend">
-                            <span class="input-group-text">
-                                <i class="far fa-calendar-alt"></i>
-                            </span>
+                                <span class="input-group-text">
+                                    <i class="far fa-calendar-alt"></i>
+                                </span>
                         </div>
                         @php
                             $defaultDays = 60;
@@ -35,9 +35,9 @@
                     <div class="input-group">
                         <label class="control-label mr-3 mt-1 h5" for="date">To: </label>
                         <div class="input-group-prepend">
-                            <span class="input-group-text">
-                                <i class="far fa-calendar-alt"></i>
-                            </span>
+                                <span class="input-group-text">
+                                    <i class="far fa-calendar-alt"></i>
+                                </span>
                         </div>
                         {!! Form::text('toDate', \Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker bdm-status-datepicker form-control float-right', 'placeholder' => 'Select To Date', 'id' => 'bdm_status_toDate']) !!}
                     </div>
