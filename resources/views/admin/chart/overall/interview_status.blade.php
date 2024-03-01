@@ -1,6 +1,6 @@
 <div class="card card-info card-outline">
     <div class="card-header">
-        <h3 class="card-title">Interview Status</h3>
+        <h3 class="card-title"><i class="fa fa-chart-pie"></i> Interview Status</h3>
         <div class="card-tools">
             <button type="button" class="btn btn-tool" data-card-widget="collapse">
                 <i class="fas fa-minus"></i>
@@ -12,7 +12,7 @@
             <div class="col-4">
                 <div class="form-group">
                     <div class="input-group">
-                        <label class="control-label mr-3 mt-1 h5" for="date">From: </label>
+                        <label class="control-label mr-3 mt-1 h5" style="font-weight: 400" for="interview_status_fromDate">From: </label>
                         <div class="input-group-prepend">
                             <span class="input-group-text">
                                 <i class="far fa-calendar-alt"></i>
@@ -33,7 +33,7 @@
             <div class="col-4">
                 <div class="form-group">
                     <div class="input-group">
-                        <label class="control-label mr-3 mt-1 h5" for="date">To: </label>
+                        <label class="control-label mr-3 mt-1 h5" style="font-weight: 400" for="interview_status_toDate">To: </label>
                         <div class="input-group-prepend">
                             <span class="input-group-text">
                                 <i class="far fa-calendar-alt"></i>
@@ -62,7 +62,7 @@
                 <div class="interview-status-recruiter-list">
                     <div class="row">
                         <div class="col-2">
-                            <label class="control-label mt-1 h5" for="recruiter">Recruiter:</label>
+                            <label class="control-label mt-1 h5" style="font-weight: 400" for="interview_status_recruiter">Recruiter:</label>
                         </div>
                         <div class="col-10">
                             {!! Form::text('', null, ['placeholder' => 'Please Select user', 'width' => '100%', 'id' => 'interview_status_recruiter']) !!}
@@ -72,7 +72,7 @@
                 <div class="interview-status-bdm-list">
                     <div class="row">
                         <div class="col-2">
-                            <label class="control-label mt-1 h5" for="bdm">Bdm:</label>
+                            <label class="control-label mt-1 h5" style="font-weight: 400" for="interview_status_bdm">Bdm:</label>
                         </div>
                         <div class="col-10">
                             {!! Form::text('', null, ['placeholder' => 'Please Select user', 'id' => 'interview_status_bdm']) !!}
@@ -165,21 +165,12 @@
                                         'rgb(108, 117, 125, 0.7)',
 
                                     ],
-                                    borderColor: [
-                                        'rgba(255, 193, 7, 1)',
-                                        'rgba(220, 53, 69, 1)',
-                                        'rgba(0, 123, 255, 1)',
-                                        'rgba(40, 167, 69, 1)',
-                                        'rgba(52, 58, 64, 1)',
-                                        'rgba(140, 1, 1, 1)',
-                                        'rgba(108, 117, 125, 1)',
-                                    ],
-                                    borderWidth: 1
                                 }]
                             },
                             options: {
                                 responsive: true,
-                                maintainAspectRatio: false
+                                maintainAspectRatio: false,
+                                hoverOffset: 4,
                             }
                         });
                     }

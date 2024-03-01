@@ -1,6 +1,6 @@
 <div class="card card-info card-outline">
     <div class="card-header">
-        <h3 class="card-title">Served</h3>
+        <h3 class="card-title"><i class="fa fa-chart-line"></i> Served</h3>
         <div class="card-tools">
             <button type="button" class="btn btn-tool" data-card-widget="collapse">
                 <i class="fas fa-minus"></i>
@@ -13,7 +13,7 @@
                 <div class="col-2">
                     <div class="form-group">
                         <div class="input-group">
-                            <label class="control-label mr-3 mt-1 h5" for="individual_served_count_fromDate">From: </label>
+                            <label class="control-label mr-3 mt-1 h5" style="font-weight: 400" for="individual_served_count_fromDate">From: </label>
                             <div class="input-group-prepend">
                                 <span class="input-group-text">
                                     <i class="far fa-calendar-alt"></i>
@@ -34,7 +34,7 @@
                 <div class="col-2">
                     <div class="form-group">
                         <div class="input-group">
-                            <label class="control-label mr-3 mt-1 h5" for="individual_served_count_toDate">To: </label>
+                            <label class="control-label mr-3 mt-1 h5" style="font-weight: 400" for="individual_served_count_toDate">To: </label>
                             <div class="input-group-prepend">
                                 <span class="input-group-text">
                                     <i class="far fa-calendar-alt"></i>
@@ -50,7 +50,7 @@
                             <div class="individual-served-count-recruiter-type">
                                 <div class="row">
                                     <div class="col-3 text-right">
-                                        <label class="control-label mt-1 h5" for="individual_served_count_recruiter">Recruiter:</label>
+                                        <label class="control-label mt-1 h5" style="font-weight: 400" for="individual_served_count_recruiter">Recruiter:</label>
                                     </div>
                                     <div class="col-9">
                                         {!! Form::text('', null, ['placeholder' => 'Please Select user', 'width' => '100%', 'id' => 'individual_served_count_recruiter']) !!}
@@ -60,7 +60,7 @@
                             <div class="individual-served-count-bdm-type">
                                 <div class="row">
                                     <div class="col-3 text-right">
-                                        <label class="control-label mt-1 h5" for="individual_served_count_bdm">Bdm:</label>
+                                        <label class="control-label mt-1 h5" style="font-weight: 400" for="individual_served_count_bdm">Bdm:</label>
                                     </div>
                                     <div class="col-9">
                                         {!! Form::text('', null, ['placeholder' => 'Please Select user', 'id' => 'individual_served_count_bdm']) !!}

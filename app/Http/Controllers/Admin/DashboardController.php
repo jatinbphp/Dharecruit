@@ -174,8 +174,11 @@ class DashboardController extends Controller
 
     public function index(){
         $data['menu'] = 'Dashboard';
-        $data['loggedUser'] = $this->getUser();
-        $data['users'] = Admin::where('id', '!=', Auth::user()->id)->where('role','admin')->count();
+        $data['loggedUser']              = $this->getUser();
+        $data['adminUsers']              = Admin::where('id', '!=', Auth::user()->id)->where('role','admin')->count();
+        $data['bdmUsers']                = Admin::where('id', '!=', Auth::user()->id)->where('role','bdm')->where('status', 'active')->count();
+        $data['recUsers']                = Admin::where('id', '!=', Auth::user()->id)->where('role','recruiter')->where('status', 'active')->count();
+        $data['totalRequirements']       = Requirement::count();
         $data['monthlyLabels']           = $this->getTypeWiseDateLabels('monthly');
         $data['monthlyRequiremtCounts']  = $this->getCountsForModel('App\Models\Requirement', 'monthly', 0);
         $data['monthlySubmissionCounts'] = $this->getCountsForModel('App\Models\Submission', 'monthly', 0);
@@ -820,21 +823,26 @@ class DashboardController extends Controller
         $fromDate = \Carbon\Carbon::createFromFormat('m/d/Y', $fromDate)->format('Y-m-d');
         $toDate = \Carbon\Carbon::createFromFormat('m/d/Y', $toDate)->addDay()->format('Y-m-d');
 
+        $date = 'submissions.bdm_status_updated_at';
+        if($filedName == 'pv_status'){
+            $date = 'submissions.pv_status_updated_at';
+        }
         $statusCounts = [];
         if($userType == 'bdm' && $bdmUser){
             $statusCounts = Requirement::leftJoin('submissions', 'requirements.id', '=', 'submissions.requirement_id')
                 ->whereIn('requirements.user_id', $bdmUser)
                 ->where('submissions.'.$filedName, $status)
-                ->whereBetween('submissions.bdm_status_updated_at', [$fromDate, $toDate])
-                ->select(\DB::raw('DATE(submissions.bdm_status_updated_at) AS date'), \DB::raw('COUNT((submissions.id)) AS count'))
+                ->whereBetween($date, [$fromDate, $toDate])
+                ->select(\DB::raw("DATE($date) AS date"), \DB::raw('COUNT((submissions.id)) AS count'))
                 ->groupBy('date')
                 ->pluck('count','date')
                 ->toArray();
+
         } elseif($userType == 'recruiter' && $recruiterUser) {
             $statusCounts = Submission::whereIn('user_id', $recruiterUser)
-                ->whereBetween('bdm_status_updated_at', [$fromDate, $toDate])
+                ->whereBetween($date, [$fromDate, $toDate])
                 ->where($filedName, $status)
-                ->select(\DB::raw('DATE(bdm_status_updated_at) AS date'), \DB::raw('COUNT((id)) AS count'))
+                ->select(\DB::raw("DATE($date) AS date"), \DB::raw('COUNT((id)) AS count'))
                 ->groupBy('date')
                 ->pluck('count','date')
                 ->toArray();
@@ -851,14 +859,16 @@ class DashboardController extends Controller
         }
 
         $preparedData  = [];
+        $timeFrameKey = '';
 
         foreach ($userArray as  $userId => $name){
             foreach ($labels as $value) {
+                if($type == 'time_frame'){
+                    $timeFrameKey = $value;
+                }
                 $preparedData[$userId.'-'.$name][$value] = 0;
             }
         }
-
-        \Log::info($countData);
 
         foreach ($countData as $data) {
             $date   = isset($data['date']) ? $data['date'] : '';
@@ -868,6 +878,7 @@ class DashboardController extends Controller
             if(!$date){
                 continue;
             }
+
             switch ($type) {
                 case 'monthly':
                     $monthYear = Carbon::createFromFormat('Y-m-d', $date)->format('M-Y');
@@ -883,6 +894,12 @@ class DashboardController extends Controller
                         $preparedData[$user][$weekKey] = 0;
                     }
                     $preparedData[$user][$weekKey] += $value;
+                    break;
+                case 'time_frame':
+                    if (!isset($preparedData[$user][$timeFrameKey])) {
+                        $preparedData[$user][$timeFrameKey] = 0;
+                    }
+                    $preparedData[$user][$timeFrameKey] += $value;
                     break;
                 case 'daily':
                 default:
@@ -1095,5 +1112,106 @@ class DashboardController extends Controller
         }
 
         return $this->getUserAndDateWiseCounts($type, $labels, $submissionCounts, $userType, $bdmUser, $recruiters);
+    }
+
+    public function getIndividualRequirementCount(Request $request)
+    {
+        $data['status'] = 0;
+        if(empty($request->type) || empty($request->fromDate) || empty($request->toDate)){
+            return $data;
+        }
+
+        $labels                           = $this->getTypeWiseDateLabels($request->type, $request->fromDate, $request->toDate);
+        $data['labels']                   = $labels;
+        $data['requirementCount']         = $this->getIndividualRequirementCounts($request->fromDate, $request->toDate, $request->type, $labels, $request->selected_user, $request->isUniReq);
+        $data['status']                   = 1;
+        return $data;
+    }
+
+    public function getIndividualRequirementCounts($fromDate, $toDate, $type, $labels, $bdms, $isUniq)
+    {
+        $startDate = Carbon::createFromFormat('m/d/Y', $fromDate);
+        $endDate = Carbon::createFromFormat('m/d/Y', $toDate);
+
+        if(!$bdms){
+            return [];
+        }
+
+        $collection = Requirement::leftJoin('admins', 'admins.id', '=', 'requirements.user_id')
+            ->select(\DB::raw('DATE(requirements.created_at) AS date'), \DB::raw('CONCAT(admins.id, "-", admins.name) AS user'), \DB::raw('COUNT(requirements.id) as count'), 'admins.id')
+            ->whereIn('requirements.user_id', $bdms)
+            ->whereBetween('requirements.created_at', [$startDate, $endDate]);
+
+        if($isUniq) {
+            $collection->where(function ($query) {
+                $query->where('requirements.id', '=', \DB::raw('requirements.parent_requirement_id'));
+                $query->orwhere('requirements.parent_requirement_id', '=', '0');
+            });
+        }
+
+        $countsQuery = $collection->groupBy('date', 'requirements.user_id')
+            ->get();
+
+        return $this->getUserAndDateWiseCounts($type, $labels, $countsQuery, 'bdm', $bdms, []);
+    }
+
+    public function getIndividualbdmAccept(Request $request)
+    {
+        $data['status'] = 0;
+        if(empty($request->type) || empty($request->fromDate) || empty($request->toDate)){
+            return $data;
+        }
+
+        $labels                   = $this->getTypeWiseDateLabels($request->type, $request->fromDate, $request->toDate);
+        $data['labels']           = $labels;
+        $data['bdmAcceptCount']   = $this->getIndividualStatusCounts('status', Submission::STATUS_ACCEPT, $labels, $request->fromDate, $request->toDate, $request->user_type, $request->bdmUser, $request->recUser, $request->type);
+        $data['status']           = 1;
+        return $data;
+    }
+
+    public function getIndividualSubmittedEndClient(Request $request)
+    {
+        $data['status'] = 0;
+        if(empty($request->type) || empty($request->fromDate) || empty($request->toDate)){
+            return $data;
+        }
+
+        $labels                         = $this->getTypeWiseDateLabels($request->type, $request->fromDate, $request->toDate);
+        $data['labels']                 = $labels;
+        $data['bdmSubToEndClientCount'] = $this->getIndividualStatusCounts('pv_status', Submission::STATUS_SUBMITTED_TO_END_CLIENT, $labels, $request->fromDate, $request->toDate, $request->user_type, $request->bdmUser, $request->recUser, $request->type);
+        $data['status']                 = 1;
+        return $data;
+    }
+
+    public function getIndividualStatusCounts($filedName, $status, $labels, $fromDate, $toDate, $userType, $bdmUser, $recruiterUser, $type)
+    {
+        $fromDate = \Carbon\Carbon::createFromFormat('m/d/Y', $fromDate)->format('Y-m-d');
+        $toDate = \Carbon\Carbon::createFromFormat('m/d/Y', $toDate)->addDay()->format('Y-m-d');
+
+        $date = 'submissions.bdm_status_updated_at';
+        if($filedName == 'pv_status'){
+            $date = 'submissions.pv_status_updated_at';
+        }
+        $statusCounts = [];
+        if($userType == 'bdm' && $bdmUser){
+            $statusCounts = Requirement::leftJoin('submissions', 'requirements.id', '=', 'submissions.requirement_id')
+                ->leftJoin('admins', 'admins.id', '=', 'requirements.user_id')
+                ->whereIn('requirements.user_id', $bdmUser)
+                ->where('submissions.'.$filedName, $status)
+                ->whereBetween($date, [$fromDate, $toDate])
+                ->select(\DB::raw("DATE($date) AS date"), \DB::raw('CONCAT(admins.id, "-", admins.name) AS user'), \DB::raw('COUNT(submissions.id) as count'), 'admins.id')
+                ->groupBy('date', 'requirements.user_id')
+                ->get();
+
+        } elseif($userType == 'recruiter' && $recruiterUser) {
+            $statusCounts = Submission::whereIn('user_id', $recruiterUser)
+                ->leftJoin('admins', 'admins.id', '=', 'submissions.user_id')
+                ->whereBetween($date, [$fromDate, $toDate])
+                ->where('submissions.'.$filedName, $status)
+                ->select(\DB::raw("DATE($date) AS date"), \DB::raw('CONCAT(admins.id, "-", admins.name) AS user'), \DB::raw('COUNT(submissions.id) as count'), 'admins.id')
+                ->groupBy('date', 'submissions.user_id')
+                ->get();
+        }
+        return $this->getUserAndDateWiseCounts($type, $labels, $statusCounts, $userType, $bdmUser, $recruiterUser);
     }
 }

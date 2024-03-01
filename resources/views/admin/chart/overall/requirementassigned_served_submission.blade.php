@@ -1,6 +1,6 @@
 <div class="card card-info card-outline">
     <div class="card-header">
-        <h3 class="card-title">Requirement Assigned, Submission And Served</h3>
+        <h3 class="card-title"><i class="fa fa-chart-line"></i> Requirement Assigned, Submission And Served</h3>
         <div class="card-tools">
             <button type="button" class="btn btn-tool" data-card-widget="collapse">
                 <i class="fas fa-minus"></i>
@@ -13,7 +13,7 @@
                 <div class="col-2">
                     <div class="form-group">
                         <div class="input-group">
-                            <label class="control-label mr-3 mt-1 h5" for="date">From: </label>
+                            <label class="control-label mr-3 mt-1 h5" style="font-weight: 400" for="req_assign_vs_served_fromDate">From: </label>
                             <div class="input-group-prepend">
                                 <span class="input-group-text">
                                     <i class="far fa-calendar-alt"></i>
@@ -34,7 +34,7 @@
                 <div class="col-2">
                     <div class="form-group">
                         <div class="input-group">
-                            <label class="control-label mr-3 mt-1 h5" for="date">To: </label>
+                            <label class="control-label mr-3 mt-1 h5" style="font-weight: 400" for="req_assign_vs_served_toDate">To: </label>
                             <div class="input-group-prepend">
                                 <span class="input-group-text">
                                     <i class="far fa-calendar-alt"></i>
@@ -49,7 +49,7 @@
                         <div class="col-5">
                             <div class="row">
                                 <div class="col-3">
-                                    <label class="control-label mt-1 h5" for="req_assign_served_submission">Recruiter:</label>
+                                    <label class="control-label mt-1 h5" style="font-weight: 400" for="req_assign_served_submission">Recruiter:</label>
                                 </div>
                                 <div class="col-9">
                                     {!! Form::text('', null, ['placeholder' => 'Please Select User', 'id' => 'req_assign_served_submission']) !!}
@@ -75,13 +75,13 @@
                         <div class="col-3 text-right">
                             <div class="btn-group btn-group-toggle mb-2" data-toggle="buttons">
                                 <label class="btn btn-sm btn-outline-danger">
-                                    <input type="radio" class="req-assign-vs-served-day-type" name="interview-status-day-options" data-type="30" autocomplete="off">30 Days
+                                    <input type="radio" class="req-assign-vs-served-day-type" name="req-assign-vs-served-day-options" data-type="30" autocomplete="off">30 Days
                                 </label>
                                 <label class="btn btn-sm btn-outline-danger">
-                                    <input type="radio" class="req-assign-vs-served-day-type" name="interview-status-day-options" data-type="60" autocomplete="off">60 Days
+                                    <input type="radio" class="req-assign-vs-served-day-type" name="req-assign-vs-served-day-options" data-type="60" autocomplete="off">60 Days
                                 </label>
                                 <label class="btn btn-sm btn-outline-danger">
-                                    <input type="radio" class="req-assign-vs-served-day-type" name="interview-status-day-options" data-type="90" autocomplete="off">90 Days
+                                    <input type="radio" class="req-assign-vs-served-day-type" name="req-assign-vs-served-day-options" data-type="90" autocomplete="off">90 Days
                                 </label>
                             </div>
                         </div>

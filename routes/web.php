@@ -61,6 +61,9 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('/getIndividualRequirementAssigned', [DashboardController::class, 'getIndividualRequirementAssigned'])->name('getIndividualRequirementAssigned');
     Route::post('/getIndividualSubmission', [DashboardController::class, 'getIndividualSubmission'])->name('getIndividualSubmission');
     Route::post('/getIndividualserved', [DashboardController::class, 'getIndividualserved'])->name('getIndividualserved');
+    Route::post('/getIndividualRequirementCount', [DashboardController::class, 'getIndividualRequirementCount'])->name('getIndividualRequirementCount');
+    Route::post('/getIndividualbdmAccept', [DashboardController::class, 'getIndividualbdmAccept'])->name('getIndividualbdmAccept');
+    Route::post('/getIndividualSubmittedEndClient', [DashboardController::class, 'getIndividualSubmittedEndClient'])->name('getIndividualSubmittedEndClient');
 
 
     /*IMAGE UPLOAD IN SUMMER NOTE*/

@@ -1,6 +1,6 @@
 <div class="card card-info card-outline">
     <div class="card-header">
-        <h3 class="card-title">Requirement Count, Submission And Served</h3>
+        <h3 class="card-title"><i class="fa fa-chart-line"></i> Requirement Count, Submission And Served</h3>
         <div class="card-tools">
             <button type="button" class="btn btn-tool" data-card-widget="collapse">
                 <i class="fas fa-minus"></i>
@@ -13,7 +13,7 @@
                 <div class="col-2">
                     <div class="form-group">
                         <div class="input-group">
-                            <label class="control-label mr-3 mt-1 h5" for="date">From: </label>
+                            <label class="control-label mr-3 mt-1 h5" style="font-weight: 400" for="req_count_served_submission_fromDate">From: </label>
                             <div class="input-group-prepend">
                                 <span class="input-group-text">
                                     <i class="far fa-calendar-alt"></i>
@@ -34,7 +34,7 @@
                 <div class="col-2">
                     <div class="form-group">
                         <div class="input-group">
-                            <label class="control-label mr-3 mt-1 h5" for="date">To: </label>
+                            <label class="control-label mr-3 mt-1 h5" style="font-weight: 400" for="req_count_served_submission_toDate">To: </label>
                             <div class="input-group-prepend">
                                 <span class="input-group-text">
                                     <i class="far fa-calendar-alt"></i>
@@ -49,7 +49,7 @@
                         <div class="col-5">
                             <div class="row">
                                 <div class="col-3">
-                                    <label class="control-label mt-1 h5" for="req_count_served_submission">Bdm:</label>
+                                    <label class="control-label mt-1 h5" style="font-weight: 400" for="req_count_served_submission">Bdm:</label>
                                 </div>
                                 <div class="col-9">
                                     {!! Form::text('', null, ['placeholder' => 'Please Select user', 'id' => 'req_count_served_submission']) !!}
