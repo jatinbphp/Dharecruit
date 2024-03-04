@@ -101,17 +101,44 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-12 text-right">
-                    <div class="btn-group btn-group-toggle mb-2" data-toggle="buttons">
-                        @if(in_array(getLoggedInUserRole(), ['admin', 'bdm']))
-                            <label class="btn btn-sm btn-outline-danger">
-                                <input type="radio" class="individual-interview-count-user-type-bdm individual-interview-count-user-type" name="individual-interview-count-user-options" data-type="bdm" autocomplete="off">BDM
-                            </label>
-                        @endif
-                        @if(in_array(getLoggedInUserRole(), ['admin', 'recruiter']))
-                            <label class="btn btn-sm btn-outline-danger">
-                                <input type="radio" class="individual-interview-count-user-type-recruiter individual-interview-count-user-type" name="individual-interview-count-user-options" data-type="recruiter" autocomplete="off">Recruiter
-                        @endif
+                <div class="col-7"></div>
+                <div class="col-5">
+                    <div class="row">
+                        <div class="col-2 text-right">
+                            <label for="interview_step_size">Step: </label>
+                        </div>
+                        <div class="col-3 text-right">
+                            <select style="width: 100%" class="select2" id="interview_count_step_size">
+                                <option value="0">Pleease Select</option>
+                                @for ($i = 1; $i <= 10; $i++) {
+                                    <option value="{{$i}}">{{$i}}</option>
+                                @endfor
+                            </select>
+                        </div>
+                        <div class="col-4 text-right">
+                            <div class="btn-group btn-group-toggle mb-2" data-toggle="buttons">
+                                <label class="btn btn-sm btn-outline-danger">
+                                    <input type="radio" class="individual-interview-next-button" data-type="-1" name="individual-interview-next-prev-options" autocomplete="off"><i class="fa fa-arrow-circle-left" data-toggle="tooltip" title="Previous" data-trigger="hover"></i>
+                                </label>
+                                <label class="btn btn-sm btn-outline-danger">
+                                    <input type="radio" class="individual-interview-next-button" data-type="1" name="individual-interview-next-prev-options" autocomplete="off"><i class="fa fa-arrow-circle-right" data-toggle="tooltip" title="Next" data-trigger="hover"></i>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-3 text-right">
+                            <div class="btn-group btn-group-toggle mb-2" data-toggle="buttons">
+                                @if(in_array(getLoggedInUserRole(), ['admin', 'bdm']))
+                                    <label class="btn btn-sm btn-outline-danger">
+                                        <input type="radio" class="individual-interview-count-user-type-bdm individual-interview-count-user-type" name="individual-interview-count-user-options" data-type="bdm" autocomplete="off">BDM
+
+                                    </label>
+                                @endif
+                                @if(in_array(getLoggedInUserRole(), ['admin', 'recruiter']))
+                                    <label class="btn btn-sm btn-outline-danger">
+                                        <input type="radio" class="individual-interview-count-user-type-recruiter individual-interview-count-user-type" name="individual-interview-count-user-options" data-type="recruiter" autocomplete="off">Recruiter
+                                @endif
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -140,7 +167,6 @@
             instanceBdm.selectAll();
             instanceRec.selectAll();
             @if(in_array(getLoggedInUserRole(), ['admin','bdm']))
-                console.log('call');
                 $('.individual-interview-count-user-type-bdm').click();
             @else
                 $('.individual-interview-count-user-type-recruiter').click();
@@ -244,6 +270,7 @@
             if(!dayType){
                 return;
             }
+            $('#interview_count_step_size').val("0").trigger("change");
             var fromDate = new Date();
             var toDate = new Date();
             fromDate.setDate(fromDate.getDate() -  dayType);
@@ -260,6 +287,7 @@
         }
 
         $('.individual-interview-count-served-submission-type').on('change', function() {
+            $("#interview_count_step_size").trigger("change");
             prepareIndividualInterviewCounts();
         });
 
@@ -272,6 +300,90 @@
                 $('.individual-interview-count-recruiter-type').show();
                 $('.individual-interview-count-bdm-type').hide();
             }
+            prepareIndividualInterviewCounts();
+        });
+
+        const fromDateInput = $('#individual_interview_count_fromDate');
+        const toDateInput   = $('#individual_interview_count_toDate');
+        const stepSizeSelect = $('#interview_count_step_size');
+
+        $('.individual-interview-next-button').click(function (){
+            updateDates($(this).attr('data-type'));
+            prepareIndividualInterviewCounts();
+        })
+
+        function updateDates(step) {
+            const stepValue = parseInt(stepSizeSelect.val());
+            var fromDate = new Date(fromDateInput.val());
+            var toDate = new Date(toDateInput.val());
+            const stepType = $(".individual-interview-count-served-submission-type:checked").attr("data-type");
+
+            if (stepType === 'monthly') {
+                if (step == 1) {
+                    fromDate.setMonth(fromDate.getMonth() + stepValue);
+                    toDate = new Date(fromDate.getFullYear(), fromDate.getMonth() + stepValue, 0);
+                }
+                else if (step == -1) {
+                    fromDate = new Date(fromDate.getFullYear(), fromDate.getMonth() - stepValue, 1);
+                    toDate = new Date(fromDate.getFullYear(), fromDate.getMonth() + stepValue, 0);
+                }
+            } else if (stepType === 'weekly') {
+                const currentDay = fromDate.getDay();
+                const mondayOffset = (currentDay === 1 ? 0 : currentDay === 0 ? 6 : currentDay - 1);
+
+                if (step == 1) {
+                    fromDate.setDate(fromDate.getDate() - mondayOffset + stepValue * 7);
+                    toDate = new Date(fromDate);
+                    toDate.setDate(toDate.getDate() + (stepValue * 7) - 1);
+                } else if (step == -1) {
+                    fromDate.setDate(fromDate.getDate() - mondayOffset - stepValue * 7);
+                    toDate = new Date(fromDate);
+                    toDate.setDate(toDate.getDate() + (stepValue * 7) - 1);
+                }
+            } else if (stepType === 'daily') {
+                if (step == 1) {
+                    fromDate.setDate(fromDate.getDate() + stepValue);
+                    toDate = new Date(fromDate);
+                    toDate.setDate(toDate.getDate() + stepValue - 1);
+                } else if (step == -1) {
+                    fromDate.setDate(fromDate.getDate() - stepValue);
+                    toDate = new Date(fromDate);
+                    toDate.setDate(toDate.getDate() + stepValue - 1);
+                }
+            }
+
+            fromDateInput.val(formatDate(fromDate));
+            toDateInput.val(formatDate(toDate));
+        }
+
+        $('#interview_count_step_size').change(function(){
+            const stepValue = parseInt($(this).val());
+            if(!stepValue){
+                return;
+            }
+            $(".individual-interview-count-day-type").prop("checked", false).parent().removeClass('active');
+            const stepType = $(".individual-interview-count-served-submission-type:checked").attr("data-type");
+            var fromDate = new Date(fromDateInput.val());
+            var toDate = new Date(toDateInput.val());
+
+            if (stepType === 'monthly') {
+                fromDate = new Date(fromDate.getFullYear(), fromDate.getMonth());
+                toDate = new Date(fromDate.getFullYear(), fromDate.getMonth() + stepValue, 0);
+            } else if (stepType === 'weekly') {
+                const currentDay = fromDate.getDay();
+                const mondayOffset = (currentDay === 1 ? 0 : currentDay === 0 ? 6 : currentDay - 1);
+                fromDate.setDate(fromDate.getDate() - mondayOffset);
+                toDate = new Date(fromDate);
+                toDate.setDate(toDate.getDate() + (stepValue * 7) - 1);
+            } else if (stepType === 'daily') {
+                fromDate.setDate(fromDate.getDate());
+                toDate = new Date(fromDate);
+                toDate.setDate(toDate.getDate() + stepValue - 1);
+            }
+
+            fromDateInput.val(formatDate(fromDate));
+            toDateInput.val(formatDate(toDate));
+
             prepareIndividualInterviewCounts();
         });
     });
