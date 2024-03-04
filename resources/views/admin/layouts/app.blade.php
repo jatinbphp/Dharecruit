@@ -664,6 +664,7 @@
 <script src="{{ URL::asset('assets/plugins/select2/select2.full.min.js')}}"></script>
 <script src="{{ URL('assets/plugins/chart.js/Chart.min.js')}}"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 <script src="{{ URL('assets/plugins/sparklines/sparkline.js')}}"></script>
 <script src="{{ URL('assets/plugins/jquery-knob/jquery.knob.min.js')}}"></script>
 <script src="{{ URL('assets/plugins/moment/moment.min.js')}}"></script>
@@ -687,7 +688,7 @@
 <script src="{{ URL::asset('assets/plugins/comboTree/comboTreePlugin.js')}}"></script>
 <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.2.0/js/bootstrap-colorpicker.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
 <script>Ladda.bind( 'input[type=submit]' );</script>
 <script>
@@ -1541,9 +1542,94 @@
         });
     }
     function getRandomColor() {
-        return Math.floor(Math.random() * 256) + ',' +
-            Math.floor(Math.random() * 256) + ',' +
-            Math.floor(Math.random() * 256);
+        var r, g, b;
+        var threshold = 100;
+
+        do {
+            r = Math.floor(Math.random() * 256);
+            g = Math.floor(Math.random() * 256);
+            b = Math.floor(Math.random() * 256);
+        } while (r < threshold && g < threshold && b < threshold);
+
+        return r + ',' + g + ',' + b;
+    }
+
+    function prepareDatesBasedOnStepSize(fromDateInput, toDateInput, stepValue, stepType){
+        console.log(fromDateInput);
+        console.log(toDateInput);
+        console.log(stepValue);
+        console.log(stepType);
+        var fromDate = new Date(fromDateInput.val());
+        var toDate = new Date(toDateInput.val());
+
+        if (stepType === 'monthly') {
+            fromDate = new Date(fromDate.getFullYear(), fromDate.getMonth());
+            toDate = new Date(fromDate.getFullYear(), fromDate.getMonth() + stepValue, 0);
+        } else if (stepType === 'weekly') {
+            const currentDay = fromDate.getDay();
+            const mondayOffset = (currentDay === 1 ? 0 : currentDay === 0 ? 6 : currentDay - 1);
+            fromDate.setDate(fromDate.getDate() - mondayOffset);
+            toDate = new Date(fromDate);
+            toDate.setDate(toDate.getDate() + (stepValue * 7) - 1);
+        } else if (stepType === 'daily') {
+            fromDate.setDate(fromDate.getDate());
+            toDate = new Date(fromDate);
+            toDate.setDate(toDate.getDate() + stepValue - 1);
+        }
+
+        console.log(stepValue);
+        console.log(stepType);
+
+        fromDateInput.val(formatDate(fromDate));
+        toDateInput.val(formatDate(toDate));
+    }
+
+    function setDateForNextPrevButtons(step, fromDateInput, toDateInput, stepValue, stepType){
+        var fromDate = new Date(fromDateInput.val());
+        var toDate = new Date(toDateInput.val());
+        if (stepType === 'monthly') {
+            if (step == 1) {
+                fromDate.setMonth(fromDate.getMonth() + stepValue);
+                toDate = new Date(fromDate.getFullYear(), fromDate.getMonth() + stepValue, 0);
+            }
+            else if (step == -1) {
+                fromDate = new Date(fromDate.getFullYear(), fromDate.getMonth() - stepValue, 1);
+                toDate = new Date(fromDate.getFullYear(), fromDate.getMonth() + stepValue, 0);
+            }
+        } else if (stepType === 'weekly') {
+            const currentDay = fromDate.getDay();
+            const mondayOffset = (currentDay === 1 ? 0 : currentDay === 0 ? 6 : currentDay - 1);
+
+            if (step == 1) {
+                fromDate.setDate(fromDate.getDate() - mondayOffset + stepValue * 7);
+                toDate = new Date(fromDate);
+                toDate.setDate(toDate.getDate() + (stepValue * 7) - 1);
+            } else if (step == -1) {
+                fromDate.setDate(fromDate.getDate() - mondayOffset - stepValue * 7);
+                toDate = new Date(fromDate);
+                toDate.setDate(toDate.getDate() + (stepValue * 7) - 1);
+            }
+        } else if (stepType === 'daily') {
+            if (step == 1) {
+                fromDate.setDate(fromDate.getDate() + stepValue);
+                toDate = new Date(fromDate);
+                toDate.setDate(toDate.getDate() + stepValue - 1);
+            } else if (step == -1) {
+                fromDate.setDate(fromDate.getDate() - stepValue);
+                toDate = new Date(fromDate);
+                toDate.setDate(toDate.getDate() + stepValue - 1);
+            }
+        }
+
+        fromDateInput.val(formatDate(fromDate));
+        toDateInput.val(formatDate(toDate));
+    }
+
+    function formatDate(date) {
+        var year = date.getFullYear();
+        var month = (date.getMonth() + 1).toString().padStart(2, '0');
+        var day = date.getDate().toString().padStart(2, '0');
+        return month + '/' + day + '/' + year;
     }
 </script>
 @yield('jquery')

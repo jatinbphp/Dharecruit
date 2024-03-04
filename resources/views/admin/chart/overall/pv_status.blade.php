@@ -149,6 +149,7 @@
                         if (chartInstance) {
                             chartInstance.destroy(); // Destroy the chart instance if it exists
                         }
+                        Chart.register(ChartDataLabels);
                         var myPieChart = new Chart(ctx, {
                             type: 'pie',
                             data: {
@@ -166,6 +167,31 @@
                                 }]
                             },
                             options: {
+                                plugins: {
+                                    datalabels: {
+                                        color: 'black',
+                                        anchor: 'center',
+                                        align: 'center',
+                                        font: {
+                                            weight: 'bold'
+                                        },
+                                        formatter: (value) => {
+                                            return value > 0 ? value : '';
+                                        }
+                                    },
+                                    legend: {
+                                        display: true,
+                                        position: 'bottom',
+                                        labels: {
+                                            font: {
+                                                family: 'Arial, sans-serif',
+                                                size: 15,
+                                                weight: 'bold',
+                                                color: 'black',
+                                            }
+                                        }
+                                    }
+                                },
                                 responsive: true,
                                 maintainAspectRatio: false,
                                 hoverOffset: 4,
@@ -196,13 +222,6 @@
             $('#pv_status_toDate').val(formatDate(toDate));
             preparepvStatus();
         });
-
-        function formatDate(date) {
-            var year = date.getFullYear();
-            var month = (date.getMonth() + 1).toString().padStart(2, '0');
-            var day = date.getDate().toString().padStart(2, '0');
-            return month + '/' + day + '/' + year;
-        }
 
         $('.pv-status-user-type').change(function (){
             var dayType = $(this).attr('data-type');

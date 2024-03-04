@@ -57,7 +57,8 @@
                 submissionCounts: {!! json_encode($monthlySubmissionCounts) !!},
                 servedCounts: {!! json_encode($monthlyServedCounts) !!},
             };
-
+            Chart.register(ChartDataLabels);
+            const defaultLegendClickHandler = Chart.defaults.plugins.legend.onClick;
             var ctx = document.getElementById('reqVsSubChart').getContext('2d');
             var barChart = new Chart(ctx, {
                 type: 'bar',
@@ -80,7 +81,7 @@
                         label: 'Served Count',
                         data: data.servedCounts,
                         backgroundColor: '#8bd3c7',
-                        borderColor: '#000000',
+                        borderColor: '#2b9383',
                         borderWidth: 1,
                         hidden: true,
                     }]
@@ -106,19 +107,99 @@
                         }
                     },
                     plugins: {
+                        datalabels: {
+                            color: 'black',
+                            anchor: 'center',
+                            align: 'center',
+                            font: {
+                                weight: 'bold'
+                            },
+                            formatter: (value) => {
+                                return value > 0 ? value : '';
+                            }
+                        },
                         legend: {
                             display: true,
-                            position: 'bottom', // Place legend at the bottom
+                            position: 'bottom',
+                            onClick: (evt, legendItem, legend) => {
+                                const type = legend.chart.config.type;
+                                let allLegendItemsState = [];
+
+                                if (legendItem.text === 'Hide All' || legendItem.text === 'Show All') {
+                                    if (typeof legend.hideAll === 'undefined') {
+                                        legend.hideAll = false;
+                                    }
+
+                                    legend.chart.data.datasets.forEach((dataset, i) => {
+                                        legend.chart.setDatasetVisibility(i, legend.hideAll)
+                                    });
+
+                                    legend.hideAll = !legend.hideAll;
+                                    legend.chart.update();
+
+                                    return;
+                                }
+
+                                defaultLegendClickHandler(evt, legendItem, legend);
+                                allLegendItemsState = legend.chart.data.datasets.map((e, i) => (legend.chart.getDatasetMeta(i).hidden));
+
+                                if (allLegendItemsState.every(el => !el)) {
+                                    legend.hideAll = false;
+                                    legend.chart.update();
+                                } else if (allLegendItemsState.every(el => el)) {
+                                    legend.hideAll = true;
+                                    legend.chart.update();
+                                }
+                            },
                             labels: {
                                 font: {
-                                    family: 'Arial, sans-serif', // Specify font family
-                                    size: 15, // Specify font size
-                                    weight: 'bold', // Make font bold
-                                    color: 'black' // Specify font color
+                                    family: 'Arial, sans-serif',
+                                    size: 15,
+                                    weight: 'bold',
+                                    color: 'black'
+                                },
+                                generateLabels: (chart) => {
+                                    const datasets = chart.data.datasets;
+                                    const {
+                                        labels: {
+                                            usePointStyle,
+                                            pointStyle,
+                                            textAlign,
+                                            color
+                                        }
+                                    } = chart.legend.options;
+
+                                    const legendItems = chart._getSortedDatasetMetas().map((meta) => {
+                                        const style = meta.controller.getStyle(usePointStyle ? 0 : undefined);
+                                        return {
+                                            text: datasets[meta.index].label,
+                                            fillStyle: style.backgroundColor,
+                                            fontColor: color,
+                                            hidden: !meta.visible,
+                                            lineCap: style.borderCapStyle,
+                                            lineDash: style.borderDash,
+                                            lineDashOffset: style.borderDashOffset,
+                                            lineJoin: style.borderJoinStyle,
+                                            strokeStyle: style.borderColor,
+                                            pointStyle: pointStyle || style.pointStyle,
+                                            rotation: style.rotation,
+                                            textAlign: textAlign || style.textAlign,
+                                            datasetIndex: meta.index
+                                        };
+                                    });
+
+                                    legendItems.push({
+                                        text: (!chart.legend.hideAll || typeof chart.legend.hideAll === 'undefined') ? 'Hide All' : 'Show All',
+                                        fontColor: '#000',
+                                        fillStyle: '#000',// Box color
+                                        strokeStyle: '#000', // LineCollor around box
+                                    });
+
+                                    return legendItems;
                                 }
                             }
                         },
-                    },
+                    }
                 }
             });
 

@@ -144,6 +144,7 @@
                 method: 'POST',
                 success: function (response) {
                     if (response.status == 1) {
+                        Chart.register(ChartDataLabels);
                         var ctx = document.getElementById('interviewStatus').getContext('2d');
                         var chartInstance = Chart.getChart('interviewStatus');
                         if (chartInstance) {
@@ -168,6 +169,31 @@
                                 }]
                             },
                             options: {
+                                plugins: {
+                                    datalabels: {
+                                        color: 'black',
+                                        anchor: 'center',
+                                        align: 'center',
+                                        font: {
+                                            weight: 'bold'
+                                        },
+                                        formatter: (value) => {
+                                            return value > 0 ? value : '';
+                                        }
+                                    },
+                                    legend: {
+                                        display: true,
+                                        position: 'bottom',
+                                        labels: {
+                                            font: {
+                                                family: 'Arial, sans-serif',
+                                                size: 15,
+                                                weight: 'bold',
+                                                color: 'black',
+                                            }
+                                        }
+                                    }
+                                },
                                 responsive: true,
                                 maintainAspectRatio: false,
                                 hoverOffset: 4,
@@ -198,13 +224,6 @@
             $('#interview_status_toDate').val(formatDate(toDate));
             prepareinterviewStatus();
         });
-
-        function formatDate(date) {
-            var year = date.getFullYear();
-            var month = (date.getMonth() + 1).toString().padStart(2, '0');
-            var day = date.getDate().toString().padStart(2, '0');
-            return month + '/' + day + '/' + year;
-        }
 
         $('.interview-status-user-type').change(function (){
             var dayType = $(this).attr('data-type');

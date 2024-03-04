@@ -34,13 +34,13 @@
                 <div class="col-2">
                     <div class="form-group">
                         <div class="input-group">
-                            <label class="control-label mr-3 mt-1 h5" style="font-weight: 400" for="individual-req-count-toDate">To: </label>
+                            <label class="control-label mr-3 mt-1 h5" style="font-weight: 400" for="individual_req_count_vs_served_toDate">To: </label>
                             <div class="input-group-prepend">
                                 <span class="input-group-text">
                                     <i class="far fa-calendar-alt"></i>
                                 </span>
                             </div>
-                            {!! Form::text('toDate', \Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker individual-req-count-datepicker form-control float-right', 'placeholder' => 'Select To Date', 'id' => 'individual-req-count-toDate']) !!}
+                            {!! Form::text('toDate', \Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker individual-req-count-datepicker form-control float-right', 'placeholder' => 'Select To Date', 'id' => 'individual_req_count_vs_served_toDate']) !!}
                         </div>
                     </div>
                 </div>
@@ -89,11 +89,37 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-10"></div>
-                <div class="col-2 text-right">
-                    <div class="custom-control custom-switch custom-switch-off-default custom-switch-on-success">
-                        <input type="checkbox" class="custom-control-input isIndividualUniqueForRecReq" id="unique_individual_requirement_count_for_bdm">
-                        <label class="custom-control-label" for="unique_individual_requirement_count_for_bdm">Only Uniq Requirements</label>
+                <div class="col-7"></div>
+                <div class="col-5 text-right">
+                    <div class="row">
+                        <div class="col-1"></div>
+                        <div class="col-1 text-right">
+                            <label class="control-label mr-3 mt-1 h5" style="font-weight: 400" for="individual_requirement_count_step_size">Step:</label>
+                        </div>
+                        <div class="col-3 text-right">
+                            <select style="width: 100%" class="select2" id="individual_requirement_count_step_size">
+                                <option value="0">Please Select</option>
+                                @for ($i = 1; $i <= 10; $i++) {
+                                <option value="{{$i}}">{{$i}}</option>
+                                @endfor
+                            </select>
+                        </div>
+                        <div class="col-2 text-right">
+                            <div class="btn-group btn-group-toggle mb-2" data-toggle="buttons">
+                                <label class="btn btn-sm btn-outline-danger">
+                                    <input type="radio" class="individual-requirement-count-next-prev-button" data-type="-1" name="individual-requirement-assign-next-prev-options" autocomplete="off"><i class="fa fa-arrow-circle-left" data-toggle="tooltip" title="Previous" data-trigger="hover"></i>
+                                </label>
+                                <label class="btn btn-sm btn-outline-danger">
+                                    <input type="radio" class="individual-requirement-count-next-prev-button" data-type="1" name="individual-requirement-assign-next-prev-options" autocomplete="off"><i class="fa fa-arrow-circle-right" data-toggle="tooltip" title="Next" data-trigger="hover"></i>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-5">
+                            <div class="custom-control custom-switch custom-switch-off-default custom-switch-on-success">
+                                <input type="checkbox" class="custom-control-input isIndividualUniqueForRecReq" id="unique_individual_requirement_count_for_bdm">
+                                <label class="custom-control-label" for="unique_individual_requirement_count_for_bdm">Only Uniq Requirements</label>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -126,7 +152,7 @@
                 data: {
                     '_token'        : '{{ csrf_token() }}',
                     'fromDate'      : $('#individual_req_count_vs_served_fromDate').val(),
-                    'toDate'        : $('#individual-req-count-toDate').val(),
+                    'toDate'        : $('#individual_req_count_vs_served_toDate').val(),
                     'type'          : $(".individual-req-count-type:checked").attr("data-type"),
                     'selected_user' : instance.getSelectedIds(),
                     'isUniReq'      : isUniqueReq,
@@ -145,6 +171,8 @@
                                 data: Object.values(response.requirementCount[legend]),
                             });
                         });
+                        Chart.register(ChartDataLabels);
+                        const defaultLegendClickHandler = Chart.defaults.plugins.legend.onClick;
                         var ctx = document.getElementById('individualRequirementCount').getContext('2d');
                         var chartInstance = Chart.getChart('individualRequirementCount');
                         if (chartInstance) {
@@ -178,15 +206,95 @@
                                     }
                                 },
                                 plugins: {
+                                    datalabels: {
+                                        color: 'black',
+                                        anchor: 'center',
+                                        align: 'center',
+                                        font: {
+                                            weight: 'bold'
+                                        },
+                                        formatter: (value) => {
+                                            return value > 0 ? value : '';
+                                        }
+                                    },
                                     legend: {
                                         display: true,
                                         position: 'bottom',
+                                        onClick: (evt, legendItem, legend) => {
+                                            const type = legend.chart.config.type;
+                                            let allLegendItemsState = [];
+
+                                            if (legendItem.text === 'Hide All' || legendItem.text === 'Show All') {
+                                                if (typeof legend.hideAll === 'undefined') {
+                                                    legend.hideAll = false;
+                                                }
+
+                                                legend.chart.data.datasets.forEach((dataset, i) => {
+                                                    legend.chart.setDatasetVisibility(i, legend.hideAll)
+                                                });
+
+                                                legend.hideAll = !legend.hideAll;
+                                                legend.chart.update();
+
+                                                return;
+                                            }
+
+                                            defaultLegendClickHandler(evt, legendItem, legend);
+                                            allLegendItemsState = legend.chart.data.datasets.map((e, i) => (legend.chart.getDatasetMeta(i).hidden));
+
+                                            if (allLegendItemsState.every(el => !el)) {
+                                                legend.hideAll = false;
+                                                legend.chart.update();
+                                            } else if (allLegendItemsState.every(el => el)) {
+                                                legend.hideAll = true;
+                                                legend.chart.update();
+                                            }
+                                        },
                                         labels: {
                                             font: {
                                                 family: 'Arial, sans-serif',
                                                 size: 15,
                                                 weight: 'bold',
                                                 color: 'black'
+                                            },
+                                            generateLabels: (chart) => {
+                                                const datasets = chart.data.datasets;
+                                                const {
+                                                    labels: {
+                                                        usePointStyle,
+                                                        pointStyle,
+                                                        textAlign,
+                                                        color
+                                                    }
+                                                } = chart.legend.options;
+
+                                                const legendItems = chart._getSortedDatasetMetas().map((meta) => {
+                                                    const style = meta.controller.getStyle(usePointStyle ? 0 : undefined);
+                                                    return {
+                                                        text: datasets[meta.index].label,
+                                                        fillStyle: style.backgroundColor,
+                                                        fontColor: color,
+                                                        hidden: !meta.visible,
+                                                        lineCap: style.borderCapStyle,
+                                                        lineDash: style.borderDash,
+                                                        lineDashOffset: style.borderDashOffset,
+                                                        lineJoin: style.borderJoinStyle,
+                                                        strokeStyle: style.borderColor,
+                                                        pointStyle: pointStyle || style.pointStyle,
+                                                        rotation: style.rotation,
+                                                        textAlign: textAlign || style.textAlign,
+                                                        datasetIndex: meta.index
+                                                    };
+                                                });
+
+                                                legendItems.push({
+                                                    text: (!chart.legend.hideAll || typeof chart.legend.hideAll === 'undefined') ? 'Hide All' : 'Show All',
+                                                    fontColor: '#000',
+                                                    fillStyle: '#000',// Box color
+                                                    strokeStyle: '#000', // LineCollor around box
+                                                });
+
+                                                return legendItems;
                                             }
                                         }
                                     },
@@ -211,22 +319,18 @@
             if(!dayType){
                 return;
             }
+            $('#individual_requirement_count_step_size').val("0").trigger("change");
+            $(".individual-requirement-count-next-prev-button").prop("checked", false).parent().removeClass('active');
             var fromDate = new Date();
             var toDate = new Date();
             fromDate.setDate(fromDate.getDate() -  dayType);
             $('#individual_req_count_vs_served_fromDate').val(formatDate(fromDate));
-            $('#individual-req-count-toDate').val(formatDate(toDate));
+            $('#individual_req_count_vs_served_toDate').val(formatDate(toDate));
             prepareindividualrequirementCount();
         });
 
-        function formatDate(date) {
-            var year = date.getFullYear();
-            var month = (date.getMonth() + 1).toString().padStart(2, '0');
-            var day = date.getDate().toString().padStart(2, '0');
-            return month + '/' + day + '/' + year;
-        }
-
         $('.individual-req-count-type').on('change', function() {
+            $("#individual_requirement_count_step_size").trigger("change");
             prepareindividualrequirementCount();
         });
 
@@ -235,6 +339,33 @@
         });
 
         $('.isIndividualUniqueForRecReq').change(function (){
+            prepareindividualrequirementCount();
+        });
+        $('.individual-requirement-count-next-prev-button').click(function (){
+            const stepValue = parseInt($('#individual_requirement_count_step_size').val());
+            if(!stepValue){
+                swal('Error', 'Please Select Step Size', 'error');
+                return;
+            }
+            const fromDateInput = $('#individual_req_count_vs_served_fromDate');
+            const toDateInput   = $('#individual_req_count_vs_served_toDate');
+            const stepType      = $(".individual-req-count-type:checked").attr("data-type");
+            const step          = $(this).attr('data-type');
+            setDateForNextPrevButtons(step, fromDateInput, toDateInput, stepValue, stepType);
+            prepareindividualrequirementCount();
+        })
+
+        $('#individual_requirement_count_step_size').change(function(){
+            const stepValue = parseInt($(this).val());
+            if(!stepValue){
+                return;
+            }
+            const fromDateInput = $('#individual_req_count_vs_served_fromDate');
+            const toDateInput   = $('#individual_req_count_vs_served_toDate');
+
+            $(".individual-req-count-day-type").prop("checked", false).parent().removeClass('active');
+            const stepType = $(".individual-req-count-type:checked").attr("data-type");
+            prepareDatesBasedOnStepSize(fromDateInput, toDateInput, stepValue, stepType);
             prepareindividualrequirementCount();
         });
     });

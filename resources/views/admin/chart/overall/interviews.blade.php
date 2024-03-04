@@ -166,6 +166,7 @@
                 method: 'POST',
                 success: function (response) {
                     if (response.status == 1) {
+                        Chart.register(ChartDataLabels);
                         var ctx = document.getElementById('interviewCount').getContext('2d');
                         var chartInstance = Chart.getChart('interviewCount');
                         if (chartInstance) {
@@ -205,6 +206,17 @@
                                     }
                                 },
                                 plugins: {
+                                    datalabels: {
+                                        color: 'black',
+                                        anchor: 'center',
+                                        align: 'center',
+                                        font: {
+                                            weight: 'bold'
+                                        },
+                                        formatter: (value) => {
+                                            return value > 0 ? value : '';
+                                        }
+                                    },
                                     legend: {
                                         display: true,
                                         position: 'bottom',
@@ -245,13 +257,6 @@
             $('#interview_count_toDate').val(formatDate(toDate));
             prepareReqAssignAsServed();
         });
-
-        function formatDate(date) {
-            var year = date.getFullYear();
-            var month = (date.getMonth() + 1).toString().padStart(2, '0');
-            var day = date.getDate().toString().padStart(2, '0');
-            return month + '/' + day + '/' + year;
-        }
 
         $('.interview-count-served-submission-type').on('change', function() {
             prepareReqAssignAsServed();
