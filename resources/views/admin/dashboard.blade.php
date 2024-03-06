@@ -238,7 +238,6 @@
                 }
                 window.globalSelectedBdmCheck.push(id);
                 $('#'+id).trigger('change');
-                console.log('#'+id);
             });
             $('.chart-rec-user').each(function() {
                 var id = $(this).attr('id');
@@ -247,7 +246,6 @@
                 }
                 window.globalSelectedRecCheck.push(id);
                 $('#'+id).trigger('change');
-                console.log('#'+id);
             });
         });
 

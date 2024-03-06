@@ -119,6 +119,21 @@
         $(document).ready(function () {
             instance.selectAll();
             prepareReqAssignServedSubmission();
+
+            $("#req_assign_served_submission").on('change', function () {
+                if (window.globalSelectedRecCheck && window.globalSelectedRecCheck.includes('req_assign_served_submission')) {
+                    window.globalSelectedRecCheck = window.globalSelectedRecCheck.filter(item => item !== 'req_assign_served_submission');
+                    instance.destroy();
+                    instance = $('#req_assign_served_submission').comboTree({
+                        source : myData,
+                        isMultiple:true,
+                        selectAll:true,
+                        cascadeSelect:true,
+                        selected: (window.globalSelectedRec) ? window.globalSelectedRec : [],
+                    });
+                }
+                prepareReqAssignServedSubmission();
+            });
         });
 
         function prepareReqAssignServedSubmission() {
@@ -325,21 +340,6 @@
         });
 
         $('#recruiter').on('change', function(){
-            prepareReqAssignServedSubmission();
-        });
-
-        $("#req_assign_served_submission").on('change', function () {
-            if (window.globalSelectedRecCheck && window.globalSelectedRecCheck.includes('req_assign_served_submission')) {
-                window.globalSelectedRecCheck = window.globalSelectedRecCheck.filter(item => item !== 'req_assign_served_submission');
-                instance.destroy();
-                instance = $('#req_assign_served_submission').comboTree({
-                    source : myData,
-                    isMultiple:true,
-                    selectAll:true,
-                    cascadeSelect:true,
-                    selected: (window.globalSelectedRec) ? window.globalSelectedRec : [],
-                });
-            }
             prepareReqAssignServedSubmission();
         });
 

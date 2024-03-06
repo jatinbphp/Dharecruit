@@ -139,6 +139,21 @@
         $(document).ready(function () {
             instance.selectAll();
             prepareindividualrequirementAssign();
+
+            $("#individual_req_assign").on('change', function () {
+                if (window.globalSelectedRecCheck && window.globalSelectedRecCheck.includes('individual_req_assign')) {
+                    window.globalSelectedRecCheck = window.globalSelectedRecCheck.filter(item => item !== 'individual_req_assign');
+                    instance.destroy();
+                    instance = $('#individual_req_assign').comboTree({
+                        source : myData,
+                        isMultiple:true,
+                        selectAll:true,
+                        cascadeSelect:true,
+                        selected: (window.globalSelectedRec) ? window.globalSelectedRec : [],
+                    });
+                }
+                prepareindividualrequirementAssign();
+            });
         });
 
         function prepareindividualrequirementAssign() {
@@ -332,21 +347,6 @@
 
         $('.individual-req-assign-type').on('change', function() {
             $("#individual_requirement_assign_step_size").trigger("change");
-            prepareindividualrequirementAssign();
-        });
-
-        $("#individual_req_assign").on('change', function () {
-            if (window.globalSelectedRecCheck && window.globalSelectedRecCheck.includes('individual_req_assign')) {
-                window.globalSelectedRecCheck = window.globalSelectedRecCheck.filter(item => item !== 'individual_req_assign');
-                instance.destroy();
-                instance = $('#individual_req_assign').comboTree({
-                    source : myData,
-                    isMultiple:true,
-                    selectAll:true,
-                    cascadeSelect:true,
-                    selected: (window.globalSelectedRec) ? window.globalSelectedRec : [],
-                });
-            }
             prepareindividualrequirementAssign();
         });
 

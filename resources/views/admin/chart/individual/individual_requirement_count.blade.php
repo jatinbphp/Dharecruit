@@ -139,6 +139,21 @@
         $(document).ready(function () {
             instance.selectAll();
             prepareindividualrequirementCount();
+
+            $("#individual_req_count").on('change', function () {
+                if (window.globalSelectedBdmCheck && window.globalSelectedBdmCheck.includes('individual_req_count')) {
+                    window.globalSelectedBdmCheck = window.globalSelectedBdmCheck.filter(item => item !== 'individual_req_count');
+                    instance.destroy();
+                    instance = $('#individual_req_count').comboTree({
+                        source : myData,
+                        isMultiple:true,
+                        selectAll:true,
+                        cascadeSelect:true,
+                        selected: (window.globalSelectedBdm) ? window.globalSelectedBdm : [],
+                    });
+                }
+                prepareindividualrequirementCount();
+            });
         });
 
         function prepareindividualrequirementCount() {
@@ -332,23 +347,6 @@
 
         $('.individual-req-count-type').on('change', function() {
             $("#individual_requirement_count_step_size").trigger("change");
-            prepareindividualrequirementCount();
-        });
-
-        $("#individual_req_count").on('change', function () {
-            console.log(window.globalSelectedBdmCheck);
-            console.log('ca;;es');
-            if (window.globalSelectedBdmCheck && window.globalSelectedBdmCheck.includes('individual_req_count')) {
-                window.globalSelectedBdmCheck = window.globalSelectedBdmCheck.filter(item => item !== 'individual_req_count');
-                instance.destroy();
-                instance = $('#individual_req_count').comboTree({
-                    source : myData,
-                    isMultiple:true,
-                    selectAll:true,
-                    cascadeSelect:true,
-                    selected: (window.globalSelectedBdm) ? window.globalSelectedBdm : [],
-                });
-            }
             prepareindividualrequirementCount();
         });
 
