@@ -26,7 +26,7 @@
                                 $defaultDays = $settingRow->value;
                             }
                         @endphp
-                        {!! Form::text('fromDate', \Carbon\Carbon::now()->subDays($defaultDays)->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker interview-status-datepicker form-control float-right', 'placeholder' => 'Select From Date', 'id' => 'interview_status_fromDate']) !!}
+                        {!! Form::text('fromDate', \Carbon\Carbon::now()->subDays($defaultDays)->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker interview-status-datepicker form-control float-right chart-from-datepicker char-datepick', 'placeholder' => 'Select From Date', 'id' => 'interview_status_fromDate']) !!}
                     </div>
                 </div>
             </div>
@@ -39,7 +39,7 @@
                                 <i class="far fa-calendar-alt"></i>
                             </span>
                         </div>
-                        {!! Form::text('toDate', \Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker interview-status-datepicker form-control float-right', 'placeholder' => 'Select To Date', 'id' => 'interview_status_toDate']) !!}
+                        {!! Form::text('toDate', \Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker interview-status-datepicker form-control float-right chart-to-datepicker char-datepick', 'placeholder' => 'Select To Date', 'id' => 'interview_status_toDate']) !!}
                     </div>
                 </div>
             </div>
@@ -58,14 +58,14 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-9">
+            <div class="col-6">
                 <div class="interview-status-recruiter-list">
                     <div class="row">
                         <div class="col-2">
                             <label class="control-label mt-1 h5" style="font-weight: 400" for="interview_status_recruiter">Recruiter:</label>
                         </div>
                         <div class="col-10">
-                            {!! Form::text('', null, ['placeholder' => 'Please Select user', 'width' => '100%', 'id' => 'interview_status_recruiter']) !!}
+                            {!! Form::text('', null, ['placeholder' => 'Please Select user', 'width' => '100%', 'id' => 'interview_status_recruiter', 'class' => 'chart-rec-user']) !!}
                         </div>
                     </div>
                 </div>
@@ -75,9 +75,19 @@
                             <label class="control-label mt-1 h5" style="font-weight: 400" for="interview_status_bdm">Bdm:</label>
                         </div>
                         <div class="col-10">
-                            {!! Form::text('', null, ['placeholder' => 'Please Select user', 'id' => 'interview_status_bdm']) !!}
+                            {!! Form::text('', null, ['placeholder' => 'Please Select user', 'id' => 'interview_status_bdm', 'class' => 'chart-bdm-user']) !!}
                         </div>
                     </div>
+                </div>
+            </div>
+            <div class="col-3 text-right">
+                <div class="btn-group btn-group-toggle mb-2" data-toggle="buttons">
+                    <label class="btn btn-sm btn-outline-danger">
+                        <input type="radio" class="interview-status-frame-type interview-status-frame-type-time-frame time-frame" data-type="time_frame" name="interview-status-frame-type-options" autocomplete="off">Time Frame
+                    </label>
+                    <label class="btn btn-sm btn-outline-danger">
+                        <input type="radio" class="interview-status-frame-type submission-frame" data-type="submission_frame" name="interview-status-frame-type-options" autocomplete="off">Submission Frame
+                    </label>
                 </div>
             </div>
             <div class="col-3 text-right">
@@ -123,9 +133,32 @@
             @else
                 $('.interview-status-user-type-recruiter').click();
             @endif
+            $('.interview-status-frame-type-time-frame').click();
             prepareinterviewStatus();
 
             $("#interview_status_bdm, #interview_status_recruiter").on('change', function () {
+                if (window.globalSelectedBdmCheck && window.globalSelectedBdmCheck.includes('interview_status_bdm')) {
+                    window.globalSelectedBdmCheck = window.globalSelectedBdmCheck.filter(item => item !== 'interview_status_bdm');
+                    instanceBdm.destroy();
+                    instanceBdm = $('#interview_status_bdm').comboTree({
+                        source : bdmData,
+                        isMultiple:true,
+                        selectAll:true,
+                        cascadeSelect:true,
+                        selected: (window.globalSelectedBdm) ? window.globalSelectedBdm : [],
+                    });
+                }
+                if (window.globalSelectedRecCheck && window.globalSelectedRecCheck.includes('interview_status_recruiter')) {
+                    window.globalSelectedRecCheck = window.globalSelectedRecCheck.filter(item => item !== 'interview_status_recruiter');
+                    instanceRec.destroy();
+                    instanceRec = $('#interview_status_recruiter').comboTree({
+                        source : recData,
+                        isMultiple:true,
+                        selectAll:true,
+                        cascadeSelect:true,
+                        selected: (window.globalSelectedRec) ? window.globalSelectedRec : [],
+                    });
+                }
                 prepareinterviewStatus();
             });
         });
@@ -134,12 +167,13 @@
             $.ajax({
                 url: "{{ route('getInterviewStatusData') }}",
                 data: {
-                    '_token' : '{{ csrf_token() }}',
-                    'fromDate' : $('#interview_status_fromDate').val(),
-                    'toDate'   : $('#interview_status_toDate').val(),
-                    'bdmUser'  : instanceBdm.getSelectedIds(),
-                    'recUser'  : instanceRec.getSelectedIds(),
-                    'type'     : $(".interview-status-user-type:checked").attr("data-type"),
+                    '_token'     : '{{ csrf_token() }}',
+                    'fromDate'   : $('#interview_status_fromDate').val(),
+                    'toDate'     : $('#interview_status_toDate').val(),
+                    'bdmUser'    : instanceBdm.getSelectedIds(),
+                    'recUser'    : instanceRec.getSelectedIds(),
+                    'type'       : $(".interview-status-user-type:checked").attr("data-type"),
+                    'frame_type' : $('.interview-status-frame-type:checked').attr('data-type'),
                 },
                 method: 'POST',
                 success: function (response) {
@@ -237,7 +271,7 @@
             prepareinterviewStatus();
         });
 
-        $('#interview-status-recruiter, #interview-status-bdm').change(function (){
+        $(".interview-status-frame-type").change(function (){
             prepareinterviewStatus();
         });
     });

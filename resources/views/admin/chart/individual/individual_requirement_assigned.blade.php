@@ -27,7 +27,7 @@
                                     $defaultDays = $settingRow->value;
                                 }
                             @endphp
-                            {!! Form::text('fromDate', \Carbon\Carbon::now()->subDays($defaultDays)->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker individual-req-assign-datepicker form-control float-right', 'placeholder' => 'Select From Date', 'id' => 'individual_req_assign_vs_served_fromDate']) !!}
+                            {!! Form::text('fromDate', \Carbon\Carbon::now()->subDays($defaultDays)->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker individual-req-assign-datepicker form-control float-right chart-from-datepicker char-datepick', 'placeholder' => 'Select From Date', 'id' => 'individual_req_assign_vs_served_fromDate']) !!}
                         </div>
                     </div>
                 </div>
@@ -40,7 +40,7 @@
                                     <i class="far fa-calendar-alt"></i>
                                 </span>
                             </div>
-                            {!! Form::text('toDate', \Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker individual-req-assign-datepicker form-control float-right', 'placeholder' => 'Select To Date', 'id' => 'individual_req_assign_vs_served_toDate']) !!}
+                            {!! Form::text('toDate', \Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker individual-req-assign-datepicker form-control float-right chart-to-datepicker char-datepick', 'placeholder' => 'Select To Date', 'id' => 'individual_req_assign_vs_served_toDate']) !!}
                         </div>
                     </div>
                 </div>
@@ -52,7 +52,7 @@
                                     <label class="control-label mt-1 h5" style="font-weight: 400" for="individual_req_assign">Recruiter:</label>
                                 </div>
                                 <div class="col-9">
-                                    {!! Form::text('', null, ['placeholder' => 'Please Select User', 'id' => 'individual_req_assign']) !!}
+                                    {!! Form::text('', null, ['placeholder' => 'Please Select User', 'id' => 'individual_req_assign', 'class' => 'chart-rec-user']) !!}
                                 </div>
                             </div>
                         </div>
@@ -144,7 +144,7 @@
         function prepareindividualrequirementAssign() {
             var isUniqueReq = 0;
             if($('#unique_individual_requirement_for_rec').is(':checked')){
-                isUniqueReq = 1;
+                isUniqueReq = 1;;
             }
 
             $.ajax({
@@ -310,6 +310,7 @@
         }
 
         $('.individual-req-assign-datepicker').change(function (){
+            $('#individual_requirement_assign_step_size').val("0").trigger("change");
             $('.individual-req-assign-day-type').parent().removeClass('active');
             prepareindividualrequirementAssign();
         });
@@ -335,6 +336,17 @@
         });
 
         $("#individual_req_assign").on('change', function () {
+            if (window.globalSelectedRecCheck && window.globalSelectedRecCheck.includes('individual_req_assign')) {
+                window.globalSelectedRecCheck = window.globalSelectedRecCheck.filter(item => item !== 'individual_req_assign');
+                instance.destroy();
+                instance = $('#individual_req_assign').comboTree({
+                    source : myData,
+                    isMultiple:true,
+                    selectAll:true,
+                    cascadeSelect:true,
+                    selected: (window.globalSelectedRec) ? window.globalSelectedRec : [],
+                });
+            }
             prepareindividualrequirementAssign();
         });
 

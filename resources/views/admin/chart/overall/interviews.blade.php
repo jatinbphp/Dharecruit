@@ -8,113 +8,113 @@
         </div>
     </div>
     <div class="card-body">
-        <div class="row">
-            <div class="col-2">
-                <div class="form-group">
-                    <div class="input-group">
-                        <label class="control-label mr-3 mt-1 h5" style="font-weight: 400" for="interview_count_fromDate">From: </label>
-                        <div class="input-group-prepend">
-                            <span class="input-group-text">
-                                <i class="far fa-calendar-alt"></i>
-                            </span>
-                        </div>
-                        @php
-                            $defaultDays = 60;
-                            $settingRow =  \App\Models\Setting::where('name', 'interview_date_default_filter_for_chart')->first();
-
-                            if(!empty($settingRow) && $settingRow->value){
-                                $defaultDays = $settingRow->value;
-                            }
-                        @endphp
-                        {!! Form::text('fromDate', \Carbon\Carbon::now()->subDays($defaultDays)->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker interview-count-datepicker form-control float-right', 'placeholder' => 'Select From Date', 'id' => 'interview_count_fromDate']) !!}
-                    </div>
-                </div>
-            </div>
-            <div class="col-2">
-                <div class="form-group">
-                    <div class="input-group">
-                        <label class="control-label mr-3 mt-1 h5" style="font-weight: 400" for="interview_count_toDate">To: </label>
-                        <div class="input-group-prepend">
-                            <span class="input-group-text">
-                                <i class="far fa-calendar-alt"></i>
-                            </span>
-                        </div>
-                        {!! Form::text('toDate', \Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker interview-count-datepicker form-control float-right', 'placeholder' => 'Select To Date', 'id' => 'interview_count_toDate']) !!}
-                    </div>
-                </div>
-            </div>
-            <div class="col-8">
-                <div class="row">
-                    <div class="col-5">
-                        <div class="interview-count-recruiter-type">
-                            <div class="row">
-                                <div class="col-3 text-right">
-                                    <label class="control-label mt-1 h5" style="font-weight: 400" for="interview_count_recruiter">Recruiter:</label>
-                                </div>
-                                <div class="col-9">
-                                    {!! Form::text('', null, ['placeholder' => 'Please Select user', 'width' => '100%', 'id' => 'interview_count_recruiter']) !!}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="interview-count-bdm-type">
-                            <div class="row">
-                                <div class="col-3 text-right">
-                                    <label class="control-label mt-1 h5" style="font-weight: 400" for="interview_count_bdm">Bdm:</label>
-                                </div>
-                                <div class="col-9">
-                                    {!! Form::text('', null, ['placeholder' => 'Please Select user', 'id' => 'interview_count_bdm']) !!}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-4 text-right">
-                        <div class="btn-group btn-group-toggle mb-2" data-toggle="buttons">
-                            <label class="btn btn-sm btn-outline-danger active">
-                                <input type="radio" class="interview-count-served-submission-type" name="interview-count-options" data-type="monthly" autocomplete="off" checked="">Monthly
-                            </label>
-                            <label class="btn btn-sm btn-outline-danger">
-                                <input type="radio" class="interview-count-served-submission-type" name="interview-count-options" data-type="weekly" autocomplete="off">Weekly
-                            </label>
-                            <label class="btn btn-sm btn-outline-danger">
-                                <input type="radio" class="interview-count-served-submission-type" name="interview-count-options" data-type="daily" autocomplete="off">Daily
-                            </label>
-                            <label class="btn btn-sm btn-outline-danger">
-                                <input type="radio" class="interview-count-served-submission-type" name="interview-count-options" data-type="time_frame" autocomplete="off">Time Frame
-                            </label>
-                        </div>
-                    </div>
-                    <div class="col-3 text-right">
-                        <div class="btn-group btn-group-toggle mb-2" data-toggle="buttons">
-                            <label class="btn btn-sm btn-outline-danger">
-                                <input type="radio" class="req-count-served-submission-day-type" name="req-count-served-submission-day-options" data-type="30" autocomplete="off">30 Days
-                            </label>
-                            <label class="btn btn-sm btn-outline-danger">
-                                <input type="radio" class="req-count-served-submission-day-type" name="req-count-served-submission-day-options" data-type="60" autocomplete="off">60 Days
-                            </label>
-                            <label class="btn btn-sm btn-outline-danger">
-                                <input type="radio" class="req-count-served-submission-day-type" name="req-count-served-submission-day-options" data-type="90" autocomplete="off">90 Days
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12 text-right">
-                <div class="btn-group btn-group-toggle mb-2" data-toggle="buttons">
-                    @if(in_array(getLoggedInUserRole(), ['admin', 'bdm']))
-                        <label class="btn btn-sm btn-outline-danger">
-                            <input type="radio" class="interview-count-user-type-bdm interview-count-user-type" name="interview-count-user-options" data-type="bdm" autocomplete="off">BDM
-                        </label>
-                    @endif
-                    @if(in_array(getLoggedInUserRole(), ['admin', 'recruiter']))
-                        <label class="btn btn-sm btn-outline-danger">
-                            <input type="radio" class="interview-count-user-type-recruiter interview-count-user-type" name="interview-count-user-options" data-type="recruiter" autocomplete="off">Recruiter
-                    @endif
-                </div>
-            </div>
-        </div>
         <div class="chart"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+            <div class="row">
+                <div class="col-2">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <label class="control-label mr-3 mt-1 h5" style="font-weight: 400" for="interview_count_fromDate">From: </label>
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="far fa-calendar-alt"></i>
+                                </span>
+                            </div>
+                            @php
+                                $defaultDays = 60;
+                                $settingRow =  \App\Models\Setting::where('name', 'interview_date_default_filter_for_chart')->first();
+
+                                if(!empty($settingRow) && $settingRow->value){
+                                    $defaultDays = $settingRow->value;
+                                }
+                            @endphp
+                            {!! Form::text('fromDate', \Carbon\Carbon::now()->subDays($defaultDays)->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker interview-count-datepicker form-control float-right chart-from-datepicker char-datepick', 'placeholder' => 'Select From Date', 'id' => 'interview_count_fromDate']) !!}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-2">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <label class="control-label mr-3 mt-1 h5" style="font-weight: 400" for="interview_count_toDate">To: </label>
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="far fa-calendar-alt"></i>
+                                </span>
+                            </div>
+                            {!! Form::text('toDate', \Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker interview-count-datepicker form-control float-right chart-to-datepicker char-datepick', 'placeholder' => 'Select To Date', 'id' => 'interview_count_toDate']) !!}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-8">
+                    <div class="row">
+                        <div class="col-5">
+                            <div class="interview-count-recruiter-type">
+                                <div class="row">
+                                    <div class="col-3 text-right">
+                                        <label class="control-label mt-1 h5" style="font-weight: 400" for="interview_count_recruiter">Recruiter:</label>
+                                    </div>
+                                    <div class="col-9">
+                                        {!! Form::text('', null, ['placeholder' => 'Please Select user', 'width' => '100%', 'id' => 'interview_count_recruiter', 'class' => 'chart-rec-user']) !!}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="interview-count-bdm-type">
+                                <div class="row">
+                                    <div class="col-3 text-right">
+                                        <label class="control-label mt-1 h5" style="font-weight: 400" for="interview_count_bdm">Bdm:</label>
+                                    </div>
+                                    <div class="col-9">
+                                        {!! Form::text('', null, ['placeholder' => 'Please Select user', 'id' => 'interview_count_bdm', 'class' => 'chart-bdm-user']) !!}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4 text-right">
+                            <div class="btn-group btn-group-toggle mb-2" data-toggle="buttons">
+                                <label class="btn btn-sm btn-outline-danger active">
+                                    <input type="radio" class="interview-count-served-submission-type" name="interview-count-options" data-type="monthly" autocomplete="off" checked="">Monthly
+                                </label>
+                                <label class="btn btn-sm btn-outline-danger">
+                                    <input type="radio" class="interview-count-served-submission-type" name="interview-count-options" data-type="weekly" autocomplete="off">Weekly
+                                </label>
+                                <label class="btn btn-sm btn-outline-danger">
+                                    <input type="radio" class="interview-count-served-submission-type" name="interview-count-options" data-type="daily" autocomplete="off">Daily
+                                </label>
+                                <label class="btn btn-sm btn-outline-danger">
+                                    <input type="radio" class="interview-count-served-submission-type" name="interview-count-options" data-type="time_frame" autocomplete="off">Time Frame
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-3 text-right">
+                            <div class="btn-group btn-group-toggle mb-2" data-toggle="buttons">
+                                <label class="btn btn-sm btn-outline-danger">
+                                    <input type="radio" class="req-count-served-submission-day-type" name="req-count-served-submission-day-options" data-type="30" autocomplete="off">30 Days
+                                </label>
+                                <label class="btn btn-sm btn-outline-danger">
+                                    <input type="radio" class="req-count-served-submission-day-type" name="req-count-served-submission-day-options" data-type="60" autocomplete="off">60 Days
+                                </label>
+                                <label class="btn btn-sm btn-outline-danger">
+                                    <input type="radio" class="req-count-served-submission-day-type" name="req-count-served-submission-day-options" data-type="90" autocomplete="off">90 Days
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 text-right">
+                    <div class="btn-group btn-group-toggle mb-2" data-toggle="buttons">
+                        @if(in_array(getLoggedInUserRole(), ['admin', 'bdm']))
+                            <label class="btn btn-sm btn-outline-danger">
+                                <input type="radio" class="interview-count-user-type-bdm interview-count-user-type" name="interview-count-user-options" data-type="bdm" autocomplete="off">BDM
+                            </label>
+                        @endif
+                        @if(in_array(getLoggedInUserRole(), ['admin', 'recruiter']))
+                            <label class="btn btn-sm btn-outline-danger">
+                                <input type="radio" class="interview-count-user-type-recruiter interview-count-user-type" name="interview-count-user-options" data-type="recruiter" autocomplete="off">Recruiter
+                        @endif
+                    </div>
+                </div>
+            </div>
             <canvas id="interviewCount" style="min-height: 250px; height: 250px; max-height: 360px; max-width: 100%; display: block; width: 570px;" width="570" height="250" class="chartjs-render-monitor"></canvas>
         </div>
     </div>
@@ -145,7 +145,29 @@
             @endif
             prepareReqAssignAsServed();
 
-            $("#interview_count_bdm, #interview_count_recruiter").on('change', function () {
+            $("#interview_count_bdm, #interview_count_recruiter").change(function () {
+                if (window.globalSelectedBdmCheck && window.globalSelectedBdmCheck.includes('interview_count_bdm')) {
+                    window.globalSelectedBdmCheck = window.globalSelectedBdmCheck.filter(item => item !== 'interview_count_bdm');
+                    instanceBdm.destroy();
+                    instanceBdm = $('#interview_count_bdm').comboTree({
+                        source : bdmData,
+                        isMultiple:true,
+                        selectAll:true,
+                        cascadeSelect:true,
+                        selected: (window.globalSelectedBdm) ? window.globalSelectedBdm : [],
+                    });
+                }
+                if (window.globalSelectedRecCheck && window.globalSelectedRecCheck.includes('interview_count_recruiter')) {
+                    window.globalSelectedRecCheck = window.globalSelectedRecCheck.filter(item => item !== 'interview_count_recruiter');
+                    instanceRec.destroy();
+                    instanceRec = $('#interview_count_recruiter').comboTree({
+                        source : recData,
+                        isMultiple:true,
+                        selectAll:true,
+                        cascadeSelect:true,
+                        selected: (window.globalSelectedRec) ? window.globalSelectedRec : [],
+                    });
+                }
                 prepareReqAssignAsServed();
             });
         });

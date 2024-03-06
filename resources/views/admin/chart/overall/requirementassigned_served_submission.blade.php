@@ -27,7 +27,7 @@
                                     $defaultDays = $settingRow->value;
                                 }
                             @endphp
-                            {!! Form::text('fromDate', \Carbon\Carbon::now()->subDays($defaultDays)->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker req_assign_served_submission form-control float-right', 'placeholder' => 'Select From Date', 'id' => 'req_assign_vs_served_fromDate']) !!}
+                            {!! Form::text('fromDate', \Carbon\Carbon::now()->subDays($defaultDays)->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker req_assign_served_submission form-control float-right chart-from-datepicker char-datepick', 'placeholder' => 'Select From Date', 'id' => 'req_assign_vs_served_fromDate']) !!}
                         </div>
                     </div>
                 </div>
@@ -40,7 +40,7 @@
                                     <i class="far fa-calendar-alt"></i>
                                 </span>
                             </div>
-                            {!! Form::text('toDate', \Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker req_assign_served_submission form-control float-right', 'placeholder' => 'Select To Date', 'id' => 'req_assign_vs_served_toDate']) !!}
+                            {!! Form::text('toDate', \Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker req_assign_served_submission form-control float-right chart-to-datepicker char-datepick', 'placeholder' => 'Select To Date', 'id' => 'req_assign_vs_served_toDate']) !!}
                         </div>
                     </div>
                 </div>
@@ -52,7 +52,7 @@
                                     <label class="control-label mt-1 h5" style="font-weight: 400" for="req_assign_served_submission">Recruiter:</label>
                                 </div>
                                 <div class="col-9">
-                                    {!! Form::text('', null, ['placeholder' => 'Please Select User', 'id' => 'req_assign_served_submission']) !!}
+                                    {!! Form::text('', null, ['placeholder' => 'Please Select User', 'id' => 'req_assign_served_submission', 'class' => 'chart-rec-user']) !!}
                                 </div>
                             </div>
                         </div>
@@ -329,6 +329,17 @@
         });
 
         $("#req_assign_served_submission").on('change', function () {
+            if (window.globalSelectedRecCheck && window.globalSelectedRecCheck.includes('req_assign_served_submission')) {
+                window.globalSelectedRecCheck = window.globalSelectedRecCheck.filter(item => item !== 'req_assign_served_submission');
+                instance.destroy();
+                instance = $('#req_assign_served_submission').comboTree({
+                    source : myData,
+                    isMultiple:true,
+                    selectAll:true,
+                    cascadeSelect:true,
+                    selected: (window.globalSelectedRec) ? window.globalSelectedRec : [],
+                });
+            }
             prepareReqAssignServedSubmission();
         });
 

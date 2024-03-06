@@ -27,7 +27,7 @@
                                     $defaultDays = $settingRow->value;
                                 }
                             @endphp
-                            {!! Form::text('fromDate', \Carbon\Carbon::now()->subDays($defaultDays)->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker individual-bdm_accepts-count-datepicker form-control float-right', 'placeholder' => 'Select From Date', 'id' => 'individual_bdm_accept_count_fromDate']) !!}
+                            {!! Form::text('fromDate', \Carbon\Carbon::now()->subDays($defaultDays)->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker individual-bdm_accepts-count-datepicker form-control float-right chart-from-datepicker char-datepick', 'placeholder' => 'Select From Date', 'id' => 'individual_bdm_accept_count_fromDate']) !!}
                         </div>
                     </div>
                 </div>
@@ -40,7 +40,7 @@
                                     <i class="far fa-calendar-alt"></i>
                                 </span>
                             </div>
-                            {!! Form::text('toDate', \Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker individual-bdm_accepts-count-datepicker form-control float-right', 'placeholder' => 'Select To Date', 'id' => 'individual_bdm_accept_count_toDate']) !!}
+                            {!! Form::text('toDate', \Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker individual-bdm_accepts-count-datepicker form-control float-right chart-to-datepicker char-datepick', 'placeholder' => 'Select To Date', 'id' => 'individual_bdm_accept_count_toDate']) !!}
                         </div>
                     </div>
                 </div>
@@ -53,7 +53,7 @@
                                         <label class="control-label mt-1 h5" style="font-weight: 400" for="individual_bdm_accept_count_recruiter">Recruiter:</label>
                                     </div>
                                     <div class="col-9">
-                                        {!! Form::text('', null, ['placeholder' => 'Please Select user', 'width' => '100%', 'id' => 'individual_bdm_accept_count_recruiter']) !!}
+                                        {!! Form::text('', null, ['placeholder' => 'Please Select user', 'width' => '100%', 'id' => 'individual_bdm_accept_count_recruiter', 'class' => 'chart-rec-user']) !!}
                                     </div>
                                 </div>
                             </div>
@@ -63,7 +63,7 @@
                                         <label class="control-label mt-1 h5" style="font-weight: 400" for="individual_bdm_accept_count_bdm">Bdm:</label>
                                     </div>
                                     <div class="col-9">
-                                        {!! Form::text('', null, ['placeholder' => 'Please Select user', 'id' => 'individual_bdm_accept_count_bdm']) !!}
+                                        {!! Form::text('', null, ['placeholder' => 'Please Select user', 'id' => 'individual_bdm_accept_count_bdm', 'class' => 'chart-bdm-user']) !!}
                                     </div>
                                 </div>
                             </div>
@@ -101,7 +101,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-5"></div>
+                <div class="col-2"></div>
                 <div class="col-3 text-right">
                     <div class="row">
                         <div class="col-1"></div>
@@ -132,6 +132,16 @@
                     <div class="custom-control custom-switch custom-switch-off-default custom-switch-on-success">
                         <input type="checkbox" class="custom-control-input isIndividualUniqueForbdm_accept" id="unique_individual_bdm_accepts">
                         <label class="custom-control-label" for="unique_individual_bdm_accepts">Only Uniq Requirements</label>
+                    </div>
+                </div>
+                <div class="col-3 text-right">
+                    <div class="btn-group btn-group-toggle mb-2" data-toggle="buttons">
+                        <label class="btn btn-sm btn-outline-danger">
+                            <input type="radio" class="individual-bdm-accept-frame-type individual-bdm-accept-frame-type-time-frame time-frame" data-type="time_frame" name="individual-bdm-accept-frame-type-options" autocomplete="off">Time Frame
+                        </label>
+                        <label class="btn btn-sm btn-outline-danger">
+                            <input type="radio" class="individual-bdm-accept-frame-type submission-frame" data-type="submission_frame" name="individual-bdm-accept-frame-type-options" autocomplete="off">Submission Frame
+                        </label>
                     </div>
                 </div>
                 <div class="col-2 text-right">
@@ -177,9 +187,32 @@
             @else
                 $('.individual-bdm_accept-count-user-type-recruiter').click();
             @endif
+            $('.individual-bdm-accept-frame-type-time-frame').click();
             prepareindividuabdmAcceptCounts();
 
             $("#individual_bdm_accept_count_bdm, #individual_bdm_accept_count_recruiter").on('change', function () {
+                if (window.globalSelectedBdmCheck && window.globalSelectedBdmCheck.includes('individual_bdm_accept_count_bdm')) {
+                    window.globalSelectedBdmCheck = window.globalSelectedBdmCheck.filter(item => item !== 'individual_bdm_accept_count_bdm');
+                    instanceBdm.destroy();
+                    instanceBdm = $('#individual_bdm_accept_count_bdm').comboTree({
+                        source : bdmData,
+                        isMultiple:true,
+                        selectAll:true,
+                        cascadeSelect:true,
+                        selected: (window.globalSelectedBdm) ? window.globalSelectedBdm : [],
+                    });
+                }
+                if (window.globalSelectedRecCheck && window.globalSelectedRecCheck.includes('individual_bdm_accept_count_recruiter')) {
+                    window.globalSelectedRecCheck = window.globalSelectedRecCheck.filter(item => item !== 'individual_bdm_accept_count_recruiter');
+                    instanceRec.destroy();
+                    instanceRec = $('#individual_bdm_accept_count_recruiter').comboTree({
+                        source : recData,
+                        isMultiple:true,
+                        selectAll:true,
+                        cascadeSelect:true,
+                        selected: (window.globalSelectedRec) ? window.globalSelectedRec : [],
+                    });
+                }
                 prepareindividuabdmAcceptCounts();
             });
         });
@@ -200,6 +233,7 @@
                     'recUser'   : instanceRec.getSelectedIds(),
                     'user_type' : $(".individual-bdm_accept-count-user-type:checked").attr("data-type"),
                     'isUniSub'  : isUniqueSub,
+                    'frame_type' : $('.individual-bdm-accept-frame-type:checked').attr('data-type'),
                 },
                 method: 'POST',
                 success: function (response) {
@@ -354,6 +388,7 @@
         }
 
         $('.individual-bdm_accepts-count-datepicker').change(function (){
+            $('#individual_bdm_accept_count_step_size').val("0").trigger("change");
             $('.individual-bdm_accept-day-type').parent().removeClass('active');
             prepareindividuabdmAcceptCounts();
         });
@@ -418,6 +453,11 @@
             $(".individual-bdm_accept-day-type").prop("checked", false).parent().removeClass('active');
             const stepType = $(".individual-bdm_accept-type:checked").attr("data-type");
             prepareDatesBasedOnStepSize(fromDateInput, toDateInput, stepValue, stepType);
+            prepareindividuabdmAcceptCounts();
+        });
+
+        $(".individual-bdm-accept-frame-type").change(function (){
+            console.log('ca;');
             prepareindividuabdmAcceptCounts();
         });
     });

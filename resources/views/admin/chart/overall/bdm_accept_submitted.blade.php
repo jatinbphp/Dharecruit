@@ -27,7 +27,7 @@
                                     $defaultDays = $settingRow->value;
                                 }
                             @endphp
-                            {!! Form::text('fromDate', \Carbon\Carbon::now()->subDays($defaultDays)->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker accept_submitted_datepicker form-control float-right', 'placeholder' => 'Select From Date', 'id' => 'accept_submitted_fromDate']) !!}
+                            {!! Form::text('fromDate', \Carbon\Carbon::now()->subDays($defaultDays)->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker accept_submitted_datepicker form-control float-right chart-from-datepicker char-datepick', 'placeholder' => 'Select From Date', 'id' => 'accept_submitted_fromDate']) !!}
                         </div>
                     </div>
                 </div>
@@ -40,7 +40,7 @@
                                     <i class="far fa-calendar-alt"></i>
                                 </span>
                             </div>
-                            {!! Form::text('toDate', \Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker accept_submitted_datepicker form-control float-right', 'placeholder' => 'Select To Date', 'id' => 'accept_submitted_toDate']) !!}
+                            {!! Form::text('toDate', \Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker accept_submitted_datepicker form-control float-right chart-to-datepicker char-datepick', 'placeholder' => 'Select To Date', 'id' => 'accept_submitted_toDate']) !!}
                         </div>
                     </div>
                 </div>
@@ -53,7 +53,7 @@
                                         <label class="control-label mt-1 h5" style="font-weight: 400" for="accept_submitted_count_recruiter">Recruiter:</label>
                                     </div>
                                     <div class="col-9">
-                                        {!! Form::text('', null, ['placeholder' => 'Please Select user', 'width' => '100%', 'id' => 'accept_submitted_count_recruiter']) !!}
+                                        {!! Form::text('', null, ['placeholder' => 'Please Select user', 'width' => '100%', 'id' => 'accept_submitted_count_recruiter', 'class' => 'chart-rec-user']) !!}
                                     </div>
                                 </div>
                             </div>
@@ -63,7 +63,7 @@
                                         <label class="control-label mt-1 h5" style="font-weight: 400" for="accept_submitted_count_bdm">Bdm:</label>
                                     </div>
                                     <div class="col-9">
-                                        {!! Form::text('', null, ['placeholder' => 'Please Select user', 'id' => 'accept_submitted_count_bdm']) !!}
+                                        {!! Form::text('', null, ['placeholder' => 'Please Select user', 'id' => 'accept_submitted_count_bdm', 'class' => 'chart-bdm-user']) !!}
                                     </div>
                                 </div>
                             </div>
@@ -101,7 +101,18 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-12 text-right">
+                <div class="col-7"></div>
+                <div class="col-3 text-right">
+                    <div class="btn-group btn-group-toggle mb-2" data-toggle="buttons">
+                        <label class="btn btn-sm btn-outline-danger">
+                            <input type="radio" class="bdm-accept-frame-type bdm-accept-frame-type-time-frame time-frame" data-type="time_frame" name="bdm-accept-frame-type-options" autocomplete="off">Time Frame
+                        </label>
+                        <label class="btn btn-sm btn-outline-danger">
+                            <input type="radio" class="bdm-accept-frame-type submission-frame" data-type="submission_frame" name="bdm-accept-frame-type-options" autocomplete="off">Submission Frame
+                        </label>
+                    </div>
+                </div>
+                <div class="col-2 text-right">
                     <div class="btn-group btn-group-toggle mb-2" data-toggle="buttons">
                         @if(in_array(getLoggedInUserRole(), ['admin', 'bdm']))
                             <label class="btn btn-sm btn-outline-danger">
@@ -143,9 +154,32 @@
             @else
                 $('.accept-submitted-count-user-type-recruiter').click();
             @endif
+            $('.bdm-accept-frame-type-time-frame').click();
             prepareReqAssignAsServed();
 
             $("#accept_submitted_count_bdm, #accept_submitted_count_recruiter").on('change', function () {
+                if (window.globalSelectedBdmCheck && window.globalSelectedBdmCheck.includes('accept_submitted_count_bdm')) {
+                    window.globalSelectedBdmCheck = window.globalSelectedBdmCheck.filter(item => item !== 'accept_submitted_count_bdm');
+                    instanceBdm.destroy();
+                    instanceBdm = $('#accept_submitted_count_bdm').comboTree({
+                        source : bdmData,
+                        isMultiple:true,
+                        selectAll:true,
+                        cascadeSelect:true,
+                        selected: (window.globalSelectedBdm) ? window.globalSelectedBdm : [],
+                    });
+                }
+                if (window.globalSelectedRecCheck && window.globalSelectedRecCheck.includes('accept_submitted_count_recruiter')) {
+                    window.globalSelectedRecCheck = window.globalSelectedRecCheck.filter(item => item !== 'accept_submitted_count_recruiter');
+                    instanceRec.destroy();
+                    instanceRec = $('#accept_submitted_count_recruiter').comboTree({
+                        source : recData,
+                        isMultiple:true,
+                        selectAll:true,
+                        cascadeSelect:true,
+                        selected: (window.globalSelectedRec) ? window.globalSelectedRec : [],
+                    });
+                }
                 prepareReqAssignAsServed();
             });
         });
@@ -154,14 +188,14 @@
             $.ajax({
                 url: "{{ route('getAcceptSbumittedCount') }}",
                 data: {
-                    '_token' : '{{ csrf_token() }}',
-                    'fromDate' : $('#accept_submitted_fromDate').val(),
-                    'toDate'   : $('#accept_submitted_toDate').val(),
-                    'type'    : $(".accept-submitted-count-served-submission-type:checked").attr("data-type"),
-                    'bdmUser'  : instanceBdm.getSelectedIds(),
-                    'recUser'  : instanceRec.getSelectedIds(),
-                    'user_type'     : $(".accept-submitted-count-user-type:checked").attr("data-type"),
-
+                    '_token'     : '{{ csrf_token() }}',
+                    'fromDate'   : $('#accept_submitted_fromDate').val(),
+                    'toDate'     : $('#accept_submitted_toDate').val(),
+                    'type'       : $(".accept-submitted-count-served-submission-type:checked").attr("data-type"),
+                    'bdmUser'    : instanceBdm.getSelectedIds(),
+                    'recUser'    : instanceRec.getSelectedIds(),
+                    'user_type'  : $(".accept-submitted-count-user-type:checked").attr("data-type"),
+                    'frame_type' : $('.bdm-accept-frame-type:checked').attr('data-type'),
                 },
                 method: 'POST',
                 success: function (response) {
@@ -354,6 +388,10 @@
                 $('.accept-submitted-count-recruiter-type').show();
                 $('.accept-submitted-count-bdm-type').hide();
             }
+            prepareReqAssignAsServed();
+        });
+
+        $(".bdm-accept-frame-type").change(function (){
             prepareReqAssignAsServed();
         });
     });

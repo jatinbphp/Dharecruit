@@ -27,7 +27,7 @@
                                     $defaultDays = $settingRow->value;
                                 }
                             @endphp
-                            {!! Form::text('fromDate', \Carbon\Carbon::now()->subDays($defaultDays)->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker individual-served-count-datepicker form-control float-right', 'placeholder' => 'Select From Date', 'id' => 'individual_served_count_fromDate']) !!}
+                            {!! Form::text('fromDate', \Carbon\Carbon::now()->subDays($defaultDays)->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker individual-served-count-datepicker form-control float-right chart-from-datepicker char-datepick', 'placeholder' => 'Select From Date', 'id' => 'individual_served_count_fromDate']) !!}
                         </div>
                     </div>
                 </div>
@@ -40,7 +40,7 @@
                                     <i class="far fa-calendar-alt"></i>
                                 </span>
                             </div>
-                            {!! Form::text('toDate', \Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker individual-served-count-datepicker form-control float-right', 'placeholder' => 'Select To Date', 'id' => 'individual_served_count_toDate']) !!}
+                            {!! Form::text('toDate', \Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker individual-served-count-datepicker form-control float-right chart-to-datepicker char-datepick', 'placeholder' => 'Select To Date', 'id' => 'individual_served_count_toDate']) !!}
                         </div>
                     </div>
                 </div>
@@ -53,7 +53,7 @@
                                         <label class="control-label mt-1 h5" style="font-weight: 400" for="individual_served_count_recruiter">Recruiter:</label>
                                     </div>
                                     <div class="col-9">
-                                        {!! Form::text('', null, ['placeholder' => 'Please Select user', 'width' => '100%', 'id' => 'individual_served_count_recruiter']) !!}
+                                        {!! Form::text('', null, ['placeholder' => 'Please Select user', 'width' => '100%', 'id' => 'individual_served_count_recruiter', 'class' => 'chart-rec-user']) !!}
                                     </div>
                                 </div>
                             </div>
@@ -63,7 +63,7 @@
                                         <label class="control-label mt-1 h5" style="font-weight: 400" for="individual_served_count_bdm">Bdm:</label>
                                     </div>
                                     <div class="col-9">
-                                        {!! Form::text('', null, ['placeholder' => 'Please Select user', 'id' => 'individual_served_count_bdm']) !!}
+                                        {!! Form::text('', null, ['placeholder' => 'Please Select user', 'id' => 'individual_served_count_bdm', 'class' => 'chart-bdm-user']) !!}
                                     </div>
                                 </div>
                             </div>
@@ -112,7 +112,7 @@
                             <select style="width: 100%" class="select2" id="individual_served_count_step_size">
                                 <option value="0">Please Select</option>
                                 @for ($i = 1; $i <= 10; $i++) {
-                                <option value="{{$i}}">{{$i}}</option>
+                                    <option value="{{$i}}">{{$i}}</option>
                                 @endfor
                             </select>
                         </div>
@@ -180,6 +180,28 @@
             prepareindividuaservedCounts();
 
             $("#individual_served_count_bdm, #individual_served_count_recruiter").on('change', function () {
+                if (window.globalSelectedBdmCheck && window.globalSelectedBdmCheck.includes('individual_served_count_bdm')) {
+                    window.globalSelectedBdmCheck = window.globalSelectedBdmCheck.filter(item => item !== 'individual_served_count_bdm');
+                    instanceBdm.destroy();
+                    instanceBdm = $('#individual_served_count_bdm').comboTree({
+                        source : bdmData,
+                        isMultiple:true,
+                        selectAll:true,
+                        cascadeSelect:true,
+                        selected: (window.globalSelectedBdm) ? window.globalSelectedBdm : [],
+                    });
+                }
+                if (window.globalSelectedRecCheck && window.globalSelectedRecCheck.includes('individual_served_count_recruiter')) {
+                    window.globalSelectedRecCheck = window.globalSelectedRecCheck.filter(item => item !== 'individual_served_count_recruiter');
+                    instanceRec.destroy();
+                    instanceRec = $('#individual_served_count_recruiter').comboTree({
+                        source : recData,
+                        isMultiple:true,
+                        selectAll:true,
+                        cascadeSelect:true,
+                        selected: (window.globalSelectedRec) ? window.globalSelectedRec : [],
+                    });
+                }
                 prepareindividuaservedCounts();
             });
         });
@@ -354,6 +376,7 @@
         }
 
         $('.individual-served-count-datepicker').change(function (){
+            $('#individual_served_count_step_size').val("0").trigger("change");
             $('.individual-served-day-type').parent().removeClass('active');
             prepareindividuaservedCounts();
         });

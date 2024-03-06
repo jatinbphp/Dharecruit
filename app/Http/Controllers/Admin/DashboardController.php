@@ -386,12 +386,12 @@ class DashboardController extends Controller
             $recUser = [0];
         }
         $data['labels'] = array_values(Submission::$status);
-        $data['counts'] = $this->getBdmStatusCounts($request->fromDate, $request->toDate, $request->type, $bdmUser, $recUser);
+        $data['counts'] = $this->getBdmStatusCounts($request->fromDate, $request->toDate, $request->type, $bdmUser, $recUser, $request->frame_type);
         $data['status'] = 1;
         return $data;
     }
 
-    public function getBdmStatusCounts($fromDate, $toDate, $type, $bdmUser, $recruiterUser)
+    public function getBdmStatusCounts($fromDate, $toDate, $type, $bdmUser, $recruiterUser, $frameType)
     {
         $fromDate = \Carbon\Carbon::createFromFormat('m/d/Y', $fromDate)->format('Y-m-d');
         $toDate = \Carbon\Carbon::createFromFormat('m/d/Y', $toDate)->addDay()->format('Y-m-d');
@@ -400,20 +400,28 @@ class DashboardController extends Controller
         $submissionCounts = [];
 
         if($type == 'recruiter' && $recruiterUser){
-            $submissionCounts = Submission::select('status', \DB::raw('count(*) as count'))
+            $collection = Submission::select('status', \DB::raw('count(*) as count'))
                 ->whereIn('status', array_keys($recruiterUser))
-                ->whereIn('user_id', $recruiterUser)
-                ->whereBetween('bdm_status_updated_at', [$fromDate, $toDate])
-                ->groupBy('status')
+                ->whereIn('user_id', $recruiterUser);
+            if($frameType == 'submission_frame'){
+                $collection->whereBetween('created_at', [$fromDate, $toDate]);
+            } else {
+                $collection->whereBetween('bdm_status_updated_at', [$fromDate, $toDate]);
+            }
+            $submissionCounts = $collection->groupBy('status')
                 ->pluck('count', 'status')
                 ->toArray();
         } elseif ($type == 'bdm' && $bdmUser){
-            $submissionCounts = Requirement::leftjoin('submissions', 'submissions.requirement_id', '=', 'requirements.id')
+            $collection = Requirement::leftjoin('submissions', 'submissions.requirement_id', '=', 'requirements.id')
                 ->select('submissions.status', \DB::raw('count(*) as count'))
                 ->whereIn('requirements.user_id', $bdmUser)
-                ->whereIn('submissions.status', array_keys($bdmStatus))
-                ->whereBetween('submissions.bdm_status_updated_at', [$fromDate, $toDate])
-                ->groupBy('submissions.status')
+                ->whereIn('submissions.status', array_keys($bdmStatus));
+            if($frameType == 'submission_frame'){
+                $collection->whereBetween('submissions.created_at', [$fromDate, $toDate]);
+            } else {
+                $collection->whereBetween('submissions.bdm_status_updated_at', [$fromDate, $toDate]);
+            }
+            $submissionCounts = $collection->groupBy('submissions.status')
                 ->pluck('count', 'submissions.status')
                 ->toArray();
         }
@@ -444,11 +452,11 @@ class DashboardController extends Controller
         }
 
         $data['labels'] = array_values(Submission::$pvStatus);
-        $data['counts'] = $this->getPvStatusCount($request->fromDate, $request->toDate, $request->type, $bdmUser, $recUser);
+        $data['counts'] = $this->getPvStatusCount($request->fromDate, $request->toDate, $request->type, $bdmUser, $recUser, $request->frame_type);
         $data['status'] = 1;
         return $data;
     }
-    public function getPvStatusCount($fromDate, $toDate, $type, $bdmUser, $recruiterUser)
+    public function getPvStatusCount($fromDate, $toDate, $type, $bdmUser, $recruiterUser, $frameType)
     {
         $fromDate = \Carbon\Carbon::createFromFormat('m/d/Y', $fromDate)->format('Y-m-d');
         $toDate = \Carbon\Carbon::createFromFormat('m/d/Y', $toDate)->addDay()->format('Y-m-d');
@@ -458,21 +466,29 @@ class DashboardController extends Controller
         $submissionCounts = [];
 
         if($type == 'recruiter' && $recruiterUser) {
-            $submissionCounts = Submission::select('pv_status', \DB::raw('count(*) as count'))
+            $collection = Submission::select('pv_status', \DB::raw('count(*) as count'))
                 ->whereIn('pv_status', array_keys($pvStatus))
                 ->whereIn('user_id', $recruiterUser)
-                ->whereBetween('pv_status_updated_at', [$fromDate, $toDate])
-                ->groupBy('pv_status')
-                ->pluck('count', 'pv_status')
+                ->groupBy('pv_status');
+            if($frameType == 'submission_frame'){
+                $collection->whereBetween('created_at', [$fromDate, $toDate]);
+            } else {
+                $collection->whereBetween('pv_status_updated_at', [$fromDate, $toDate]);
+            }
+            $submissionCounts = $collection->pluck('count', 'pv_status')
                 ->toArray();
         } elseif ($type == 'bdm' && $bdmUser){
-            $submissionCounts = Requirement::leftjoin('submissions', 'submissions.requirement_id', '=', 'requirements.id')
+            $collection = Requirement::leftjoin('submissions', 'submissions.requirement_id', '=', 'requirements.id')
                 ->select('submissions.pv_status', \DB::raw('count(*) as count'))
                 ->whereIn('requirements.user_id', $bdmUser)
                 ->whereIn('submissions.pv_status', array_keys($pvStatus))
-                ->whereBetween('submissions.pv_status_updated_at', [$fromDate, $toDate])
-                ->groupBy('submissions.pv_status')
-                ->pluck('count', 'submissions.pv_status')
+                ->groupBy('submissions.pv_status');
+            if($frameType == 'submission_frame'){
+                $collection->whereBetween('submissions.created_at', [$fromDate, $toDate]);
+            } else {
+                $collection->whereBetween('submissions.pv_status_updated_at', [$fromDate, $toDate]);
+            }
+            $submissionCounts = $collection->pluck('count', 'submissions.pv_status')
                 ->toArray();
         }
 
@@ -503,12 +519,12 @@ class DashboardController extends Controller
         $interviewStatus = Interview::$interviewStatusOptions;
         unset($interviewStatus['']);
         $data['labels'] = array_values($interviewStatus);
-        $data['counts'] = $this->getInterviewStatusCounts($request->fromDate, $request->toDate, $request->type, $bdmUser, $recUser);
+        $data['counts'] = $this->getInterviewStatusCounts($request->fromDate, $request->toDate, $request->type, $bdmUser, $recUser, $request->frame_type);
         $data['status'] = 1;
         return $data;
     }
 
-    public function getInterviewStatusCounts($fromDate, $toDate, $type, $bdmUser, $recUser)
+    public function getInterviewStatusCounts($fromDate, $toDate, $type, $bdmUser, $recUser, $frameType)
     {
         $fromDate = \Carbon\Carbon::createFromFormat('m/d/Y', $fromDate)->format('Y-m-d');
         $toDate = \Carbon\Carbon::createFromFormat('m/d/Y', $toDate)->addDay()->format('Y-m-d');
@@ -519,22 +535,30 @@ class DashboardController extends Controller
         $submissionCounts = [];
 
         if($type == 'recruiter' && $recUser) {
-            $intervewCounts = Submission::leftJoin('interviews', 'submissions.id', '=', 'interviews.submission_id')
+            $collection = Submission::leftJoin('interviews', 'submissions.id', '=', 'interviews.submission_id')
                 ->selectRaw('interviews.status, COUNT(interviews.id) as count')
-                ->whereBetween('submissions.interview_status_updated_at', [$fromDate, $toDate])
                 ->whereIn('submissions.user_id', $recUser)
-                ->whereIn('interviews.status', array_keys($interviewStatus))
-                ->groupBy('interviews.status')
+                ->whereIn('interviews.status', array_keys($interviewStatus));
+            if($frameType == 'submission_frame'){
+                $collection->whereBetween('submissions.created_at', [$fromDate, $toDate]);
+            } else {
+                $collection->whereBetween('submissions.interview_status_updated_at', [$fromDate, $toDate]);
+            }
+            $intervewCounts = $collection->groupBy('interviews.status')
                 ->pluck('count', 'interviews.status')
                 ->toArray();
         } elseif ($type == 'bdm' && $bdmUser){
-            $intervewCounts = Requirement::leftJoin('submissions', 'requirements.id', '=', 'submissions.requirement_id')
+            $collection = Requirement::leftJoin('submissions', 'requirements.id', '=', 'submissions.requirement_id')
                 ->leftJoin('interviews', 'submissions.id', '=', 'interviews.submission_id')
                 ->selectRaw('interviews.status, COUNT(interviews.id) as count')
-                ->whereBetween('submissions.interview_status_updated_at', [$fromDate, $toDate])
                 ->whereIn('requirements.user_id', $bdmUser)
-                ->whereIn('interviews.status', array_keys($interviewStatus))
-                ->groupBy('interviews.status')
+                ->whereIn('interviews.status', array_keys($interviewStatus));
+                if($frameType == 'submission_frame'){
+                    $collection->whereBetween('submissions.created_at', [$fromDate, $toDate]);
+                } else {
+                    $collection->whereBetween('submissions.interview_status_updated_at', [$fromDate, $toDate]);
+                }
+            $intervewCounts = $collection->groupBy('interviews.status')
                 ->pluck('count', 'interviews.status')
                 ->toArray();
         }
@@ -812,13 +836,13 @@ class DashboardController extends Controller
 
         $labels                             = $this->getTypeWiseDateLabels($request->type, $request->fromDate, $request->toDate);
         $data['label']                      = $labels;
-        $data['acceptCounts']               = array_values($this->getTotalBdmStatusCounts('status', Submission::STATUS_ACCEPT, $labels, $request->fromDate, $request->toDate, $request->user_type, $request->bdmUser, $request->recUser, $request->type));
-        $data['submittedToEndClientCounts'] = array_values($this->getTotalBdmStatusCounts('pv_status', Submission::STATUS_SUBMITTED_TO_END_CLIENT, $labels, $request->fromDate, $request->toDate, $request->user_type, $request->bdmUser, $request->recUser, $request->type));
+        $data['acceptCounts']               = array_values($this->getTotalBdmStatusCounts('status', Submission::STATUS_ACCEPT, $labels, $request->fromDate, $request->toDate, $request->user_type, $request->bdmUser, $request->recUser, $request->type, $request->frame_type));
+        $data['submittedToEndClientCounts'] = array_values($this->getTotalBdmStatusCounts('pv_status', Submission::STATUS_SUBMITTED_TO_END_CLIENT, $labels, $request->fromDate, $request->toDate, $request->user_type, $request->bdmUser, $request->recUser, $request->type, $request->frame_type));
         $data['status']                     = 1;
         return $data;
     }
 
-    public function getTotalBdmStatusCounts($filedName,$status, $labels, $fromDate, $toDate, $userType, $bdmUser, $recruiterUser, $type)
+    public function getTotalBdmStatusCounts($filedName,$status, $labels, $fromDate, $toDate, $userType, $bdmUser, $recruiterUser, $type, $frameType)
     {
         $fromDate = \Carbon\Carbon::createFromFormat('m/d/Y', $fromDate)->format('Y-m-d');
         $toDate = \Carbon\Carbon::createFromFormat('m/d/Y', $toDate)->addDay()->format('Y-m-d');
@@ -829,20 +853,32 @@ class DashboardController extends Controller
         }
         $statusCounts = [];
         if($userType == 'bdm' && $bdmUser){
-            $statusCounts = Requirement::leftJoin('submissions', 'requirements.id', '=', 'submissions.requirement_id')
+            $collection = Requirement::leftJoin('submissions', 'requirements.id', '=', 'submissions.requirement_id')
                 ->whereIn('requirements.user_id', $bdmUser)
-                ->where('submissions.'.$filedName, $status)
-                ->whereBetween($date, [$fromDate, $toDate])
-                ->select(\DB::raw("DATE($date) AS date"), \DB::raw('COUNT((submissions.id)) AS count'))
+                ->where('submissions.'.$filedName, $status);
+
+            if($frameType == 'submission_frame'){
+                $collection->whereBetween('submissions.created_at', [$fromDate, $toDate]);
+            } else {
+                $collection->whereBetween($date, [$fromDate, $toDate]);
+            }
+
+            $statusCounts = $collection->select(\DB::raw("DATE($date) AS date"), \DB::raw('COUNT((submissions.id)) AS count'))
                 ->groupBy('date')
                 ->pluck('count','date')
                 ->toArray();
 
         } elseif($userType == 'recruiter' && $recruiterUser) {
-            $statusCounts = Submission::whereIn('user_id', $recruiterUser)
-                ->whereBetween($date, [$fromDate, $toDate])
-                ->where($filedName, $status)
-                ->select(\DB::raw("DATE($date) AS date"), \DB::raw('COUNT((id)) AS count'))
+            $collection = Submission::whereIn('user_id', $recruiterUser)
+                ->where($filedName, $status);
+
+            if($frameType == 'submission_frame'){
+                $collection->whereBetween('created_at', [$fromDate, $toDate]);
+            } else {
+                $collection->whereBetween($date, [$fromDate, $toDate]);
+            }
+
+            $statusCounts = $collection->select(\DB::raw("DATE($date) AS date"), \DB::raw('COUNT((id)) AS count'))
                 ->groupBy('date')
                 ->pluck('count','date')
                 ->toArray();
@@ -1064,6 +1100,10 @@ class DashboardController extends Controller
                 ->get();
         }
 
+        if(!$submissionCounts){
+            return [];
+        }
+
         return $this->getUserAndDateWiseCounts($type, $labels, $submissionCounts, $userType, $bdmUser, $recruiters);
     }
 
@@ -1109,6 +1149,10 @@ class DashboardController extends Controller
             }
             $submissionCounts = $collection->groupBy('date', 'requirements.user_id')
                 ->get();
+        }
+
+        if(!$submissionCounts){
+            return [];
         }
 
         return $this->getUserAndDateWiseCounts($type, $labels, $submissionCounts, $userType, $bdmUser, $recruiters);
@@ -1164,7 +1208,7 @@ class DashboardController extends Controller
 
         $labels                   = $this->getTypeWiseDateLabels($request->type, $request->fromDate, $request->toDate);
         $data['labels']           = $labels;
-        $data['bdmAcceptCount']   = $this->getIndividualStatusCounts('status', Submission::STATUS_ACCEPT, $labels, $request->fromDate, $request->toDate, $request->user_type, $request->bdmUser, $request->recUser, $request->type);
+        $data['bdmAcceptCount']   = $this->getIndividualStatusCounts('status', Submission::STATUS_ACCEPT, $labels, $request->fromDate, $request->toDate, $request->user_type, $request->bdmUser, $request->recUser, $request->type, $request->frame_type);
         $data['status']           = 1;
         return $data;
     }
@@ -1178,12 +1222,12 @@ class DashboardController extends Controller
 
         $labels                         = $this->getTypeWiseDateLabels($request->type, $request->fromDate, $request->toDate);
         $data['labels']                 = $labels;
-        $data['bdmSubToEndClientCount'] = $this->getIndividualStatusCounts('pv_status', Submission::STATUS_SUBMITTED_TO_END_CLIENT, $labels, $request->fromDate, $request->toDate, $request->user_type, $request->bdmUser, $request->recUser, $request->type);
+        $data['bdmSubToEndClientCount'] = $this->getIndividualStatusCounts('pv_status', Submission::STATUS_SUBMITTED_TO_END_CLIENT, $labels, $request->fromDate, $request->toDate, $request->user_type, $request->bdmUser, $request->recUser, $request->type, $request->frame_type);
         $data['status']                 = 1;
         return $data;
     }
 
-    public function getIndividualStatusCounts($filedName, $status, $labels, $fromDate, $toDate, $userType, $bdmUser, $recruiterUser, $type)
+    public function getIndividualStatusCounts($filedName, $status, $labels, $fromDate, $toDate, $userType, $bdmUser, $recruiterUser, $type, $frameType)
     {
         $fromDate = \Carbon\Carbon::createFromFormat('m/d/Y', $fromDate)->format('Y-m-d');
         $toDate = \Carbon\Carbon::createFromFormat('m/d/Y', $toDate)->addDay()->format('Y-m-d');
@@ -1194,24 +1238,37 @@ class DashboardController extends Controller
         }
         $statusCounts = [];
         if($userType == 'bdm' && $bdmUser){
-            $statusCounts = Requirement::leftJoin('submissions', 'requirements.id', '=', 'submissions.requirement_id')
+            $collection = Requirement::leftJoin('submissions', 'requirements.id', '=', 'submissions.requirement_id')
                 ->leftJoin('admins', 'admins.id', '=', 'requirements.user_id')
                 ->whereIn('requirements.user_id', $bdmUser)
-                ->where('submissions.'.$filedName, $status)
-                ->whereBetween($date, [$fromDate, $toDate])
-                ->select(\DB::raw("DATE($date) AS date"), \DB::raw('CONCAT(admins.id, "-", admins.name) AS user'), \DB::raw('COUNT(submissions.id) as count'), 'admins.id')
+                ->where('submissions.'.$filedName, $status);
+            if($frameType == 'submission_frame'){
+                $collection->whereBetween('submissions.created_at', [$fromDate, $toDate]);
+            } else {
+                $collection->whereBetween($date, [$fromDate, $toDate]);
+            }
+            $statusCounts = $collection->select(\DB::raw("DATE($date) AS date"), \DB::raw('CONCAT(admins.id, "-", admins.name) AS user'), \DB::raw('COUNT(submissions.id) as count'), 'admins.id')
                 ->groupBy('date', 'requirements.user_id')
                 ->get();
 
         } elseif($userType == 'recruiter' && $recruiterUser) {
-            $statusCounts = Submission::whereIn('user_id', $recruiterUser)
+            $collection = Submission::whereIn('user_id', $recruiterUser)
                 ->leftJoin('admins', 'admins.id', '=', 'submissions.user_id')
-                ->whereBetween($date, [$fromDate, $toDate])
-                ->where('submissions.'.$filedName, $status)
-                ->select(\DB::raw("DATE($date) AS date"), \DB::raw('CONCAT(admins.id, "-", admins.name) AS user'), \DB::raw('COUNT(submissions.id) as count'), 'admins.id')
+                ->where('submissions.'.$filedName, $status);
+            if($frameType == 'submission_frame'){
+                $collection->whereBetween('created_at', [$fromDate, $toDate]);
+            } else {
+                $collection->whereBetween($date, [$fromDate, $toDate]);
+            }
+            $statusCounts = $collection->select(\DB::raw("DATE($date) AS date"), \DB::raw('CONCAT(admins.id, "-", admins.name) AS user'), \DB::raw('COUNT(submissions.id) as count'), 'admins.id')
                 ->groupBy('date', 'submissions.user_id')
                 ->get();
         }
+
+        if(!$statusCounts){
+            return [];
+        }
+
         return $this->getUserAndDateWiseCounts($type, $labels, $statusCounts, $userType, $bdmUser, $recruiterUser);
     }
 }

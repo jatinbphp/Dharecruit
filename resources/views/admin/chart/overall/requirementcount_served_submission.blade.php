@@ -27,7 +27,7 @@
                                     $defaultDays = $settingRow->value;
                                 }
                             @endphp
-                            {!! Form::text('fromDate', \Carbon\Carbon::now()->subDays($defaultDays)->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker req-count-served-submission-datepicker form-control float-right', 'placeholder' => 'Select From Date', 'id' => 'req_count_served_submission_fromDate']) !!}
+                            {!! Form::text('fromDate', \Carbon\Carbon::now()->subDays($defaultDays)->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker req-count-served-submission-datepicker form-control float-right chart-from-datepicker char-datepick', 'placeholder' => 'Select From Date', 'id' => 'req_count_served_submission_fromDate']) !!}
                         </div>
                     </div>
                 </div>
@@ -40,7 +40,7 @@
                                     <i class="far fa-calendar-alt"></i>
                                 </span>
                             </div>
-                            {!! Form::text('toDate', \Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker req-count-served-submission-datepicker form-control float-right', 'placeholder' => 'Select To Date', 'id' => 'req_count_served_submission_toDate']) !!}
+                            {!! Form::text('toDate', \Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker req-count-served-submission-datepicker form-control float-right chart-to-datepicker char-datepick', 'placeholder' => 'Select To Date', 'id' => 'req_count_served_submission_toDate']) !!}
                         </div>
                     </div>
                 </div>
@@ -52,7 +52,7 @@
                                     <label class="control-label mt-1 h5" style="font-weight: 400" for="req_count_served_submission">Bdm:</label>
                                 </div>
                                 <div class="col-9">
-                                    {!! Form::text('', null, ['placeholder' => 'Please Select user', 'id' => 'req_count_served_submission']) !!}
+                                    {!! Form::text('', null, ['placeholder' => 'Please Select user', 'id' => 'req_count_served_submission', 'class' => 'chart-bdm-user']) !!}
                                 </div>
                             </div>
                         </div>
@@ -282,8 +282,8 @@
                                                 legendItems.push({
                                                     text: (!chart.legend.hideAll || typeof chart.legend.hideAll === 'undefined') ? 'Hide All' : 'Show All',
                                                     fontColor: '#000',
-                                                    fillStyle: '#000',// Box color
-                                                    strokeStyle: '#000', // LineCollor around box
+                                                    fillStyle: '#000',
+                                                    strokeStyle: '#000',
                                                 });
 
                                                 return legendItems;
@@ -328,6 +328,17 @@
         });
 
         $("#req_count_served_submission").on('change', function () {
+            if (window.globalSelectedBdmCheck && window.globalSelectedBdmCheck.includes('req_count_served_submission')) {
+                window.globalSelectedBdmCheck = window.globalSelectedBdmCheck.filter(item => item !== 'req_count_served_submission');
+                instance.destroy();
+                instance = $('#req_count_served_submission').comboTree({
+                    source : myData,
+                    isMultiple:true,
+                    selectAll:true,
+                    cascadeSelect:true,
+                    selected: (window.globalSelectedBdm) ? window.globalSelectedBdm : [],
+                });
+            }
             prepareReqCountServedSubmission();
         });
 

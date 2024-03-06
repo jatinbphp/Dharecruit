@@ -27,7 +27,7 @@
                                     $defaultDays = $settingRow->value;
                                 }
                             @endphp
-                            {!! Form::text('fromDate', \Carbon\Carbon::now()->subDays($defaultDays)->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker individual-req-count-datepicker form-control float-right', 'placeholder' => 'Select From Date', 'id' => 'individual_req_count_vs_served_fromDate']) !!}
+                            {!! Form::text('fromDate', \Carbon\Carbon::now()->subDays($defaultDays)->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker individual-req-count-datepicker form-control float-right chart-from-datepicker char-datepick', 'placeholder' => 'Select From Date', 'id' => 'individual_req_count_vs_served_fromDate']) !!}
                         </div>
                     </div>
                 </div>
@@ -40,7 +40,7 @@
                                     <i class="far fa-calendar-alt"></i>
                                 </span>
                             </div>
-                            {!! Form::text('toDate', \Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker individual-req-count-datepicker form-control float-right', 'placeholder' => 'Select To Date', 'id' => 'individual_req_count_vs_served_toDate']) !!}
+                            {!! Form::text('toDate', \Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker individual-req-count-datepicker form-control float-right chart-to-datepicker char-datepick', 'placeholder' => 'Select To Date', 'id' => 'individual_req_count_vs_served_toDate']) !!}
                         </div>
                     </div>
                 </div>
@@ -52,7 +52,7 @@
                                     <label class="control-label mt-1 h5" style="font-weight: 400" for="individual_req_count">Bdm:</label>
                                 </div>
                                 <div class="col-9">
-                                    {!! Form::text('', null, ['placeholder' => 'Please Select User', 'id' => 'individual_req_count']) !!}
+                                    {!! Form::text('', null, ['placeholder' => 'Please Select User', 'id' => 'individual_req_count', 'class' => 'chart-bdm-user']) !!}
                                 </div>
                             </div>
                         </div>
@@ -100,7 +100,7 @@
                             <select style="width: 100%" class="select2" id="individual_requirement_count_step_size">
                                 <option value="0">Please Select</option>
                                 @for ($i = 1; $i <= 10; $i++) {
-                                <option value="{{$i}}">{{$i}}</option>
+                                    <option value="{{$i}}">{{$i}}</option>
                                 @endfor
                             </select>
                         </div>
@@ -310,6 +310,7 @@
         }
 
         $('.individual-req-count-datepicker').change(function (){
+            $('#individual_requirement_count_step_size').val("0").trigger("change");
             $('.individual-req-count-day-type').parent().removeClass('active');
             prepareindividualrequirementCount();
         });
@@ -335,6 +336,19 @@
         });
 
         $("#individual_req_count").on('change', function () {
+            console.log(window.globalSelectedBdmCheck);
+            console.log('ca;;es');
+            if (window.globalSelectedBdmCheck && window.globalSelectedBdmCheck.includes('individual_req_count')) {
+                window.globalSelectedBdmCheck = window.globalSelectedBdmCheck.filter(item => item !== 'individual_req_count');
+                instance.destroy();
+                instance = $('#individual_req_count').comboTree({
+                    source : myData,
+                    isMultiple:true,
+                    selectAll:true,
+                    cascadeSelect:true,
+                    selected: (window.globalSelectedBdm) ? window.globalSelectedBdm : [],
+                });
+            }
             prepareindividualrequirementCount();
         });
 

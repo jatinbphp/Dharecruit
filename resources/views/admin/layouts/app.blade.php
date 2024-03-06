@@ -187,6 +187,7 @@
             padding: 0 5px;
             font-size: 15px;
             font-weight: bold;
+            background-color: white;
         }
 
         .element-border {
