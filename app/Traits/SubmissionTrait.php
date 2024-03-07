@@ -25,6 +25,7 @@ trait SubmissionTrait{
     protected $_userIdWiseTotalEmployerCount = [];
     protected $_userIdWiseTotalNewEmployeeCount = [];
     protected $_userIdWiseTotalNewEmployerCount = [];
+    protected $_userIdWiseRecruiterTotalAvgTime = [];
 
     public function getRecruiterUserHeadingData(): array
     {
@@ -40,7 +41,9 @@ trait SubmissionTrait{
             'heading_servable_per'       =>'Servable%',
             'heading_sub_sent'           =>'Sub Sent',
             'heading_uniq_sub'           =>'Uniq Sub',
+            'heading_avg_time'           => 'Avg Time (in minutes)',
             'heading_accept'             => 'Accept',
+            'heading_accept_percentage'  => 'Accept Percentage',
             'heading_rejected'           => 'Rejected',
             'heading_pending'            => 'Pending',
             'heading_un_viewed'          => 'Unviewed',
@@ -74,7 +77,9 @@ trait SubmissionTrait{
             'heading_servable_per'       =>'Servable%',
             'heading_sub_sent'           =>'Sub Sent',
             'heading_uniq_sub'           =>'Uniq Sub',
+            'heading_avg_time'           => 'Avg Time (in minutes)',
             'heading_accept'             => 'Accept',
+            'heading_accept_percentage'  => 'Accept Percentage',
             'heading_rejected'           => 'Rejected',
             'heading_pending'            => 'Pending',
             'heading_un_viewed'          => 'Unviewed',
@@ -108,6 +113,8 @@ trait SubmissionTrait{
         $totalAllotedRequirements  = $this->getTotalRecruiterAllotedRequirementCount($date, $userId, $recruiters, $type);
         $servedRequirements        = $this->getTotalRecruiterServedRequirementCount($date, $userId, $recruiters, $type);
         $servablPer                = $this->getPercentage($servedRequirements, $totalAllotedRequirements);
+        $submissions               = $this->getTotalRecruiterSubmissionSentCount($date, $userId, $recruiters, $type);
+        $bdmAcceptCount            = $this->getTotalRecruiterStatusCount('status', $submissionModel::STATUS_ACCEPT, $date, $userId, $recruiters, $type, $request->frame_type);
 
         return [
             'heading_type'                   => $headingType,
@@ -119,25 +126,27 @@ trait SubmissionTrait{
             'served'                         => $servedRequirements,
             'unserved'                       => $this->getTotalRecruiterUnServedRequirementCount($date, $userId, $recruiters, $type),
             'servable_per'                   => $servablPer,
-            'submission_sent'                => $this->getTotalRecruiterSubmissionSentCount($date, $userId, $recruiters, $type),
+            'submission_sent'                => $submissions,
             'unique_submission_sent'         => $this->getTotalRecruiterSubmissionSentCount($date, $userId, $recruiters, $type, 1   ),
-            'bdm_accept'                     => $this->getTotalRecruiterStatusCount('status', $submissionModel::STATUS_ACCEPT, $date, $userId, $recruiters, $type),
-            'bdm_rejected'                   => $this->getTotalRecruiterStatusCount('status', $submissionModel::STATUS_REJECTED, $date, $userId, $recruiters, $type),
-            'bdm_pending'                    => $this->getTotalRecruiterStatusCount('status', $submissionModel::STATUS_PENDING, $date, $userId, $recruiters, $type),
-            'bdm_unviewed'                   => $this->getTotalRecruiterStatusCount('status', $submissionModel::STATUS_NOT_VIEWED, $date, $userId, $recruiters, $type),
-            'vendor_no_responce'             => $this->getTotalRecruiterStatusCount('pv_status', $submissionModel::STATUS_NO_RESPONSE_FROM_PV, $date, $userId, $recruiters, $type),
-            'vendor_rejected_by_pv'          => $this->getTotalRecruiterStatusCount('pv_status', $submissionModel::STATUS_REJECTED_BY_PV, $date, $userId, $recruiters, $type),
-            'vendor_rejected_by_client'      => $this->getTotalRecruiterStatusCount('pv_status', $submissionModel::STATUS_REJECTED_BY_END_CLIENT, $date, $userId, $recruiters, $type),
-            'vendor_submitted_to_end_client' => $this->getTotalRecruiterStatusCount('pv_status', $submissionModel::STATUS_SUBMITTED_TO_END_CLIENT, $date, $userId, $recruiters, $type),
-            'vendor_position_closed'         => $this->getTotalRecruiterStatusCount('pv_status', $submissionModel::STATUS_POSITION_CLOSED, $date, $userId, $recruiters, $type),
+            'avg_time'                       => $this->getRecAvgTime($date, $userId, $recruiters, $type),
+            'bdm_accept'                     => $bdmAcceptCount,
+            'accept_percentage'              => $this->getStatusPercentage($bdmAcceptCount, $submissions),
+            'bdm_rejected'                   => $this->getTotalRecruiterStatusCount('status', $submissionModel::STATUS_REJECTED, $date, $userId, $recruiters, $type, $request->frame_type),
+            'bdm_pending'                    => $this->getTotalRecruiterStatusCount('status', $submissionModel::STATUS_PENDING, $date, $userId, $recruiters, $type, $request->frame_type),
+            'bdm_unviewed'                   => $this->getTotalRecruiterStatusCount('status', $submissionModel::STATUS_NOT_VIEWED, $date, $userId, $recruiters, $type, $request->frame_type),
+            'vendor_no_responce'             => $this->getTotalRecruiterStatusCount('pv_status', $submissionModel::STATUS_NO_RESPONSE_FROM_PV, $date, $userId, $recruiters, $type, $request->frame_type),
+            'vendor_rejected_by_pv'          => $this->getTotalRecruiterStatusCount('pv_status', $submissionModel::STATUS_REJECTED_BY_PV, $date, $userId, $recruiters, $type, $request->frame_type),
+            'vendor_rejected_by_client'      => $this->getTotalRecruiterStatusCount('pv_status', $submissionModel::STATUS_REJECTED_BY_END_CLIENT, $date, $userId, $recruiters, $type, $request->frame_type),
+            'vendor_submitted_to_end_client' => $this->getTotalRecruiterStatusCount('pv_status', $submissionModel::STATUS_SUBMITTED_TO_END_CLIENT, $date, $userId, $recruiters, $type, $request->frame_type),
+            'vendor_position_closed'         => $this->getTotalRecruiterStatusCount('pv_status', $submissionModel::STATUS_POSITION_CLOSED, $date, $userId, $recruiters, $type, $request->frame_type),
             'interview_count'                => $this->getTotalRecruiterNewInterviewCount($date, $userId, $recruiters, $type),
-            'client_scheduled'               => $this->getTotalRecruiterClientStatusCount($interviewModel::STATUS_SCHEDULED, $date, $userId, $recruiters, $type),
-            'client_rescheduled'             => $this->getTotalRecruiterClientStatusCount($interviewModel::STATUS_RE_SCHEDULED, $date, $userId, $recruiters, $type),
-            'client_selected_for_next_round' => $this->getTotalRecruiterClientStatusCount($interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND, $date, $userId, $recruiters, $type),
-            'client_waiting_feedback'        => $this->getTotalRecruiterClientStatusCount($interviewModel::STATUS_WAITING_FEEDBACK, $date, $userId, $recruiters, $type),
-            'client_confirmed_position'      => $this->getTotalRecruiterClientStatusCount($interviewModel::STATUS_CONFIRMED_POSITION, $date, $userId, $recruiters, $type),
-            'client_rejected'                => $this->getTotalRecruiterClientStatusCount($interviewModel::STATUS_REJECTED, $date, $userId, $recruiters, $type),
-            'client_backout'                 => $this->getTotalRecruiterClientStatusCount($interviewModel::STATUS_BACKOUT, $date, $userId, $recruiters, $type),
+            'client_scheduled'               => $this->getTotalRecruiterClientStatusCount($interviewModel::STATUS_SCHEDULED, $date, $userId, $recruiters, $type, $request->frame_type),
+            'client_rescheduled'             => $this->getTotalRecruiterClientStatusCount($interviewModel::STATUS_RE_SCHEDULED, $date, $userId, $recruiters, $type, $request->frame_type),
+            'client_selected_for_next_round' => $this->getTotalRecruiterClientStatusCount($interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND, $date, $userId, $recruiters, $type, $request->frame_type),
+            'client_waiting_feedback'        => $this->getTotalRecruiterClientStatusCount($interviewModel::STATUS_WAITING_FEEDBACK, $date, $userId, $recruiters, $type, $request->frame_type),
+            'client_confirmed_position'      => $this->getTotalRecruiterClientStatusCount($interviewModel::STATUS_CONFIRMED_POSITION, $date, $userId, $recruiters, $type, $request->frame_type),
+            'client_rejected'                => $this->getTotalRecruiterClientStatusCount($interviewModel::STATUS_REJECTED, $date, $userId, $recruiters, $type, $request->frame_type),
+            'client_backout'                 => $this->getTotalRecruiterClientStatusCount($interviewModel::STATUS_BACKOUT, $date, $userId, $recruiters, $type, $request->frame_type),
         ];
     }
 
@@ -224,14 +233,24 @@ trait SubmissionTrait{
         return 0;
     }
 
-    public function getTotalRecruiterStatusCount($filedName, $status, $date, $userId, $recruiters, $type): int
+    public function getTotalRecruiterStatusCount($filedName, $status, $date, $userId, $recruiters, $type, $frameType): int
     {
+        $dateFiled = 'submissions.bdm_status_updated_at';
+        if($filedName == 'pv_status'){
+            $dateFiled = 'submissions.pv_status_updated_at';
+        }
         if(!$this->_userIdWiseRecruiterStatusCount || !isset($this->_userIdWiseRecruiterStatusCount[$type]) || !isset($this->_userIdWiseRecruiterStatusCount[$type][$status])){
             $collection = Submission::select('user_id')
                 ->where($filedName, $status)
-                ->whereIn('user_id', $recruiters)
-                ->whereBetween('updated_at', $date)
-                ->selectRaw(\DB::raw('COUNT(id) as count'))
+                ->whereIn('user_id', $recruiters);
+
+            if($frameType == 'submission_frame'){
+                $collection->whereBetween('submissions.created_at', $date);
+            } else {
+                $collection->whereBetween($dateFiled, $date);
+            }
+
+            $collection->selectRaw(\DB::raw('COUNT(id) as count'))
                 ->groupBy('user_id');
 
             $this->_userIdWiseRecruiterStatusCount[$type][$status] = $collection->pluck('count', 'user_id')->toArray();
@@ -244,14 +263,20 @@ trait SubmissionTrait{
         return 0;
     }
 
-    public function getTotalRecruiterClientStatusCount($status, $date, $userId, $recruiters, $type): int
+    public function getTotalRecruiterClientStatusCount($status, $date, $userId, $recruiters, $type, $frameType): int
     {
         if(!$this->_userIdWiseRecruiterClientStatusCount || !isset($this->_userIdWiseRecruiterClientStatusCount[$type]) || !isset($this->_userIdWiseRecruiterClientStatusCount[$type][$status])){
-            $this->_userIdWiseRecruiterClientStatusCount[$type][$status] = Submission::leftJoin('interviews', 'submissions.id', '=', 'interviews.submission_id')
+            $collection = Submission::leftJoin('interviews', 'submissions.id', '=', 'interviews.submission_id')
                 ->where('interviews.status', $status)
-                ->whereBetween('interviews.updated_at', $date)
-                ->whereIn('submissions.user_id', $recruiters)
-                ->groupBy('submissions.user_id')
+                ->whereIn('submissions.user_id', $recruiters);
+
+            if($frameType == 'submission_frame'){
+                $collection->whereBetween('submissions.created_at', $date);
+            } else {
+                $collection->whereBetween('submissions.interview_status_updated_at', $date);
+            }
+
+            $this->_userIdWiseRecruiterClientStatusCount[$type][$status] = $collection->groupBy('submissions.user_id')
                 ->selectRaw('submissions.user_id, COUNT(interviews.id) as count')
                 ->pluck('count', 'user_id')
                 ->toArray();
@@ -401,5 +426,31 @@ trait SubmissionTrait{
             ->toArray();
 
         return array_sum($counts);
+    }
+
+    public function getRecAvgTime($date, $userId, $recruiters, $type): int
+    {
+        if(!$this->_userIdWiseRecruiterTotalAvgTime || !isset($this->_userIdWiseRecruiterTotalAvgTime[$type])){
+            $usersData = Submission::selectRaw('submissions.user_id, SUM(TIMESTAMPDIFF(MINUTE, requirements.created_at, submissions.created_at)) AS total_time, COUNT(*) AS count')
+                ->join('requirements', 'requirements.id', '=', 'submissions.requirement_id')
+                ->whereIn('submissions.user_id', $recruiters)
+                ->whereBetween('submissions.created_at', $date)
+                ->groupBy('submissions.user_id')
+                ->get();
+
+            $result = [];
+
+            foreach ($usersData as $userData) {
+                $result[$userData->user_id] = round(($userData->total_time / (($userData->count) ? $userData->count : 1)), 2);
+            }
+
+            $this->_userIdWiseRecruiterTotalAvgTime[$type] = $result;
+        }
+
+        if(isset($this->_userIdWiseRecruiterTotalAvgTime[$type][$userId])){
+            return $this->_userIdWiseRecruiterTotalAvgTime[$type][$userId];
+        }
+
+        return 0;
     }
 }

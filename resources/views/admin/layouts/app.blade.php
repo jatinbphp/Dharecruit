@@ -209,6 +209,18 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+
+        .sticky-col {
+            position: sticky !important;
+            left: 0;
+            background-color: #fff; /* Change as needed */
+            z-index: 999;
+        }
+        .sticky-badge {
+            position: sticky !important;
+            left: 0;
+            z-index: 999;
+        }
     </style>
 </head>
 <body class="hold-transition sidebar-mini sidebar-collapse" id="bodyid">

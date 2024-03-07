@@ -41,6 +41,12 @@
                                     {!! Form::checkbox('', '', null, ['id' => 'showDate', 'class' => 'toggle-checkbox toggle-change', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
                                     <label class="form-check-label pl-2" for="showDate">Show Date</label>
                                 </div>
+                                @if((Auth::user()->role == 'admin' || (Auth::user()->role == 'recruiter' && $menu == 'My Requirements') || (isLeadUser()) && $menu == 'Team Requirements'))
+                                    <div class="col-md-3 mt-2">
+                                        {!! Form::checkbox('', '', null, ['id' => 'showMerge', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
+                                        <label class="form-check-label pl-2" for="showMerge">Show Merge</label>
+                                    </div>
+                                @endif
                                 @if(Auth::user()->role == 'recruiter' && $type != 3)
                                     <div class="col-md-3 mt-2">
                                         {!! Form::checkbox('', '', null, ['id' => 'show_my_candidate', 'class' => 'toggle-checkbox toggle-change', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
@@ -146,6 +152,9 @@
                         formData[field.name] = field.value;
                     });
                     d = $.extend(d, formData);
+                    if($('#showMerge').is(':checked')){
+                        d.show_merge = '1';
+                    }
                     return d;
                 }
             },
@@ -162,11 +171,11 @@
                 }},
                 {data: 'job_id', 'width': '6%', name: 'job_id', render: function (data, type, full){
                         @if(getLoggedInUserRole() == 'admin' || isManager())
-                            // data += '<div class="icheck-danger d-inline">';
-                            // data += ' <input type="checkbox" onclick="toggleRedRequirement('+full['id']+')" id="'+full['id']+'">';
-                            // data += '<label for="'+full['id']+'">';
-                            // data += '</label>';
-                            // data += '</div>';
+                            data += '<div class="icheck-danger d-inline">';
+                            data += ' <input type="checkbox" onclick="toggleRedRequirement('+full['id']+')" id="'+full['id']+'">';
+                            data += '<label for="'+full['id']+'">';
+                            data += '</label>';
+                            data += '</div>';
                         @endif
                         if(full['is_red'] == 1){
                             jQuery('#'+full['id']).prop('checked', true);
@@ -197,6 +206,38 @@
                 {data: 'action', "width": "12%", name: 'action', orderable: false, searchable: false},
             ],
             order: [[1, 'desc']],
+            drawCallback: function() {
+                if($('#showMerge').is(':checked')){
+                    $('#requirementTable tbody tr').each(function(trIndex) {var currentTr = this;
+                        var rowType = '';
+                        if($(this).hasClass('parent-row')){
+                            rowType = 'parant-row';
+                        }
+                        if($(this).hasClass('child-row')){
+                            rowType = 'child-row';
+                        }
+                        if($.trim(rowType) != ''){
+                            $(this).find('td').each(function(tdIndex){
+                                $(this).addClass('color-group');
+                                if(rowType == 'parant-row'){
+                                    $(this).addClass('border-bottom');
+                                }
+                                if(rowType == 'child-row'){
+                                    if(trIndex == 0){
+                                        $(this).addClass('border-top');
+                                    }
+                                }
+                                if (tdIndex === 0) {
+                                    $(this).addClass('border-left');
+                                }
+                                if (tdIndex === $(this).siblings().length) {
+                                    $(this).addClass('border-right');
+                                }
+                            })
+                        }
+                    });
+                }
+            },
             rowCallback: function( row, data, index ) {
                 $(row).attr('id', 'row-'+data.id);
                 if(data.is_red == 1){
@@ -267,6 +308,11 @@
                 }
             });
         });
+
+        $('#showMerge').change(function(){
+            $("#requirementTable").dataTable().fnDestroy();
+            datatables();
+        })
     });
 
     function addWaiting(id)

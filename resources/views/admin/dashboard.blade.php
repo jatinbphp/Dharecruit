@@ -77,7 +77,7 @@
                                                         <i class="far fa-calendar-alt"></i>
                                                     </span>
                                                 </div>
-                                                {!! Form::text('fromDate',\Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker global-date-datepicker form-control float-right', 'placeholder' => 'Select From Date', 'id' => 'global_from_date', 'style' => 'z-index : 999']) !!}
+                                                {!! Form::text('fromDate',\Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker global-date-datepicker form-control float-right', 'placeholder' => 'Select From Date', 'id' => 'global_from_date']) !!}
                                             </div>
                                         </div>
                                     </div>
@@ -90,26 +90,30 @@
                                                         <i class="far fa-calendar-alt"></i>
                                                     </span>
                                                 </div>
-                                                {!! Form::text('fromDate',\Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker global-date-datepicker form-control float-right', 'placeholder' => 'Select To Date', 'id' => 'global_to_date', 'style' => 'z-index : 999']) !!}
+                                                {!! Form::text('fromDate',\Carbon\Carbon::now()->format('m/d/Y'), ['autocomplete' => 'off', 'class' => 'datepicker global-date-datepicker form-control float-right', 'placeholder' => 'Select To Date', 'id' => 'global_to_date']) !!}
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-3">
-                                        <div class="form-group">
-                                            <div class="input-group">
-                                                <label class="control-label mr-3 mt-1 h5" style="font-weight: 400" for="global_bdm_user">Bdm: </label>
-                                                {!! Form::text('', null, ['placeholder' => 'Please Select BDM User', 'id' => 'global_bdm_user']) !!}
+                                    @if(in_array(getLoggedInUserRole(), ['admin', 'bdm']))
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <label class="control-label mr-3 mt-1 h5" style="font-weight: 400" for="global_bdm_user">Bdm: </label>
+                                                    {!! Form::text('', null, ['placeholder' => 'Please Select BDM User', 'id' => 'global_bdm_user']) !!}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-3">
-                                        <div class="form-group">
-                                            <div class="input-group">
-                                                <label class="control-label mr-3 mt-1 h5" style="font-weight: 400" for="global_rec_user">Rec: </label>
-                                                {!! Form::text('', null, ['placeholder' => 'Please Select Rec User', 'id' => 'global_rec_user']) !!}
+                                    @endif
+                                    @if(in_array(getLoggedInUserRole(), ['admin', 'recruiter']))
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <label class="control-label mr-3 mt-1 h5" style="font-weight: 400" for="global_rec_user">Rec: </label>
+                                                    {!! Form::text('', null, ['placeholder' => 'Please Select Rec User', 'id' => 'global_rec_user']) !!}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    @endif
                                     <div class="col-2">
                                         <div class="btn-group btn-group-toggle mb-2" data-toggle="buttons">
                                             <label class="btn btn-sm btn-outline-danger">
@@ -264,7 +268,6 @@
         });
 
         $('.global-frame-type').change(function (){
-            console.log($(this).attr('data-type'));
             if($(this).attr('data-type') == 'time_frame'){
                 $('.time-frame').trigger('click');
             } else {

@@ -232,11 +232,11 @@ trait CommonTrait {
         return 0;
     }
 
-    public function getPVCompanyWisePocStatusCount($pvCompanyName, $filedName, $status, $pocName, $pocNames, $date): int
+    public function getPVCompanyWisePocStatusCount($pvCompanyName, $filedName, $status, $pocName, $pocNames, $date, $frameType): int
     {
         $pvCompanyKey = $this->getKey($pvCompanyName);
         if(!$this->_pvCompanyWisePocTotalStatusCounts || !isset($this->_pvCompanyWisePocTotalStatusCounts[$pvCompanyKey][$status])){
-            $collection = $this->getJoin($status, $filedName, $date);
+            $collection = $this->getJoin($status, $filedName, $date, $frameType);
             $collection->whereIn('requirements.poc_name', $pocNames)
                 ->where('requirements.pv_company_name', $pvCompanyName)
                 ->groupBy('requirements.poc_name')
@@ -252,7 +252,7 @@ trait CommonTrait {
         return 0;
     }
 
-    public function getPVCompanyWisePocClientStatusCount($pvCompanyName, $status, $pocName, $pocNames, $date): int
+    public function getPVCompanyWisePocClientStatusCount($pvCompanyName, $status, $pocName, $pocNames, $date, $frameType): int
     {
         $pvCompanyKey = $this->getKey($pvCompanyName);
         if(!$this->_pocWiseTotalClientStatusCounts || !isset($this->_pocWiseTotalClientStatusCounts[$pvCompanyKey][$status])){
@@ -263,7 +263,11 @@ trait CommonTrait {
 
             }
             if($date && isset($date['from']) && $date['to']){
-                $collection->whereBetween('interviews.updated_at', $date);
+                if($frameType == 'submission_frame'){
+                    $collection->whereBetween('submissions.created_at', $date);
+                } else {
+                    $collection->whereBetween('submissions.interview_status_updated_at', $date);
+                }
             }
             $collection->whereIn('requirements.poc_name', $pocNames)
                 ->where('requirements.pv_company_name', $pvCompanyName)
@@ -429,8 +433,12 @@ trait CommonTrait {
         return '';
     }
 
-    public function getJoin($status, $filedName, $date)
+    public function getJoin($status, $filedName, $date, $frameType)
     {
+        $dateFiled = 'submissions.bdm_status_updated_at';
+        if($filedName == 'pv_status'){
+            $dateFiled = 'submissions.pv_status_updated_at';
+        }
         $collection = Requirement::leftJoin('submissions', 'requirements.id', '=', 'submissions.requirement_id');
         if ($status == Submission::STATUS_NOT_VIEWED) {
             $collection->where('submissions.is_show', '0');
@@ -441,7 +449,11 @@ trait CommonTrait {
             $collection->where("submissions.$filedName", $status);
         }
         if ($date && isset($date['from']) && $date['to']) {
-            $collection->whereBetween('submissions.updated_at', $date);
+            if($frameType == 'submission_frame'){
+                $collection->whereBetween('submissions.created_at', $date);
+            } else {
+                $collection->whereBetween($dateFiled, $date);
+            }
         }
         return $collection;
     }
@@ -587,8 +599,12 @@ trait CommonTrait {
         return 0;
     }
 
-    public function getEmployerWiseEmployeeStatusCount($employerName, $filedName, $status, $employeeName, $allEmployeeNames, $date): int
+    public function getEmployerWiseEmployeeStatusCount($employerName, $filedName, $status, $employeeName, $allEmployeeNames, $date, $frameType): int
     {
+        $dateFiled = 'submissions.bdm_status_updated_at';
+        if($filedName == 'pv_status'){
+            $dateFiled = 'submissions.pv_status_updated_at';
+        }
         $employerNameKey = $this->getKey($employerName);
         if(!$this->_employerWiseEmployeeTotalStatusCounts || !isset($this->_employerWiseEmployeeTotalStatusCounts[$employerNameKey][$status])){
             $collection = Submission::select(\DB::raw('employee_name'), \DB::raw("count(id) as count"))
@@ -604,12 +620,13 @@ trait CommonTrait {
                 $collection->where("submissions.$filedName", $status);
             }
             if ($date && isset($date['from']) && $date['to']) {
-                $collection->whereBetween('submissions.updated_at', $date);
+                if($frameType == 'submission_frame'){
+                    $collection->whereBetween('submissions.created_at', $date);
+                } else {
+                    $collection->whereBetween($dateFiled, $date);
+                }
             }
 
-            if($date && isset($date['from']) && $date['to']){
-                $collection->whereBetween('created_at', $date);
-            }
             $collection->groupBy('employer_name');
             $this->_employerWiseEmployeeTotalStatusCounts[$employerNameKey][$status] = $collection->pluck('count', 'employee_name')->toArray();
         }
@@ -622,7 +639,7 @@ trait CommonTrait {
         return 0;
     }
 
-    public function getEmployerWiseEmployeeClientStatusCount($employerName, $status, $employeeName, $allEmployeeNames, $date): int
+    public function getEmployerWiseEmployeeClientStatusCount($employerName, $status, $employeeName, $allEmployeeNames, $date, $frameType): int
     {
         $employerNameKey = $this->getKey($employerName);
         if(!$this->_employerWiseEmployeeTotalClientStatusCounts || !isset($this->_employerWiseEmployeeTotalClientStatusCounts[$employerNameKey][$status])){
@@ -632,7 +649,11 @@ trait CommonTrait {
 
             }
             if($date && isset($date['from']) && $date['to']){
-                $collection->whereBetween('interviews.updated_at', $date);
+                if($frameType == 'submission_frame'){
+                    $collection->whereBetween('submissions.created_at', $date);
+                } else {
+                    $collection->whereBetween('submissions.interview_status_updated_at', $date);
+                }
             }
             $collection->whereIn('submissions.employee_name', $allEmployeeNames)
                 ->where('submissions.employer_name', $employerName)
@@ -797,5 +818,17 @@ trait CommonTrait {
         }
 
         return '';
+    }
+
+    public function getStatusPercentage($numerator, $denominator, $isSign = true)
+    {
+        if($numerator == 0 || $denominator == 0){
+            return ;
+        }
+        $percentage = round((($numerator / $denominator) * 100), 2);
+        if($isSign && $percentage){
+            $percentage .= '%';
+        }
+        return $percentage;
     }
 }

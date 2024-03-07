@@ -144,6 +144,19 @@
                                                     {!! Form::checkbox('', '', null, ['id' => 'show_user_wise_data', 'class' => 'toggle-checkbox', 'checked' => true, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
                                                 </div>
                                             </div>
+                                            <div class="col-4">
+                                                <div class="form-group">
+                                                    <label class="control-label" for="data_toggle">Select Frame</label><br>
+                                                    <div class="btn-group btn-group-toggle mb-2" data-toggle="buttons">
+                                                        <label class="btn btn-sm btn-outline-danger">
+                                                            <input type="radio" class="sub-received-frame-type sub-received-frame-type-time-frame" data-type="time_frame" name="frame_type" value="time_frame" autocomplete="off">Time Frame
+                                                        </label>
+                                                        <label class="btn btn-sm btn-outline-danger">
+                                                            <input type="radio" class="sub-received-frame-type" data-type="submission_frame" name="frame_type" value="submission_frame" autocomplete="off">Submission Frame
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                         <button class="btn btn-info float-right" onclick="searchReportData()">Search</button>
                                         <button class="btn btn-default float-right mr-2" onclick="clearReportData()">Clear</button>
@@ -166,7 +179,8 @@
 @section('jquery')
     <script type="text/javascript">
         $( document ).ready(function(){
-            searchReportData();
+            $('.sub-received-frame-type-time-frame').trigger('click');
+            // searchReportData();
             $('#show_user_wise_data').bootstrapToggle('off');
         });
 
@@ -227,6 +241,10 @@
             }else{
                 $('.user-wise-data').hide();
             }
+        });
+
+        $('.sub-received-frame-type').change(function (){
+            searchReportData();
         });
     </script>
 @endsection

@@ -101,23 +101,23 @@ trait PVCompanyTrait {
             'original_req_count'                => $this->getRequirementCounts($pvCompany, $pvCompanies, $date),
             'unique_req_count'                  => $totalUniqueRequirement,
             'submission_count'                  => $this->getTotalSubmissionCounts($pvCompany, $pvCompanies, $date),
-            'status_accepted'                   => $this->getPVCompanyWiseStatusCount('status',$submissionModel::STATUS_ACCEPT , $pvCompany, $pvCompanies, $date),
-            'status_rejected'                   => $this->getPVCompanyWiseStatusCount('status',$submissionModel::STATUS_REJECTED , $pvCompany, $pvCompanies, $date),
-            'status_pending'                    => $this->getPVCompanyWiseStatusCount('status',$submissionModel::STATUS_PENDING , $pvCompany, $pvCompanies, $date),
-            'status_unviewed'                   => $this->getPVCompanyWiseStatusCount('status',$submissionModel::STATUS_NOT_VIEWED , $pvCompany, $pvCompanies, $date),
-            'status_vendor_no_response'         => $this->getPVCompanyWiseStatusCount('pv_status',$submissionModel::STATUS_NO_RESPONSE_FROM_PV , $pvCompany, $pvCompanies, $date),
-            'status_vendor_rejected_by_pv'      => $this->getPVCompanyWiseStatusCount('pv_status',$submissionModel::STATUS_REJECTED_BY_PV , $pvCompany, $pvCompanies, $date),
-            'status_rejected_by_client'         => $this->getPVCompanyWiseStatusCount('pv_status',$submissionModel::STATUS_REJECTED_BY_END_CLIENT , $pvCompany, $pvCompanies, $date),
-            'status_submitted_to_end_client'    => $this->getPVCompanyWiseStatusCount('pv_status',$submissionModel::STATUS_SUBMITTED_TO_END_CLIENT , $pvCompany, $pvCompanies, $date),
-            'status_position_closed'            => $this->getPVCompanyWiseStatusCount('pv_status',$submissionModel::STATUS_POSITION_CLOSED , $pvCompany, $pvCompanies, $date),
-            'status_scheduled'                  => $this->getCompanyWiseTotalClientStatusCount($interviewModel::STATUS_SCHEDULED, $pvCompany, $pvCompanies, $date),
-            'status_re_scheduled'               => $this->getCompanyWiseTotalClientStatusCount($interviewModel::STATUS_RE_SCHEDULED, $pvCompany, $pvCompanies, $date),
-            'status_selected_for_another_round' => $this->getCompanyWiseTotalClientStatusCount($interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND, $pvCompany, $pvCompanies, $date),
-            'status_waiting_feedback'           => $this->getCompanyWiseTotalClientStatusCount($interviewModel::STATUS_WAITING_FEEDBACK, $pvCompany, $pvCompanies, $date),
-            'status_position_confirm'           => $this->getCompanyWiseTotalClientStatusCount($interviewModel::STATUS_CONFIRMED_POSITION, $pvCompany, $pvCompanies, $date),
-            'status_client_rejected'            => $this->getCompanyWiseTotalClientStatusCount($interviewModel::STATUS_REJECTED, $pvCompany, $pvCompanies, $date),
-            'status_backout'                    => $this->getCompanyWiseTotalClientStatusCount($interviewModel::STATUS_BACKOUT, $pvCompany, $pvCompanies, $date),
-            'client_status_total'               => $this->getCompanyWiseTotalClientStatusCount('all', $pvCompany, $pvCompanies, $date),
+            'status_accepted'                   => $this->getPVCompanyWiseStatusCount('status',$submissionModel::STATUS_ACCEPT , $pvCompany, $pvCompanies, $date, $request->frame_type),
+            'status_rejected'                   => $this->getPVCompanyWiseStatusCount('status',$submissionModel::STATUS_REJECTED , $pvCompany, $pvCompanies, $date, $request->frame_type),
+            'status_pending'                    => $this->getPVCompanyWiseStatusCount('status',$submissionModel::STATUS_PENDING , $pvCompany, $pvCompanies, $date, $request->frame_type),
+            'status_unviewed'                   => $this->getPVCompanyWiseStatusCount('status',$submissionModel::STATUS_NOT_VIEWED , $pvCompany, $pvCompanies, $date, $request->frame_type),
+            'status_vendor_no_response'         => $this->getPVCompanyWiseStatusCount('pv_status',$submissionModel::STATUS_NO_RESPONSE_FROM_PV , $pvCompany, $pvCompanies, $date, $request->frame_type),
+            'status_vendor_rejected_by_pv'      => $this->getPVCompanyWiseStatusCount('pv_status',$submissionModel::STATUS_REJECTED_BY_PV , $pvCompany, $pvCompanies, $date, $request->frame_type),
+            'status_rejected_by_client'         => $this->getPVCompanyWiseStatusCount('pv_status',$submissionModel::STATUS_REJECTED_BY_END_CLIENT , $pvCompany, $pvCompanies, $date, $request->frame_type),
+            'status_submitted_to_end_client'    => $this->getPVCompanyWiseStatusCount('pv_status',$submissionModel::STATUS_SUBMITTED_TO_END_CLIENT , $pvCompany, $pvCompanies, $date, $request->frame_type),
+            'status_position_closed'            => $this->getPVCompanyWiseStatusCount('pv_status',$submissionModel::STATUS_POSITION_CLOSED , $pvCompany, $pvCompanies, $date, $request->frame_type),
+            'status_scheduled'                  => $this->getCompanyWiseTotalClientStatusCount($interviewModel::STATUS_SCHEDULED, $pvCompany, $pvCompanies, $date, $request->frame_type),
+            'status_re_scheduled'               => $this->getCompanyWiseTotalClientStatusCount($interviewModel::STATUS_RE_SCHEDULED, $pvCompany, $pvCompanies, $date, $request->frame_type),
+            'status_selected_for_another_round' => $this->getCompanyWiseTotalClientStatusCount($interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND, $pvCompany, $pvCompanies, $date, $request->frame_type),
+            'status_waiting_feedback'           => $this->getCompanyWiseTotalClientStatusCount($interviewModel::STATUS_WAITING_FEEDBACK, $pvCompany, $pvCompanies, $date, $request->frame_type),
+            'status_position_confirm'           => $this->getCompanyWiseTotalClientStatusCount($interviewModel::STATUS_CONFIRMED_POSITION, $pvCompany, $pvCompanies, $date, $request->frame_type),
+            'status_client_rejected'            => $this->getCompanyWiseTotalClientStatusCount($interviewModel::STATUS_REJECTED, $pvCompany, $pvCompanies, $date, $request->frame_type),
+            'status_backout'                    => $this->getCompanyWiseTotalClientStatusCount($interviewModel::STATUS_BACKOUT, $pvCompany, $pvCompanies, $date, $request->frame_type),
+            'client_status_total'               => $this->getCompanyWiseTotalClientStatusCount('all', $pvCompany, $pvCompanies, $date, $request->frame_type),
             'avg'                               => $avg,
             'highest_uni_req_by_poc'            => $this->getCompanyWiseHighestUniqueRequirementByPoc($pvCompany, $pvCompanies, $date),
             'bdm_count'                         => $this->getCompanyWiseTotalBDMCount($pvCompany, $pvCompanies, $date),
@@ -162,23 +162,23 @@ trait PVCompanyTrait {
                 'original_req_count'                => $this->getPVCompanyWisePocRequirementCounts($pvCompany, $pocName, $pocNames, $date),
                 'unique_req_count'                  => $totalUniqueRequirement,
                 'submission_count'                  => $this->getPVCompanyWisePocTotalSubmissionCounts($pvCompany, $pocName, $pocNames, $date),
-                'status_accepted'                   => $this->getPVCompanyWisePocStatusCount($pvCompany, 'status',$submissionModel::STATUS_ACCEPT , $pocName, $pocNames, $date),
-                'status_rejected'                   => $this->getPVCompanyWisePocStatusCount($pvCompany, 'status',$submissionModel::STATUS_REJECTED , $pocName, $pocNames, $date),
-                'status_pending'                    => $this->getPVCompanyWisePocStatusCount($pvCompany, 'status',$submissionModel::STATUS_PENDING , $pocName, $pocNames, $date),
-                'status_unviewed'                   => $this->getPVCompanyWisePocStatusCount($pvCompany, 'status',$submissionModel::STATUS_NOT_VIEWED , $pocName, $pocNames, $date),
-                'status_vendor_no_response'         => $this->getPVCompanyWisePocStatusCount($pvCompany, 'pv_status',$submissionModel::STATUS_NO_RESPONSE_FROM_PV , $pocName, $pocNames, $date),
-                'status_vendor_rejected_by_pv'      => $this->getPVCompanyWisePocStatusCount($pvCompany, 'pv_status',$submissionModel::STATUS_REJECTED_BY_PV , $pocName, $pocNames, $date),
-                'status_rejected_by_client'         => $this->getPVCompanyWisePocStatusCount($pvCompany, 'pv_status',$submissionModel::STATUS_REJECTED_BY_END_CLIENT , $pocName, $pocNames, $date),
-                'status_submitted_to_end_client'    => $this->getPVCompanyWisePocStatusCount($pvCompany, 'pv_status',$submissionModel::STATUS_SUBMITTED_TO_END_CLIENT , $pocName, $pocNames, $date),
-                'status_position_closed'            => $this->getPVCompanyWisePocStatusCount($pvCompany, 'pv_status',$submissionModel::STATUS_POSITION_CLOSED , $pocName, $pocNames, $date),
-                'status_scheduled'                  => $this->getPVCompanyWisePocClientStatusCount($pvCompany,$interviewModel::STATUS_SCHEDULED, $pocName, $pocNames, $date),
-                'status_re_scheduled'               => $this->getPVCompanyWisePocClientStatusCount($pvCompany,$interviewModel::STATUS_RE_SCHEDULED, $pocName, $pocNames, $date),
-                'status_selected_for_another_round' => $this->getPVCompanyWisePocClientStatusCount($pvCompany,$interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND, $pocName, $pocNames, $date),
-                'status_waiting_feedback'           => $this->getPVCompanyWisePocClientStatusCount($pvCompany,$interviewModel::STATUS_WAITING_FEEDBACK, $pocName, $pocNames, $date),
-                'status_position_confirm'           => $this->getPVCompanyWisePocClientStatusCount($pvCompany,$interviewModel::STATUS_CONFIRMED_POSITION, $pocName, $pocNames, $date),
-                'status_client_rejected'            => $this->getPVCompanyWisePocClientStatusCount($pvCompany,$interviewModel::STATUS_REJECTED, $pocName, $pocNames, $date),
-                'status_backout'                    => $this->getPVCompanyWisePocClientStatusCount($pvCompany,$interviewModel::STATUS_BACKOUT, $pocName, $pocNames, $date),
-                'client_status_total'               => $this->getPVCompanyWisePocClientStatusCount($pvCompany,'all', $pocName, $pocNames, $date),
+                'status_accepted'                   => $this->getPVCompanyWisePocStatusCount($pvCompany, 'status',$submissionModel::STATUS_ACCEPT , $pocName, $pocNames, $date, $request->frame_type),
+                'status_rejected'                   => $this->getPVCompanyWisePocStatusCount($pvCompany, 'status',$submissionModel::STATUS_REJECTED , $pocName, $pocNames, $date, $request->frame_type),
+                'status_pending'                    => $this->getPVCompanyWisePocStatusCount($pvCompany, 'status',$submissionModel::STATUS_PENDING , $pocName, $pocNames, $date, $request->frame_type),
+                'status_unviewed'                   => $this->getPVCompanyWisePocStatusCount($pvCompany, 'status',$submissionModel::STATUS_NOT_VIEWED , $pocName, $pocNames, $date, $request->frame_type),
+                'status_vendor_no_response'         => $this->getPVCompanyWisePocStatusCount($pvCompany, 'pv_status',$submissionModel::STATUS_NO_RESPONSE_FROM_PV , $pocName, $pocNames, $date, $request->frame_type),
+                'status_vendor_rejected_by_pv'      => $this->getPVCompanyWisePocStatusCount($pvCompany, 'pv_status',$submissionModel::STATUS_REJECTED_BY_PV , $pocName, $pocNames, $date, $request->frame_type),
+                'status_rejected_by_client'         => $this->getPVCompanyWisePocStatusCount($pvCompany, 'pv_status',$submissionModel::STATUS_REJECTED_BY_END_CLIENT , $pocName, $pocNames, $date, $request->frame_type),
+                'status_submitted_to_end_client'    => $this->getPVCompanyWisePocStatusCount($pvCompany, 'pv_status',$submissionModel::STATUS_SUBMITTED_TO_END_CLIENT , $pocName, $pocNames, $date, $request->frame_type),
+                'status_position_closed'            => $this->getPVCompanyWisePocStatusCount($pvCompany, 'pv_status',$submissionModel::STATUS_POSITION_CLOSED , $pocName, $pocNames, $date, $request->frame_type),
+                'status_scheduled'                  => $this->getPVCompanyWisePocClientStatusCount($pvCompany,$interviewModel::STATUS_SCHEDULED, $pocName, $pocNames, $date, $request->frame_type),
+                'status_re_scheduled'               => $this->getPVCompanyWisePocClientStatusCount($pvCompany,$interviewModel::STATUS_RE_SCHEDULED, $pocName, $pocNames, $date, $request->frame_type),
+                'status_selected_for_another_round' => $this->getPVCompanyWisePocClientStatusCount($pvCompany,$interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND, $pocName, $pocNames, $date, $request->frame_type),
+                'status_waiting_feedback'           => $this->getPVCompanyWisePocClientStatusCount($pvCompany,$interviewModel::STATUS_WAITING_FEEDBACK, $pocName, $pocNames, $date, $request->frame_type),
+                'status_position_confirm'           => $this->getPVCompanyWisePocClientStatusCount($pvCompany,$interviewModel::STATUS_CONFIRMED_POSITION, $pocName, $pocNames, $date, $request->frame_type),
+                'status_client_rejected'            => $this->getPVCompanyWisePocClientStatusCount($pvCompany,$interviewModel::STATUS_REJECTED, $pocName, $pocNames, $date, $request->frame_type),
+                'status_backout'                    => $this->getPVCompanyWisePocClientStatusCount($pvCompany,$interviewModel::STATUS_BACKOUT, $pocName, $pocNames, $date, $request->frame_type),
+                'client_status_total'               => $this->getPVCompanyWisePocClientStatusCount($pvCompany,'all', $pocName, $pocNames, $date, $request->frame_type),
                 'avg'                               => '',
                 'highest_uni_req_by_poc'            => '',
                 'bdm_count'                         => $this->getPVCompanyWisePocTotalBDMCount($pvCompany, $pocName, $pocNames, $date),
@@ -288,10 +288,10 @@ trait PVCompanyTrait {
         return 0;
     }
 
-    public function getPVCompanyWiseStatusCount($filedName, $status, $pvCompanyName, $allPVCompanies, $date): int
+    public function getPVCompanyWiseStatusCount($filedName, $status, $pvCompanyName, $allPVCompanies, $date, $frameType): int
     {
         if(!$this->_companyWiseTotalStatusCounts || !isset($this->_companyWiseTotalStatusCounts[$status])){
-            $collection = $this->getJoin($status, $filedName, $date);
+            $collection = $this->getJoin($status, $filedName, $date, $frameType);
             $collection->whereIn('requirements.pv_company_name', $allPVCompanies)
                 ->groupBy('requirements.pv_company_name')
                 ->selectRaw('LOWER(requirements.pv_company_name) as pv_company_name, COUNT(submissions.id) as count');
@@ -308,7 +308,7 @@ trait PVCompanyTrait {
         return 0;
     }
 
-    public function getCompanyWiseTotalClientStatusCount($status, $pvCompanyName, $allPVCompanies, $date): int
+    public function getCompanyWiseTotalClientStatusCount($status, $pvCompanyName, $allPVCompanies, $date, $frameType): int
     {
         if(!$this->_companyWiseTotalClientStatusCounts || !isset($this->_companyWiseTotalClientStatusCounts[$status])){
             $collection =  Requirement::leftJoin('submissions', 'requirements.id', '=', 'submissions.requirement_id')
@@ -318,7 +318,11 @@ trait PVCompanyTrait {
 
                 }
                 if($date && isset($date['from']) && $date['to']){
-                    $collection->whereBetween('interviews.updated_at', $date);
+                    if($frameType == 'submission_frame'){
+                        $collection->whereBetween('submissions.created_at', $date);
+                    } else {
+                        $collection->whereBetween('submissions.interview_status_updated_at', $date);
+                    }
                 }
             $collection->whereIn('requirements.pv_company_name', $allPVCompanies)
                 ->groupBy('requirements.pv_company_name')

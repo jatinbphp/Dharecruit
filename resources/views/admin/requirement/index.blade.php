@@ -44,7 +44,7 @@
                                     {!! Form::checkbox('', '', null, ['id' => 'showDate', 'class' => 'toggle-checkbox toggle-change', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
                                     <label class="form-check-label pl-2" for="showDate">Show Date</label>
                                 </div>
-                                @if((Auth::user()->role == 'admin') || (Auth::user()->role == 'bdm' && $menu == 'My Requirements'))
+                                @if((Auth::user()->role == 'admin') || (Auth::user()->role == 'bdm' && $menu == 'My Requirements') || (isLeadUser() && $menu == 'Team Requirements'))
                                     <div class="col-md-3 mt-2">
                                         {!! Form::checkbox('', '', null, ['id' => 'showMerge', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'secondary', 'data-size' => 'small']) !!}
                                         <label class="form-check-label pl-2" for="showMerge">Show Merge</label>

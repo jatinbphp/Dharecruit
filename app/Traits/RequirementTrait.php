@@ -26,6 +26,7 @@ trait RequirementTrait
     protected $_userIdWiseTotalTransferOutPOC = [];
     protected $_userIdWiseNewPv = [];
     protected $_userIdWiseNewPoc = [];
+    protected $_userIdWiseTotalAvgTime = [];
 
     public function getBdmUserHeadingData(): array
     {
@@ -43,7 +44,9 @@ trait RequirementTrait
             'heading_unserved'           => 'Unserved',
             'heading_servable_per'       => 'Servable%',
             'heading_sub_rec'            => 'Sub Rec',
+            'heading_avg_time'           => 'Avg Time (in minutes)',
             'heading_accept'             => 'Accept',
+            'heading_accept_percentage'  => 'Accept Percentage',
             'heading_rejected'           => 'Rejected',
             'heading_pending'            => 'Pending',
             'heading_un_viewed'          => 'Unviewed',
@@ -79,7 +82,9 @@ trait RequirementTrait
             'heading_unserved'           => 'Unserved',
             'heading_servable_per'       => 'Servable%',
             'heading_sub_rec'            => 'Sub Rec',
+            'heading_avg_time'           => 'Avg Time (in minutes)',
             'heading_accept'             => 'Accept',
+            'heading_accept_percentage'  => 'Accept Percentage',
             'heading_rejected'           => 'Rejected',
             'heading_pending'            => 'Pending',
             'heading_un_viewed'          => 'Unviewed',
@@ -113,6 +118,8 @@ trait RequirementTrait
         $totalRequirements  = $this->getTotalRequirementCount($date, $bdms, $userId, $type);
         $servedRequirements = $this->getTotalServedRequirementsCount($date, $bdms, $userId, $type);
         $servablPer         = $this->getPercentage($servedRequirements, $totalRequirements);
+        $submissions        = $this->getTotalReceivedSubmissionCount($date, $bdms, $userId, $type);
+        $bdmAcceptCount     = $this->getTotalStatusCount('status', $submissionModel::STATUS_ACCEPT, $date, $bdms, $userId, $type, $request->frame_type);
 
         return [
             'heading_type'                   => $headingType,
@@ -127,24 +134,26 @@ trait RequirementTrait
             'served'                         => $servedRequirements,
             'unserved'                       => $this->getTotalUnServedRequirementsCount($date, $bdms, $userId, $type),
             'servable_per'                   => $servablPer,
-            'submission_received'            => $this->getTotalReceivedSubmissionCount($date, $bdms, $userId, $type),
-            'bdm_accept'                     => $this->getTotalStatusCount('status', $submissionModel::STATUS_ACCEPT, $date, $bdms, $userId, $type),
-            'bdm_rejected'                   => $this->getTotalStatusCount('status', $submissionModel::STATUS_REJECTED, $date, $bdms, $userId, $type),
-            'bdm_pending'                    => $this->getTotalStatusCount('status', $submissionModel::STATUS_PENDING, $date, $bdms, $userId, $type),
-            'bdm_unviewed'                   => $this->getTotalStatusCount('status', $submissionModel::STATUS_NOT_VIEWED, $date, $bdms, $userId, $type),
-            'vendor_no_responce'             => $this->getTotalStatusCount('pv_status', $submissionModel::STATUS_NO_RESPONSE_FROM_PV, $date, $bdms, $userId, $type),
-            'vendor_rejected_by_pv'          => $this->getTotalStatusCount('pv_status', $submissionModel::STATUS_REJECTED_BY_PV, $date, $bdms, $userId, $type),
-            'vendor_rejected_by_client'      => $this->getTotalStatusCount('pv_status', $submissionModel::STATUS_REJECTED_BY_END_CLIENT, $date, $bdms, $userId, $type),
-            'vendor_submitted_to_end_client' => $this->getTotalStatusCount('pv_status', $submissionModel::STATUS_SUBMITTED_TO_END_CLIENT, $date, $bdms, $userId, $type),
-            'vendor_position_closed'         => $this->getTotalStatusCount('pv_status', $submissionModel::STATUS_POSITION_CLOSED, $date, $bdms, $userId, $type),
+            'submission_received'            => $submissions,
+            'avg_time'                       => $this->getBdmAvgTime($date, $bdms, $userId, $type),
+            'bdm_accept'                     => $bdmAcceptCount,
+            'bdm_accept_percentage'          => $this->getStatusPercentage($bdmAcceptCount, $submissions),
+            'bdm_rejected'                   => $this->getTotalStatusCount('status', $submissionModel::STATUS_REJECTED, $date, $bdms, $userId, $type, $request->frame_type),
+            'bdm_pending'                    => $this->getTotalStatusCount('status', $submissionModel::STATUS_PENDING, $date, $bdms, $userId, $type, $request->frame_type),
+            'bdm_unviewed'                   => $this->getTotalStatusCount('status', $submissionModel::STATUS_NOT_VIEWED, $date, $bdms, $userId, $type, $request->frame_type),
+            'vendor_no_responce'             => $this->getTotalStatusCount('pv_status', $submissionModel::STATUS_NO_RESPONSE_FROM_PV, $date, $bdms, $userId, $type, $request->frame_type),
+            'vendor_rejected_by_pv'          => $this->getTotalStatusCount('pv_status', $submissionModel::STATUS_REJECTED_BY_PV, $date, $bdms, $userId, $type, $request->frame_type),
+            'vendor_rejected_by_client'      => $this->getTotalStatusCount('pv_status', $submissionModel::STATUS_REJECTED_BY_END_CLIENT, $date, $bdms, $userId, $type, $request->frame_type),
+            'vendor_submitted_to_end_client' => $this->getTotalStatusCount('pv_status', $submissionModel::STATUS_SUBMITTED_TO_END_CLIENT, $date, $bdms, $userId, $type, $request->frame_type),
+            'vendor_position_closed'         => $this->getTotalStatusCount('pv_status', $submissionModel::STATUS_POSITION_CLOSED, $date, $bdms, $userId, $type, $request->frame_type),
             'interview_count'                => $this->getTotalNewInterviewCount($date, $bdms, $userId, $type),
-            'client_scheduled'               => $this->getTotalClientStatusCount($interviewModel::STATUS_SCHEDULED, $date, $bdms, $userId, $type),
-            'client_rescheduled'             => $this->getTotalClientStatusCount($interviewModel::STATUS_RE_SCHEDULED, $date, $bdms, $userId, $type),
-            'client_selected_for_next_round' => $this->getTotalClientStatusCount($interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND, $date, $bdms, $userId, $type),
-            'client_waiting_feedback'        => $this->getTotalClientStatusCount($interviewModel::STATUS_WAITING_FEEDBACK, $date, $bdms, $userId, $type),
-            'client_confirmed_position'      => $this->getTotalClientStatusCount($interviewModel::STATUS_CONFIRMED_POSITION, $date, $bdms, $userId, $type),
-            'client_rejected'                => $this->getTotalClientStatusCount($interviewModel::STATUS_REJECTED_TEXT, $date, $bdms, $userId, $type),
-            'client_backout'                 => $this->getTotalClientStatusCount($interviewModel::STATUS_BACKOUT, $date, $bdms, $userId, $type),
+            'client_scheduled'               => $this->getTotalClientStatusCount($interviewModel::STATUS_SCHEDULED, $date, $bdms, $userId, $type, $request->frame_type),
+            'client_rescheduled'             => $this->getTotalClientStatusCount($interviewModel::STATUS_RE_SCHEDULED, $date, $bdms, $userId, $type, $request->frame_type),
+            'client_selected_for_next_round' => $this->getTotalClientStatusCount($interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND, $date, $bdms, $userId, $type, $request->frame_type),
+            'client_waiting_feedback'        => $this->getTotalClientStatusCount($interviewModel::STATUS_WAITING_FEEDBACK, $date, $bdms, $userId, $type, $request->frame_type),
+            'client_confirmed_position'      => $this->getTotalClientStatusCount($interviewModel::STATUS_CONFIRMED_POSITION, $date, $bdms, $userId, $type, $request->frame_type),
+            'client_rejected'                => $this->getTotalClientStatusCount($interviewModel::STATUS_REJECTED_TEXT, $date, $bdms, $userId, $type, $request->frame_type),
+            'client_backout'                 => $this->getTotalClientStatusCount($interviewModel::STATUS_BACKOUT, $date, $bdms, $userId, $type, $request->frame_type),
         ];
     }
 
@@ -230,8 +239,12 @@ trait RequirementTrait
         return 0;
     }
 
-    public function getTotalStatusCount($filedName, $status, $date, $bdms, $userId, $type): int
+    public function getTotalStatusCount($filedName, $status, $date, $bdms, $userId, $type, $frameType): int
     {
+        $dateFiled = 'submissions.bdm_status_updated_at';
+        if($filedName == 'pv_status'){
+            $dateFiled = 'submissions.pv_status_updated_at';
+        }
         if(!$this->_userIdWiseStatusCount || !isset($this->_userIdWiseStatusCount[$type]) || !isset($this->_userIdWiseStatusCount[$type][$status])){
             $collection =  Requirement::leftJoin('submissions', 'requirements.id', '=', 'submissions.requirement_id');
             if($status == Submission::STATUS_NOT_VIEWED){
@@ -242,8 +255,14 @@ trait RequirementTrait
             } else {
                 $collection->where("submissions.$filedName", $status);
             }
-            $collection->whereBetween('submissions.updated_at', $date)
-                ->whereIn('requirements.user_id', $bdms)
+
+            if($frameType == 'submission_frame'){
+                $collection->whereBetween('submissions.created_at', $date);
+            } else {
+                $collection->whereBetween($dateFiled, $date);
+            }
+
+            $collection->whereIn('requirements.user_id', $bdms)
                 ->groupBy('requirements.user_id')
                 ->selectRaw('requirements.user_id, COUNT(submissions.id) as count');
 
@@ -257,14 +276,20 @@ trait RequirementTrait
         return 0;
     }
 
-    public function getTotalClientStatusCount($status, $date, $bdms, $userId, $type): int
+    public function getTotalClientStatusCount($status, $date, $bdms, $userId, $type, $frameType): int
     {
         if(!$this->_userIdWiseClientStatusCount || !isset($this->_userIdWiseClientStatusCount[$type]) || !isset($this->_userIdWiseClientStatusCount[$type][$status])){
-            $this->_userIdWiseClientStatusCount[$type][$status] =  Requirement::leftJoin('submissions', 'requirements.id', '=', 'submissions.requirement_id')
+                $collection =  Requirement::leftJoin('submissions', 'requirements.id', '=', 'submissions.requirement_id')
                 ->leftJoin('interviews', 'submissions.id', '=', 'interviews.submission_id')
-                ->where('interviews.status', $status)
-                ->whereBetween('interviews.updated_at', $date)
-                ->whereIn('requirements.user_id', $bdms)
+                ->where('interviews.status', $status);
+
+                if($frameType == 'submission_frame'){
+                    $collection->whereBetween('submissions.created_at', $date);
+                } else {
+                    $collection->whereBetween('submissions.interview_status_updated_at', $date);
+                }
+
+            $this->_userIdWiseClientStatusCount[$type][$status] = $collection->whereIn('requirements.user_id', $bdms)
                 ->groupBy('requirements.user_id')
                 ->selectRaw('requirements.user_id, COUNT(interviews.id) as count')
                 ->pluck('count', 'user_id')
@@ -447,5 +472,31 @@ trait RequirementTrait
             ->toArray();
 
         return array_sum($counts);
+    }
+
+    public function getBdmAvgTime($date, $bdms, $userId, $type)
+    {
+        if(!$this->_userIdWiseTotalAvgTime || !isset($this->_userIdWiseTotalAvgTime[$type])){
+            $usersData = Submission::selectRaw('requirements.user_id, SUM(TIMESTAMPDIFF(MINUTE, requirements.created_at, submissions.created_at)) AS total_time, COUNT(*) AS count')
+                ->join('requirements', 'requirements.id', '=', 'submissions.requirement_id')
+                ->whereIn('requirements.user_id', $bdms)
+                ->whereBetween('submissions.created_at', $date)
+                ->groupBy('requirements.user_id')
+                ->get();
+
+            $result = [];
+
+            foreach ($usersData as $userData) {
+                $result[$userData->user_id] = round(($userData->total_time / (($userData->count) ? $userData->count : 1)), 2);
+            }
+
+            $this->_userIdWiseTotalAvgTime[$type] = $result;
+        }
+
+        if(isset($this->_userIdWiseTotalAvgTime[$type][$userId])){
+            return $this->_userIdWiseTotalAvgTime[$type][$userId];
+        }
+
+        return 0;
     }
 }

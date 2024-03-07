@@ -102,23 +102,23 @@ trait EmployerTrait {
             'total_submission_count'            => $this->getSubmissionCountsBasedOnEmployer($employer, $employers, $date),
             'unique_sub_count'                  => $totalUniqueSubmission,
             'submission_count'                  => $this->getTotalSubmissionCountsBasedOnEmployer($employer, $employers, $date),
-            'status_accepted'                   => $this->getEmployerWiseStatusCount('status',$submissionModel::STATUS_ACCEPT , $employer, $employers, $date),
-            'status_rejected'                   => $this->getEmployerWiseStatusCount('status',$submissionModel::STATUS_REJECTED , $employer, $employers, $date),
-            'status_pending'                    => $this->getEmployerWiseStatusCount('status',$submissionModel::STATUS_PENDING , $employer, $employers, $date),
-            'status_unviewed'                   => $this->getEmployerWiseStatusCount('status',$submissionModel::STATUS_NOT_VIEWED , $employer, $employers, $date),
-            'status_vendor_no_response'         => $this->getEmployerWiseStatusCount('pv_status',$submissionModel::STATUS_NO_RESPONSE_FROM_PV , $employer, $employers, $date),
-            'status_vendor_rejected_by_pv'      => $this->getEmployerWiseStatusCount('pv_status',$submissionModel::STATUS_REJECTED_BY_PV , $employer, $employers, $date),
-            'status_rejected_by_client'         => $this->getEmployerWiseStatusCount('pv_status',$submissionModel::STATUS_REJECTED_BY_END_CLIENT , $employer, $employers, $date),
-            'status_submitted_to_end_client'    => $this->getEmployerWiseStatusCount('pv_status',$submissionModel::STATUS_SUBMITTED_TO_END_CLIENT , $employer, $employers, $date),
-            'status_position_closed'            => $this->getEmployerWiseStatusCount('pv_status',$submissionModel::STATUS_POSITION_CLOSED , $employer, $employers, $date),
-            'status_scheduled'                  => $this->getEmployerTotalClientStatusCount($interviewModel::STATUS_SCHEDULED, $employer, $employers, $date),
-            'status_re_scheduled'               => $this->getEmployerTotalClientStatusCount($interviewModel::STATUS_RE_SCHEDULED, $employer, $employers, $date),
-            'status_selected_for_another_round' => $this->getEmployerTotalClientStatusCount($interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND, $employer, $employers, $date),
-            'status_waiting_feedback'           => $this->getEmployerTotalClientStatusCount($interviewModel::STATUS_WAITING_FEEDBACK, $employer, $employers, $date),
-            'status_position_confirm'           => $this->getEmployerTotalClientStatusCount($interviewModel::STATUS_CONFIRMED_POSITION, $employer, $employers, $date),
-            'status_client_rejected'            => $this->getEmployerTotalClientStatusCount($interviewModel::STATUS_REJECTED, $employer, $employers, $date),
-            'status_backout'                    => $this->getEmployerTotalClientStatusCount($interviewModel::STATUS_BACKOUT, $employer, $employers, $date),
-            'client_status_total'               => $this->getEmployerTotalClientStatusCount('all', $employer, $employers, $date),
+            'status_accepted'                   => $this->getEmployerWiseStatusCount('status',$submissionModel::STATUS_ACCEPT , $employer, $employers, $date,  $request->frame_type),
+            'status_rejected'                   => $this->getEmployerWiseStatusCount('status',$submissionModel::STATUS_REJECTED , $employer, $employers, $date,  $request->frame_type),
+            'status_pending'                    => $this->getEmployerWiseStatusCount('status',$submissionModel::STATUS_PENDING , $employer, $employers, $date,  $request->frame_type),
+            'status_unviewed'                   => $this->getEmployerWiseStatusCount('status',$submissionModel::STATUS_NOT_VIEWED , $employer, $employers, $date,  $request->frame_type),
+            'status_vendor_no_response'         => $this->getEmployerWiseStatusCount('pv_status',$submissionModel::STATUS_NO_RESPONSE_FROM_PV , $employer, $employers, $date,  $request->frame_type),
+            'status_vendor_rejected_by_pv'      => $this->getEmployerWiseStatusCount('pv_status',$submissionModel::STATUS_REJECTED_BY_PV , $employer, $employers, $date,  $request->frame_type),
+            'status_rejected_by_client'         => $this->getEmployerWiseStatusCount('pv_status',$submissionModel::STATUS_REJECTED_BY_END_CLIENT , $employer, $employers, $date,  $request->frame_type),
+            'status_submitted_to_end_client'    => $this->getEmployerWiseStatusCount('pv_status',$submissionModel::STATUS_SUBMITTED_TO_END_CLIENT , $employer, $employers, $date,  $request->frame_type),
+            'status_position_closed'            => $this->getEmployerWiseStatusCount('pv_status',$submissionModel::STATUS_POSITION_CLOSED , $employer, $employers, $date,  $request->frame_type),
+            'status_scheduled'                  => $this->getEmployerTotalClientStatusCount($interviewModel::STATUS_SCHEDULED, $employer, $employers, $date,  $request->frame_type),
+            'status_re_scheduled'               => $this->getEmployerTotalClientStatusCount($interviewModel::STATUS_RE_SCHEDULED, $employer, $employers, $date,  $request->frame_type),
+            'status_selected_for_another_round' => $this->getEmployerTotalClientStatusCount($interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND, $employer, $employers, $date,  $request->frame_type),
+            'status_waiting_feedback'           => $this->getEmployerTotalClientStatusCount($interviewModel::STATUS_WAITING_FEEDBACK, $employer, $employers, $date,  $request->frame_type),
+            'status_position_confirm'           => $this->getEmployerTotalClientStatusCount($interviewModel::STATUS_CONFIRMED_POSITION, $employer, $employers, $date,  $request->frame_type),
+            'status_client_rejected'            => $this->getEmployerTotalClientStatusCount($interviewModel::STATUS_REJECTED, $employer, $employers, $date,  $request->frame_type),
+            'status_backout'                    => $this->getEmployerTotalClientStatusCount($interviewModel::STATUS_BACKOUT, $employer, $employers, $date,  $request->frame_type),
+            'client_status_total'               => $this->getEmployerTotalClientStatusCount('all', $employer, $employers, $date,  $request->frame_type),
             'avg'                               => $avg,
             'highest_uni_sub_by_employee'       => $this->getEmployerWiseHighestUniqueSubmissionByEmployee($employer, $employers, $date),
             'rec_count'                         => $this->getEmployerWiseTotalRecruiterCount($employer, $employers, $date),
@@ -163,23 +163,23 @@ trait EmployerTrait {
                 'total_submission_count'            => $this->getEmployerWiseEmployeeSubmissionCounts($employer, $employeeName, $employeeNames, $date),
                 'unique_sub_count'                  => $totalUniqueRequirement,
                 'submission_count'                  => $this->getEmployerWiseEmployeeTotalSubmissionCounts($employer, $employeeName, $employeeNames, $date),
-                'status_accepted'                   => $this->getEmployerWiseEmployeeStatusCount($employer, 'status',$submissionModel::STATUS_ACCEPT , $employeeName, $employeeNames, $date),
-                'status_rejected'                   => $this->getEmployerWiseEmployeeStatusCount($employer, 'status',$submissionModel::STATUS_REJECTED , $employeeName, $employeeNames, $date),
-                'status_pending'                    => $this->getEmployerWiseEmployeeStatusCount($employer, 'status',$submissionModel::STATUS_PENDING , $employeeName, $employeeNames, $date),
-                'status_unviewed'                   => $this->getEmployerWiseEmployeeStatusCount($employer, 'status',$submissionModel::STATUS_NOT_VIEWED , $employeeName, $employeeNames, $date),
-                'status_vendor_no_response'         => $this->getEmployerWiseEmployeeStatusCount($employer, 'pv_status',$submissionModel::STATUS_NO_RESPONSE_FROM_PV , $employeeName, $employeeNames, $date),
-                'status_vendor_rejected_by_pv'      => $this->getEmployerWiseEmployeeStatusCount($employer, 'pv_status',$submissionModel::STATUS_REJECTED_BY_PV , $employeeName, $employeeNames, $date),
-                'status_rejected_by_client'         => $this->getEmployerWiseEmployeeStatusCount($employer, 'pv_status',$submissionModel::STATUS_REJECTED_BY_END_CLIENT , $employeeName, $employeeNames, $date),
-                'status_submitted_to_end_client'    => $this->getEmployerWiseEmployeeStatusCount($employer, 'pv_status',$submissionModel::STATUS_SUBMITTED_TO_END_CLIENT , $employeeName, $employeeNames, $date),
-                'status_position_closed'            => $this->getEmployerWiseEmployeeStatusCount($employer, 'pv_status',$submissionModel::STATUS_POSITION_CLOSED , $employeeName, $employeeNames, $date),
-                'status_scheduled'                  => $this->getEmployerWiseEmployeeClientStatusCount($employer,$interviewModel::STATUS_SCHEDULED, $employeeName, $employeeNames, $date),
-                'status_re_scheduled'               => $this->getEmployerWiseEmployeeClientStatusCount($employer,$interviewModel::STATUS_RE_SCHEDULED, $employeeName, $employeeNames, $date),
-                'status_selected_for_another_round' => $this->getEmployerWiseEmployeeClientStatusCount($employer,$interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND, $employeeName, $employeeNames, $date),
-                'status_waiting_feedback'           => $this->getEmployerWiseEmployeeClientStatusCount($employer,$interviewModel::STATUS_WAITING_FEEDBACK, $employeeName, $employeeNames, $date),
-                'status_position_confirm'           => $this->getEmployerWiseEmployeeClientStatusCount($employer,$interviewModel::STATUS_CONFIRMED_POSITION, $employeeName, $employeeNames, $date),
-                'status_client_rejected'            => $this->getEmployerWiseEmployeeClientStatusCount($employer,$interviewModel::STATUS_REJECTED, $employeeName, $employeeNames, $date),
-                'status_backout'                    => $this->getEmployerWiseEmployeeClientStatusCount($employer,$interviewModel::STATUS_BACKOUT, $employeeName, $employeeNames, $date),
-                'client_status_total'               => $this->getEmployerWiseEmployeeClientStatusCount($employer,'all', $employeeName, $employeeNames, $date),
+                'status_accepted'                   => $this->getEmployerWiseEmployeeStatusCount($employer, 'status',$submissionModel::STATUS_ACCEPT , $employeeName, $employeeNames, $date, $request->frame_type),
+                'status_rejected'                   => $this->getEmployerWiseEmployeeStatusCount($employer, 'status',$submissionModel::STATUS_REJECTED , $employeeName, $employeeNames, $date, $request->frame_type),
+                'status_pending'                    => $this->getEmployerWiseEmployeeStatusCount($employer, 'status',$submissionModel::STATUS_PENDING , $employeeName, $employeeNames, $date, $request->frame_type),
+                'status_unviewed'                   => $this->getEmployerWiseEmployeeStatusCount($employer, 'status',$submissionModel::STATUS_NOT_VIEWED , $employeeName, $employeeNames, $date, $request->frame_type),
+                'status_vendor_no_response'         => $this->getEmployerWiseEmployeeStatusCount($employer, 'pv_status',$submissionModel::STATUS_NO_RESPONSE_FROM_PV , $employeeName, $employeeNames, $date, $request->frame_type, $request->frame_type),
+                'status_vendor_rejected_by_pv'      => $this->getEmployerWiseEmployeeStatusCount($employer, 'pv_status',$submissionModel::STATUS_REJECTED_BY_PV , $employeeName, $employeeNames, $date, $request->frame_type, $request->frame_type),
+                'status_rejected_by_client'         => $this->getEmployerWiseEmployeeStatusCount($employer, 'pv_status',$submissionModel::STATUS_REJECTED_BY_END_CLIENT , $employeeName, $employeeNames, $date, $request->frame_type),
+                'status_submitted_to_end_client'    => $this->getEmployerWiseEmployeeStatusCount($employer, 'pv_status',$submissionModel::STATUS_SUBMITTED_TO_END_CLIENT , $employeeName, $employeeNames, $date, $request->frame_type),
+                'status_position_closed'            => $this->getEmployerWiseEmployeeStatusCount($employer, 'pv_status',$submissionModel::STATUS_POSITION_CLOSED , $employeeName, $employeeNames, $date, $request->frame_type),
+                'status_scheduled'                  => $this->getEmployerWiseEmployeeClientStatusCount($employer,$interviewModel::STATUS_SCHEDULED, $employeeName, $employeeNames, $date, $request->frame_type),
+                'status_re_scheduled'               => $this->getEmployerWiseEmployeeClientStatusCount($employer,$interviewModel::STATUS_RE_SCHEDULED, $employeeName, $employeeNames, $date, $request->frame_type),
+                'status_selected_for_another_round' => $this->getEmployerWiseEmployeeClientStatusCount($employer,$interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND, $employeeName, $employeeNames, $date, $request->frame_type),
+                'status_waiting_feedback'           => $this->getEmployerWiseEmployeeClientStatusCount($employer,$interviewModel::STATUS_WAITING_FEEDBACK, $employeeName, $employeeNames, $date, $request->frame_type),
+                'status_position_confirm'           => $this->getEmployerWiseEmployeeClientStatusCount($employer,$interviewModel::STATUS_CONFIRMED_POSITION, $employeeName, $employeeNames, $date, $request->frame_type),
+                'status_client_rejected'            => $this->getEmployerWiseEmployeeClientStatusCount($employer,$interviewModel::STATUS_REJECTED, $employeeName, $employeeNames, $date, $request->frame_type),
+                'status_backout'                    => $this->getEmployerWiseEmployeeClientStatusCount($employer,$interviewModel::STATUS_BACKOUT, $employeeName, $employeeNames, $date, $request->frame_type),
+                'client_status_total'               => $this->getEmployerWiseEmployeeClientStatusCount($employer,'all', $employeeName, $employeeNames, $date, $request->frame_type),
                 'avg'                               => '',
                 'highest_uni_sub_by_employee'       => '',
                 'rec_count'                         => $this->getEmployerWiseEmployeeTotalRecruiterCount($employer, $employeeName, $employeeNames, $date),
@@ -278,8 +278,12 @@ trait EmployerTrait {
         return 0;
     }
 
-    public function getEmployerWiseStatusCount($filedName, $status, $employerName, $allEmoloyers, $date): int
+    public function getEmployerWiseStatusCount($filedName, $status, $employerName, $allEmoloyers, $date, $frameType): int
     {
+        $dateFiled = 'submissions.bdm_status_updated_at';
+        if($filedName == 'pv_status'){
+            $dateFiled = 'submissions.pv_status_updated_at';
+        }
         if(!$this->_employerWiseTotalStatusCounts || !isset($this->_employerWiseTotalStatusCounts[$status])){
             $collection = Submission::select(\DB::raw('LOWER(employer_name) as employer_name'), \DB::raw("count(id) as count"))
                 ->whereIn('employer_name', $allEmoloyers);
@@ -292,9 +296,12 @@ trait EmployerTrait {
                 $collection->where("submissions.$filedName", $status);
             }
             if ($date && isset($date['from']) && $date['to']) {
-                $collection->whereBetween('submissions.updated_at', $date);
+                if($frameType == 'submission_frame'){
+                    $collection->whereBetween('submissions.created_at', $date);
+                } else {
+                    $collection->whereBetween($dateFiled, $date);
+                }
             }
-
             $collection->groupBy('employer_name');
 
             $this->_employerWiseTotalStatusCounts[$status] = $collection->pluck('count', 'employer_name')->toArray();
@@ -309,7 +316,7 @@ trait EmployerTrait {
         return 0;
     }
 
-    public function getEmployerTotalClientStatusCount($status, $employerName, $allEmoloyers, $date): int
+    public function getEmployerTotalClientStatusCount($status, $employerName, $allEmoloyers, $date, $frameType): int
     {
         if(!$this->_employerWiseTotalClientStatusCounts || !isset($this->_employerWiseTotalClientStatusCounts[$status])){
             $collection =  Submission::leftJoin('interviews', 'submissions.id', '=', 'interviews.submission_id');
@@ -318,7 +325,11 @@ trait EmployerTrait {
 
             }
             if($date && isset($date['from']) && $date['to']){
-                $collection->whereBetween('interviews.updated_at', $date);
+                if($frameType == 'submission_frame'){
+                    $collection->whereBetween('submissions.created_at', $date);
+                } else {
+                    $collection->whereBetween('submissions.interview_status_updated_at', $date);
+                }
             }
             $collection->whereIn('submissions.employer_name', $allEmoloyers)
                 ->groupBy('submissions.employer_name')

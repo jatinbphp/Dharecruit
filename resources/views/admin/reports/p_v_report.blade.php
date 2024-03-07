@@ -74,13 +74,26 @@
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label class="control-label" for="data_toggle">Show Only Row With Data</label><br>
-                                                {!! Form::checkbox('', '', null, ['id' => 'data_toggle', 'class' => 'toggle-checkbox', 'checked' => true, 'data-toggle' => 'toggl', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                                {!! Form::checkbox('', '', null, ['id' => 'data_toggle', 'class' => 'toggle-checkbox', 'checked' => true, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label class="control-label" for="toggle_categorties">Show Categories</label><br>
-                                                {!! Form::checkbox('', '', null, ['id' => 'toggle_categorties', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggl', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                                {!! Form::checkbox('', '', null, ['id' => 'toggle_categorties', 'class' => 'toggle-checkbox', 'checked' => false, 'data-toggle' => 'toggle', 'data-onstyle' => 'success', 'data-offstyle' => 'danger', 'data-size' => 'small']) !!}
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="form-group">
+                                                <label class="control-label" for="data_toggle">Select Frame</label><br>
+                                                <div class="btn-group btn-group-toggle mb-2" data-toggle="buttons">
+                                                    <label class="btn btn-sm btn-outline-danger">
+                                                        <input type="radio" class="pv-frame-type pv-frame-type-time-frame" data-type="time_frame" name="frame_type" value="time_frame" autocomplete="off">Time Frame
+                                                    </label>
+                                                    <label class="btn btn-sm btn-outline-danger">
+                                                        <input type="radio" class="pv-frame-type" data-type="submission_frame" name="frame_type" value="submission_frame" autocomplete="off">Submission Frame
+                                                    </label>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -104,7 +117,8 @@
 @section('jquery')
     <script type="text/javascript">
         $(document).ready(function (){
-            searchReportData();
+            $('.pv-frame-type-time-frame').trigger('click');
+            //searchReportData();
         });
 
         function clearReportData()
@@ -171,5 +185,9 @@
                 $('tbody').append(row); // Append sorted rows back to tbody
             });
         }
+
+        $('.pv-frame-type').change(function (){
+            searchReportData();
+        });
     </script>
 @endsection

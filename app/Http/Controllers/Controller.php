@@ -125,7 +125,7 @@ class Controller extends BaseController
                 $jid .= '<div class="border text-center text-light link-data" style="background-color:rgb(172, 91, 173); width: 40px; display:none">Link</div>';
             }
         }
-        if(Auth::user()->role == 'admin' || (Auth::user()->role=='bdm' && Auth::user()->id == $row->user_id)){
+        if(Auth::user()->role == 'admin' || (Auth::user()->role=='bdm' && Auth::user()->id == $row->user_id) || isLeadUser()){
             if($row->parent_requirement_id != $row->id && $row->parent_requirement_id != 0){
                 return $jid .'<span data-order="'.$row->job_id.'" class="border-width-5 border-color-info job-title pt-1 pl-1 pl-1 pr-1" data-id="'.$row->id.'">'.$row->job_id.'</span>';
             } elseif($row->parent_requirement_id == $row->id){
@@ -2104,7 +2104,7 @@ class Controller extends BaseController
 
             $timeSpan = "$diffInDays days, $diffInHours hr : $diffInMinutes mins";
         } else {
-            if($diffInHours > 1){
+            if($diffInHours >= 1){
                 $timeSpan = "$diffInHours hr:$diffInMinutes mins";
             }else{
                 $timeSpan = "$diffInMinutes mins";

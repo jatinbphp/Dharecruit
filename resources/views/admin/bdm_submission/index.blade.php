@@ -344,7 +344,7 @@
                 {data: 'created_at', name: 'created_at'},
                 {data: 'id', name: 'id'},
                 {data: 'job_id', name: 'requirements.job_id',render: function(data, type, row) {
-                        @if(in_array(Auth::user()->role, ['admin', 'bdm']))
+                        @if(in_array(Auth::user()->role, ['admin', 'bdm']) || isLeadUser())
                             if (row.parent_requirement_id && row.parent_requirement_id != row.requirement_id && row.parent_requirement_id != 0){
                                     return '<span data-order="' + row.job_id + '" class="border-width-5 border-color-info job-title pt-1 pl-1 pl-1 pr-1" data-id="'+row.requirement_id+'">' + row.job_id + '</span>';
                             }else {
