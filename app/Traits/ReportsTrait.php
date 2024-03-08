@@ -47,6 +47,7 @@ trait ReportsTrait {
         }
         $bdmUserData['heading']    = $this->getBdmUserHeadingData();
         $bdmUserData['class_data'] = $this->getKeyWiseClass();
+        $bdmUserData['span_class_data'] = $this->getKeyWiseSpanClass();
 
         if(!empty($request->teams)){
             $bdmUserData['team_data'] = $this->getBdmTeamData($request->teams);
@@ -89,6 +90,7 @@ trait ReportsTrait {
         }
         $recruiterUserData['heading']    = $this->getRecruiterUserHeadingData();
         $recruiterUserData['class_data'] = $this->getKeyWiseClass();
+        $recruiterUserData['span_class_data'] = $this->getKeyWiseSpanClass();
 
         if(!empty($request->teams)){
             $recruiterUserData['team_data'] = $this->getRecruiterTeamData($request->teams);
@@ -128,6 +130,7 @@ trait ReportsTrait {
 
         $bdmUserData['heading']    = $this->getBdmTimeFrameHeadingData();;
         $bdmUserData['class_data'] = $this->getKeyWiseClass();
+        $bdmUserData['span_class_data'] = $this->getKeyWiseSpanClass();
 
         return $bdmUserData;
     }
@@ -163,6 +166,7 @@ trait ReportsTrait {
 
         $recruiterUser['heading']  = $this->getRecruiterTimeFrameHeadingData();
         $recruiterUser['class_data'] = $this->getKeyWiseClass();
+        $recruiterUser['span_class_data'] = $this->getKeyWiseSpanClass();
 
         return $recruiterUser;
     }

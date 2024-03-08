@@ -129,6 +129,7 @@
 </div>
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function() {
+        var userColor = {!! $user_color !!};
         var myData = {!! $rec_team_data !!};
         var instance = $('#individual_req_assign').comboTree({
             source : myData,
@@ -177,11 +178,11 @@
                     if (response.status == 1) {
                         var datasets = [];
                         Object.keys(response.requirementAssigneeCount).forEach(function (legend) {
-                            var color = getRandomColor();
+                            var color = (userColor.hasOwnProperty(legend) && userColor[legend]) ? userColor[legend] : getRandomColor();
                             datasets.push({
                                 label: legend,
-                                backgroundColor: 'rgba(' + color + ', 0.7)',
-                                borderColor: 'rgba(' + color + ', 1)',
+                                backgroundColor: color,
+                                borderColor: color,
                                 borderWidth: 1,
                                 data: Object.values(response.requirementAssigneeCount[legend]),
                             });
@@ -228,8 +229,8 @@
                                         font: {
                                             weight: 'bold'
                                         },
-                                        formatter: (value) => {
-                                            return value > 0 ? value : '';
+                                        formatter: (value, context) => {
+                                            return value > 0 ? [value, context.dataset.label.substring(0, 3)] : '';
                                         }
                                     },
                                     legend: {

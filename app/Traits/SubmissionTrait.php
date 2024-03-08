@@ -47,12 +47,14 @@ trait SubmissionTrait{
             'heading_rejected'           => 'Rejected',
             'heading_pending'            => 'Pending',
             'heading_un_viewed'          => 'Unviewed',
+            'heading_sub_to_end_client'  => 'Sub To End Client',
+            'heading_sub_to_end_client_per'  => 'Sub To End Client Percentage',
             'heading_vendor_no_responce' => 'Vendor No Res.',
             'heading_vendor_rejected'    => 'Vendor Rejected',
             'heading_client_rejected'    => 'Client Rejected',
-            'heading_sub_to_end_client'  => 'Sub To End Client',
             'heading_position_closed'    => 'position Closed',
-            'heading_interview_count'    => 'New Interview Count',
+            'heading_interview_count'    => 'Interview Count (Time Frame)',
+            'heading_interview_count_submission_frame'    => 'Interview Count (Submission Frame)',
             'heading_scheduled'          => 'Scheduled',
             'heading_re_scheduled'       => 'Re Scheduled',
             'heading_another_round'      => 'Another Round',
@@ -83,12 +85,14 @@ trait SubmissionTrait{
             'heading_rejected'           => 'Rejected',
             'heading_pending'            => 'Pending',
             'heading_un_viewed'          => 'Unviewed',
+            'heading_sub_to_end_client'  => 'Sub To End Client',
+            'heading_sub_to_end_client_per'  => 'Sub To End Client Percentage',
             'heading_vendor_no_responce' => 'Vendor No Res.',
             'heading_vendor_rejected'    => 'Vendor Rejected',
             'heading_client_rejected'    => 'Client Rejected',
-            'heading_sub_to_end_client'  => 'Sub To End Client',
             'heading_position_closed'    => 'position Closed',
-            'heading_interview_count'    => 'New Interview Count',
+            'heading_interview_count'    => 'Interview Count (Time Frame)',
+            'heading_interview_count_submission_frame'    => 'Interview Count (Submission Frame)',
             'heading_scheduled'          => 'Scheduled',
             'heading_re_scheduled'       => 'Re Scheduled',
             'heading_another_round'      => 'Another Round',
@@ -115,6 +119,7 @@ trait SubmissionTrait{
         $servablPer                = $this->getPercentage($servedRequirements, $totalAllotedRequirements);
         $submissions               = $this->getTotalRecruiterSubmissionSentCount($date, $userId, $recruiters, $type);
         $bdmAcceptCount            = $this->getTotalRecruiterStatusCount('status', $submissionModel::STATUS_ACCEPT, $date, $userId, $recruiters, $type, $request->frame_type);
+        $subToEndClientCount       = $this->getTotalRecruiterStatusCount('pv_status', $submissionModel::STATUS_SUBMITTED_TO_END_CLIENT, $date, $userId, $recruiters, $type, $request->frame_type);
 
         return [
             'heading_type'                   => $headingType,
@@ -134,12 +139,14 @@ trait SubmissionTrait{
             'bdm_rejected'                   => $this->getTotalRecruiterStatusCount('status', $submissionModel::STATUS_REJECTED, $date, $userId, $recruiters, $type, $request->frame_type),
             'bdm_pending'                    => $this->getTotalRecruiterStatusCount('status', $submissionModel::STATUS_PENDING, $date, $userId, $recruiters, $type, $request->frame_type),
             'bdm_unviewed'                   => $this->getTotalRecruiterStatusCount('status', $submissionModel::STATUS_NOT_VIEWED, $date, $userId, $recruiters, $type, $request->frame_type),
+            'vendor_submitted_to_end_client' => $subToEndClientCount,
+            'vendor_submitted_to_end_client_percentage' => $this->getStatusPercentage($subToEndClientCount, $submissions),
             'vendor_no_responce'             => $this->getTotalRecruiterStatusCount('pv_status', $submissionModel::STATUS_NO_RESPONSE_FROM_PV, $date, $userId, $recruiters, $type, $request->frame_type),
             'vendor_rejected_by_pv'          => $this->getTotalRecruiterStatusCount('pv_status', $submissionModel::STATUS_REJECTED_BY_PV, $date, $userId, $recruiters, $type, $request->frame_type),
             'vendor_rejected_by_client'      => $this->getTotalRecruiterStatusCount('pv_status', $submissionModel::STATUS_REJECTED_BY_END_CLIENT, $date, $userId, $recruiters, $type, $request->frame_type),
-            'vendor_submitted_to_end_client' => $this->getTotalRecruiterStatusCount('pv_status', $submissionModel::STATUS_SUBMITTED_TO_END_CLIENT, $date, $userId, $recruiters, $type, $request->frame_type),
             'vendor_position_closed'         => $this->getTotalRecruiterStatusCount('pv_status', $submissionModel::STATUS_POSITION_CLOSED, $date, $userId, $recruiters, $type, $request->frame_type),
             'interview_count'                => $this->getTotalRecruiterNewInterviewCount($date, $userId, $recruiters, $type),
+            'interview_count_submission_frame' => $this->getTotalRecruiterNewInterviewCount($date, $userId, $recruiters, $type, 1),
             'client_scheduled'               => $this->getTotalRecruiterClientStatusCount($interviewModel::STATUS_SCHEDULED, $date, $userId, $recruiters, $type, $request->frame_type),
             'client_rescheduled'             => $this->getTotalRecruiterClientStatusCount($interviewModel::STATUS_RE_SCHEDULED, $date, $userId, $recruiters, $type, $request->frame_type),
             'client_selected_for_next_round' => $this->getTotalRecruiterClientStatusCount($interviewModel::STATUS_SELECTED_FOR_NEXT_ROUND, $date, $userId, $recruiters, $type, $request->frame_type),
@@ -289,11 +296,11 @@ trait SubmissionTrait{
         return 0;
     }
 
-    public function getTotalRecruiterNewInterviewCount($date, $userId, $recruiters, $type): int
+    public function getTotalRecruiterNewInterviewCount($date, $userId, $recruiters, $type, $isSubmissionFrame = 0): int
     {
-        if(!$this->_userIdWiseRecruiterNewInterviewCount || !isset($this->_userIdWiseRecruiterNewInterviewCount[$type])){
-            $this->_userIdWiseRecruiterNewInterviewCount[$type] = Submission::leftJoin('interviews', 'submissions.id', '=', 'interviews.submission_id')
-                ->whereBetween('interviews.created_at', $date)
+        if(!$this->_userIdWiseRecruiterNewInterviewCount || !isset($this->_userIdWiseRecruiterNewInterviewCount[$isSubmissionFrame]) || !isset($this->_userIdWiseRecruiterNewInterviewCount[$isSubmissionFrame][$type])){
+            $this->_userIdWiseRecruiterNewInterviewCount[$isSubmissionFrame][$type] = Submission::leftJoin('interviews', 'submissions.id', '=', 'interviews.submission_id')
+                ->whereBetween(($isSubmissionFrame) ? 'submissions.created_at' : 'interviews.created_at' , $date)
                 ->whereIn('submissions.user_id', $recruiters)
                 ->groupBy('submissions.user_id')
                 ->selectRaw('submissions.user_id, COUNT(interviews.id) as count')
@@ -301,8 +308,8 @@ trait SubmissionTrait{
                 ->toArray();
         }
 
-        if(isset($this->_userIdWiseRecruiterNewInterviewCount[$type][$userId])){
-            return $this->_userIdWiseRecruiterNewInterviewCount[$type][$userId];
+        if(isset($this->_userIdWiseRecruiterNewInterviewCount[$isSubmissionFrame][$type][$userId])){
+            return $this->_userIdWiseRecruiterNewInterviewCount[$isSubmissionFrame][$type][$userId];
         }
 
         return 0;

@@ -164,6 +164,7 @@
 </div>
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function() {
+        var userColor = {!! $user_color !!};
         var bdmData = {!! $bdm_team_data !!};
         var instanceBdm = $('#individual_bdm_accept_count_bdm').comboTree({
             source : bdmData,
@@ -240,11 +241,11 @@
                     if (response.status == 1) {
                         var datasets = [];
                         Object.keys(response.bdmAcceptCount).forEach(function (legend) {
-                            var color = getRandomColor();
+                            var color = (userColor.hasOwnProperty(legend) && userColor[legend]) ? userColor[legend] : getRandomColor();
                             datasets.push({
                                 label: legend,
-                                backgroundColor: 'rgba(' + color + ', 0.7)',
-                                borderColor: 'rgba(' + color + ', 1)',
+                                backgroundColor: color,
+                                borderColor: color,
                                 borderWidth: 1,
                                 data: Object.values(response.bdmAcceptCount[legend]),
                             });
@@ -291,8 +292,8 @@
                                         font: {
                                             weight: 'bold'
                                         },
-                                        formatter: (value) => {
-                                            return value > 0 ? value : '';
+                                        formatter: (value, context) => {
+                                            return value > 0 ? [value, context.dataset.label.substring(0, 3)] : '';
                                         }
                                     },
                                     legend: {

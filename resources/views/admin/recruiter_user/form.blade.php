@@ -94,4 +94,21 @@
             @endif
         </div>
     </div>
+
+    <div class="col-md-6">
+        <div class="form-group{{ $errors->has('color') ? ' has-error' : '' }}">
+            <label class="col-md-12 control-label" for="color">Color :</label>
+            <div class="input-group my-colorpicker2 colorpicker-element" data-colorpicker-id="color">
+                {!! Form::text('color', null, ['class' => 'form-control', 'placeholder' => 'Enter Color', 'id' => 'color']) !!}
+                <div class="input-group-append">
+                    <span class="input-group-text"><i class="fas fa-square" style="color: @if(isset($recruiter_user['color'])) {{$recruiter_user['color']}} @endif "></i></span>
+                </div>
+            </div>
+            @if ($errors->has('color'))
+                <span class="text-danger">
+                    <strong>{{ $errors->first('color') }}</strong>
+                </span>
+            @endif
+        </div>
+    </div>
 </div>

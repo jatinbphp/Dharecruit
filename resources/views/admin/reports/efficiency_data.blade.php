@@ -29,6 +29,7 @@
     @endif
     @php
         $classData = isset($bdmsData['class_data']) ? $bdmsData['class_data'] : [];
+        $spanClassData = isset($bdmsData['span_class_data']) ? $bdmsData['span_class_data'] : [];
         $headings  = isset($bdmsData['heading']) ? $bdmsData['heading'] : [];
         $i=0;
     @endphp
@@ -47,15 +48,15 @@
                             <th scope="col" colspan="5" class="text-center element-border rm-left-border">Requirement</th>
                             <th scope="col" colspan="2" class="text-center element-border rm-left-border">Submission</th>
                             <th scope="col" colspan="5" class="text-center element-border rm-left-border">BDM Status</th>
-                            <th scope="col" colspan="5" class="text-center element-border rm-left-border">Vendor Status</th>
-                            <th scope="col" colspan="1" class="text-center element-border rm-left-border">Interview</th>
+                            <th scope="col" colspan="6" class="text-center element-border rm-left-border">Vendor Status</th>
+                            <th scope="col" colspan="2" class="text-center element-border rm-left-border">Interview</th>
                             <th scope="col" colspan="7" class="text-center element-border rm-left-border">Client Status</th>
                         </tr>
                         @if($headings && count($headings))
                             <tr>
                                 @foreach($headings as $key => $data)
                                     @php
-                                       $bottomRight = (in_array($key, ['heading_bdm', 'heading_type', 'heading_servable_per', 'servable_per', 'heading_avg_time', 'heading_submission_received', 'avg_time', 'heading_un_viewed', 'bdm_unviewed', 'heading_interview_count', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout', 'heading_tramsfer_out_poc'])) ? 'border-right' : '';
+                                       $bottomRight = (in_array($key, ['heading_bdm', 'heading_type', 'heading_servable_per', 'servable_per', 'heading_avg_time', 'heading_submission_received', 'avg_time', 'heading_un_viewed', 'bdm_unviewed', 'heading_interview_count_submission_frame', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout', 'heading_tramsfer_out_poc'])) ? 'border-right' : '';
                                        $borderLeft = (in_array($key, ['heading_type', 'heading_bdm'])) ? 'border-left' : '';
                                        $scrollClass = '';
                                        if($key == 'heading_bdm'){
@@ -75,17 +76,18 @@
                                         @foreach($rowData as $heading => $data)
                                             @php
                                                 $class = (isset($classData[$heading]) && $data) ? $classData[$heading] : '';
+                                                $spanClass = (isset($spanClassData[$heading]) && $data) ? $spanClassData[$heading] : '';
                                                 $data = ($data) ? $data : '';
                                                 $topBorder = ($key == 'heading') ? 'border-top' : '';
                                                 $bottomBorder = (in_array($key,['time_frame', 'heading']) || (isset($bdmData['time_frame']) && !count($bdmData['time_frame']) && $key == 'last_month')) ? 'border-bottom' : '';
-                                                $bottomRight = (in_array($heading, ['heading_bdm', 'heading_type', 'heading_servable_per', 'servable_per', 'heading_avg_time', 'heading_submission_received', 'avg_time', 'heading_un_viewed', 'bdm_unviewed', 'interview_count', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout', 'tramsfer_out_poc'])) ? 'border-right' : '';
+                                                $bottomRight = (in_array($heading, ['heading_bdm', 'heading_type', 'heading_servable_per', 'servable_per', 'heading_avg_time', 'heading_submission_received', 'avg_time', 'heading_un_viewed', 'bdm_unviewed', 'interview_count_submission_frame', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout', 'tramsfer_out_poc'])) ? 'border-right' : '';
                                                 $borderLeft = (in_array($heading, ['heading_type', 'heading_bdm'])) ? 'border-left' : '';
                                                 $scrollClass = '';
                                                 if($heading == 'heading_type'){
                                                     $scrollClass = 'sticky-col';
                                                 }
                                             @endphp
-                                            <td class="{{"$class $topBorder $bottomBorder $borderLeft $bottomRight $scrollClass"}}">{{$data}}</td>
+                                            <td class="{{"$class $topBorder $bottomBorder $borderLeft $bottomRight $scrollClass"}}"><span class="{{$spanClass}}">{{$data}}</span></td>
                                         @endforeach
                                     </tr>
                                 @endif
@@ -129,6 +131,7 @@
     @endif
     @php
         $classData = isset($recruitersData['class_data']) ? $recruitersData['class_data'] :  [];
+        $spanClassData = isset($recruitersData['span_class_data']) ? $recruitersData['span_class_data'] : [];
         $headings  = isset($recruitersData['heading']) ? $recruitersData['heading'] : [];
         $i=0;
     @endphp
@@ -147,15 +150,15 @@
                         <th scope="col" colspan="4" class="text-center element-border rm-left-border">Requirement</th>
                         <th scope="col" colspan="3" class="text-center element-border rm-left-border">Submission</th>
                         <th scope="col" colspan="5" class="text-center element-border rm-left-border">BDM Status</th>
-                        <th scope="col" colspan="5" class="text-center element-border rm-left-border">Vendor Status</th>
-                        <th scope="col" colspan="1" class="text-center element-border rm-left-border">Interview</th>
+                        <th scope="col" colspan="6" class="text-center element-border rm-left-border">Vendor Status</th>
+                        <th scope="col" colspan="2" class="text-center element-border rm-left-border">Interview</th>
                         <th scope="col" colspan="7" class="text-center element-border rm-left-border">Client Status</th>
                     </tr>
                     @if($headings && count($headings))
                         <tr>
                             @foreach($headings as $key => $data)
                                 @php
-                                    $bottomRight = (in_array($key, ['heading_recruiter', 'heading_type','heading_servable_per', 'heading_avg_time', 'heading_submission_received', 'heading_un_viewed', 'heading_position_closed', 'heading_interview_count', 'heading_client_backout', 'heading_backout', 'heading_new_employee'])) ? 'border-right' : '';
+                                    $bottomRight = (in_array($key, ['heading_recruiter', 'heading_type','heading_servable_per', 'heading_avg_time', 'heading_submission_received', 'heading_un_viewed', 'heading_position_closed', 'heading_interview_count_submission_frame', 'heading_client_backout', 'heading_backout', 'heading_new_employee'])) ? 'border-right' : '';
                                     $borderLeft = (in_array($key, ['heading_type', 'heading_recruiter'])) ? 'border-left' : '';
                                     $scrollClass = '';
                                     if($key == 'heading_recruiter'){
@@ -175,17 +178,18 @@
                                     @foreach($rowData as $heading => $data)
                                         @php
                                             $class = (isset($classData[$heading]) && $data) ? $classData[$heading] : '';
+                                            $spanClass = (isset($spanClassData[$heading]) && $data) ? $spanClassData[$heading] : '';
                                             $data = ($data) ? $data : '';
                                             $topBorder = ($key == 'heading') ? 'border-top' : '';
                                             $bottomBorder = (in_array($key,['time_frame', 'heading']) || (isset($recruitersData['time_frame']) && !count($recruitersData['time_frame']) && $key == 'last_month')) ? 'border-bottom' : '';
-                                            $bottomRight = (in_array($heading, ['heading_recruiter', 'heading_type','heading_servable_per', 'servable_per', 'heading_avg_time', 'avg_time','heading_submission_received', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'interview_count', 'client_backout', 'new_employee'])) ? 'border-right' : '';
+                                            $bottomRight = (in_array($heading, ['heading_recruiter', 'heading_type','heading_servable_per', 'servable_per', 'heading_avg_time', 'avg_time','heading_submission_received', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'interview_count_submission_frame', 'client_backout', 'new_employee'])) ? 'border-right' : '';
                                             $borderLeft = (in_array($heading, ['heading_type', 'heading_recruiter'])) ? 'border-left' : '';
                                             $scrollClass = '';
                                             if($heading == 'heading_type'){
                                                 $scrollClass = 'sticky-col';
                                             }
                                         @endphp
-                                        <td class="{{"$class $topBorder $bottomBorder $borderLeft $bottomRight $scrollClass"}}">{{$data}}</td>
+                                        <td class="{{"$class $topBorder $bottomBorder $borderLeft $bottomRight $scrollClass"}}"><span class="{{$spanClass}}">{{$data}}</span></td>
                                     @endforeach
                                 </tr>
                             @endif
@@ -202,6 +206,7 @@
     @if(isset($bdmTimeFrame['user_data']) && count($bdmTimeFrame['user_data']))
         @php
             $classData = isset($bdmTimeFrame['class_data']) ? $bdmTimeFrame['class_data'] : [];
+            $spanClassData = isset($bdmTimeFrame['span_class_data']) ? $bdmTimeFrame['span_class_data'] : [];
             $headings  = isset($bdmTimeFrame['heading']) ? $bdmTimeFrame['heading'] : [];
         @endphp
             <div class="col-md-12 mt-3 p-3 border border-with-label" data-label="">
@@ -217,15 +222,15 @@
                             <th scope="col" colspan="5" class="text-center element-border rm-left-border">Requirement</th>
                             <th scope="col" colspan="2" class="text-center element-border rm-left-border">Submission</th>
                             <th scope="col" colspan="5" class="text-center element-border rm-left-border">BDM Status</th>
-                            <th scope="col" colspan="5" class="text-center element-border rm-left-border">Vendor Status</th>
-                            <th scope="col" colspan="1" class="text-center element-border rm-left-border">Interview</th>
+                            <th scope="col" colspan="6" class="text-center element-border rm-left-border">Vendor Status</th>
+                            <th scope="col" colspan="2" class="text-center element-border rm-left-border">Interview</th>
                             <th scope="col" colspan="7" class="text-center element-border rm-left-border">Client Status</th>
                         </tr>
                         @if($headings && count($headings))
                             <tr>
                                 @foreach($headings as $key => $data)
                                     @php
-                                        $bottomRight = (in_array($key, ['heading_time_frame', 'heading_type', 'heading_servable_per', 'heading_avg_time', 'heading_interview_count', 'heading_submission_received', 'heading_un_viewed', 'heading_position_closed', 'heading_client_backout', 'heading_backout', 'heading_tramsfer_out_poc'])) ? 'border-right' : '';
+                                        $bottomRight = (in_array($key, ['heading_time_frame', 'heading_type', 'heading_servable_per', 'heading_avg_time', 'heading_interview_count_submission_frame', 'heading_submission_received', 'heading_un_viewed', 'heading_position_closed', 'heading_client_backout', 'heading_backout', 'heading_tramsfer_out_poc'])) ? 'border-right' : '';
                                         $borderLeft = (in_array($key, ['heading_type', 'heading_time_frame'])) ? 'border-left' : '';
                                         $scrollClass = '';
                                         if($key == 'heading_time_frame'){
@@ -248,17 +253,18 @@
                                         @foreach($bdmData as $heading => $data)
                                             @php
                                                 $class = (isset($classData[$heading]) && $data) ? $classData[$heading] : '';
+                                                $spanClass = (isset($spanClassData[$heading]) && $data) ? $spanClassData[$heading] : '';
                                                 $data = ($data) ? $data : '';
                                                 $topBorder = ($key == 'heading') ? 'border-top' : '';
                                                 $bottomBorder = ($key == 'heading' || $i == $totalCount) ? 'border-bottom' : '';
-                                                $bottomRight = (in_array($heading, ['heading_time_frame', 'heading_type', 'heading_servable_per', 'servable_per', 'heading_avg_time', 'interview_count', 'heading_submission_received', 'avg_time', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout','tramsfer_out_poc'])) ? 'border-right' : '';
+                                                $bottomRight = (in_array($heading, ['heading_time_frame', 'heading_type', 'heading_servable_per', 'servable_per', 'heading_avg_time', 'interview_count_submission_frame', 'heading_submission_received', 'avg_time', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout','tramsfer_out_poc'])) ? 'border-right' : '';
                                                 $borderLeft = (in_array($heading, ['heading_type', 'heading_time_frame'])) ? 'border-left' : '';
                                                 $scrollClass = '';
                                                 if($heading == 'heading_type'){
                                                     $scrollClass = 'sticky-col';
                                                 }
                                             @endphp
-                                            <td class="{{"$class $topBorder $bottomBorder $borderLeft $bottomRight $scrollClass"}}">{{$data}}</td>
+                                            <td class="{{"$class $topBorder $bottomBorder $borderLeft $bottomRight $scrollClass"}}"><span class="{{$spanClass}}">{{$data}}</span></td>
                                         @endforeach
                                     </tr>
                                 @endif
@@ -273,6 +279,7 @@
 @if(isset($recruiterTimeFrame) && $recruiterTimeFrame && count($recruiterTimeFrame) && isset($recruiterTimeFrame['user_data']) && count($recruiterTimeFrame['user_data']))
     @php
         $classData = isset($recruiterTimeFrame['class_data']) ? $recruiterTimeFrame['class_data'] : [];
+        $spanClassData = isset($recruiterTimeFrame['span_class_data']) ? $recruiterTimeFrame['span_class_data'] : [];
         $headings  = isset($recruiterTimeFrame['heading']) ? $recruiterTimeFrame['heading'] : [];
     @endphp
     <div class="col-md-12 mt-3 p-3 border border-with-label" data-label="">
@@ -288,15 +295,15 @@
                     <th scope="col" colspan="4" class="text-center element-border rm-left-border">Requirement</th>
                     <th scope="col" colspan="3" class="text-center element-border rm-left-border">Submission</th>
                     <th scope="col" colspan="5" class="text-center element-border rm-left-border">BDM Status</th>
-                    <th scope="col" colspan="5" class="text-center element-border rm-left-border">Vendor Status</th>
-                    <th scope="col" colspan="1" class="text-center element-border rm-left-border">Interview</th>
+                    <th scope="col" colspan="6" class="text-center element-border rm-left-border">Vendor Status</th>
+                    <th scope="col" colspan="2" class="text-center element-border rm-left-border">Interview</th>
                     <th scope="col" colspan="7" class="text-center element-border rm-left-border">Client Status</th>
                 </tr>
                 @if($headings && count($headings))
                     <tr>
                         @foreach($headings as $key => $data)
                             @php
-                                $bottomRight = (in_array($key, ['heading_recruiter', 'heading_new_employee', 'heading_time_frame' ,'heading_type','heading_servable_per', 'heading_avg_time','heading_submission_received', 'heading_un_viewed', 'heading_position_closed', 'heading_client_backout', 'heading_backout','heading_interview_count'])) ? 'border-right' : '';
+                                $bottomRight = (in_array($key, ['heading_recruiter', 'heading_new_employee', 'heading_time_frame' ,'heading_type','heading_servable_per', 'heading_avg_time','heading_submission_received', 'heading_un_viewed', 'heading_position_closed', 'heading_client_backout', 'heading_backout','heading_interview_count_submission_frame'])) ? 'border-right' : '';
                                 $borderLeft = (in_array($key, ['heading_type', 'heading_time_frame'])) ? 'border-left' : '';
                                 $scrollClass = '';
                                 if($key == 'heading_time_frame'){
@@ -319,17 +326,18 @@
                             @foreach($recruiterData as $heading => $data)
                                 @php
                                     $class = (isset($classData[$heading]) && $data) ? $classData[$heading] : '';
+                                    $spanClass = (isset($spanClassData[$heading]) && $data) ? $spanClassData[$heading] : '';
                                     $data = ($data) ? $data : '';
                                     $topBorder = ($key == 'heading') ? 'border-top' : '';
                                     $bottomBorder = ($key == 'heading' || $i == $totalCount) ? 'border-bottom' : '';
-                                    $bottomRight = (in_array($heading, ['heading_recruiter', 'new_employee', 'heading_time_frame' ,'heading_type','heading_servable_per', 'servable_per', 'heading_avg_time', 'avg_time','heading_submission_received', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout', 'interview_count'])) ? 'border-right' : '';
+                                    $bottomRight = (in_array($heading, ['heading_recruiter', 'new_employee', 'heading_time_frame' ,'heading_type','heading_servable_per', 'servable_per', 'heading_avg_time', 'avg_time','heading_submission_received', 'heading_un_viewed', 'bdm_unviewed', 'heading_position_closed', 'vendor_position_closed', 'heading_client_backout', 'heading_backout', 'client_backout', 'interview_count_submission_frame'])) ? 'border-right' : '';
                                     $borderLeft = (in_array($heading, ['heading_type', 'heading_time_frame'])) ? 'border-left' : '';
                                     $scrollClass = '';
                                     if($heading == 'heading_type'){
                                         $scrollClass = 'sticky-col';
                                     }
                                 @endphp
-                                <td class="{{"$class $topBorder $bottomBorder $borderLeft $bottomRight $scrollClass"}}">{{$data}}</td>
+                                <td class="{{"$class $topBorder $bottomBorder $borderLeft $bottomRight $scrollClass"}}"><span class="{{$spanClass}}">{{$data}}</span></td>
                             @endforeach
                         </tr>
                     @endif

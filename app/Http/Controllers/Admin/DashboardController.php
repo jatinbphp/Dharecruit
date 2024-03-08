@@ -48,6 +48,8 @@ class DashboardController extends Controller
             }
         } else {
             $teams = Team::Join('team_members', 'teams.id', '=', 'team_members.team_id')
+                ->join('admins', 'admins.id', '=', 'team_members.member_id')
+                ->where('admins.status', 'active')
                 ->select('teams.*')
                 ->where('team_type', $type)
                 ->Where('team_members.member_id', getLoggedInUserId())
@@ -62,7 +64,7 @@ class DashboardController extends Controller
                 $subs = $team->teamMembers->map(function ($member) {
                     return [
                         'id' => $member->member_id,
-                        'title' => $member->membersData->name
+                        'title' => $member->membersData->name,
                     ];
                 })->toArray();
             } else {
@@ -88,13 +90,13 @@ class DashboardController extends Controller
             $formattedData[] = $formattedTeam;
         }
 
-        $userCollection = Admin::where('role', ($type == Team::TEAM_TYPE_BDM) ? 'bdm' : 'recruiter');
+        $userCollection = Admin::where('role', ($type == Team::TEAM_TYPE_BDM) ? 'bdm' : 'recruiter')->where('status', 'active');
         $users = [];
 
         if(getLoggedInUserRole() == 'admin'){
             $users = $userCollection->get();
         } else {
-            if(!isLeadUser() && !isManager()){
+            if(!isLeadUser()){
                 $users = $userCollection->where('id', getLoggedInUserId())->get();
             }
         }
@@ -185,6 +187,7 @@ class DashboardController extends Controller
         $data['monthlyServedCounts']     = $this->getservedRequirementCount('monthly', 0);
         $data['rec_team_data']           = json_encode($this->getTeamData(Team::TEAM_TYPE_RECRUITER));
         $data['bdm_team_data']           = json_encode($this->getTeamData(Team::TEAM_TYPE_BDM));
+        $data['user_color']              = json_encode(Admin::getUserNameWiseColor());
 
         return view('admin.dashboard',$data);
     }
@@ -902,7 +905,7 @@ class DashboardController extends Controller
                 if($type == 'time_frame'){
                     $timeFrameKey = $value;
                 }
-                $preparedData[$userId.'-'.$name][$value] = 0;
+                $preparedData[$name][$value] = 0;
             }
         }
 
@@ -988,7 +991,7 @@ class DashboardController extends Controller
                 ->whereIn('admins.id', $bdmUser)
                 ->whereBetween('interviews.created_at', [$fromDate, $toDate])
                 ->groupBy('interview_date', 'id')
-                ->select(\DB::raw('DATE(interviews.created_at) as date'),\DB::raw('CONCAT(admins.id, "-", admins.name) AS user'), 'admins.id', \DB::raw('COUNT(*) as count'));
+                ->select(\DB::raw('DATE(interviews.created_at) as date'),'admins.name AS user', 'admins.id', \DB::raw('COUNT(*) as count'));
             if(isManager()){
                 $collection->whereIn('admins.id', getManagerAllUsers());
             } elseif (isLeadUser()){
@@ -1003,7 +1006,7 @@ class DashboardController extends Controller
                 ->whereIn('admins.id', $recruiterUser)
                 ->whereBetween('interviews.created_at', [$fromDate, $toDate])
                 ->groupBy('interview_date', 'id')
-                ->select(\DB::raw('DATE(interviews.created_at) as date'), \DB::raw('CONCAT(admins.id, "-", admins.name) AS user'), 'admins.id', \DB::raw('COUNT(*) as count'));
+                ->select(\DB::raw('DATE(interviews.created_at) as date'), 'admins.name AS user', 'admins.id', \DB::raw('COUNT(*) as count'));
             if(isManager()){
                 $collection->whereIn('admins.id', getManagerAllUsers());
             } elseif (isLeadUser()){
@@ -1042,7 +1045,7 @@ class DashboardController extends Controller
             ->leftJoin('admins', 'admins.id', '=', 'assign_to_recruiters.recruiter_id')
             ->whereIN('recruiter_id', $recruiters)
             ->whereBetween('assign_to_recruiters.created_at', [$startDate, $endDate])
-            ->select(\DB::raw('DATE(assign_to_recruiters.created_at) AS date'), \DB::raw('CONCAT(admins.id, "-", admins.name) AS user'), \DB::raw('COUNT(assign_to_recruiters.requirement_id) as count'), 'admins.id');
+            ->select(\DB::raw('DATE(assign_to_recruiters.created_at) AS date'), 'admins.name AS user', \DB::raw('COUNT(assign_to_recruiters.requirement_id) as count'), 'admins.id');
 
         if($isUniq) {
             $collection->where(function ($query) {
@@ -1078,7 +1081,7 @@ class DashboardController extends Controller
 
         if($userType == 'recruiter' && $recruiters){
             $collection = Submission::leftJoin('admins', 'admins.id', '=', 'submissions.user_id')
-                ->select(\DB::raw('DATE(submissions.created_at) AS date'), \DB::raw('CONCAT(admins.id, "-", admins.name) AS user'), \DB::raw('COUNT(submissions.id) as count'), 'admins.id')
+                ->select(\DB::raw('DATE(submissions.created_at) AS date'), 'admins.name AS user', \DB::raw('COUNT(submissions.id) as count'), 'admins.id')
                 ->whereIn('user_id', $recruiters)
                 ->whereBetween('submissions.created_at', [$fromDate, $toDate]);
 
@@ -1090,7 +1093,7 @@ class DashboardController extends Controller
         } elseif ($userType == 'bdm' && $bdmUser){
             $collection = Requirement::leftjoin('submissions', 'submissions.requirement_id', '=', 'requirements.id')
                 ->leftJoin('admins', 'admins.id', '=', 'requirements.user_id')
-                ->select(\DB::raw('DATE(submissions.created_at) AS date'), \DB::raw('CONCAT(admins.id, "-", admins.name) AS user'), \DB::raw('COUNT(submissions.id) as count'), 'admins.id')
+                ->select(\DB::raw('DATE(submissions.created_at) AS date'), 'admins.name AS user', \DB::raw('COUNT(submissions.id) as count'), 'admins.id')
                 ->whereIn('requirements.user_id', $bdmUser)
                 ->whereBetween('submissions.created_at', [$fromDate, $toDate]);
             if($isUniSub){
@@ -1129,7 +1132,7 @@ class DashboardController extends Controller
 
         if($userType == 'recruiter' && $recruiters){
             $collection = Submission::leftJoin('admins', 'admins.id', '=', 'submissions.user_id')
-                ->select(\DB::raw('DATE(submissions.created_at) AS date'), \DB::raw('CONCAT(admins.id, "-", admins.name) AS user'), \DB::raw('COUNT(DISTINCT submissions.requirement_id) as count'), 'admins.id')
+                ->select(\DB::raw('DATE(submissions.created_at) AS date'), 'admins.name AS user', \DB::raw('COUNT(DISTINCT submissions.requirement_id) as count'), 'admins.id')
                 ->whereIn('user_id', $recruiters)
                 ->whereBetween('submissions.created_at', [$fromDate, $toDate]);
 
@@ -1141,7 +1144,7 @@ class DashboardController extends Controller
         } elseif ($userType == 'bdm' && $bdmUser){
             $collection = Requirement::leftjoin('submissions', 'submissions.requirement_id', '=', 'requirements.id')
                 ->leftJoin('admins', 'admins.id', '=', 'requirements.user_id')
-                ->select(\DB::raw('DATE(submissions.created_at) AS date'), \DB::raw('CONCAT(admins.id, "-", admins.name) AS user'), \DB::raw('COUNT(DISTINCT submissions.requirement_id) as count'), 'admins.id')
+                ->select(\DB::raw('DATE(submissions.created_at) AS date'), 'admins.name AS user', \DB::raw('COUNT(DISTINCT submissions.requirement_id) as count'), 'admins.id')
                 ->whereIn('requirements.user_id', $bdmUser)
                 ->whereBetween('submissions.created_at', [$fromDate, $toDate]);
             if($isUniSub){
@@ -1182,7 +1185,7 @@ class DashboardController extends Controller
         }
 
         $collection = Requirement::leftJoin('admins', 'admins.id', '=', 'requirements.user_id')
-            ->select(\DB::raw('DATE(requirements.created_at) AS date'), \DB::raw('CONCAT(admins.id, "-", admins.name) AS user'), \DB::raw('COUNT(requirements.id) as count'), 'admins.id')
+            ->select(\DB::raw('DATE(requirements.created_at) AS date'), 'admins.name AS user', \DB::raw('COUNT(requirements.id) as count'), 'admins.id')
             ->whereIn('requirements.user_id', $bdms)
             ->whereBetween('requirements.created_at', [$startDate, $endDate]);
 
@@ -1247,7 +1250,7 @@ class DashboardController extends Controller
             } else {
                 $collection->whereBetween($date, [$fromDate, $toDate]);
             }
-            $statusCounts = $collection->select(\DB::raw("DATE($date) AS date"), \DB::raw('CONCAT(admins.id, "-", admins.name) AS user'), \DB::raw('COUNT(submissions.id) as count'), 'admins.id')
+            $statusCounts = $collection->select(\DB::raw("DATE($date) AS date"), 'admins.name AS user', \DB::raw('COUNT(submissions.id) as count'), 'admins.id')
                 ->groupBy('date', 'requirements.user_id')
                 ->get();
 
@@ -1260,7 +1263,7 @@ class DashboardController extends Controller
             } else {
                 $collection->whereBetween($date, [$fromDate, $toDate]);
             }
-            $statusCounts = $collection->select(\DB::raw("DATE($date) AS date"), \DB::raw('CONCAT(admins.id, "-", admins.name) AS user'), \DB::raw('COUNT(submissions.id) as count'), 'admins.id')
+            $statusCounts = $collection->select(\DB::raw("DATE($date) AS date"), 'admins.name AS user', \DB::raw('COUNT(submissions.id) as count'), 'admins.id')
                 ->groupBy('date', 'submissions.user_id')
                 ->get();
         }

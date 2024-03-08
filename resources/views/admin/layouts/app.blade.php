@@ -221,6 +221,10 @@
             left: 0;
             z-index: 999;
         }
+        .report-badge {
+            font-size: 1rem;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body class="hold-transition sidebar-mini sidebar-collapse" id="bodyid">
@@ -1564,7 +1568,7 @@
             b = Math.floor(Math.random() * 256);
         } while (r < threshold && g < threshold && b < threshold);
 
-        return r + ',' + g + ',' + b;
+        return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
     }
 
     function prepareDatesBasedOnStepSize(fromDateInput, toDateInput, stepValue, stepType){

@@ -25,6 +25,7 @@ class Admin extends Authenticatable
         'added_by',
         'is_allow_transfer_key',
         'transfer_key',
+        'color',
     ];
 
     protected $hidden = [
@@ -111,5 +112,10 @@ class Admin extends Authenticatable
 
     public static function getActiveEmployees(){
         return Admin::where('status','active')->where('role', 'employee')->orderBy('employee_name')->distinct()->pluck('employee_name','employee_name');
+    }
+
+    public static function getUserNameWiseColor()
+    {
+        return Admin::whereNotNull('color')->pluck('color', 'name')->toArray();
     }
 }

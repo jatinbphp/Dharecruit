@@ -32,7 +32,7 @@ class Team extends Model
     }
     public function teamMembers()
     {
-        return $this->hasMany(TeamMember::class);
+        return $this->hasMany(TeamMember::class)->has('membersData');
     }
 
     public function TeanLead(){

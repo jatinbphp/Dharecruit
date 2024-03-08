@@ -14,7 +14,7 @@ class TeamMember extends Model
     ];
 
     public function membersData(){
-        return $this->belongsTo('App\Models\Admin','member_id');
+        return $this->belongsTo('App\Models\Admin','member_id')->where('status', 'active');
     }
     public static function getTeamUsers(){
         $team = Team::with('teamMembers')

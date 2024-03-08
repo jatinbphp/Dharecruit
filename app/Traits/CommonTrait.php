@@ -116,6 +116,7 @@ trait CommonTrait {
             'servable_per'                   => '',
             'submission_received'            => 'font-weight-bold',
             'bdm_accept'                     => 'text-success',
+            'bdm_accept_percentage'          => 'text-success',
             'bdm_rejected'                   => 'text-danger',
             'bdm_unviewed'                   => 'text-primary',
             'bdm_pending'                    => 'text-primary',
@@ -123,6 +124,7 @@ trait CommonTrait {
             'vendor_rejected_by_pv'          => 'text-danger',
             'vendor_rejected_by_client'      => 'font-weight-bold text-danger',
             'vendor_submitted_to_end_client' => 'font-weight-bold text-success',
+            'vendor_submitted_to_end_client_percentage' => 'font-weight-bold text-success',
             'vendor_position_closed'         => 'text-secondary',
             'client_rescheduled'             => 'text-warning',
             'client_scheduled'               => 'text-warning',
@@ -131,6 +133,18 @@ trait CommonTrait {
             'client_confirmed_position'      => 'font-weight-bold text-success',
             'client_rejected'                => 'font-weight-bold text-danger',
             'client_backout'                 => 'font-weight-bold text-dark',
+            'interview_count'                => 'font-weight-bold text-dark',
+        ];
+    }
+    public function getKeyWiseSpanClass(): array
+    {
+        return [
+            'submission_received'            => 'badge badge-dark report-badge p-2',
+            'bdm_accept'                     => 'badge badge-success report-badge p-2',
+            'bdm_accept_percentage'          => 'badge badge-dark report-badge p-2',
+            'vendor_submitted_to_end_client' => 'badge badge-dark report-badge p-2',
+            'vendor_submitted_to_end_client_percentage' => 'badge badge-dark report-badge p-2',
+            'interview_count'                => 'badge badge-dark report-badge p-2',
         ];
     }
 
