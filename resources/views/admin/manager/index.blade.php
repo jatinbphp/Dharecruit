@@ -63,7 +63,7 @@
                         </div>
 
                         <div class="callout callout-info">
-                            <h4><i class="fa fa-users-cog"></i> Recruiter Team:</h4>
+                            <h4><i class="fa fa-users-cog"></i> Recruiter Teams:</h4>
                             <div class="row m-2"    >
                                 @if($teamRecData->count())
                                     @foreach($teamRecData as $team)

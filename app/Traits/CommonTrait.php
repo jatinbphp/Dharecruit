@@ -139,12 +139,13 @@ trait CommonTrait {
     public function getKeyWiseSpanClass(): array
     {
         return [
-            'submission_received'            => 'badge badge-dark report-badge p-2',
+            'submission_sent'            => 'badge badge-success report-badge p-2',
+            'submission_received'            => 'badge badge-success report-badge p-2',
             'bdm_accept'                     => 'badge badge-success report-badge p-2',
-            'bdm_accept_percentage'          => 'badge badge-dark report-badge p-2',
-            'vendor_submitted_to_end_client' => 'badge badge-dark report-badge p-2',
-            'vendor_submitted_to_end_client_percentage' => 'badge badge-dark report-badge p-2',
-            'interview_count'                => 'badge badge-dark report-badge p-2',
+            'bdm_accept_percentage'          => 'badge badge-info report-badge p-2',
+            'vendor_submitted_to_end_client' => 'badge badge-success report-badge p-2',
+            'vendor_submitted_to_end_client_percentage' => 'badge badge-info report-badge p-2',
+            'interview_count'                => 'badge badge-success report-badge p-2',
         ];
     }
 
@@ -839,7 +840,7 @@ trait CommonTrait {
         if($numerator == 0 || $denominator == 0){
             return ;
         }
-        $percentage = round((($numerator / $denominator) * 100), 2);
+        $percentage = round((($numerator / $denominator) * 100));
         if($isSign && $percentage){
             $percentage .= '%';
         }

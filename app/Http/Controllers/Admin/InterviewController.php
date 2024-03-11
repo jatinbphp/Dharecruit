@@ -319,6 +319,9 @@ class InterviewController extends Controller
             ->addColumn('job_id', function($row){
                 return '<span class=" job-title" data-id="'.$row->Submission->requirement_id.'">'.$row->job_id.'</span>';;
             })
+            ->filterColumn('candidate_filter', function ($query, $keyword) {
+                $query->whereRaw("(SUBSTRING_INDEX(submissions.name, ' ', 1) LIKE ?)", ["%{$keyword}%"]);
+            })
             ->rawColumns(['status','candidate_name','action','candidate_phone_number','emp_poc','candidate_email','employer_name','employee_name','poc_name','pv_name','hiring_manager','client','interview_time','job_id'])
             ->make(true);
     }

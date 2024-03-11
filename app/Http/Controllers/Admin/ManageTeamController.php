@@ -237,14 +237,15 @@ class ManageTeamController extends Controller
 
         if($team->id){
             if($team->team_lead_id){
-                $oldManagerData = Team::where('manager_id', $team->team_lead_id)->first();
-                if($oldManagerData){
-                    $oldManagerData->update(['manager_id', 0]);
-                }
+                TeamMember::where('member_id', $team->team_lead_id)->delete();
+                TeamMember::create([
+                    'team_id' => $team->id,
+                    'member_id' => $request->team_lead_id,
+                ]);
+                $team->team_lead_id = $request->team_lead_id;
+                $team->save();
+                $data['status'] = 1;
             }
-            $team->team_lead_id = $request->team_lead_id;
-            $team->save();
-            $data['status'] = 1;
         }
         $data['html'] = view('admin.team.teamData', $this->getAllListData())->toHtml();
         return $data;

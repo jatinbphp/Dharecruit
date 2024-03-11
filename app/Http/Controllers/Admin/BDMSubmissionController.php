@@ -458,6 +458,9 @@ class BDMSubmissionController extends Controller
                 $status .= "<span class='feedback' style='display:none'>".$this->getTooltipHtml($interviewFeedback)."</span>";
                 return $status;
             })
+            ->filterColumn('candidate_filter', function ($query, $keyword) {
+                $query->whereRaw("(SUBSTRING_INDEX(submissions.name, ' ', 1) LIKE ?)", ["%{$keyword}%"]);
+            })
             ->rawColumns(['poc','pv','employer_name','employee_name','candidate_name','action','bdm_status','pv_status','emp_poc','created_at','client_status'])
             ->make(true);
     }

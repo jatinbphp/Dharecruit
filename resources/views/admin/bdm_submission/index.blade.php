@@ -401,7 +401,7 @@
                         }
                     },
                 @endif
-                {data: 'candidate_name',  name: 'candidate_name', 'orderable': false, searchable: false},
+                {data: 'candidate_name',  name: 'candidate_filter', 'orderable': false},
                 @if($type != 3)
                     {data: 'employer_name',  name: 'employer_name'},
                 @endif
@@ -413,6 +413,16 @@
                 {data: 'client_status', "width": "10%", name: 'interview_status_updated_at', searchable: false},
                 // {data: 'action', "width": "9%", name: 'action', orderable: false, searchable: false},
             ],
+            initComplete: function(settings, json) {
+                $("#mySubmissionTable_length").detach().appendTo("#pageLendthSection");
+                $("#mySubmissionTable_filter").addClass('float-right').detach().appendTo("#searchSection");
+                $('select[name="mySubmissionTable_length"]').css({
+                    'width': 'auto',
+                });
+                $('#mySubmissionTable_length').css({
+                    'display': 'flex',
+                }).addClass('mt-4');
+            }
         });
 
         $('#mySubmissionTable').on('draw.dt', function () {
@@ -424,14 +434,6 @@
             $('#toggle-poc').trigger('change');
             $('#show_employer_name').trigger('change');
             $('#emp_poc').trigger('change');
-            $("#mySubmissionTable_length").detach().appendTo("#pageLendthSection");
-            $("#mySubmissionTable_filter").addClass('float-right').detach().appendTo("#searchSection");
-            $('select[name="mySubmissionTable_length"]').css({
-                'width': 'auto',
-            });
-            $('#mySubmissionTable_length').css({
-                'display': 'flex',
-            }).addClass('mt-4');
         });
     }
 

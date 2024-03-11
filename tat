@@ -1,0 +1,331 @@
+[1mdiff --git a/app/Http/Controllers/Admin/BDMSubmissionController.php b/app/Http/Controllers/Admin/BDMSubmissionController.php[m
+[1mindex 686f61c..c6f9524 100755[m
+[1m--- a/app/Http/Controllers/Admin/BDMSubmissionController.php[m
+[1m+++ b/app/Http/Controllers/Admin/BDMSubmissionController.php[m
+[36m@@ -458,6 +458,9 @@[m [mclass BDMSubmissionController extends Controller[m
+                 $status .= "<span class='feedback' style='display:none'>".$this->getTooltipHtml($interviewFeedback)."</span>";[m
+                 return $status;[m
+             })[m
+[32m+[m[32m            ->filterColumn('candidate_filter', function ($query, $keyword) {[m
+[32m+[m[32m                $query->whereRaw("(SUBSTRING_INDEX(submissions.name, ' ', 1) LIKE ?)", ["%{$keyword}%"]);[m
+[32m+[m[32m            })[m
+             ->rawColumns(['poc','pv','employer_name','employee_name','candidate_name','action','bdm_status','pv_status','emp_poc','created_at','client_status'])[m
+             ->make(true);[m
+     }[m
+[1mdiff --git a/app/Http/Controllers/Admin/DashboardController.php b/app/Http/Controllers/Admin/DashboardController.php[m
+[1mindex 154a049..db44383 100755[m
+[1m--- a/app/Http/Controllers/Admin/DashboardController.php[m
+[1m+++ b/app/Http/Controllers/Admin/DashboardController.php[m
+[36m@@ -61,10 +61,10 @@[m [mclass DashboardController extends Controller[m
+         foreach ($teams as $team) {[m
+             $member = TeamMember::where('team_id', $team->id)->get();[m
+             if(isLeadUser() || isManager() || getLoggedInUserRole() == 'admin'){[m
+[31m-                $subs = $team->teamMembers->map(function ($member) {[m
+[32m+[m[32m                $subs = $team->teamMembers->map(function ($member) use($team) {[m
+                     return [[m
+                         'id' => $member->member_id,[m
+[31m-                        'title' => $member->membersData->name,[m
+[32m+[m[32m                        'title' => $member->membersData->name . (($team->team_lead_id == $member->member_id) ? ' (Team Lead)' : ''),[m
+                     ];[m
+                 })->toArray();[m
+             } else {[m
+[36m@@ -74,13 +74,6 @@[m [mclass DashboardController extends Controller[m
+                 ];[m
+             }[m
+ [m
+[31m-            if ($team->team_lead_id == $loggedInUserId) {[m
+[31m-                array_unshift($subs,[[m
+[31m-                    'id' => $loggedInUserId,[m
+[31m-                    'title' => $loggedInUserName . '(Team Lead)',[m
+[31m-                ]);[m
+[31m-            }[m
+[31m-[m
+             $formattedTeam = [[m
+                 'id' => 'team-' . $team->id,[m
+                 'title' => $team->team_name,[m
+[1mdiff --git a/app/Http/Controllers/Admin/InterviewController.php b/app/Http/Controllers/Admin/InterviewController.php[m
+[1mindex 953752f..a744cad 100755[m
+[1m--- a/app/Http/Controllers/Admin/InterviewController.php[m
+[1m+++ b/app/Http/Controllers/Admin/InterviewController.php[m
+[36m@@ -319,6 +319,9 @@[m [mclass InterviewController extends Controller[m
+             ->addColumn('job_id', function($row){[m
+                 return '<span class=" job-title" data-id="'.$row->Submission->requirement_id.'">'.$row->job_id.'</span>';;[m
+             })[m
+[32m+[m[32m            ->filterColumn('candidate_filter', function ($query, $keyword) {[m
+[32m+[m[32m                $query->whereRaw("(SUBSTRING_INDEX(submissions.name, ' ', 1) LIKE ?)", ["%{$keyword}%"]);[m
+[32m+[m[32m            })[m
+             ->rawColumns(['status','candidate_name','action','candidate_phone_number','emp_poc','candidate_email','employer_name','employee_name','poc_name','pv_name','hiring_manager','client','interview_time','job_id'])[m
+             ->make(true);[m
+     }[m
+[1mdiff --git a/app/Http/Controllers/Admin/ManageTeamController.php b/app/Http/Controllers/Admin/ManageTeamController.php[m
+[1mindex a15d3a9..f5b2b41 100644[m
+[1m--- a/app/Http/Controllers/Admin/ManageTeamController.php[m
+[1m+++ b/app/Http/Controllers/Admin/ManageTeamController.php[m
+[36m@@ -237,14 +237,15 @@[m [mclass ManageTeamController extends Controller[m
+ [m
+         if($team->id){[m
+             if($team->team_lead_id){[m
+[31m-                $oldManagerData = Team::where('manager_id', $team->team_lead_id)->first();[m
+[31m-                if($oldManagerData){[m
+[31m-                    $oldManagerData->update(['manager_id', 0]);[m
+[31m-                }[m
+[32m+[m[32m                TeamMember::where('member_id', $team->team_lead_id)->delete();[m
+[32m+[m[32m                TeamMember::create([[m
+[32m+[m[32m                    'team_id' => $team->id,[m
+[32m+[m[32m                    'member_id' => $request->team_lead_id,[m
+[32m+[m[32m                ]);[m
+[32m+[m[32m                $team->team_lead_id = $request->team_lead_id;[m
+[32m+[m[32m                $team->save();[m
+[32m+[m[32m                $data['status'] = 1;[m
+             }[m
+[31m-            $team->team_lead_id = $request->team_lead_id;[m
+[31m-            $team->save();[m
+[31m-            $data['status'] = 1;[m
+         }[m
+         $data['html'] = view('admin.team.teamData', $this->getAllListData())->toHtml();[m
+         return $data;[m
+[1mdiff --git a/app/Http/Controllers/Controller.php b/app/Http/Controllers/Controller.php[m
+[1mindex 3a74c6c..891f145 100755[m
+[1m--- a/app/Http/Controllers/Controller.php[m
+[1m+++ b/app/Http/Controllers/Controller.php[m
+[36m@@ -111,6 +111,9 @@[m [mclass Controller extends BaseController[m
+             ->filterColumn('poc_count_in_days', function ($query, $keyword) use (&$createdAtDateAsPerConfiguration) {[m
+                 $query->whereRaw('(SELECT COUNT(*) FROM requirements r2 WHERE r2.poc_email = requirements.poc_email and r2.poc_name = requirements.poc_name and (r2.id = r2.parent_requirement_id or r2.parent_requirement_id = 0) and r2.created_at >= ?) LIKE ?', [$createdAtDateAsPerConfiguration, "%{$keyword}%"]);[m
+             })[m
+[32m+[m[32m            ->filterColumn('candidate_name', function ($query, $keyword) {[m
+[32m+[m[32m                $query->whereRaw("requirements.id IN (SELECT requirement_id FROM submissions WHERE SUBSTRING_INDEX(name, ' ', 1) LIKE ?)", ["%{$keyword}%"]);[m
+[32m+[m[32m            })[m
+             ->setRowClass(function ($row) {[m
+                 return (($row->parent_requirement_id != 0 && $row->parent_requirement_id == $row->id) ? 'parent-row' : (($row->parent_requirement_id != 0) ? 'child-row' : ''));[m
+             })[m
+[1mdiff --git a/app/Traits/CommonTrait.php b/app/Traits/CommonTrait.php[m
+[1mindex 1d50730..c6d4270 100644[m
+[1m--- a/app/Traits/CommonTrait.php[m
+[1m+++ b/app/Traits/CommonTrait.php[m
+[36m@@ -139,12 +139,13 @@[m [mtrait CommonTrait {[m
+     public function getKeyWiseSpanClass(): array[m
+     {[m
+         return [[m
+[31m-            'submission_received'            => 'badge badge-dark report-badge p-2',[m
+[32m+[m[32m            'submission_sent'            => 'badge badge-success report-badge p-2',[m
+[32m+[m[32m            'submission_received'            => 'badge badge-success report-badge p-2',[m
+             'bdm_accept'                     => 'badge badge-success report-badge p-2',[m
+[31m-            'bdm_accept_percentage'          => 'badge badge-dark report-badge p-2',[m
+[31m-            'vendor_submitted_to_end_client' => 'badge badge-dark report-badge p-2',[m
+[31m-            'vendor_submitted_to_end_client_percentage' => 'badge badge-dark report-badge p-2',[m
+[31m-            'interview_count'                => 'badge badge-dark report-badge p-2',[m
+[32m+[m[32m            'bdm_accept_percentage'          => 'badge badge-info report-badge p-2',[m
+[32m+[m[32m            'vendor_submitted_to_end_client' => 'badge badge-success report-badge p-2',[m
+[32m+[m[32m            'vendor_submitted_to_end_client_percentage' => 'badge badge-info report-badge p-2',[m
+[32m+[m[32m            'interview_count'                => 'badge badge-success report-badge p-2',[m
+         ];[m
+     }[m
+ [m
+[36m@@ -839,7 +840,7 @@[m [mtrait CommonTrait {[m
+         if($numerator == 0 || $denominator == 0){[m
+             return ;[m
+         }[m
+[31m-        $percentage = round((($numerator / $denominator) * 100), 2);[m
+[32m+[m[32m        $percentage = round((($numerator / $denominator) * 100));[m
+         if($isSign && $percentage){[m
+             $percentage .= '%';[m
+         }[m
+[1mdiff --git a/app/Traits/RequirementTrait.php b/app/Traits/RequirementTrait.php[m
+[1mindex 6859a81..c595ec1 100644[m
+[1m--- a/app/Traits/RequirementTrait.php[m
+[1m+++ b/app/Traits/RequirementTrait.php[m
+[36m@@ -46,12 +46,12 @@[m [mtrait RequirementTrait[m
+             'heading_sub_rec'            => 'Sub Rec',[m
+             'heading_avg_time'           => 'Avg Time (in minutes)',[m
+             'heading_accept'             => 'Accept',[m
+[31m-            'heading_accept_percentage'  => 'Accept Percentage',[m
+[32m+[m[32m            'heading_accept_percentage'  => 'Accept %',[m
+             'heading_rejected'           => 'Rejected',[m
+             'heading_pending'            => 'Pending',[m
+             'heading_un_viewed'          => 'Unviewed',[m
+             'heading_sub_to_end_client'  => 'Sub To End Client',[m
+[31m-            'heading_sub_to_end_client_per'  => 'Sub To End Client Percentage',[m
+[32m+[m[32m            'heading_sub_to_end_client_per'  => 'Sub To End Client %',[m
+             'heading_vendor_no_responce' => 'Vendor No Res.',[m
+             'heading_vendor_rejected'    => 'Vendor Rejected',[m
+             'heading_client_rejected'    => 'Client Rejected',[m
+[36m@@ -86,12 +86,12 @@[m [mtrait RequirementTrait[m
+             'heading_sub_rec'            => 'Sub Rec',[m
+             'heading_avg_time'           => 'Avg Time (in minutes)',[m
+             'heading_accept'             => 'Accept',[m
+[31m-            'heading_accept_percentage'  => 'Accept Percentage',[m
+[32m+[m[32m            'heading_accept_percentage'  => 'Accept %',[m
+             'heading_rejected'           => 'Rejected',[m
+             'heading_pending'            => 'Pending',[m
+             'heading_un_viewed'          => 'Unviewed',[m
+             'heading_sub_to_end_client'  => 'Sub To End Client',[m
+[31m-            'heading_sub_to_end_client_per'  => 'Sub To End Client Percentage',[m
+[32m+[m[32m            'heading_sub_to_end_client_per'  => 'Sub To End Client %',[m
+             'heading_vendor_no_responce' => 'Vendor No Res.',[m
+             'heading_vendor_rejected'    => 'Vendor Rejected',[m
+             'heading_client_rejected'    => 'Client Rejected',[m
+[1mdiff --git a/app/Traits/SubmissionTrait.php b/app/Traits/SubmissionTrait.php[m
+[1mindex 7c407ae..0c3d247 100644[m
+[1m--- a/app/Traits/SubmissionTrait.php[m
+[1m+++ b/app/Traits/SubmissionTrait.php[m
+[36m@@ -43,12 +43,12 @@[m [mtrait SubmissionTrait{[m
+             'heading_uniq_sub'           =>'Uniq Sub',[m
+             'heading_avg_time'           => 'Avg Time (in minutes)',[m
+             'heading_accept'             => 'Accept',[m
+[31m-            'heading_accept_percentage'  => 'Accept Percentage',[m
+[32m+[m[32m            'heading_accept_percentage'  => 'Accept %',[m
+             'heading_rejected'           => 'Rejected',[m
+             'heading_pending'            => 'Pending',[m
+             'heading_un_viewed'          => 'Unviewed',[m
+             'heading_sub_to_end_client'  => 'Sub To End Client',[m
+[31m-            'heading_sub_to_end_client_per'  => 'Sub To End Client Percentage',[m
+[32m+[m[32m            'heading_sub_to_end_client_per'  => 'Sub To End Client %',[m
+             'heading_vendor_no_responce' => 'Vendor No Res.',[m
+             'heading_vendor_rejected'    => 'Vendor Rejected',[m
+             'heading_client_rejected'    => 'Client Rejected',[m
+[36m@@ -81,12 +81,12 @@[m [mtrait SubmissionTrait{[m
+             'heading_uniq_sub'           =>'Uniq Sub',[m
+             'heading_avg_time'           => 'Avg Time (in minutes)',[m
+             'heading_accept'             => 'Accept',[m
+[31m-            'heading_accept_percentage'  => 'Accept Percentage',[m
+[32m+[m[32m            'heading_accept_percentage'  => 'Accept %',[m
+             'heading_rejected'           => 'Rejected',[m
+             'heading_pending'            => 'Pending',[m
+             'heading_un_viewed'          => 'Unviewed',[m
+             'heading_sub_to_end_client'  => 'Sub To End Client',[m
+[31m-            'heading_sub_to_end_client_per'  => 'Sub To End Client Percentage',[m
+[32m+[m[32m            'heading_sub_to_end_client_per'  => 'Sub To End Client %',[m
+             'heading_vendor_no_responce' => 'Vendor No Res.',[m
+             'heading_vendor_rejected'    => 'Vendor Rejected',[m
+             'heading_client_rejected'    => 'Client Rejected',[m
+[36m@@ -135,7 +135,7 @@[m [mtrait SubmissionTrait{[m
+             'unique_submission_sent'         => $this->getTotalRecruiterSubmissionSentCount($date, $userId, $recruiters, $type, 1   ),[m
+             'avg_time'                       => $this->getRecAvgTime($date, $userId, $recruiters, $type),[m
+             'bdm_accept'                     => $bdmAcceptCount,[m
+[31m-            'accept_percentage'              => $this->getStatusPercentage($bdmAcceptCount, $submissions),[m
+[32m+[m[32m            'bdm_accept_percentage'          => $this->getStatusPercentage($bdmAcceptCount, $submissions),[m
+             'bdm_rejected'                   => $this->getTotalRecruiterStatusCount('status', $submissionModel::STATUS_REJECTED, $date, $userId, $recruiters, $type, $request->frame_type),[m
+             'bdm_pending'                    => $this->getTotalRecruiterStatusCount('status', $submissionModel::STATUS_PENDING, $date, $userId, $recruiters, $type, $request->frame_type),[m
+             'bdm_unviewed'                   => $this->getTotalRecruiterStatusCount('status', $submissionModel::STATUS_NOT_VIEWED, $date, $userId, $recruiters, $type, $request->frame_type),[m
+[1mdiff --git a/resources/views/admin/bdm_submission/index.blade.php b/resources/views/admin/bdm_submission/index.blade.php[m
+[1mindex a7412ea..014c1a8 100755[m
+[1m--- a/resources/views/admin/bdm_submission/index.blade.php[m
+[1m+++ b/resources/views/admin/bdm_submission/index.blade.php[m
+[36m@@ -401,7 +401,7 @@[m
+                         }[m
+                     },[m
+                 @endif[m
+[31m-                {data: 'candidate_name',  name: 'candidate_name', 'orderable': false, searchable: false},[m
+[32m+[m[32m                {data: 'candidate_name',  name: 'candidate_filter', 'orderable': false},[m
+                 @if($type != 3)[m
+                     {data: 'employer_name',  name: 'employer_name'},[m
+                 @endif[m
+[36m@@ -413,6 +413,16 @@[m
+                 {data: 'client_status', "width": "10%", name: 'interview_status_updated_at', searchable: false},[m
+                 // {data: 'action', "width": "9%", name: 'action', orderable: false, searchable: false},[m
+             ],[m
+[32m+[m[32m            initComplete: function(settings, json) {[m
+[32m+[m[32m                $("#mySubmissionTable_length").detach().appendTo("#pageLendthSection");[m
+[32m+[m[32m                $("#mySubmissionTable_filter").addClass('float-right').detach().appendTo("#searchSection");[m
+[32m+[m[32m                $('select[name="mySubmissionTable_length"]').css({[m
+[32m+[m[32m                    'width': 'auto',[m
+[32m+[m[32m                });[m
+[32m+[m[32m                $('#mySubmissionTable_length').css({[m
+[32m+[m[32m                    'display': 'flex',[m
+[32m+[m[32m                }).addClass('mt-4');[m
+[32m+[m[32m            }[m
+         });[m
+ [m
+         $('#mySubmissionTable').on('draw.dt', function () {[m
+[36m@@ -424,14 +434,6 @@[m
+             $('#toggle-poc').trigger('change');[m
+             $('#show_employer_name').trigger('change');[m
+             $('#emp_poc').trigger('change');[m
+[31m-            $("#mySubmissionTable_length").detach().appendTo("#pageLendthSection");[m
+[31m-            $("#mySubmissionTable_filter").addClass('float-right').detach().appendTo("#searchSection");[m
+[31m-            $('select[name="mySubmissionTable_length"]').css({[m
+[31m-                'width': 'auto',[m
+[31m-            });[m
+[31m-            $('#mySubmissionTable_length').css({[m
+[31m-                'display': 'flex',[m
+[31m-            }).addClass('mt-4');[m
+         });[m
+     }[m
+ [m
+[1mdiff --git a/resources/views/admin/interview/index.blade.php b/resources/views/admin/interview/index.blade.php[m
+[1mindex 3155b21..bb882c4 100755[m
+[1m--- a/resources/views/admin/interview/index.blade.php[m
+[1m+++ b/resources/views/admin/interview/index.blade.php[m
+[36m@@ -240,7 +240,7 @@[m
+                 @if(in_array($userType,['admin','bdm']) || $type == 3)[m
+                     {data: 'recruiter', name: 'recruiter.name'},[m
+                 @endif[m
+[31m-                {data: 'candidate_name', name: 'candidate_name', orderable: false, searchable: false},[m
+[32m+[m[32m                {data: 'candidate_name', name: 'candidate_filter', orderable: false},[m
+                 @if($type != 3)[m
+                     {data: 'candidate_phone_number', name: 'candidate_phone_number'},[m
+                     {data: 'candidate_email', name: 'candidate_email'},[m
+[1mdiff --git a/resources/views/admin/manager/index.blade.php b/resources/views/admin/manager/index.blade.php[m
+[1mindex 0014aa3..c0553b9 100644[m
+[1m--- a/resources/views/admin/manager/index.blade.php[m
+[1m+++ b/resources/views/admin/manager/index.blade.php[m
+[36m@@ -63,7 +63,7 @@[m
+                         </div>[m
+ [m
+                         <div class="callout callout-info">[m
+[31m-                            <h4><i class="fa fa-users-cog"></i> Recruiter Team:</h4>[m
+[32m+[m[32m                            <h4><i class="fa fa-users-cog"></i> Recruiter Teams:</h4>[m
+                             <div class="row m-2"    >[m
+                                 @if($teamRecData->count())[m
+                                     @foreach($teamRecData as $team)[m
+[1mdiff --git a/resources/views/admin/requirement/index.blade.php b/resources/views/admin/requirement/index.blade.php[m
+[1mindex dd17409..e654d6f 100755[m
+[1m--- a/resources/views/admin/requirement/index.blade.php[m
+[1m+++ b/resources/views/admin/requirement/index.blade.php[m
+[36m@@ -247,7 +247,7 @@[m
+                     {data: 'recruiter', 'width': '10%', name: 'recruiter', orderable: false},[m
+                     {data: 'status', 'width': '6%', name: 'status'},[m
+                     // {data: 'color', name: 'color'},[m
+[31m-                    {data: 'candidate', 'width': '10%', name: 'candidate', orderable: false,},[m
+[32m+[m[32m                    {data: 'candidate', 'width': '10%', name: 'candidate_name', orderable: false,},[m
+                     {data: 'action', "width": "8%", name: 'action', orderable: false, searchable: false},[m
+                 ],[m
+                 order: [[1, 'desc']],[m
+[1mdiff --git a/resources/views/admin/submission/index.blade.php b/resources/views/admin/submission/index.blade.php[m
+[1mindex 41cf618..f23bf3b 100755[m
+[1m--- a/resources/views/admin/submission/index.blade.php[m
+[1m+++ b/resources/views/admin/submission/index.blade.php[m
+[36m@@ -202,7 +202,7 @@[m
+                 {data: 'recruiter', 'width': '10%', name: 'recruiter', orderable: false},[m
+                 {data: 'status', 'width': '6%', name: 'status'},[m
+                 // {data: 'color', name: 'color'},[m
+[31m-                {data: 'candidate', 'width': '10%', name: 'candidate', orderable: false},[m
+[32m+[m[32m                {data: 'candidate', 'width': '10%', name: 'candidate_name', orderable: false},[m
+                 {data: 'action', "width": "12%", name: 'action', orderable: false, searchable: false},[m
+             ],[m
+             order: [[1, 'desc']],[m
+[1mdiff --git a/resources/views/admin/team/index.blade.php b/resources/views/admin/team/index.blade.php[m
+[1mindex 5d5b0b6..4107f8e 100644[m
+[1m--- a/resources/views/admin/team/index.blade.php[m
+[1m+++ b/resources/views/admin/team/index.blade.php[m
+[36m@@ -191,6 +191,7 @@[m
+                 },[m
+                 success: function(response) {[m
+                     if(response.status == 1){[m
+[32m+[m[32m                        $('#remainingUsers').empty().append('<option value="" selected>Please Select Team Lead</option>');[m
+                         $('#remainingUsers').select2({[m
+                             data: Object.keys(response.user_data).map(function(key) {[m
+                                 return { id: key, text: response.user_data[key] };[m
+[1mdiff --git a/resources/views/admin/team/teamData.blade.php b/resources/views/admin/team/teamData.blade.php[m
+[1mindex 687745a..72d2344 100644[m
+[1m--- a/resources/views/admin/team/teamData.blade.php[m
+[1m+++ b/resources/views/admin/team/teamData.blade.php[m
+[36m@@ -54,7 +54,7 @@[m
+ </div>[m
+ [m
+ <div class="callout callout-info">[m
+[31m-    <h4><i class="fa fa-users-cog"></i> Recruiter Team:</h4>[m
+[32m+[m[32m    <h4><i class="fa fa-users-cog"></i> Recruiter Teams:</h4>[m
+     <div class="row m-2"    >[m
+         @if($teamRecData->count())[m
+             @foreach($teamRecData as $team)[m

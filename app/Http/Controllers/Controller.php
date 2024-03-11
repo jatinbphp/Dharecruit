@@ -111,6 +111,9 @@ class Controller extends BaseController
             ->filterColumn('poc_count_in_days', function ($query, $keyword) use (&$createdAtDateAsPerConfiguration) {
                 $query->whereRaw('(SELECT COUNT(*) FROM requirements r2 WHERE r2.poc_email = requirements.poc_email and r2.poc_name = requirements.poc_name and (r2.id = r2.parent_requirement_id or r2.parent_requirement_id = 0) and r2.created_at >= ?) LIKE ?', [$createdAtDateAsPerConfiguration, "%{$keyword}%"]);
             })
+            ->filterColumn('candidate_name', function ($query, $keyword) {
+                $query->whereRaw("requirements.id IN (SELECT requirement_id FROM submissions WHERE SUBSTRING_INDEX(name, ' ', 1) LIKE ?)", ["%{$keyword}%"]);
+            })
             ->setRowClass(function ($row) {
                 return (($row->parent_requirement_id != 0 && $row->parent_requirement_id == $row->id) ? 'parent-row' : (($row->parent_requirement_id != 0) ? 'child-row' : ''));
             })

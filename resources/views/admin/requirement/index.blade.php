@@ -247,7 +247,7 @@
                     {data: 'recruiter', 'width': '10%', name: 'recruiter', orderable: false},
                     {data: 'status', 'width': '6%', name: 'status'},
                     // {data: 'color', name: 'color'},
-                    {data: 'candidate', 'width': '10%', name: 'candidate', orderable: false,},
+                    {data: 'candidate', 'width': '10%', name: 'candidate_name', orderable: false,},
                     {data: 'action', "width": "8%", name: 'action', orderable: false, searchable: false},
                 ],
                 order: [[1, 'desc']],

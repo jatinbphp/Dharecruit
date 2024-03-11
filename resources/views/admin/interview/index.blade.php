@@ -240,7 +240,7 @@
                 @if(in_array($userType,['admin','bdm']) || $type == 3)
                     {data: 'recruiter', name: 'recruiter.name'},
                 @endif
-                {data: 'candidate_name', name: 'candidate_name', orderable: false, searchable: false},
+                {data: 'candidate_name', name: 'candidate_filter', orderable: false},
                 @if($type != 3)
                     {data: 'candidate_phone_number', name: 'candidate_phone_number'},
                     {data: 'candidate_email', name: 'candidate_email'},

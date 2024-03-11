@@ -61,10 +61,10 @@ class DashboardController extends Controller
         foreach ($teams as $team) {
             $member = TeamMember::where('team_id', $team->id)->get();
             if(isLeadUser() || isManager() || getLoggedInUserRole() == 'admin'){
-                $subs = $team->teamMembers->map(function ($member) {
+                $subs = $team->teamMembers->map(function ($member) use($team) {
                     return [
                         'id' => $member->member_id,
-                        'title' => $member->membersData->name,
+                        'title' => $member->membersData->name . (($team->team_lead_id == $member->member_id) ? ' (Team Lead)' : ''),
                     ];
                 })->toArray();
             } else {
@@ -72,13 +72,6 @@ class DashboardController extends Controller
                     'id' => $loggedInUserId,
                     'title' => $loggedInUserName,
                 ];
-            }
-
-            if ($team->team_lead_id == $loggedInUserId) {
-                array_unshift($subs,[
-                    'id' => $loggedInUserId,
-                    'title' => $loggedInUserName . '(Team Lead)',
-                ]);
             }
 
             $formattedTeam = [

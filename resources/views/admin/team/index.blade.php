@@ -191,6 +191,7 @@
                 },
                 success: function(response) {
                     if(response.status == 1){
+                        $('#remainingUsers').empty().append('<option value="" selected>Please Select Team Lead</option>');
                         $('#remainingUsers').select2({
                             data: Object.keys(response.user_data).map(function(key) {
                                 return { id: key, text: response.user_data[key] };
