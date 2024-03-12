@@ -7,7 +7,7 @@
     @endphp
     <div class="col-md-12 p-3 border border-with-label" data-label="">
         <div class="table-responsive m-lg-n2">
-            <table class="table table-bordered table-striped" id="pv_company_report">
+            <table class="table table-bordered table-striped" id="employer_company_report">
                 <thead>
                 <tr>
                     <th scope="col" class="text-center element-border" colspan="2">Company Name</th>
@@ -25,7 +25,10 @@
                                 $bottomRight = (in_array($key, ['employee_count', 'unique_sub_count', 'status_unviewed', 'status_position_closed', 'client_status_total', 'rec_count', 'rec_wise_count'])) ? 'border-right' : '';
                                 $borderLeft = ($key == 'company_name') ? 'border-left' : '';
                             @endphp
-                            <th class="border-bottom {{"$borderLeft $bottomRight $key"}}">{{$data}}</th>
+                            <th onclick="sortData(this)" class="border-bottom {{"$borderLeft $bottomRight $key"}}">
+                                <div class="d-inline">{{$data}}</div>
+                                <div class="d-inline"><span class="sort-indicator asc p-0">&uarr;</span><span class="sort-indicator desc p-0">&darr;</span></div>
+                            </th>
                         @endforeach
                     </tr>
                 @endif
@@ -39,7 +42,7 @@
                     @php
                         $key = strtolower(str_replace([' ', '.'], ['_', ''], $key));
                     @endphp
-                    <tr class="employer-company-{{$key}} @if(in_array($key, $emptyEmployerRows)) empty-row @endif">
+                    <tr class="employer-company-{{$key}} @if(in_array($key, $emptyEmployerRows)) empty-row @endif parent">
                         @if($employerCompanyData && count($employerCompanyData))
                             @foreach($employerCompanyData as $heading => $data)
                                 @php
@@ -77,7 +80,7 @@
                     </tr>
                     @if(isset($employerFilterData['employee_data'][$key]) && $employerFilterData['employee_data'][$key])
                         @foreach($employerFilterData['employee_data'][$key] as $employeeName => $employeeData)
-                            <tr class="collapse collapse-{{$key}} @if(in_array($key.'_'.$employeeName, $emptyPOCRows)) empty-row @endif">
+                            <tr class="collapse collapse-{{$key}} @if(in_array($key.'_'.$employeeName, $emptyPOCRows)) empty-row @endif child">
                                 @if($employeeData && count($employeeData))
                                     @foreach($employeeData as $heading => $data)
                                         @php
@@ -119,4 +122,5 @@
         </div>
     </div>
 @endif
+
 

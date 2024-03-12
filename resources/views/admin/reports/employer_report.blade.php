@@ -147,16 +147,6 @@
                         $('#reportContent').html(responce.content);
                         $('#data_toggle').trigger('change');
                         $('#toggle_categorties').trigger('change');
-                        // $('#pv_company_report2').DataTable({
-                        //     "order": [],
-                        //     "bPaginate": false,
-                        //     "bFilter": false,
-                        //     "bInfo": false,
-                        //     drawCallback: function (settings) {
-                        //         $(settings.nTable).find('tbody').find('td').removeClass('border-bottom');
-                        //         $(settings.nTable).find('tbody tr:last').find('td').addClass('border-bottom');
-                        //     }
-                        // });
                     }
                     $('#overlay').hide();
                 }
@@ -174,5 +164,15 @@
                 searchReportData();
             });
         }
+        function sortData(th) {
+            var index = $(th).index();
+            sortTable($('#employer_company_report'), index);
+            sortOrder *= -1;
+            $('.sort-indicator').removeClass('indicator-class');
+            $(th).find('.sort-indicator').addClass('indicator-class');
+            $(th).find('.sort-indicator.asc').toggleClass('blur', sortOrder !== 1);
+            $(th).find('.sort-indicator.desc').toggleClass('blur', sortOrder !== -1);
+        }
     </script>
 @endsection
+

@@ -225,6 +225,18 @@
             font-size: 1rem;
             font-weight: 600;
         }
+
+        .sort-indicator {
+            color: #777; /* Default color */
+        }
+
+        .indicator-class {
+            color: #0a0e14 !important;
+        }
+
+        .sort-indicator.blur {
+            opacity: 0.5; /* Make the arrow semi-transparent when blurred */
+        }
     </style>
 </head>
 <body class="hold-transition sidebar-mini sidebar-collapse" id="bodyid">
@@ -665,6 +677,10 @@
         <strong>{{ config('app.name', 'Laravel') }} Admin</strong>
     </footer>
 </div>
+<script>
+    var instanceGlobalBdm = [];
+    var instanceGlobalRec = [];
+</script>
 <script src="{{ URL('assets/plugins/jquery/jquery.min.js')}}"></script>
 <script src="{{ URL('assets/plugins/jquery-ui/jquery-ui.min.js')}}"></script>
 <script>
@@ -1572,10 +1588,6 @@
     }
 
     function prepareDatesBasedOnStepSize(fromDateInput, toDateInput, stepValue, stepType){
-        console.log(fromDateInput);
-        console.log(toDateInput);
-        console.log(stepValue);
-        console.log(stepType);
         var fromDate = new Date(fromDateInput.val());
         var toDate = new Date(toDateInput.val());
 
@@ -1647,6 +1659,46 @@
         var month = (date.getMonth() + 1).toString().padStart(2, '0');
         var day = date.getDate().toString().padStart(2, '0');
         return month + '/' + day + '/' + year;
+    }
+
+    var sortOrder = 1;
+    function sortTable(table, columnIndex) {
+        var rows = table.find('tbody tr').get();
+        rows.sort(function(a, b) {
+            var keyA = $(a).find('td').eq(columnIndex).text().trim();
+            var keyB = $(b).find('td').eq(columnIndex).text().trim();
+
+            var intA = parseInt(keyA);
+            var intB = parseInt(keyB);
+
+            if (!isNaN(intA) && !isNaN(intB)) {
+                return sortOrder * (intA - intB);
+            } else {
+                return sortOrder * keyA.localeCompare(keyB);
+            }
+
+        });
+        var parentRows = [];
+        var childRows = [];
+        rows.forEach(function(row) {
+            if ($(row).hasClass('parent')) {
+                parentRows.push(row);
+            } else {
+                childRows.push(row);
+            }
+        });
+
+        var sortedRows = parentRows.reduce(function(acc, parentRow) {
+            acc.push(parentRow);
+            var correspondingChildRows = childRows.filter(function(childRow) {
+                return $(childRow).prevAll('.parent').first()[0] === parentRow;
+            });
+            correspondingChildRows.forEach(function(childRow) {
+                acc.push(childRow);
+            });
+            return acc;
+        }, []);
+        table.children('tbody').empty().append(sortedRows);
     }
 </script>
 @yield('jquery')

@@ -458,7 +458,6 @@
         });
 
         $(".individual-bdm-accept-frame-type").change(function (){
-            console.log('ca;');
             prepareindividuabdmAcceptCounts();
         });
     });

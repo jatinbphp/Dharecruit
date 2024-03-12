@@ -22,14 +22,15 @@
                 </tr>
                 @if($headings && count($headings))
                     <tr>
-                        @php $i=0 @endphp
                         @foreach($headings as $key => $data)
                             @php
                                 $bottomRight = (in_array($key, ['poc_count', 'unique_req_count', 'status_unviewed', 'status_position_closed', 'client_status_total', 'bdm_count', 'bdm_wise_count'])) ? 'border-right' : '';
                                 $borderLeft = ($key == 'company_name') ? 'border-left' : '';
                             @endphp
-                            <th onclick="sortTable({{$i}})" class="border-bottom {{"$borderLeft $bottomRight $key"}}">{{$data}}</th>
-                            @php $i++ @endphp
+                            <th onclick="sortData(this)" class="border-bottom {{"$borderLeft $bottomRight $key"}}">
+                                <div class="d-inline">{{$data}}</div>
+                                <div class="d-inline"><span class="sort-indicator asc p-0">&uarr;</span><span class="sort-indicator desc p-0">&darr;</span></div>
+                            </th>
                         @endforeach
                     </tr>
                 @endif
@@ -43,7 +44,7 @@
                     @php
                         $key = strtolower(str_replace([' ', '.'], ['_', ''], $key));
                     @endphp
-                    <tr class="pv-company-{{$key}} @if(in_array($key, $emptyPVRows)) empty-row @endif parent-row">
+                    <tr class="pv-company-{{$key}} @if(in_array($key, $emptyPVRows)) empty-row @endif parent">
                         @if($pvCompanyData && count($pvCompanyData))
                             @foreach($pvCompanyData as $heading => $data)
                                 @php
@@ -87,7 +88,7 @@
                     </tr>
                     @if(isset($pvFilterData['poc_data'][$key]) && $pvFilterData['poc_data'][$key])
                         @foreach($pvFilterData['poc_data'][$key] as $pocName => $pocData)
-                            <tr class="collapse collapse-{{$key}} @if(in_array($key.'_'.$pocName, $emptyPOCRows)) empty-row @endif">
+                            <tr class="collapse collapse-{{$key}} @if(in_array($key.'_'.$pocName, $emptyPOCRows)) empty-row @endif child">
                                 @if($pocData && count($pocData))
                                     @foreach($pocData as $heading => $data)
                                         @php

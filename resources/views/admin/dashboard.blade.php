@@ -215,42 +215,54 @@
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function() {
         var bdmData = {!! $bdm_team_data !!};
-        var instanceGlobalBdm = $('#global_bdm_user').comboTree({
-            source : bdmData,
-            isMultiple:true,
-            selectAll:true,
-            cascadeSelect:true,
-        });
+        @if(in_array(getLoggedInUserRole(), ['admin', 'bdm']))
+            instanceGlobalBdm = $('#global_bdm_user').comboTree({
+                source : bdmData,
+                isMultiple:true,
+                selectAll:true,
+                cascadeSelect:true,
+            });
+            instanceGlobalBdm.selectAll();
+        @endif
         var recData = {!! $rec_team_data !!};
-        var instanceGlobalRec = $('#global_rec_user').comboTree({
-            source : recData,
-            isMultiple:true,
-            selectAll:true,
-            cascadeSelect:true,
+        @if(in_array(getLoggedInUserRole(), ['admin', 'recruiter']))
+            instanceGlobalRec = $('#global_rec_user').comboTree({
+                source : recData,
+                isMultiple:true,
+                selectAll:true,
+                cascadeSelect:true,
+            });
+            instanceGlobalRec.selectAll();
+        @endif
+
+        $("#global_bdm_user").change(function () {
+            @if(in_array(getLoggedInUserRole(), ['admin', 'bdm']))
+                window.globalSelectedBdm = instanceGlobalBdm.getSelectedIds();
+                $('.chart-bdm-user').each(function() {
+                    var id = $(this).attr('id');
+                    if (!window.globalSelectedBdmCheck) {
+                        window.globalSelectedBdmCheck = [];
+                    }
+                    window.globalSelectedBdmCheck.push(id);
+                    $('#'+id).trigger('change');
+                });
+                $('.chart-bdm-user').trigger('change');
+            @endif
         });
 
-        instanceGlobalBdm.selectAll();
-        instanceGlobalRec.selectAll();
-
-        $("#global_bdm_user, #global_rec_user").change(function () {
-            window.globalSelectedBdm = instanceGlobalBdm.getSelectedIds();
-            window.globalSelectedRec = instanceGlobalRec.getSelectedIds();
-            $('.chart-bdm-user').each(function() {
-                var id = $(this).attr('id');
-                if (!window.globalSelectedBdmCheck) {
-                    window.globalSelectedBdmCheck = [];
-                }
-                window.globalSelectedBdmCheck.push(id);
-                $('#'+id).trigger('change');
-            });
-            $('.chart-rec-user').each(function() {
-                var id = $(this).attr('id');
-                if (!window.globalSelectedRecCheck) {
-                    window.globalSelectedRecCheck = [];
-                }
-                window.globalSelectedRecCheck.push(id);
-                $('#'+id).trigger('change');
-            });
+        $("#global_rec_user").change(function () {
+            @if(in_array(getLoggedInUserRole(), ['admin', 'recruiter']))
+                window.globalSelectedRec = instanceGlobalRec.getSelectedIds();
+                $('.chart-rec-user').each(function() {
+                    var id = $(this).attr('id');
+                    if (!window.globalSelectedRecCheck) {
+                        window.globalSelectedRecCheck = [];
+                    }
+                    window.globalSelectedRecCheck.push(id);
+                    $('#'+id).trigger('change');
+                });
+                $('.chart-rec-user').trigger('change');
+            @endif
         });
 
         $('.global-date-datepicker').change(function (){
