@@ -1877,6 +1877,10 @@ class Controller extends BaseController
             ->groupBy('candidate_id')
             ->first();
 
+        if(!$totalCount){
+            return 0;
+        }
+
         if($totalCount->employer_count > 1){
             $this->_candidateIdWiseIsEmployerChanged[$candidateId] = 1;
             return 1;
